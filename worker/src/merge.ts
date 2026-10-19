@@ -15,21 +15,21 @@
  * Full CRDT-style merging is overkill for this app's scale.
  */
 
-type Timestamp = string
+type Timestamp = string;
 
 export interface SyncTombstone {
-  id: string
-  deletedAt: Timestamp
+  id: string;
+  deletedAt: Timestamp;
 }
 
 interface HasIdAndUpdatedAt {
-  id: string
-  updatedAt: Timestamp
+  id: string;
+  updatedAt: Timestamp;
 }
 
 export interface MergeResult<T> {
-  records: T[]
-  tombstones: SyncTombstone[]
+  records: T[];
+  tombstones: SyncTombstone[];
 }
 
 /**
@@ -44,45 +44,45 @@ export function mergeCollection<T extends HasIdAndUpdatedAt>(
   existingRecords: T[],
   existingTombstones: SyncTombstone[],
   incomingRecords: T[],
-  incomingTombstones: SyncTombstone[]
+  incomingTombstones: SyncTombstone[],
 ): MergeResult<T> {
-  const recordsById = new Map<string, T>()
-  for (const record of existingRecords) recordsById.set(record.id, record)
+  const recordsById = new Map<string, T>();
+  for (const record of existingRecords) recordsById.set(record.id, record);
   for (const record of incomingRecords) {
-    const current = recordsById.get(record.id)
+    const current = recordsById.get(record.id);
     if (!current || record.updatedAt > current.updatedAt) {
-      recordsById.set(record.id, record)
+      recordsById.set(record.id, record);
     }
   }
 
-  const tombstonesById = new Map<string, SyncTombstone>()
-  for (const tombstone of existingTombstones) tombstonesById.set(tombstone.id, tombstone)
+  const tombstonesById = new Map<string, SyncTombstone>();
+  for (const tombstone of existingTombstones) tombstonesById.set(tombstone.id, tombstone);
   for (const tombstone of incomingTombstones) {
-    const current = tombstonesById.get(tombstone.id)
+    const current = tombstonesById.get(tombstone.id);
     if (!current || tombstone.deletedAt > current.deletedAt) {
-      tombstonesById.set(tombstone.id, tombstone)
+      tombstonesById.set(tombstone.id, tombstone);
     }
   }
 
   for (const tombstone of tombstonesById.values()) {
-    const record = recordsById.get(tombstone.id)
-    if (!record) continue
+    const record = recordsById.get(tombstone.id);
+    if (!record) continue;
     if (record.updatedAt > tombstone.deletedAt) {
       // An edit after the delete resurrects the record - drop the stale tombstone.
-      tombstonesById.delete(tombstone.id)
+      tombstonesById.delete(tombstone.id);
     } else {
-      recordsById.delete(tombstone.id)
+      recordsById.delete(tombstone.id);
     }
   }
 
   return {
     records: Array.from(recordsById.values()),
-    tombstones: Array.from(tombstonesById.values())
-  }
+    tombstones: Array.from(tombstonesById.values()),
+  };
 }
 
 interface HasUpdatedAt {
-  updatedAt: Timestamp
+  updatedAt: Timestamp;
 }
 
 /**
@@ -90,8 +90,11 @@ interface HasUpdatedAt {
  * keyed by id) by plain last-write-wins on `updatedAt`. Either side may be
  * missing it entirely - that's "no data yet on that side," not a conflict.
  */
-export function mergeSingleton<T extends HasUpdatedAt>(existing: T | undefined, incoming: T | undefined): T | undefined {
-  if (!existing) return incoming
-  if (!incoming) return existing
-  return incoming.updatedAt >= existing.updatedAt ? incoming : existing
+export function mergeSingleton<T extends HasUpdatedAt>(
+  existing: T | undefined,
+  incoming: T | undefined,
+): T | undefined {
+  if (!existing) return incoming;
+  if (!incoming) return existing;
+  return incoming.updatedAt >= existing.updatedAt ? incoming : existing;
 }

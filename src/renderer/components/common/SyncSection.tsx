@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import type { UseSyncReturn } from '@renderer/hooks/useSync'
+import { useState } from 'react';
+import type { UseSyncReturn } from '@renderer/hooks/useSync';
 
 interface Props {
-  syncState: UseSyncReturn
+  syncState: UseSyncReturn;
 }
 
 const STATUS_LABEL: Record<UseSyncReturn['status'], string> = {
   'signed-out': 'Not signed in',
   idle: 'Up to date',
   syncing: 'Syncing…',
-  error: "Couldn't reach the sync server"
-}
+  error: "Couldn't reach the sync server",
+};
 
 /**
  * Sign-up/sign-in/sign-out UI for `SettingsView`, mirroring ChoiceBuds'
@@ -21,42 +21,43 @@ const STATUS_LABEL: Record<UseSyncReturn['status'], string> = {
  * configured for this build (see `UseSyncReturn.configured`'s doc comment).
  */
 export function SyncSection({ syncState }: Props) {
-  const { configured, syncUsername, lastSyncedAt, status, error, signUp, logIn, logOut, syncNow } = syncState
+  const { configured, syncUsername, lastSyncedAt, status, error, signUp, logIn, logOut, syncNow } =
+    syncState;
 
-  const [signupUsername, setSignupUsername] = useState('')
-  const [signupPassword, setSignupPassword] = useState('')
-  const [signupPasswordConfirm, setSignupPasswordConfirm] = useState('')
-  const [loginUsername, setLoginUsername] = useState('')
-  const [loginPassword, setLoginPassword] = useState('')
-  const [formError, setFormError] = useState<string | null>(null)
+  const [signupUsername, setSignupUsername] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupPasswordConfirm, setSignupPasswordConfirm] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
-  if (!configured) return null
+  if (!configured) return null;
 
   async function handleSignUp(): Promise<void> {
-    setFormError(null)
+    setFormError(null);
     if (signupPassword !== signupPasswordConfirm) {
-      setFormError('Passwords do not match')
-      return
+      setFormError('Passwords do not match');
+      return;
     }
-    const result = await signUp(signupUsername, signupPassword)
+    const result = await signUp(signupUsername, signupPassword);
     if (!result.ok) {
-      setFormError(result.message)
-      return
+      setFormError(result.message);
+      return;
     }
-    setSignupUsername('')
-    setSignupPassword('')
-    setSignupPasswordConfirm('')
+    setSignupUsername('');
+    setSignupPassword('');
+    setSignupPasswordConfirm('');
   }
 
   async function handleLogIn(): Promise<void> {
-    setFormError(null)
-    const result = await logIn(loginUsername, loginPassword)
+    setFormError(null);
+    const result = await logIn(loginUsername, loginPassword);
     if (!result.ok) {
-      setFormError(result.message)
-      return
+      setFormError(result.message);
+      return;
     }
-    setLoginUsername('')
-    setLoginPassword('')
+    setLoginUsername('');
+    setLoginPassword('');
   }
 
   return (
@@ -73,7 +74,11 @@ export function SyncSection({ syncState }: Props) {
             <h4>Sign up</h4>
             <div className="field">
               <span>Username</span>
-              <input type="text" value={signupUsername} onChange={(e) => setSignupUsername(e.target.value)} />
+              <input
+                type="text"
+                value={signupUsername}
+                onChange={(e) => setSignupUsername(e.target.value)}
+              />
             </div>
             <div className="field">
               <span>Password (min 8 characters)</span>
@@ -91,7 +96,11 @@ export function SyncSection({ syncState }: Props) {
                 onChange={(e) => setSignupPasswordConfirm(e.target.value)}
               />
             </div>
-            <button type="button" onClick={() => void handleSignUp()} disabled={!signupUsername.trim() || !signupPassword}>
+            <button
+              type="button"
+              onClick={() => void handleSignUp()}
+              disabled={!signupUsername.trim() || !signupPassword}
+            >
               Sign up
             </button>
           </div>
@@ -100,13 +109,25 @@ export function SyncSection({ syncState }: Props) {
             <h4>Or log in on this device</h4>
             <div className="field">
               <span>Username</span>
-              <input type="text" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} />
+              <input
+                type="text"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+              />
             </div>
             <div className="field">
               <span>Password</span>
-              <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} />
+              <input
+                type="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
             </div>
-            <button type="button" onClick={() => void handleLogIn()} disabled={!loginUsername.trim() || !loginPassword}>
+            <button
+              type="button"
+              onClick={() => void handleLogIn()}
+              disabled={!loginUsername.trim() || !loginPassword}
+            >
               Log in
             </button>
           </div>
@@ -122,7 +143,11 @@ export function SyncSection({ syncState }: Props) {
             </button>
           </div>
 
-          <p className={status === 'idle' ? 'sync-status-ok' : status === 'error' ? 'error-text' : 'muted'}>
+          <p
+            className={
+              status === 'idle' ? 'sync-status-ok' : status === 'error' ? 'error-text' : 'muted'
+            }
+          >
             {STATUS_LABEL[status]}
           </p>
 
@@ -130,11 +155,13 @@ export function SyncSection({ syncState }: Props) {
             {status === 'syncing' ? 'Syncing…' : 'Sync Now'}
           </button>
 
-          {lastSyncedAt && <p className="muted">Last synced: {new Date(lastSyncedAt).toLocaleString()}</p>}
+          {lastSyncedAt && (
+            <p className="muted">Last synced: {new Date(lastSyncedAt).toLocaleString()}</p>
+          )}
         </div>
       )}
 
       {(formError || error) && <p className="error-text">{formError ?? error}</p>}
     </div>
-  )
+  );
 }

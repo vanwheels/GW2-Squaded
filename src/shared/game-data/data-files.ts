@@ -36,5 +36,5 @@ export const GAME_DATA_FILE_NAMES = [
   'utility.json',
   'tome-chapters.json',
   'synthetic-facts.json',
-  'synthetic-trait-facts.json'
-] as const
+  'synthetic-trait-facts.json',
+] as const;

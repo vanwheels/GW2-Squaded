@@ -1,4 +1,4 @@
-import { isProfession } from './professions'
+import { isProfession } from './professions';
 
 /** Mirrors `src/shared/share/validate.ts`'s `isLikelyBuild`/`isLikelySquadCompSharePayload` in the
  *  main app — duplicated here rather than imported, same "separate deployable, no monorepo
@@ -7,19 +7,19 @@ import { isProfession } from './professions'
  *  not a full structural validation, same scope as the original. */
 
 export interface LikelyBuildFields {
-  name: string
-  profession: string
+  name: string;
+  profession: string;
   /** The elite specialization chosen in trait line slot 2 (conventionally the elite line — see
    *  `TraitLineSlots`' doc comment in `src/shared/types/build.ts`), or `null` for a core build.
    *  Derived the same "never typed by hand" way `profession` is — feeds the board's per-build
    *  emoji (`render/board.ts`) so e.g. a Necromancer build using the Reaper line shows Reaper's
    *  icon rather than the plain profession one. */
-  specializationId: number | null
+  specializationId: number | null;
 }
 
 export function asLikelyBuildFields(data: unknown): LikelyBuildFields | null {
-  if (typeof data !== 'object' || data === null) return null
-  const d = data as Record<string, unknown>
+  if (typeof data !== 'object' || data === null) return null;
+  const d = data as Record<string, unknown>;
   if (
     typeof d.profession !== 'string' ||
     !isProfession(d.profession) ||
@@ -31,26 +31,28 @@ export function asLikelyBuildFields(data: unknown): LikelyBuildFields | null {
     d.equipment === null ||
     typeof d.name !== 'string'
   ) {
-    return null
+    return null;
   }
-  const eliteLine = d.specializations[2] as { specializationId?: unknown } | null
+  const eliteLine = d.specializations[2] as { specializationId?: unknown } | null;
   const specializationId =
-    eliteLine !== null && typeof eliteLine === 'object' && typeof eliteLine.specializationId === 'number'
+    eliteLine !== null &&
+    typeof eliteLine === 'object' &&
+    typeof eliteLine.specializationId === 'number'
       ? eliteLine.specializationId
-      : null
-  return { name: d.name, profession: d.profession, specializationId }
+      : null;
+  return { name: d.name, profession: d.profession, specializationId };
 }
 
 export interface LikelySquadCompFields {
-  name: string
+  name: string;
 }
 
 export function asLikelySquadCompFields(data: unknown): LikelySquadCompFields | null {
-  if (typeof data !== 'object' || data === null) return null
-  const d = data as Record<string, unknown>
-  if (typeof d.builds !== 'object' || d.builds === null) return null
-  if (typeof d.squadComp !== 'object' || d.squadComp === null) return null
-  const squadComp = d.squadComp as Record<string, unknown>
-  if (typeof squadComp.name !== 'string' || !Array.isArray(squadComp.parties)) return null
-  return { name: squadComp.name }
+  if (typeof data !== 'object' || data === null) return null;
+  const d = data as Record<string, unknown>;
+  if (typeof d.builds !== 'object' || d.builds === null) return null;
+  if (typeof d.squadComp !== 'object' || d.squadComp === null) return null;
+  const squadComp = d.squadComp as Record<string, unknown>;
+  if (typeof squadComp.name !== 'string' || !Array.isArray(squadComp.parties)) return null;
+  return { name: squadComp.name };
 }

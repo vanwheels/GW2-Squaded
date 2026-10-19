@@ -1,12 +1,12 @@
-import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'node:path'
-import { createSqliteStorage } from './storage/sqlite-storage'
-import { registerStorageIpc } from './ipc/storage-ipc'
-import { registerGameDataIpc } from './ipc/game-data-ipc'
-import { registerDataUpdateIpc } from './ipc/data-update-ipc'
-import { registerCaptureIpc } from './ipc/capture-ipc'
-import { registerUpdaterIpc } from './updater/auto-updater'
-import { loadRenderer } from './renderer-url'
+import { app, shell, BrowserWindow } from 'electron';
+import { join } from 'node:path';
+import { createSqliteStorage } from './storage/sqlite-storage';
+import { registerStorageIpc } from './ipc/storage-ipc';
+import { registerGameDataIpc } from './ipc/game-data-ipc';
+import { registerDataUpdateIpc } from './ipc/data-update-ipc';
+import { registerCaptureIpc } from './ipc/capture-ipc';
+import { registerUpdaterIpc } from './updater/auto-updater';
+import { loadRenderer } from './renderer-url';
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -21,52 +21,52 @@ function createWindow(): BrowserWindow {
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.cjs'),
-      sandbox: false
-    }
-  })
+      sandbox: false,
+    },
+  });
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
+    mainWindow.show();
+  });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
+    shell.openExternal(details.url);
+    return { action: 'deny' };
+  });
 
-  void loadRenderer(mainWindow)
+  void loadRenderer(mainWindow);
 
-  return mainWindow
+  return mainWindow;
 }
 
 app.whenReady().then(() => {
-  const dbPath = join(app.getPath('userData'), 'gw2-squaded.sqlite')
-  const storage = createSqliteStorage(dbPath)
-  registerStorageIpc(storage)
-  registerGameDataIpc()
-  registerCaptureIpc()
+  const dbPath = join(app.getPath('userData'), 'gw2-squaded.sqlite');
+  const storage = createSqliteStorage(dbPath);
+  registerStorageIpc(storage);
+  registerGameDataIpc();
+  registerCaptureIpc();
 
-  let mainWindow: BrowserWindow | null = createWindow()
+  let mainWindow: BrowserWindow | null = createWindow();
   mainWindow.on('closed', () => {
-    mainWindow = null
-  })
-  const { runAutoCheck: runUpdaterAutoCheck } = registerUpdaterIpc(() => mainWindow)
-  const { runAutoCheck: runDataUpdateAutoCheck } = registerDataUpdateIpc(() => mainWindow)
+    mainWindow = null;
+  });
+  const { runAutoCheck: runUpdaterAutoCheck } = registerUpdaterIpc(() => mainWindow);
+  const { runAutoCheck: runDataUpdateAutoCheck } = registerDataUpdateIpc(() => mainWindow);
   // "Check on launch, prompt the user" (TODO.md's decided contract for this feature) — fired once
   // `ready-to-show` so each check's own IPC push doesn't race the renderer's status subscription,
   // which only wires up after React mounts. Same contract for both the app binary and game data.
   mainWindow.once('ready-to-show', () => {
-    runUpdaterAutoCheck()
-    runDataUpdateAutoCheck()
-  })
+    runUpdaterAutoCheck();
+    runDataUpdateAutoCheck();
+  });
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-})
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
-})
+});

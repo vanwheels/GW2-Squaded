@@ -1,4 +1,4 @@
-import type { Fact, Skill } from '../types'
+import type { Fact, Skill } from '../types';
 
 /**
  * A single wiki-verified `AttributeAdjust` Barrier fact: `Barrier = baseValue + coefficient *
@@ -23,9 +23,9 @@ import type { Fact, Skill } from '../types'
  * Sand Flare/Cascade, Sandstorm Shroud) — each documented inline.
  */
 export interface BarrierCoefficient {
-  factText: string
-  baseValue: number
-  coefficient: number
+  factText: string;
+  baseValue: number;
+  coefficient: number;
   /**
    * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
    * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
@@ -34,7 +34,7 @@ export interface BarrierCoefficient {
    * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
    * curated entry actually means. See Elementalist's Lava Skin below for the motivating case.
    */
-  requiresTrait?: number
+  requiresTrait?: number;
 }
 
 /**
@@ -120,7 +120,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // Elemental Refreshment is actually chosen, rather than binding 1018 to every player regardless.
   46447: [
     { factText: 'Barrier per Pulse', baseValue: 227, coefficient: 0.115 },
-    { factText: 'Initial Barrier', baseValue: 1018, coefficient: 0.2, requiresTrait: 2077 }
+    { factText: 'Initial Barrier', baseValue: 1018, coefficient: 0.2, requiresTrait: 2077 },
   ],
   // Fortified Earth (Catalyst Utility). PvE/WvW+PvP base-value split (PvE 3000 vs WvW+PvP 1254, same
   // 0.1 coefficient) — WvW value used.
@@ -150,7 +150,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // WvW-correct.
   30101: [
     { factText: 'Initial Barrier', baseValue: 740, coefficient: 0.5 },
-    { factText: 'Pulse Barrier', baseValue: 410, coefficient: 0.25 }
+    { factText: 'Pulse Barrier', baseValue: 410, coefficient: 0.25 },
   ],
   // Energizing Slam (Amalgam Hammer). PvE 648/0.8 vs WvW+PvP 516/0.5 (confirmed via a 2024-10-08
   // patch note) — WvW value used. Local API base value (648) is the PvE figure.
@@ -173,7 +173,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // Zealot's Embrace (hammer). No PvE/WvW split on either fact.
   9260: [
     { factText: 'First Hit Barrier', baseValue: 1513, coefficient: 0.2 },
-    { factText: 'Additional Hit Barrier', baseValue: 625, coefficient: 0.05 }
+    { factText: 'Additional Hit Barrier', baseValue: 625, coefficient: 0.05 },
   ],
   // Effulgent Stance (Luminary Utility). WvW is a standalone third value, unusually with a HIGHER
   // base but LOWER coefficient than PvE (PvE 2245/1.0, WvW 3973/0.2, PvP 2053/0.2) — WvW value used.
@@ -198,7 +198,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // — these are the Barrier-side facts deliberately excluded from that table.
   43148: [
     { factText: 'Self Barrier', baseValue: 2420, coefficient: 1.5 },
-    { factText: 'Ally Barrier', baseValue: 1220, coefficient: 1.5 }
+    { factText: 'Ally Barrier', baseValue: 1220, coefficient: 1.5 },
   ],
   // Sand Cascade (F3 Shade skill). WvW standalone third value (PvE 1188/2.0, WvW 1188/1.0, PvP
   // 932/1.5 — WvW shares PvE's base but not its coefficient) — WvW value used.
@@ -215,7 +215,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // 1079/0.64) — WvW values used for both.
   54870: [
     { factText: 'Barrier per Pulse', baseValue: 543, coefficient: 0.35 },
-    { factText: 'Barrier on Detonation', baseValue: 1079, coefficient: 0.7 }
+    { factText: 'Barrier on Detonation', baseValue: 1079, coefficient: 0.7 },
   ],
 
   // --- Ranger ---
@@ -235,17 +235,17 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // the wiki infobox). No PvE/WvW split on either fact.
   63366: [
     { factText: 'First Hit Barrier', baseValue: 1194, coefficient: 0.2 },
-    { factText: 'Additional Hit Barrier', baseValue: 198, coefficient: 0.05 }
+    { factText: 'Additional Hit Barrier', baseValue: 198, coefficient: 0.05 },
   ],
   69167: [
     { factText: 'First Hit Barrier', baseValue: 1194, coefficient: 0.2 },
-    { factText: 'Additional Hit Barrier', baseValue: 198, coefficient: 0.05 }
+    { factText: 'Additional Hit Barrier', baseValue: 198, coefficient: 0.05 },
   ],
   // Thistleguard (offhand mace). Both facts split PvE vs WvW+PvP by base value (Barrier: PvE
   // 3210/0.8, WvW+PvP 1610/0.8; Barrier on hit: PvE 1610/0.4, WvW+PvP 1410/0.4) — WvW values used.
   71903: [
     { factText: 'Barrier', baseValue: 1610, coefficient: 0.8 },
-    { factText: 'Barrier on hit', baseValue: 1410, coefficient: 0.4 }
+    { factText: 'Barrier on hit', baseValue: 1410, coefficient: 0.4 },
   ],
 
   // --- Revenant ---
@@ -291,7 +291,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // signal 7). No PvE/WvW split on either fact.
   63220: [
     { factText: 'Minimum Barrier', baseValue: 1605, coefficient: 0.5 },
-    { factText: 'Maximum Barrier', baseValue: 6405, coefficient: 0.5 }
+    { factText: 'Maximum Barrier', baseValue: 6405, coefficient: 0.5 },
   ],
   // Shadow Sap (Specter dagger). Genuine 3-way split with WvW as its own standalone value, not
   // grouped with either PvE or PvP (PvE 1420/0.5, PvP 812/0.25, WvW 652/0.25 — confirmed via a
@@ -318,25 +318,25 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // Imminent Threat (Spellbreaker Utility). No PvE/WvW split on either fact.
   41919: [
     { factText: 'First Hit Barrier', baseValue: 2261, coefficient: 0.2 },
-    { factText: 'Additional Hit Barrier', baseValue: 625, coefficient: 0.05 }
+    { factText: 'Additional Hit Barrier', baseValue: 625, coefficient: 0.05 },
   ],
   // "We Will Never Yield!" (Paragon Elite). No PvE/WvW split on either fact, despite the page's own
   // `split = pve, wvw pvp` header (only the separate Superspeed fact actually splits).
   76562: [
     { factText: 'Minimum Barrier', baseValue: 1940, coefficient: 0.7 },
-    { factText: 'Maximum Barrier', baseValue: 3880, coefficient: 1.4 }
+    { factText: 'Maximum Barrier', baseValue: 3880, coefficient: 1.4 },
   ],
   // "Brace Yourselves!" (Paragon Utility). Both facts split PvE vs WvW+PvP by base value (Barrier: PvE
   // 1945/0.7, WvW+PvP 1305/0.5; Echo Barrier: PvE 980/0.6, WvW+PvP 660/0.3) — WvW values used.
   76934: [
     { factText: 'Barrier', baseValue: 1305, coefficient: 0.5 },
-    { factText: 'Echo Barrier', baseValue: 660, coefficient: 0.3 }
-  ]
-}
+    { factText: 'Echo Barrier', baseValue: 660, coefficient: 0.3 },
+  ],
+};
 
 export interface BarrierLine {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 /**
@@ -348,23 +348,30 @@ export interface BarrierLine {
  * file's own top comment — `factText` is what actually distinguishes a Barrier line from a real
  * Healing line for the same skill, not `target`.
  */
-export function barrierLinesForSkill(skill: Skill, healingPower: number, activeIds: ReadonlySet<number>): BarrierLine[] {
-  const entries = CURATED_BARRIER_COEFFICIENTS[skill.id]
-  if (!entries) return []
+export function barrierLinesForSkill(
+  skill: Skill,
+  healingPower: number,
+  activeIds: ReadonlySet<number>,
+): BarrierLine[] {
+  const entries = CURATED_BARRIER_COEFFICIENTS[skill.id];
+  if (!entries) return [];
 
-  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
-  const lines: BarrierLine[] = []
+  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+  const lines: BarrierLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(
       (f) =>
         f.type === 'AttributeAdjust' &&
         f.target === 'Healing' &&
         f.text === entry.factText &&
-        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
-    )
-    if (!fact) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    lines.push({
+      label: entry.factText,
+      value: Math.round(entry.baseValue + entry.coefficient * healingPower),
+    });
   }
-  return lines
+  return lines;
 }

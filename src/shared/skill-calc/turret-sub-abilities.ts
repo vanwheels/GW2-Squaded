@@ -50,5 +50,5 @@ export const TURRET_SUB_ABILITY_IDS: ReadonlyMap<number, readonly number[]> = ne
   [5912, [5913, 6134]], // Rocket Turret -> Explosive Rockets, Detonate Rocket Turret
   [5836, [5900, 5985]], // Flame Turret -> Smoke Screen, Detonate Flame Turret
   [6093, [6098, 6097]], // Harpoon Turret -> Automatic Fire, Detonate Harpoon Turret
-  [6183, [30230, 38750]] // Supply Crate -> Overcharge Supply Crate, Detonate Supply Crate Turrets
-])
+  [6183, [30230, 38750]], // Supply Crate -> Overcharge Supply Crate, Detonate Supply Crate Turrets
+]);

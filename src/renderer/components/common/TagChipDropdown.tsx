@@ -1,11 +1,11 @@
-import type { TagFilterState } from '@renderer/state/use-tag-filter'
+import type { TagFilterState } from '@renderer/state/use-tag-filter';
 
 interface Props {
   /** Tags to offer, e.g. every `tags` value in use across the current records. */
-  allTags: string[]
-  tagStates: Map<string, TagFilterState>
-  onToggleTag: (tag: string) => void
-  onClearTag: (tag: string) => void
+  allTags: string[];
+  tagStates: Map<string, TagFilterState>;
+  onToggleTag: (tag: string) => void;
+  onClearTag: (tag: string) => void;
 }
 
 /** Filter-by-custom-tag control: a dropdown of every tag currently in use (excluding ones already
@@ -13,8 +13,8 @@ interface Props {
  *  tag as `include`; an active chip's label re-cycles it to `exclude` (click-cycle, same handler
  *  as `ProfessionTagPicker`'s icon buttons) while its `×` clears it outright in one click. */
 export function TagChipDropdown({ allTags, tagStates, onToggleTag, onClearTag }: Props) {
-  const activeTags = allTags.filter((tag) => tagStates.has(tag))
-  const availableTags = allTags.filter((tag) => !tagStates.has(tag))
+  const activeTags = allTags.filter((tag) => tagStates.has(tag));
+  const availableTags = allTags.filter((tag) => !tagStates.has(tag));
 
   return (
     <div className="tag-filter-dropdown">
@@ -22,7 +22,7 @@ export function TagChipDropdown({ allTags, tagStates, onToggleTag, onClearTag }:
         <select
           value=""
           onChange={(e) => {
-            if (e.target.value) onToggleTag(e.target.value)
+            if (e.target.value) onToggleTag(e.target.value);
           }}
         >
           <option value="">+ Filter by tag…</option>
@@ -36,14 +36,16 @@ export function TagChipDropdown({ allTags, tagStates, onToggleTag, onClearTag }:
       {activeTags.length > 0 && (
         <div className="tag-filter-chips">
           {activeTags.map((tag) => {
-            const excluded = tagStates.get(tag) === 'exclude'
+            const excluded = tagStates.get(tag) === 'exclude';
             return (
               <span key={tag} className={excluded ? 'tag-chip tag-chip-excluded' : 'tag-chip'}>
                 <button
                   type="button"
                   className="tag-chip-label"
                   onClick={() => onToggleTag(tag)}
-                  title={excluded ? 'Excluding — click to clear' : 'Including — click to exclude instead'}
+                  title={
+                    excluded ? 'Excluding — click to clear' : 'Including — click to exclude instead'
+                  }
                 >
                   {excluded && 'NOT '}
                   {tag}
@@ -57,10 +59,10 @@ export function TagChipDropdown({ allTags, tagStates, onToggleTag, onClearTag }:
                   ×
                 </button>
               </span>
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 }

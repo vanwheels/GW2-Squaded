@@ -1,6 +1,18 @@
-import { useState } from 'react'
-import type { AttributeBonusText, Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId } from '@shared/types'
-import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
+import { useState } from 'react';
+import type {
+  AttributeBonusText,
+  Build,
+  EquipmentSlot,
+  EquipmentSlotKey,
+  ItemStat,
+  ProfessionId,
+} from '@shared/types';
+import {
+  armorTrinketInfusionCapacity,
+  resizeUpgradeIds,
+  RUNE_SLOT_KEYS,
+  weaponUpgradeCapacity,
+} from '@shared/gear-calc/upgrade-slots';
 import {
   ATTRIBUTE_DISPLAY_NAME,
   bonusStatDisplayNames,
@@ -9,25 +21,33 @@ import {
   SLOT_ADJUSTMENT_KEY,
   statComboContribution,
   weaponAdjustmentKey,
-  type AdjustmentKey
-} from '@shared/gear-calc/attribute-totals'
-import { formatConsumableDescription, formatItemStatName } from '@shared/gear-calc/format-description'
-import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { useFavoriteConsumables } from '@renderer/state/favorite-consumables-store'
-import { UpgradePicker, toUpgradeRarity, type UpgradeOption, type UpgradeRarity } from './UpgradePicker'
-import { SkillBarIcon } from './SkillBarIcon'
-import { weaponMiniIcon, weaponPairHandlers, weaponPlaceholderIcon } from './weapon-slot-logic'
+  type AdjustmentKey,
+} from '@shared/gear-calc/attribute-totals';
+import {
+  formatConsumableDescription,
+  formatItemStatName,
+} from '@shared/gear-calc/format-description';
+import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { useFavoriteConsumables } from '@renderer/state/favorite-consumables-store';
+import {
+  UpgradePicker,
+  toUpgradeRarity,
+  type UpgradeOption,
+  type UpgradeRarity,
+} from './UpgradePicker';
+import { SkillBarIcon } from './SkillBarIcon';
+import { weaponMiniIcon, weaponPairHandlers, weaponPlaceholderIcon } from './weapon-slot-logic';
 
-type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
+type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>;
 
 interface Props {
-  value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
-  onChange: (value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>) => void
-  profession: ProfessionId
-  consumables: Consumables
-  onConsumablesChange: (value: Consumables) => void
+  value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>;
+  onChange: (value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>) => void;
+  profession: ProfessionId;
+  consumables: Consumables;
+  onConsumablesChange: (value: Consumables) => void;
 }
 
 /**
@@ -43,16 +63,18 @@ interface Props {
  */
 function pickCanonicalStat(entries: ItemStat[]): ItemStat {
   return entries.reduce((best, entry) => {
-    const bestScore = scoreStat(best)
-    const entryScore = scoreStat(entry)
-    return entryScore > bestScore || (entryScore === bestScore && entry.id < best.id) ? entry : best
-  })
+    const bestScore = scoreStat(best);
+    const entryScore = scoreStat(entry);
+    return entryScore > bestScore || (entryScore === bestScore && entry.id < best.id)
+      ? entry
+      : best;
+  });
 }
 
 function scoreStat(stat: ItemStat): number {
-  const attrCount = stat.attributes.length
-  const fullySpecified = stat.attributes.every((a) => a.multiplier > 0 && a.value > 0)
-  return attrCount * 10 + (fullySpecified ? 1 : 0)
+  const attrCount = stat.attributes.length;
+  const fullySpecified = stat.attributes.every((a) => a.multiplier > 0 && a.value > 0);
+  return attrCount * 10 + (fullySpecified ? 1 : 0);
 }
 
 /**
@@ -70,15 +92,15 @@ function scoreStat(stat: ItemStat): number {
  * `attribute-totals.ts` for how already-saved builds self-heal from this without a data migration.
  */
 function dedupedStatsForCategory(itemStats: ItemStat[], legalIds: number[]): ItemStat[] {
-  const legal = new Set(legalIds)
-  const byName = new Map<string, ItemStat[]>()
+  const legal = new Set(legalIds);
+  const byName = new Map<string, ItemStat[]>();
   for (const stat of itemStats) {
-    if (stat.name.trim() === '' || !legal.has(stat.id)) continue
-    const group = byName.get(stat.name)
-    if (group) group.push(stat)
-    else byName.set(stat.name, [stat])
+    if (stat.name.trim() === '' || !legal.has(stat.id)) continue;
+    const group = byName.get(stat.name);
+    if (group) group.push(stat);
+    else byName.set(stat.name, [stat]);
   }
-  return Array.from(byName.values(), pickCanonicalStat)
+  return Array.from(byName.values(), pickCanonicalStat);
 }
 
 /**
@@ -91,8 +113,8 @@ const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
   { key: 'chest', label: 'Chest' },
   { key: 'gloves', label: 'Gloves' },
   { key: 'leggings', label: 'Leggings' },
-  { key: 'boots', label: 'Boots' }
-]
+  { key: 'boots', label: 'Boots' },
+];
 
 const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
   { key: 'backpiece', label: 'Back' },
@@ -100,10 +122,17 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
   { key: 'accessory2', label: 'Accessory 2' },
   { key: 'ring1', label: 'Ring 1' },
   { key: 'ring2', label: 'Ring 2' },
-  { key: 'amulet', label: 'Amulet' }
-]
+  { key: 'amulet', label: 'Amulet' },
+];
 
-const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
+const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = [
+  'weaponA1',
+  'weaponA2',
+  'weaponB1',
+  'weaponB2',
+  'weaponU1',
+  'weaponU2',
+];
 
 /** weaponA2/weaponB2 -> their paired main-hand key — used only by `weaponSlotCapacity` to
  *  recognize when a slot is actually the "locked (2-handed)" mirror of a two-handed main-hand
@@ -113,8 +142,8 @@ const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1'
  *  independent weapon. */
 const WEAPON_OFF_HAND_MIRROR: Partial<Record<EquipmentSlotKey, EquipmentSlotKey>> = {
   weaponA2: 'weaponA1',
-  weaponB2: 'weaponB1'
-}
+  weaponB2: 'weaponB1',
+};
 
 /** Maps each armor/trinket slot to its gw2skills mini-icon name, overlaid in the corner of the
  *  slot's stat-prefix picker (see UpgradePicker's `cornerIcon` prop). */
@@ -130,46 +159,62 @@ const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, string>> = {
   accessory2: 'accessory',
   ring1: 'ring',
   ring2: 'ring',
-  amulet: 'amulet'
-}
+  amulet: 'amulet',
+};
 
 function byName(a: UpgradeOption, b: UpgradeOption): number {
-  return a.name.localeCompare(b.name)
+  return a.name.localeCompare(b.name);
 }
 
 /** Deduped stats-panel display names across every bonus line of a Rune/Sigil/Consumable — see
  *  `bonusStatDisplayNames`'s doc comment for the resolution rules, and `UpgradeOption.statKeywords`
  *  for how the picker's "#<stat>" search filter consumes this. */
 function bonusesStatKeywords(bonuses: AttributeBonusText[]): string[] {
-  return Array.from(new Set(bonuses.flatMap(bonusStatDisplayNames)))
+  return Array.from(new Set(bonuses.flatMap(bonusStatDisplayNames)));
 }
 
 interface CopyPasteTemplates {
-  stat: number | null
-  rune: number | null
-  sigil: number | null
-  infusion: number | null
+  stat: number | null;
+  rune: number | null;
+  sigil: number | null;
+  infusion: number | null;
 }
 
-const BLANK_TEMPLATES: CopyPasteTemplates = { stat: null, rune: null, sigil: null, infusion: null }
+const BLANK_TEMPLATES: CopyPasteTemplates = { stat: null, rune: null, sigil: null, infusion: null };
 
 export function EquipmentEditor({
   value,
   onChange,
   profession: professionId,
   consumables,
-  onConsumablesChange
+  onConsumablesChange,
 }: Props) {
-  const { itemStats, itemStatIcons, itemStatLegalIds, professions, runes, sigils, infusions, relics, relicEffects, food, utility } =
-    useGameData()
-  const { showUnderwater } = useAppSettings()
-  const { isFoodFavorite, isUtilityFavorite, toggleFoodFavorite, toggleUtilityFavorite } = useFavoriteConsumables()
+  const {
+    itemStats,
+    itemStatIcons,
+    itemStatLegalIds,
+    professions,
+    runes,
+    sigils,
+    infusions,
+    relics,
+    relicEffects,
+    food,
+    utility,
+  } = useGameData();
+  const { showUnderwater } = useAppSettings();
+  const { isFoodFavorite, isUtilityFavorite, toggleFoodFavorite, toggleUtilityFavorite } =
+    useFavoriteConsumables();
   // Two entirely separate deduped lists, never merged — see `dedupedStatsForCategory`'s doc
   // comment on why mixing armor/weapon and trinket combos here was a real bug.
-  const armorWeaponStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.armorWeapon).sort((a, b) => a.name.localeCompare(b.name))
-  const trinketStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.trinket).sort((a, b) => a.name.localeCompare(b.name))
-  const itemStatsById = new Map(itemStats.map((s) => [s.id, s]))
-  const profession = professions.find((p) => p.id === professionId)
+  const armorWeaponStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.armorWeapon).sort(
+    (a, b) => a.name.localeCompare(b.name),
+  );
+  const trinketStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.trinket).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+  const itemStatsById = new Map(itemStats.map((s) => [s.id, s]));
+  const profession = professions.find((p) => p.id === professionId);
   // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
   // estate poorly side by side, so only one is shown at a time — defaults to land since that's
   // relevant to every build, unlike underwater gear which many builds never touch. When the
@@ -177,13 +222,13 @@ export function EquipmentEditor({
   // switch button are hidden entirely — `effectiveWeaponMode` below forces the land view
   // regardless of this local state, so a stale `'underwater'` pick from before the toggle was
   // turned off can't leave the panel stuck showing nothing.
-  const [weaponMode, setWeaponMode] = useState<'land' | 'underwater'>('land')
-  const effectiveWeaponMode = showUnderwater ? weaponMode : 'land'
+  const [weaponMode, setWeaponMode] = useState<'land' | 'underwater'>('land');
+  const effectiveWeaponMode = showUnderwater ? weaponMode : 'land';
   // Copy/paste (2026-07-30): a template value per category, held only in local UI state (not part
   // of the build) — pick a value here, then drag it onto any matching slot, or use "Apply to All"
   // to fill every eligible slot at once. See `applyStatToAll`/`applyRuneToAll`/`applySigilToAll`/
   // `applyInfusionToAll` below for what "eligible" means per category.
-  const [templates, setTemplates] = useState<CopyPasteTemplates>(BLANK_TEMPLATES)
+  const [templates, setTemplates] = useState<CopyPasteTemplates>(BLANK_TEMPLATES);
 
   // Real per-stat-combo icons (see `itemStatIcons`'s doc comment on `GameData` for where these
   // come from) replace the old plain `<select>` of stat names — a small number of legacy/WvW-only
@@ -207,17 +252,32 @@ export function EquipmentEditor({
   // number — the real two-handed constant applied once — not the halved one-handed number. Those
   // two differ after rounding (e.g. Minstrel's: `round(358.512*0.3)*2 = 216` vs. the real
   // `round(717.024*0.3) = 215`), confirmed by the user cross-checking against gw2skills.net.
-  function statOptionsFor(slotKey: EquipmentSlotKey, adjustmentKeyOverride?: AdjustmentKey): UpgradeOption[] {
-    const adjustmentKey = adjustmentKeyOverride ?? SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
-    const source = itemStatCategoryForSlot(slotKey) === 'trinket' ? trinketStats : armorWeaponStats
+  function statOptionsFor(
+    slotKey: EquipmentSlotKey,
+    adjustmentKeyOverride?: AdjustmentKey,
+  ): UpgradeOption[] {
+    const adjustmentKey =
+      adjustmentKeyOverride ?? SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey);
+    const source = itemStatCategoryForSlot(slotKey) === 'trinket' ? trinketStats : armorWeaponStats;
     return source.map((stat) => {
-      const contribution = statComboContribution(stat, adjustmentKey)
+      const contribution = statComboContribution(stat, adjustmentKey);
       const description = stat.attributes
-        .map((a) => `+${Math.round(contribution.points[a.attribute] ?? 0)} ${ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute}`)
-        .join('\n')
-      const statKeywords = stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute)
-      return { id: stat.id, name: formatItemStatName(stat.name), icon: itemStatIcons[stat.name] ?? '', description, statKeywords }
-    })
+        .map(
+          (a) =>
+            `+${Math.round(contribution.points[a.attribute] ?? 0)} ${ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute}`,
+        )
+        .join('\n');
+      const statKeywords = stat.attributes.map(
+        (a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute,
+      );
+      return {
+        id: stat.id,
+        name: formatItemStatName(stat.name),
+        icon: itemStatIcons[stat.name] ?? '',
+        description,
+        statKeywords,
+      };
+    });
   }
 
   /** A slot's *displayed* selected id — resolves an already-saved build's `itemStatId` to
@@ -225,8 +285,13 @@ export function EquipmentEditor({
    *  `statOptionsFor`'s (category-scoped) option list, so a pre-fix build's stat prefix still
    *  shows as selected instead of appearing blank. See `resolveItemStatId`'s doc comment. */
   function displayedItemStatId(slotKey: EquipmentSlotKey, rawId: number | null): number | null {
-    if (rawId === null) return null
-    return resolveItemStatId(rawId, itemStatsById, itemStatLegalIds, itemStatCategoryForSlot(slotKey))
+    if (rawId === null) return null;
+    return resolveItemStatId(
+      rawId,
+      itemStatsById,
+      itemStatLegalIds,
+      itemStatCategoryForSlot(slotKey),
+    );
   }
 
   // The copy/paste template picker broadcasts one stat prefix *name* across every armor/trinket/
@@ -234,18 +299,22 @@ export function EquipmentEditor({
   // for the same name (see `dedupedStatsForCategory`), so this list (deduped by name across both
   // categories, id is just a representative token `applyStatToAll` resolves back to a name) has no
   // single slot context to compute a numeric breakdown against, so it lists attribute names only.
-  const templateStatOptions: UpgradeOption[] = Array.from(new Map([...armorWeaponStats, ...trinketStats].map((s) => [s.name, s])).values())
+  const templateStatOptions: UpgradeOption[] = Array.from(
+    new Map([...armorWeaponStats, ...trinketStats].map((s) => [s.name, s])).values(),
+  )
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((stat) => {
-      const statKeywords = stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute)
+      const statKeywords = stat.attributes.map(
+        (a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute,
+      );
       return {
         id: stat.id,
         name: formatItemStatName(stat.name),
         icon: itemStatIcons[stat.name] ?? '',
         description: statKeywords.join(' / '),
-        statKeywords
-      }
-    })
+        statKeywords,
+      };
+    });
 
   const runeOptions: UpgradeOption[] = runes
     .map((r) => ({
@@ -253,21 +322,27 @@ export function EquipmentEditor({
       name: r.name,
       icon: r.icon,
       description: r.bonuses.map((b) => b.raw).join('\n'),
-      statKeywords: bonusesStatKeywords(r.bonuses)
+      statKeywords: bonusesStatKeywords(r.bonuses),
     }))
-    .sort(byName)
+    .sort(byName);
   const sigilOptions: UpgradeOption[] = sigils
-    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description, statKeywords: bonusesStatKeywords(s.bonuses) }))
-    .sort(byName)
+    .map((s) => ({
+      id: s.id,
+      name: s.name,
+      icon: s.icon,
+      description: s.description,
+      statKeywords: bonusesStatKeywords(s.bonuses),
+    }))
+    .sort(byName);
   const infusionOptions: UpgradeOption[] = infusions
     .map((i) => ({
       id: i.id,
       name: i.name,
       icon: i.icon,
       description: i.attribute && i.value !== null ? `+${i.value} ${i.attribute}` : i.description,
-      statKeywords: i.attribute ? [ATTRIBUTE_DISPLAY_NAME[i.attribute] ?? i.attribute] : []
+      statKeywords: i.attribute ? [ATTRIBUTE_DISPLAY_NAME[i.attribute] ?? i.attribute] : [],
     }))
-    .sort(byName)
+    .sort(byName);
 
   // Build-level (not per-slot) picks: exactly 1 relic, plus at most 1 food and 1 utility
   // consumable — unlike runes/sigils/infusions, these aren't tied to a specific equipment slot.
@@ -279,8 +354,13 @@ export function EquipmentEditor({
   // `Consumable.sharedBuffSource`/`borrowSharedContainerBonuses` in `fetch-gear-upgrades.ts`, not
   // filtered out here.
   const relicOptions: UpgradeOption[] = relics
-    .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
-    .sort(byName)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      icon: r.icon,
+      description: formatRelicDescription(r, relicEffects[r.id]),
+    }))
+    .sort(byName);
   const foodOptions: UpgradeOption[] = food
     .map((f) => ({
       id: f.id,
@@ -288,9 +368,9 @@ export function EquipmentEditor({
       icon: f.icon,
       description: formatConsumableDescription(f),
       statKeywords: bonusesStatKeywords(f.bonuses),
-      rarity: toUpgradeRarity(f.rarity)
+      rarity: toUpgradeRarity(f.rarity),
     }))
-    .sort(byName)
+    .sort(byName);
   const utilityOptions: UpgradeOption[] = utility
     .map((u) => ({
       id: u.id,
@@ -298,30 +378,40 @@ export function EquipmentEditor({
       icon: u.icon,
       description: formatConsumableDescription(u),
       statKeywords: bonusesStatKeywords(u.bonuses),
-      rarity: toUpgradeRarity(u.rarity)
+      rarity: toUpgradeRarity(u.rarity),
     }))
-    .sort(byName)
+    .sort(byName);
 
   function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {
-    onChange({ ...value, [key]: { ...(value[key] ?? {}), itemStatId } })
+    onChange({ ...value, [key]: { ...(value[key] ?? {}), itemStatId } });
   }
 
   function setRune(key: EquipmentSlotKey, runeId: number | null): void {
-    onChange({ ...value, [key]: { ...(value[key] ?? { itemStatId: null }), runeId } })
+    onChange({ ...value, [key]: { ...(value[key] ?? { itemStatId: null }), runeId } });
   }
 
-  function setInfusion(key: EquipmentSlotKey, capacity: number, index: number, infusionId: number | null): void {
-    const slot = value[key] ?? { itemStatId: null }
-    const ids = resizeUpgradeIds(slot.infusionIds, capacity)
-    ids[index] = infusionId
-    onChange({ ...value, [key]: { ...slot, infusionIds: ids } })
+  function setInfusion(
+    key: EquipmentSlotKey,
+    capacity: number,
+    index: number,
+    infusionId: number | null,
+  ): void {
+    const slot = value[key] ?? { itemStatId: null };
+    const ids = resizeUpgradeIds(slot.infusionIds, capacity);
+    ids[index] = infusionId;
+    onChange({ ...value, [key]: { ...slot, infusionIds: ids } });
   }
 
-  function setSigil(key: EquipmentSlotKey, capacity: number, index: number, sigilId: number | null): void {
-    const slot = value[key] ?? { itemStatId: null }
-    const ids = resizeUpgradeIds(slot.sigilIds, capacity)
-    ids[index] = sigilId
-    onChange({ ...value, [key]: { ...slot, sigilIds: ids } })
+  function setSigil(
+    key: EquipmentSlotKey,
+    capacity: number,
+    index: number,
+    sigilId: number | null,
+  ): void {
+    const slot = value[key] ?? { itemStatId: null };
+    const ids = resizeUpgradeIds(slot.sigilIds, capacity);
+    ids[index] = sigilId;
+    onChange({ ...value, [key]: { ...slot, sigilIds: ids } });
   }
 
   /** A weapon slot's current sigil/infusion capacity — same rule `renderWeaponPair`/
@@ -340,16 +430,18 @@ export function EquipmentEditor({
    *  bulk-fill path could ever have written there.
    */
   function weaponSlotCapacity(key: EquipmentSlotKey): number {
-    const mainKey = WEAPON_OFF_HAND_MIRROR[key]
+    const mainKey = WEAPON_OFF_HAND_MIRROR[key];
     if (mainKey) {
-      const mainWeaponType = value[mainKey]?.weaponType
-      const mainIsTwoHanded = mainWeaponType ? (profession?.weapons[mainWeaponType]?.flags.includes('TwoHand') ?? false) : false
-      if (mainIsTwoHanded) return 0
+      const mainWeaponType = value[mainKey]?.weaponType;
+      const mainIsTwoHanded = mainWeaponType
+        ? (profession?.weapons[mainWeaponType]?.flags.includes('TwoHand') ?? false)
+        : false;
+      if (mainIsTwoHanded) return 0;
     }
-    const slot = value[key]
-    if (!slot?.weaponType) return 0
-    const isTwoHanded = profession?.weapons[slot.weaponType]?.flags.includes('TwoHand') ?? false
-    return weaponUpgradeCapacity(true, isTwoHanded)
+    const slot = value[key];
+    if (!slot?.weaponType) return 0;
+    const isTwoHanded = profession?.weapons[slot.weaponType]?.flags.includes('TwoHand') ?? false;
+    return weaponUpgradeCapacity(true, isTwoHanded);
   }
 
   /**
@@ -367,60 +459,63 @@ export function EquipmentEditor({
    * as-is.
    */
   function applyStatToAll(itemStatId: number | null): void {
-    const name = itemStatId !== null ? itemStatsById.get(itemStatId)?.name : null
-    const armorWeaponId = name ? (armorWeaponStats.find((s) => s.name === name)?.id ?? null) : null
-    const trinketId = name ? (trinketStats.find((s) => s.name === name)?.id ?? null) : null
-    const next = { ...value }
+    const name = itemStatId !== null ? itemStatsById.get(itemStatId)?.name : null;
+    const armorWeaponId = name ? (armorWeaponStats.find((s) => s.name === name)?.id ?? null) : null;
+    const trinketId = name ? (trinketStats.find((s) => s.name === name)?.id ?? null) : null;
+    const next = { ...value };
     for (const { key } of ARMOR_SLOTS) {
-      next[key] = { ...(next[key] ?? {}), itemStatId: armorWeaponId }
+      next[key] = { ...(next[key] ?? {}), itemStatId: armorWeaponId };
     }
     for (const { key } of TRINKET_SLOTS) {
-      next[key] = { ...(next[key] ?? {}), itemStatId: trinketId }
+      next[key] = { ...(next[key] ?? {}), itemStatId: trinketId };
     }
     for (const key of WEAPON_SLOT_KEYS) {
-      if (!next[key]?.weaponType) continue
-      next[key] = { ...next[key], itemStatId: armorWeaponId }
+      if (!next[key]?.weaponType) continue;
+      next[key] = { ...next[key], itemStatId: armorWeaponId };
     }
-    onChange(next)
+    onChange(next);
   }
 
   function applyRuneToAll(runeId: number | null): void {
-    const next = { ...value }
+    const next = { ...value };
     for (const key of RUNE_SLOT_KEYS) {
-      next[key] = { ...(next[key] ?? { itemStatId: null }), runeId }
+      next[key] = { ...(next[key] ?? { itemStatId: null }), runeId };
     }
-    onChange(next)
+    onChange(next);
   }
 
   function applySigilToAll(sigilId: number | null): void {
-    const next = { ...value }
+    const next = { ...value };
     for (const key of WEAPON_SLOT_KEYS) {
-      if (!next[key]?.weaponType) continue
+      if (!next[key]?.weaponType) continue;
       // Always write (never skip once a weapon is present), even at capacity 0 — a two-handed
       // weapon's off-hand mirror slot (see `weaponSlotCapacity`'s doc comment) always lands here
       // at capacity 0, and writing `sigilIds: []` actively clears any stale phantom entries an
       // older build of the app may have written there, rather than leaving them to silently
       // double-count in `computeGearAttributeTotals`.
-      const capacity = weaponSlotCapacity(key)
-      next[key] = { ...next[key], sigilIds: new Array(capacity).fill(sigilId) }
+      const capacity = weaponSlotCapacity(key);
+      next[key] = { ...next[key], sigilIds: new Array(capacity).fill(sigilId) };
     }
-    onChange(next)
+    onChange(next);
   }
 
   function applyInfusionToAll(infusionId: number | null): void {
-    const next = { ...value }
+    const next = { ...value };
     for (const key of [...ARMOR_SLOTS, ...TRINKET_SLOTS].map((s) => s.key)) {
-      const capacity = armorTrinketInfusionCapacity(key)
-      if (capacity === 0) continue
-      next[key] = { ...(next[key] ?? { itemStatId: null }), infusionIds: new Array(capacity).fill(infusionId) }
+      const capacity = armorTrinketInfusionCapacity(key);
+      if (capacity === 0) continue;
+      next[key] = {
+        ...(next[key] ?? { itemStatId: null }),
+        infusionIds: new Array(capacity).fill(infusionId),
+      };
     }
     for (const key of WEAPON_SLOT_KEYS) {
-      if (!next[key]?.weaponType) continue
+      if (!next[key]?.weaponType) continue;
       // Same "always write, even at capacity 0" self-healing reasoning as `applySigilToAll` above.
-      const capacity = weaponSlotCapacity(key)
-      next[key] = { ...next[key], infusionIds: new Array(capacity).fill(infusionId) }
+      const capacity = weaponSlotCapacity(key);
+      next[key] = { ...next[key], infusionIds: new Array(capacity).fill(infusionId) };
     }
-    onChange(next)
+    onChange(next);
   }
 
   /**
@@ -431,15 +526,15 @@ export function EquipmentEditor({
    * type across every slot regardless of which panel it lives in.
    */
   function clearArmorAll(): void {
-    const next = { ...value }
-    for (const { key } of ARMOR_SLOTS) next[key] = { itemStatId: null }
-    onChange(next)
+    const next = { ...value };
+    for (const { key } of ARMOR_SLOTS) next[key] = { itemStatId: null };
+    onChange(next);
   }
 
   function clearAccessoriesAll(): void {
-    const next = { ...value }
-    for (const { key } of TRINKET_SLOTS) next[key] = { itemStatId: null }
-    onChange(next)
+    const next = { ...value };
+    for (const { key } of TRINKET_SLOTS) next[key] = { itemStatId: null };
+    onChange(next);
   }
 
   /** Clears only the weapon sets currently visible via `effectiveWeaponMode` (land Set I/II, or
@@ -449,15 +544,15 @@ export function EquipmentEditor({
     const keys: EquipmentSlotKey[] =
       effectiveWeaponMode === 'land'
         ? ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2']
-        : ['weaponU1', 'weaponU2']
-    const next = { ...value }
-    for (const key of keys) next[key] = { itemStatId: null, weaponType: null }
-    onChange(next)
+        : ['weaponU1', 'weaponU2'];
+    const next = { ...value };
+    for (const key of keys) next[key] = { itemStatId: null, weaponType: null };
+    onChange(next);
   }
 
   function infusionRow(key: EquipmentSlotKey, capacity: number) {
-    if (capacity === 0) return null
-    const ids = resizeUpgradeIds(value[key]?.infusionIds, capacity)
+    if (capacity === 0) return null;
+    const ids = resizeUpgradeIds(value[key]?.infusionIds, capacity);
     return (
       <div className="upgrade-row">
         {ids.map((id, i) => (
@@ -473,12 +568,12 @@ export function EquipmentEditor({
           />
         ))}
       </div>
-    )
+    );
   }
 
   function sigilRow(key: EquipmentSlotKey, capacity: number) {
-    if (capacity === 0) return null
-    const ids = resizeUpgradeIds(value[key]?.sigilIds, capacity)
+    if (capacity === 0) return null;
+    const ids = resizeUpgradeIds(value[key]?.sigilIds, capacity);
     return (
       <div className="upgrade-row">
         {ids.map((id, i) => (
@@ -494,12 +589,12 @@ export function EquipmentEditor({
           />
         ))}
       </div>
-    )
+    );
   }
 
   function renderSlot(key: EquipmentSlotKey, label: string) {
-    const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
-    const infusionCapacity = armorTrinketInfusionCapacity(key)
+    const isRuneSlot = RUNE_SLOT_KEYS.includes(key);
+    const infusionCapacity = armorTrinketInfusionCapacity(key);
     return (
       <div className="gear-slot" key={key}>
         <UpgradePicker
@@ -528,7 +623,7 @@ export function EquipmentEditor({
         )}
         {infusionRow(key, infusionCapacity)}
       </div>
-    )
+    );
   }
 
   /**
@@ -540,26 +635,52 @@ export function EquipmentEditor({
    * with `WeaponTypeBar`) supplies `mainSlot`/`offSlot`/`isTwoHanded` so this still knows a
    * two-handed weapon's off-hand stat is locked/mirrored, matching the real game.
    */
-  function renderWeaponPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey, mainLabel: string, offLabel: string) {
-    const { mainSlot, offSlot, isTwoHanded } = weaponPairHandlers(profession, value, onChange, mainKey, offKey)
+  function renderWeaponPair(
+    mainKey: EquipmentSlotKey,
+    offKey: EquipmentSlotKey,
+    mainLabel: string,
+    offLabel: string,
+  ) {
+    const { mainSlot, offSlot, isTwoHanded } = weaponPairHandlers(
+      profession,
+      value,
+      onChange,
+      mainKey,
+      offKey,
+    );
 
-    const mainCapacity = weaponUpgradeCapacity(Boolean(mainSlot?.weaponType), isTwoHanded)
-    const offCapacity = weaponUpgradeCapacity(Boolean(offSlot?.weaponType), false)
+    const mainCapacity = weaponUpgradeCapacity(Boolean(mainSlot?.weaponType), isTwoHanded);
+    const offCapacity = weaponUpgradeCapacity(Boolean(offSlot?.weaponType), false);
 
     function setMainItemStat(itemStatId: number | null): void {
-      const nextMain: EquipmentSlot = { ...(mainSlot ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null }
+      const nextMain: EquipmentSlot = {
+        ...(mainSlot ?? {}),
+        itemStatId,
+        weaponType: mainSlot?.weaponType ?? null,
+      };
       onChange({
         ...value,
         [mainKey]: nextMain,
         // A two-handed weapon's itemStatId is mirrored onto the off-hand slot too (see class doc
         // comment), but its rune/sigil/infusion picks live independently per slot key — only the
         // stat combo mirrors, not the upgrades.
-        ...(isTwoHanded ? { [offKey]: { ...(offSlot ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
-      })
+        ...(isTwoHanded
+          ? {
+              [offKey]: {
+                ...(offSlot ?? {}),
+                itemStatId,
+                weaponType: mainSlot?.weaponType ?? null,
+              },
+            }
+          : {}),
+      });
     }
 
     function setOffItemStat(itemStatId: number | null): void {
-      onChange({ ...value, [offKey]: { ...(offSlot ?? {}), itemStatId, weaponType: offSlot?.weaponType ?? null } })
+      onChange({
+        ...value,
+        [offKey]: { ...(offSlot ?? {}), itemStatId, weaponType: offSlot?.weaponType ?? null },
+      });
     }
 
     return (
@@ -607,20 +728,23 @@ export function EquipmentEditor({
           )}
         </div>
       </div>
-    )
+    );
   }
 
   /** A single underwater weapon slot — no hand pairing, since every aquatic weapon type is
    *  confirmed `TwoHand` (verified against the live API for every profession). Weapon type is
    *  chosen in `WeaponTypeBar`, same as the land pairs above — this only edits stat/sigil/infusion. */
   function renderUnderwaterSlot(key: EquipmentSlotKey, label: string) {
-    const slot = value[key]
+    const slot = value[key];
     // Every aquatic weapon type is confirmed TwoHand (see class doc comment on this function), so
     // an underwater slot always gets the 2-slot upgrade capacity once a weapon is equipped.
-    const capacity = weaponUpgradeCapacity(Boolean(slot?.weaponType), true)
+    const capacity = weaponUpgradeCapacity(Boolean(slot?.weaponType), true);
 
     function setStat(itemStatId: number | null): void {
-      onChange({ ...value, [key]: { ...(slot ?? {}), itemStatId, weaponType: slot?.weaponType ?? null } })
+      onChange({
+        ...value,
+        [key]: { ...(slot ?? {}), itemStatId, weaponType: slot?.weaponType ?? null },
+      });
     }
 
     return (
@@ -642,7 +766,7 @@ export function EquipmentEditor({
         {sigilRow(key, capacity)}
         {infusionRow(key, capacity)}
       </div>
-    )
+    );
   }
 
   /**
@@ -656,9 +780,9 @@ export function EquipmentEditor({
     dragCategory: 'stat' | 'rune' | 'sigil' | 'infusion',
     options: UpgradeOption[],
     applyToAll: (id: number | null) => void,
-    onClearAll?: () => void
+    onClearAll?: () => void,
   ) {
-    const chosenId = templates[dragCategory]
+    const chosenId = templates[dragCategory];
     return (
       <div className="gear-copy-paste-item" key={dragCategory}>
         <UpgradePicker
@@ -680,12 +804,17 @@ export function EquipmentEditor({
           <SkillBarIcon kind="applyAll" />
         </button>
         {onClearAll && (
-          <button type="button" className="skill-bar-icon-button" title={`Clear All ${categoryLabel}s`} onClick={onClearAll}>
+          <button
+            type="button"
+            className="skill-bar-icon-button"
+            title={`Clear All ${categoryLabel}s`}
+            onClick={onClearAll}
+          >
             <SkillBarIcon kind="clearAll" />
           </button>
         )}
       </div>
-    )
+    );
   }
 
   /** A build-level pick (relic/food/utility) rendered like a gear slot — the picker button plus
@@ -698,7 +827,7 @@ export function EquipmentEditor({
     onChoose: (id: number | null) => void,
     rarity?: UpgradeRarity,
     emptyIcon?: string,
-    favorites?: { isFavorite: (id: number) => boolean; onToggleFavorite: (id: number) => void }
+    favorites?: { isFavorite: (id: number) => boolean; onToggleFavorite: (id: number) => void },
   ) {
     return (
       <div className="gear-slot" key={label}>
@@ -717,7 +846,7 @@ export function EquipmentEditor({
           <span className="gear-slot-label">{label}</span>
         </label>
       </div>
-    )
+    );
   }
 
   return (
@@ -725,14 +854,23 @@ export function EquipmentEditor({
       <div className="gear-copy-paste-bar">
         {copyPasteSlot('Stat Prefix', 'stat', templateStatOptions, applyStatToAll)}
         {copyPasteSlot('Rune', 'rune', runeOptions, applyRuneToAll, () => applyRuneToAll(null))}
-        {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll, () => applySigilToAll(null))}
-        {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll, () => applyInfusionToAll(null))}
+        {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll, () =>
+          applySigilToAll(null),
+        )}
+        {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll, () =>
+          applyInfusionToAll(null),
+        )}
       </div>
       <div className="gear-panels">
         <div className="gear-panel gear-panel-armor">
           <div className="gear-panel-header">
             <h4 className="gear-panel-title">Armor</h4>
-            <button type="button" className="skill-bar-icon-button" title="Clear All Armor" onClick={clearArmorAll}>
+            <button
+              type="button"
+              className="skill-bar-icon-button"
+              title="Clear All Armor"
+              onClick={clearArmorAll}
+            >
               <SkillBarIcon kind="clearAll" />
             </button>
           </div>
@@ -741,7 +879,12 @@ export function EquipmentEditor({
         <div className="gear-panel gear-panel-accessories">
           <div className="gear-panel-header">
             <h4 className="gear-panel-title">Accessories</h4>
-            <button type="button" className="skill-bar-icon-button" title="Clear All Accessories" onClick={clearAccessoriesAll}>
+            <button
+              type="button"
+              className="skill-bar-icon-button"
+              title="Clear All Accessories"
+              onClick={clearAccessoriesAll}
+            >
               <SkillBarIcon kind="clearAll" />
             </button>
           </div>
@@ -756,7 +899,9 @@ export function EquipmentEditor({
                   <button
                     type="button"
                     className={
-                      weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'
+                      weaponMode === 'land'
+                        ? 'skill-bar-icon-button env-land active'
+                        : 'skill-bar-icon-button env-water active'
                     }
                     title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
                     onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
@@ -768,7 +913,11 @@ export function EquipmentEditor({
               <button
                 type="button"
                 className="skill-bar-icon-button"
-                title={effectiveWeaponMode === 'land' ? 'Clear All Weapons' : 'Clear All Underwater Weapons'}
+                title={
+                  effectiveWeaponMode === 'land'
+                    ? 'Clear All Weapons'
+                    : 'Clear All Underwater Weapons'
+                }
                 onClick={clearWeaponsAll}
               >
                 <SkillBarIcon kind="clearAll" />
@@ -802,7 +951,7 @@ export function EquipmentEditor({
             consumables.relicId,
             (id) => onConsumablesChange({ ...consumables, relicId: id }),
             'exotic',
-            'icons/weapon-placeholder/relic.png'
+            'icons/weapon-placeholder/relic.png',
           )}
           {renderOtherSlot(
             'Food',
@@ -811,7 +960,7 @@ export function EquipmentEditor({
             (id) => onConsumablesChange({ ...consumables, foodId: id }),
             undefined,
             undefined,
-            { isFavorite: isFoodFavorite, onToggleFavorite: toggleFoodFavorite }
+            { isFavorite: isFoodFavorite, onToggleFavorite: toggleFoodFavorite },
           )}
           {renderOtherSlot(
             'Utility',
@@ -820,10 +969,10 @@ export function EquipmentEditor({
             (id) => onConsumablesChange({ ...consumables, utilityId: id }),
             undefined,
             undefined,
-            { isFavorite: isUtilityFavorite, onToggleFavorite: toggleUtilityFavorite }
+            { isFavorite: isUtilityFavorite, onToggleFavorite: toggleUtilityFavorite },
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

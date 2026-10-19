@@ -1,4 +1,4 @@
-import type { ProfessionId } from '@shared/types'
+import type { ProfessionId } from '@shared/types';
 
 /**
  * Real GW2 profession accent colors — curated 2026-08-18 from the wiki's own "Profession template
@@ -17,10 +17,10 @@ import type { ProfessionId } from '@shared/types'
  * data-update/refresh pipeline (`GAME_DATA_FILE_NAMES`) either — a plain static module is enough.
  */
 export interface ProfessionColorSet {
-  lighter: string
-  light: string
-  medium: string
-  dark: string
+  lighter: string;
+  light: string;
+  medium: string;
+  dark: string;
 }
 
 export const PROFESSION_COLORS: Record<ProfessionId, ProfessionColorSet> = {
@@ -32,15 +32,15 @@ export const PROFESSION_COLORS: Record<ProfessionId, ProfessionColorSet> = {
   Thief: { lighter: '#E6D5D7', light: '#DEC6C9', medium: '#C08F95', dark: '#974550' },
   Elementalist: { lighter: '#F6D2D1', light: '#F6BEBC', medium: '#F68A87', dark: '#DC423E' },
   Mesmer: { lighter: '#D7B2EA', light: '#D09EEA', medium: '#B679D5', dark: '#69278A' },
-  Necromancer: { lighter: '#D5EDE1', light: '#BFE6D0', medium: '#52A76F', dark: '#2C9D5D' }
-}
+  Necromancer: { lighter: '#D5EDE1', light: '#BFE6D0', medium: '#52A76F', dark: '#2C9D5D' },
+};
 
 /** The wiki's "Medium" shade — the best default single accent color for a given profession id. */
 export function professionAccentColor(id: ProfessionId): string | undefined {
-  return PROFESSION_COLORS[id]?.medium
+  return PROFESSION_COLORS[id]?.medium;
 }
 
 /** Full 4-shade set for a given profession id, or `undefined` for an unrecognized id. */
 export function professionColorSet(id: ProfessionId): ProfessionColorSet | undefined {
-  return PROFESSION_COLORS[id]
+  return PROFESSION_COLORS[id];
 }

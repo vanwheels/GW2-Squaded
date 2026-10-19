@@ -10,4 +10,4 @@
  * `schemaVersion` at all; they're treated as already-current, since no shape change has happened
  * yet between "field absent" and v1.
  */
-export const CURRENT_SCHEMA_VERSION = 1
+export const CURRENT_SCHEMA_VERSION = 1;

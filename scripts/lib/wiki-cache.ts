@@ -19,57 +19,57 @@
  * `flushWikiCache()` must be called once at the end of a script's `main()` — writes are batched in
  * memory and only persisted then, so a run that fetches 500 pages does one disk write, not 500.
  */
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const WIKI_API = 'https://wiki.guildwars2.com/api.php'
-const REQUEST_DELAY_MS = 150
+const WIKI_API = 'https://wiki.guildwars2.com/api.php';
+const REQUEST_DELAY_MS = 150;
 // Same gotcha as every fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const CACHE_FILE = join(__dirname, '..', '..', '.cache', 'wiki-pages.json')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CACHE_FILE = join(__dirname, '..', '..', '.cache', 'wiki-pages.json');
 
 interface CacheEntry {
-  revisionId: number
-  wikitext: string
-  fetchedAt: string
+  revisionId: number;
+  wikitext: string;
+  fetchedAt: string;
 }
-type CacheFile = Record<string, CacheEntry>
+type CacheFile = Record<string, CacheEntry>;
 
-let cache: CacheFile | null = null
-let dirty = false
+let cache: CacheFile | null = null;
+let dirty = false;
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function loadCache(): Promise<CacheFile> {
-  if (cache) return cache
+  if (cache) return cache;
   try {
-    cache = JSON.parse(await readFile(CACHE_FILE, 'utf-8')) as CacheFile
+    cache = JSON.parse(await readFile(CACHE_FILE, 'utf-8')) as CacheFile;
   } catch {
-    cache = {} // no cache file yet, or unreadable — start fresh rather than fail the run
+    cache = {}; // no cache file yet, or unreadable — start fresh rather than fail the run
   }
-  return cache
+  return cache;
 }
 
 /** Persists any pages fetched since the last flush. Call once at the end of a script's `main()`. */
 export async function flushWikiCache(): Promise<void> {
-  if (!dirty || !cache) return
-  await mkdir(dirname(CACHE_FILE), { recursive: true })
-  await writeFile(CACHE_FILE, JSON.stringify(cache, null, 2))
-  dirty = false
+  if (!dirty || !cache) return;
+  await mkdir(dirname(CACHE_FILE), { recursive: true });
+  await writeFile(CACHE_FILE, JSON.stringify(cache, null, 2));
+  dirty = false;
 }
 
 interface WikiQueryResponse {
   query?: {
     pages?: {
-      missing?: boolean
-      revisions?: { revid: number; slots: { main: { content: string } } }[]
-    }[]
-  }
+      missing?: boolean;
+      revisions?: { revid: number; slots: { main: { content: string } } }[];
+    }[];
+  };
 }
 
 /**
@@ -81,7 +81,7 @@ interface WikiQueryResponse {
  * string.
  */
 export function getWikiRevisionId(title: string): number | undefined {
-  return cache?.[title]?.revisionId
+  return cache?.[title]?.revisionId;
 }
 
 /**
@@ -94,24 +94,27 @@ export function getWikiRevisionId(title: string): number | undefined {
  * every skill id and guessing a wiki title for each — the search IS the candidate-discovery step.
  */
 export async function searchWikiTitles(searchQuery: string): Promise<string[]> {
-  const titles: string[] = []
-  let sroffset: number | undefined
+  const titles: string[] = [];
+  let sroffset: number | undefined;
   for (;;) {
     const url =
       `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(searchQuery)}` +
-      `&srlimit=500&format=json&formatversion=2${sroffset !== undefined ? `&sroffset=${sroffset}` : ''}`
-    const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-    await sleep(REQUEST_DELAY_MS)
-    if (!response.ok) throw new Error(`Wiki search failed for "${searchQuery}": ${response.status} ${response.statusText}`)
+      `&srlimit=500&format=json&formatversion=2${sroffset !== undefined ? `&sroffset=${sroffset}` : ''}`;
+    const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
+    await sleep(REQUEST_DELAY_MS);
+    if (!response.ok)
+      throw new Error(
+        `Wiki search failed for "${searchQuery}": ${response.status} ${response.statusText}`,
+      );
     const json = (await response.json()) as {
-      query?: { search?: { title: string }[] }
-      continue?: { sroffset?: number }
-    }
-    for (const result of json.query?.search ?? []) titles.push(result.title)
-    if (json.continue?.sroffset === undefined) break
-    sroffset = json.continue.sroffset
+      query?: { search?: { title: string }[] };
+      continue?: { sroffset?: number };
+    };
+    for (const result of json.query?.search ?? []) titles.push(result.title);
+    if (json.continue?.sroffset === undefined) break;
+    sroffset = json.continue.sroffset;
   }
-  return titles
+  return titles;
 }
 
 /**
@@ -119,25 +122,31 @@ export async function searchWikiTitles(searchQuery: string): Promise<string[]> {
  * (see module doc comment). Returns null for a nonexistent page — same contract every prior
  * per-script `fetchRawWikitext` used for its 404 case, so callers don't need to change.
  */
-export async function fetchWikiPage(title: string, opts?: { forceRefresh?: boolean }): Promise<string | null> {
-  const c = await loadCache()
-  const cached = c[title]
-  if (cached && !opts?.forceRefresh) return cached.wikitext
+export async function fetchWikiPage(
+  title: string,
+  opts?: { forceRefresh?: boolean },
+): Promise<string | null> {
+  const c = await loadCache();
+  const cached = c[title];
+  if (cached && !opts?.forceRefresh) return cached.wikitext;
 
   const url =
     `${WIKI_API}?action=query&titles=${encodeURIComponent(title)}&prop=revisions` +
-    `&rvprop=ids|content&rvslots=main&redirects=1&format=json&formatversion=2`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  await sleep(REQUEST_DELAY_MS) // rate-limit real network calls only — cache hits above never wait
-  if (!response.ok) throw new Error(`Wiki API fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  const json = (await response.json()) as WikiQueryResponse
-  const page = json.query?.pages?.[0]
+    `&rvprop=ids|content&rvslots=main&redirects=1&format=json&formatversion=2`;
+  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
+  await sleep(REQUEST_DELAY_MS); // rate-limit real network calls only — cache hits above never wait
+  if (!response.ok)
+    throw new Error(
+      `Wiki API fetch failed for "${title}": ${response.status} ${response.statusText}`,
+    );
+  const json = (await response.json()) as WikiQueryResponse;
+  const page = json.query?.pages?.[0];
   if (!page || page.missing || !page.revisions?.length) {
-    return null // page doesn't exist — deliberately not cached, so a later real page at this title isn't shadowed
+    return null; // page doesn't exist — deliberately not cached, so a later real page at this title isn't shadowed
   }
-  const rev = page.revisions[0]
-  const wikitext = rev.slots.main.content
-  c[title] = { revisionId: rev.revid, wikitext, fetchedAt: new Date().toISOString() }
-  dirty = true
-  return wikitext
+  const rev = page.revisions[0];
+  const wikitext = rev.slots.main.content;
+  c[title] = { revisionId: rev.revid, wikitext, fetchedAt: new Date().toISOString() };
+  dirty = true;
+  return wikitext;
 }

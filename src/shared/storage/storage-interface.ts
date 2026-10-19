@@ -1,4 +1,4 @@
-import type { Build, SquadComp } from '../types'
+import type { Build, SquadComp } from '../types';
 
 /**
  * A deleted record's surviving trace, kept around so a later sync pass can tell a remote
@@ -7,8 +7,8 @@ import type { Build, SquadComp } from '../types'
  * boundary — but isn't imported from it since the Worker is a separate deployable package.
  */
 export interface SyncTombstone {
-  id: string
-  deletedAt: string
+  id: string;
+  deletedAt: string;
 }
 
 /**
@@ -18,23 +18,23 @@ export interface SyncTombstone {
  * implementations share the exact same interface.
  */
 export interface Repository<T extends { id: string }> {
-  list(): Promise<T[]>
-  get(id: string): Promise<T | null>
-  create(record: T): Promise<T>
-  update(record: T): Promise<T>
+  list(): Promise<T[]>;
+  get(id: string): Promise<T | null>;
+  create(record: T): Promise<T>;
+  update(record: T): Promise<T>;
   /** Deletes the record and records a tombstone for it, replacing any earlier one. */
-  remove(id: string): Promise<void>
+  remove(id: string): Promise<void>;
   /** Tombstones not yet acknowledged by a sync push. */
-  listTombstones(): Promise<SyncTombstone[]>
+  listTombstones(): Promise<SyncTombstone[]>;
   /** Drops tombstones once a sync pass has reconciled them with the remote side. */
-  clearTombstones(ids: string[]): Promise<void>
+  clearTombstones(ids: string[]): Promise<void>;
   /**
    * Replaces the entire collection and its tombstone set with the given authoritative state in
    * one shot. For applying a sync pull: the Worker's merged PUT response is already the full
    * post-merge set (not a delta), so there's no per-record create/update/remove to reconcile —
    * just swap local state to match.
    */
-  replaceAll(records: T[], tombstones: SyncTombstone[]): Promise<void>
+  replaceAll(records: T[], tombstones: SyncTombstone[]): Promise<void>;
 }
 
 /**
@@ -44,6 +44,6 @@ export interface Repository<T extends { id: string }> {
  * seam that gets swapped for a Capacitor storage plugin later.
  */
 export interface StorageAdapter {
-  builds: Repository<Build>
-  squadComps: Repository<SquadComp>
+  builds: Repository<Build>;
+  squadComps: Repository<SquadComp>;
 }

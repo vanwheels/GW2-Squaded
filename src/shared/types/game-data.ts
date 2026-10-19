@@ -7,7 +7,7 @@
  * modeled here — they're typed loosely and locally within the fetch script.
  */
 
-export type ProfessionId = string // e.g. "Guardian", "Warrior"
+export type ProfessionId = string; // e.g. "Guardian", "Warrior"
 
 /**
  * The GW2 API's `Fact` object is a large polymorphic union keyed by `type`
@@ -33,26 +33,26 @@ export type ProfessionId = string // e.g. "Guardian", "Warrior"
  * tries to resolve `prefix.status` to a specific skill id.
  */
 export interface Fact {
-  type: string
-  text?: string
-  icon?: string
-  status?: string
-  description?: string
-  duration?: number
-  apply_count?: number
-  requires_trait?: number
-  overrides?: number
+  type: string;
+  text?: string;
+  icon?: string;
+  status?: string;
+  description?: string;
+  duration?: number;
+  apply_count?: number;
+  requires_trait?: number;
+  overrides?: number;
   /** `type: 'PrefixedBuff'` only — see this interface's doc comment. */
-  prefix?: { text?: string; icon?: string; status?: string; description?: string }
-  [key: string]: unknown
+  prefix?: { text?: string; icon?: string; status?: string; description?: string };
+  [key: string]: unknown;
 }
 
-export type WeaponFlag = 'Mainhand' | 'Offhand' | 'TwoHand' | 'Aquatic'
+export type WeaponFlag = 'Mainhand' | 'Offhand' | 'TwoHand' | 'Aquatic';
 
 export interface ProfessionWeaponSkillSlot {
-  id: number
+  id: number;
   /** `Weapon_1`-`Weapon_5`, matching the GW2 API's weapon-skill slot naming. */
-  slot: string
+  slot: string;
 }
 
 /**
@@ -63,10 +63,10 @@ export interface ProfessionWeaponSkillSlot {
  * `Aquatic`-only. Don't hand-roll this table — it's sourced directly from `/v2/professions`.
  */
 export interface ProfessionWeapon {
-  flags: WeaponFlag[]
+  flags: WeaponFlag[];
   /** Elite specialization id required to unlock this weapon on this profession, if gated. */
-  specializationId: number | null
-  skills: ProfessionWeaponSkillSlot[]
+  specializationId: number | null;
+  skills: ProfessionWeaponSkillSlot[];
 }
 
 /**
@@ -80,141 +80,141 @@ export interface ProfessionWeapon {
  * per-elite-spec field exists on this entry itself, and none was needed.
  */
 export interface ProfessionMechanicSkill {
-  id: number
+  id: number;
   /** `Profession_1`-`Profession_4`, matching the GW2 API's mechanic-slot naming. */
-  slot: string
+  slot: string;
 }
 
 export interface Profession {
-  id: ProfessionId
-  name: string
-  icon: string
-  iconBig: string
+  id: ProfessionId;
+  name: string;
+  icon: string;
+  iconBig: string;
   /** The wiki's community-drawn "Tango icon" (GFDL-licensed, unlike the wiki's official ArenaNet
    *  art — see scripts/fetch-tango-icons.ts for why), merged in at load time from
    *  tango-icons.json by `withTangoIcons` in load-game-data.ts. Always present (all 9 professions
    *  have one, verified by that script's own hard failure if any are missing); preferred over
    *  `icon`/`iconBig` for the profession/elite-spec-identifying UI (build cards, squad-editor
    *  slots, the profession/spec pickers) per the 2026-08-18 icon-artwork switch. */
-  tangoIcon: string
-  specializationIds: number[]
+  tangoIcon: string;
+  specializationIds: number[];
   /** Keyed by weapon type name (e.g. "Greatsword", "Axe"). */
-  weapons: Record<string, ProfessionWeapon>
+  weapons: Record<string, ProfessionWeapon>;
   /** Every profession-mechanic skill id across every base/elite-spec variant — see
    *  `ProfessionMechanicSkill` and `src/shared/skill-calc/profession-mechanic.ts`, which resolves
    *  this down to the one bar (F1-F5) that actually applies for a build's equipped specs. */
-  professionSkills: ProfessionMechanicSkill[]
+  professionSkills: ProfessionMechanicSkill[];
   /** This profession's byte value in the official GW2 Build Template chat-link format (`/v2/
    *  professions`'s own `code` field, only exposed under `?v=latest` schema — see
    *  scripts/fetch-chat-link-ids.ts). Merged in at load time from chat-link-ids.json by
    *  `withChatLinkIds` in build-game-data.ts, same "separate wiki/API-extra file, not baked into
    *  fetch-game-data.ts's own output" pattern as `tangoIcon`. Always present (all 9 professions
    *  have one, verified by that script's own hard failure if any are missing). */
-  code: number
+  code: number;
   /** This profession's internal "skill palette id" <-> real `Skill.id` table, as used by the
    *  Heal/Utility/Elite skill slots of a Build Template chat link (`/v2/professions`'s own
    *  `skills_by_palette` field, same `?v=latest`-only schema as `code` above) — a palette id is a
    *  small, profession-scoped legacy engine id distinct from the real skill id everywhere else in
    *  this app uses. `[paletteId, skillId]` pairs, in the API's own order. See
    *  `src/shared/chat-link/build-template-codec.ts`. */
-  skillPalette: [number, number][]
+  skillPalette: [number, number][];
 }
 
 export interface Specialization {
-  id: number
-  name: string
-  profession: ProfessionId
-  elite: boolean
-  icon: string
-  background: string
+  id: number;
+  name: string;
+  profession: ProfessionId;
+  elite: boolean;
+  icon: string;
+  background: string;
   /** Same Tango-icon merge as `Profession.tangoIcon`, only ever present for elite specs (core
    *  specializations aren't individually icon-identified anywhere in the UI, so were never
    *  fetched) — undefined for every non-elite entry. */
-  tangoIcon?: string
-  minorTraitIds: number[]
-  majorTraitIds: number[]
+  tangoIcon?: string;
+  minorTraitIds: number[];
+  majorTraitIds: number[];
 }
 
-export type TraitSlot = 'Major' | 'Minor'
+export type TraitSlot = 'Major' | 'Minor';
 
 export interface Trait {
-  id: number
-  tier: number
-  order: number
-  name: string
-  description: string
-  slot: TraitSlot
-  specializationId: number
-  icon: string
-  facts: Fact[]
-  traitedFacts: Fact[]
+  id: number;
+  tier: number;
+  order: number;
+  name: string;
+  description: string;
+  slot: TraitSlot;
+  specializationId: number;
+  icon: string;
+  facts: Fact[];
+  traitedFacts: Fact[];
 }
 
 export interface Skill {
-  id: number
-  name: string
-  description: string
-  icon: string
-  chatLink: string
-  type: string
-  weaponType: string | null
-  professions: ProfessionId[]
-  slot: string
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  chatLink: string;
+  type: string;
+  weaponType: string | null;
+  professions: ProfessionId[];
+  slot: string;
   /** Raw API skill flags (e.g. `"NoUnderwater"`) — used to disambiguate a weapon's land vs.
    *  underwater skill variants, see src/shared/weapon-calc/weapon-skills.ts. */
-  flags: string[]
+  flags: string[];
   /** GW2's own profession-mechanic grouping (e.g. `"Meditation"`, `"Signet"`, `"Consecration"`)
    *  for Heal/Utility/Elite skills — empty for weapon skills, which the API never categorizes.
    *  Confirmed live against the raw `/v2/skills` endpoint 2026-07-30 (not modeled in this app's
    *  data before that): most profession-mechanic skills carry exactly one category, a real chunk
    *  carry none at all (e.g. Guardian's "Shelter", Firebrand's "Restoring Reprieve") — used to
    *  group the skill picker into columns, see `SkillsEditor.tsx`. */
-  categories: string[]
-  facts: Fact[]
-  traitedFacts: Fact[]
+  categories: string[];
+  facts: Fact[];
+  traitedFacts: Fact[];
   /** Elemental attunement this specific id's effect is for (e.g. `"Fire"`), only present on the
    *  4 attunement-specific ids of an Elementalist attunement-conditional skill (e.g. "Glyph of
    *  Lesser Elementals") — the attunement-agnostic id a player actually equips has no attunement
    *  field at all. Used by src/shared/skill-calc/skill-variants.ts to exclude the non-equippable
    *  variant ids from pickers, see that file's doc comment. */
-  attunement: string | null
+  attunement: string | null;
   /** Elite specialization id this specific id's effect applies under, for a same-name skill whose
    *  effect is reworked by having that spec equipped (e.g. Revenant Demon-legend skills reworked
    *  by Vindicator/Conduit) — `null` for the base/unmodified id. Used by
    *  src/shared/skill-calc/skill-variants.ts to auto-select the right variant per equipped specs. */
-  specializationId: number | null
+  specializationId: number | null;
   /** The skill id this one becomes after being activated (e.g. a kit's "Stow X" skill, a turret's
    *  "Detonate X" skill, a mantra's charged cast, a multi-hit chain's next hit) — `null` if this
    *  skill has no such second step. The target is never independently equippable in-game (you
    *  can't bind "Stow Med Kit" as your heal skill), so it's excluded from Heal/Utility/Elite
    *  pickers by src/shared/skill-calc/skill-variants.ts rather than offered as a separate pick. */
-  flipSkill: number | null
+  flipSkill: number | null;
   /** Engineer-only: the Toolbelt skill this Heal/Utility/Elite skill generates (F1-F4) when
    *  equipped — `null` for every non-Engineer skill and for Engineer skills with no toolbelt
    *  counterpart. Sourced from the API's own `toolbelt_skill` field; used by
    *  `skill-calc/profession-mechanic.ts`'s `engineerToolbeltBar` instead of the slot-based
    *  resolver, since the base Toolbelt bar isn't enumerable via `professionSkills` at all — it's
    *  generated per equipped Utility (and Heal) choice rather than fixed per elite spec. */
-  toolbeltSkill: number | null
+  toolbeltSkill: number | null;
   /** Engineer Kit-style skills only: the ids of the 5 (or 10, land+underwater — see
    *  `weapon-calc/weapon-skills.ts`'s land/underwater disambiguation, reused for these) skills this
    *  bundle swaps the weapon-skill bar to while active. Sourced from the API's own `bundle_skills`
    *  field; `null` for every skill that isn't a bundle (the vast majority). Not populated for
    *  Firebrand's Tomes — those 15 chapter skills have no id anywhere in the public API at all (live-
    *  verified 2026-07-30), so they're sourced from the wiki instead, see `TomeChapter` below. */
-  bundleSkills: number[] | null
+  bundleSkills: number[] | null;
 }
 
 export interface ItemStatAttribute {
-  attribute: string
-  multiplier: number
-  value: number
+  attribute: string;
+  multiplier: number;
+  value: number;
 }
 
 export interface ItemStat {
-  id: number
-  name: string
-  attributes: ItemStatAttribute[]
+  id: number;
+  name: string;
+  attributes: ItemStatAttribute[];
 }
 
 /**
@@ -229,8 +229,8 @@ export interface ItemStat {
  * selectable on any current item.
  */
 export interface ItemStatLegalIds {
-  armorWeapon: number[]
-  trinket: number[]
+  armorWeapon: number[];
+  trinket: number[];
 }
 
 /**
@@ -241,7 +241,7 @@ export interface ItemStatLegalIds {
  * either core (usable regardless of spec) or a small documented set the fetch script couldn't
  * unambiguously resolve (fails open — treated as ungated, same as before this existed).
  */
-export type EliteSpecSkillMap = Record<number, number>
+export type EliteSpecSkillMap = Record<number, number>;
 
 /**
  * Non-equippable Glyph form-variant skill id -> the canonical id it's actually equipped as, plus
@@ -262,7 +262,10 @@ export type EliteSpecSkillMap = Record<number, number>
  * F5 toggle) and show that form's real facts on the canonical id's tooltip instead of the
  * canonical id's own sparse/generic facts — see `skill-calc/glyph-forms.ts`.
  */
-export type GlyphFormVariantMap = Record<number, { canonicalId: number; form: 'normal' | 'celestial' }>
+export type GlyphFormVariantMap = Record<
+  number,
+  { canonicalId: number; form: 'normal' | 'celestial' }
+>;
 
 /**
  * Skill ids to always exclude from Heal/Utility/Elite pickers, on top of the 6 in-code signals
@@ -275,7 +278,7 @@ export type GlyphFormVariantMap = Record<number, { canonicalId: number; form: 'n
  * need no exclusion (either not ambiguous, or a group the fetch script couldn't verify against the
  * wiki — fails open, left un-collapsed same as before this existed).
  */
-export type SkillVariantExclusions = number[]
+export type SkillVariantExclusions = number[];
 
 /**
  * A Revenant Legend: a fixed heal/3 utility/elite skill kit, swapped between (2 equipped at once)
@@ -288,19 +291,19 @@ export type SkillVariantExclusions = number[]
  * and each legend's `swap` skill name; see docs/game-data.md).
  */
 export interface Legend {
-  id: string
-  name: string
-  icon: string
-  swap: number
-  heal: number
-  elite: number
-  utilities: [number, number, number]
-  specializationId: number | null
+  id: string;
+  name: string;
+  icon: string;
+  swap: number;
+  heal: number;
+  elite: number;
+  utilities: [number, number, number];
+  specializationId: number | null;
   /** This legend's byte value in the official GW2 Build Template chat-link format's Revenant tail
    *  (`/v2/legends`'s own `code` field, `?v=latest`-only — see `Profession.code`'s doc comment for
    *  the same pattern). Merged in at load time from chat-link-ids.json. Always present (all 8
    *  legends have one). See `src/shared/chat-link/build-template-codec.ts`. */
-  code: number
+  code: number;
 }
 
 /**
@@ -313,10 +316,10 @@ export interface Legend {
  * here (see TODO.md). Unlike `Legend`, pets aren't spec-gated at all (no core/elite split).
  */
 export interface Pet {
-  id: number
-  name: string
-  icon: string
-  skillId: number
+  id: number;
+  name: string;
+  icon: string;
+  skillId: number;
 }
 
 /**
@@ -335,11 +338,11 @@ export interface Pet {
  * `/v2/familiars` API endpoint exists either) — deliberately not modeled. See TODO.md.
  */
 export interface Familiar {
-  id: string
-  name: string
-  element: string
-  icon: string
-  rejuvenateSkillId: number
+  id: string;
+  name: string;
+  element: string;
+  icon: string;
+  rejuvenateSkillId: number;
 }
 
 /**
@@ -349,11 +352,11 @@ export interface Familiar {
  * `data/game-data/skills.json` at every step, not guessed).
  */
 export interface SoulbeastBeastmodeBar {
-  f1SkillId: number
-  f2SkillId: number
-  f3SkillId: number
+  f1SkillId: number;
+  f2SkillId: number;
+  f3SkillId: number;
 }
-export type SoulbeastBeastmodeMap = Record<number, SoulbeastBeastmodeBar>
+export type SoulbeastBeastmodeMap = Record<number, SoulbeastBeastmodeBar>;
 
 /**
  * A boon/condition Buff fact's game-mode split, per (skill/trait id, boon/condition name):
@@ -363,10 +366,10 @@ export type SoulbeastBeastmodeMap = Record<number, SoulbeastBeastmodeBar>
  * either unsplit (same value in every mode) or a split the fetch script couldn't verify — see
  * scripts/fetch-wvw-splits.ts and docs/game-data.md.
  */
-export type WvwFactOverride = number | 'omit'
+export type WvwFactOverride = number | 'omit';
 export interface WvwFactOverrides {
-  skill: Record<number, Record<string, WvwFactOverride>>
-  trait: Record<number, Record<string, WvwFactOverride>>
+  skill: Record<number, Record<string, WvwFactOverride>>;
+  trait: Record<number, Record<string, WvwFactOverride>>;
 }
 
 /**
@@ -381,8 +384,8 @@ export interface WvwFactOverrides {
  * scripts/fetch-recharge-wvw-overrides.ts and docs/game-data.md.
  */
 export interface RechargeWvwOverrides {
-  skill: Record<number, number>
-  trait: Record<number, number>
+  skill: Record<number, number>;
+  trait: Record<number, number>;
 }
 
 /**
@@ -402,15 +405,15 @@ export interface RechargeWvwOverrides {
  * every other WvW-focused override in this app.
  */
 export interface ResourceCost {
-  energy?: number
-  energyWvw?: number
-  initiative?: number
-  initiativeWvw?: number
+  energy?: number;
+  energyWvw?: number;
+  initiative?: number;
+  initiativeWvw?: number;
   /** Negative: the amount drained per second while the skill is held active. */
-  upkeep?: number
-  upkeepWvw?: number
-  healthCost?: number
-  healthCostWvw?: number
+  upkeep?: number;
+  upkeepWvw?: number;
+  healthCost?: number;
+  healthCostWvw?: number;
 }
 
 /**
@@ -418,7 +421,7 @@ export interface ResourceCost {
  * energy/initiative/upkeep/health (the overwhelming majority of skills) — same fail-safe "absent
  * means doesn't apply" convention as `RechargeWvwOverrides`.
  */
-export type ResourceCostsById = Record<number, ResourceCost>
+export type ResourceCostsById = Record<number, ResourceCost>;
 
 /**
  * One line of flat attribute-bonus text, parsed from the API's raw bonus/description text (e.g.
@@ -443,11 +446,11 @@ export type ResourceCostsById = Record<number, ResourceCost>
  * (which no-ops on these — a single-pass point add can't know the source's final value yet).
  */
 export interface AttributeBonusText {
-  raw: string
-  attribute: string | null
-  value: number | null
-  isPercent: boolean
-  sourceAttribute: string | null
+  raw: string;
+  attribute: string | null;
+  value: number | null;
+  isPercent: boolean;
+  sourceAttribute: string | null;
 }
 
 /**
@@ -458,10 +461,10 @@ export interface AttributeBonusText {
  * fetched; lower rune tiers aren't selectable in this app.
  */
 export interface Rune {
-  id: number
-  name: string
-  icon: string
-  bonuses: AttributeBonusText[]
+  id: number;
+  name: string;
+  icon: string;
+  bonuses: AttributeBonusText[];
 }
 
 /**
@@ -479,12 +482,12 @@ export interface Rune {
  * `WeaponFlag` (which is hand/two-hand/aquatic, not weapon type).
  */
 export interface Sigil {
-  id: number
-  name: string
-  icon: string
-  description: string
-  weaponTypes: string[]
-  bonuses: AttributeBonusText[]
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  weaponTypes: string[];
+  bonuses: AttributeBonusText[];
 }
 
 /**
@@ -496,12 +499,12 @@ export interface Sigil {
  * text (some, like Mighty, also have a WvW-flavored secondary effect not modeled structurally).
  */
 export interface Infusion {
-  id: number
-  name: string
-  icon: string
-  description: string
-  attribute: string | null
-  value: number | null
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
+  attribute: string | null;
+  value: number | null;
 }
 
 /**
@@ -512,10 +515,10 @@ export interface Infusion {
  * TODO.md). Exact numeric values are sourced separately from the wiki — see `RelicEffect` below.
  */
 export interface Relic {
-  id: number
-  name: string
-  icon: string
-  description: string
+  id: number;
+  name: string;
+  icon: string;
+  description: string;
 }
 
 /**
@@ -530,9 +533,9 @@ export interface Relic {
  * per-line game-mode field left on this type because that resolution already happened.
  */
 export interface RelicFactLine {
-  label: string
-  values: string[]
-  params: Record<string, string>
+  label: string;
+  values: string[];
+  params: Record<string, string>;
 }
 
 /**
@@ -550,8 +553,8 @@ export interface RelicFactLine {
  * conditional player action with no fixed per-rotation frequency this app models.
  */
 export interface RelicEffect {
-  facts: RelicFactLine[]
-  rechargeSeconds: number | null
+  facts: RelicFactLine[];
+  rechargeSeconds: number | null;
 }
 
 /**
@@ -561,7 +564,7 @@ export interface RelicEffect {
  * check — and those extra ids are simply omitted here (fail-safe: falls back to `Relic.description`
  * only, same as before this existed, never wrong data attached to the wrong id).
  */
-export type RelicEffectsById = Record<number, RelicEffect>
+export type RelicEffectsById = Record<number, RelicEffect>;
 
 /**
  * One of a Firebrand Tome's 5 chapter skills (e.g. Tome of Justice's "Chapter 1: Searing Spell"),
@@ -576,20 +579,20 @@ export type RelicEffectsById = Record<number, RelicEffect>
 export interface TomeChapter {
   /** The parent tome's own equippable id (e.g. Tome of Justice = 44364) — one of the ids already
    *  resolved onto Firebrand's F1/F2/F3 by `skill-calc/profession-mechanic.ts`. */
-  tomeSkillId: number
+  tomeSkillId: number;
   /** 0-4, matching weapon-skill slots 1-5 in order (from the wiki's own `weapon slot=` field, not
    *  array position — authoritative in case a page is ever reordered). */
-  slotIndex: number
-  name: string
-  description: string
-  icon: string
-  facts: RelicFactLine[]
+  slotIndex: number;
+  name: string;
+  description: string;
+  icon: string;
+  facts: RelicFactLine[];
 }
 
 /** Tome skill id -> its 5 chapters, in `slotIndex` order. */
-export type TomeChaptersByTomeId = Record<number, TomeChapter[]>
+export type TomeChaptersByTomeId = Record<number, TomeChapter[]>;
 
-export type ConsumableKind = 'Food' | 'Utility'
+export type ConsumableKind = 'Food' | 'Utility';
 
 /**
  * A food or utility consumable. The full catalog is fetched (not pre-filtered to a "WvW meta"
@@ -618,53 +621,53 @@ export type ConsumableKind = 'Food' | 'Utility'
  * per-item wiki check) — they stay `null` on a borrowed entry, same as an unmatched one.
  */
 export interface Consumable {
-  id: number
-  name: string
-  icon: string
-  kind: ConsumableKind
+  id: number;
+  name: string;
+  icon: string;
+  kind: ConsumableKind;
   /** Raw GW2 API rarity string ("Basic", "Fine", "Masterwork", "Rare", "Exotic", "Ascended" — the
    *  full spread actually seen across Food/Utility; no Junk or Legendary items in either catalog).
    *  Unlike every other gear-upgrade category, Food/Utility have no single fixed rarity, so this
    *  travels with the item itself rather than being a picker-level constant — see `UpgradeRarity`/
    *  `toUpgradeRarity` in `UpgradePicker.tsx` for how it's mapped onto the tooltip/border color. */
-  rarity: string
-  effectName: string | null
-  durationMs: number | null
-  applyCount: number | null
-  description: string
-  bonuses: AttributeBonusText[]
-  sharedBuffSource: string | null
+  rarity: string;
+  effectName: string | null;
+  durationMs: number | null;
+  applyCount: number | null;
+  description: string;
+  bonuses: AttributeBonusText[];
+  sharedBuffSource: string | null;
 }
 
 export interface GameData {
-  professions: Profession[]
-  specializations: Specialization[]
-  traits: Trait[]
-  skills: Skill[]
-  itemStats: ItemStat[]
+  professions: Profession[];
+  specializations: Specialization[];
+  traits: Trait[];
+  skills: Skill[];
+  itemStats: ItemStat[];
   /** `ItemStat.name` -> a representative icon URL, e.g. "Berserker's" -> the icon of a real
    *  "Berserker's ... Insignia" crafting item sharing that name prefix (itemstats themselves have
    *  no icon field — see `scripts/fetch-gear-upgrades.ts`'s `deriveItemStatIcons`). Not every stat
    *  name resolves: compound legacy combos (e.g. "Dire and Rabid") and WvW/PvP-only amulet stat
    *  names (e.g. "Harrier's") have no matching insignia at all — absent from this map, not a bug. */
-  itemStatIcons: Record<string, string>
-  itemStatLegalIds: ItemStatLegalIds
-  eliteSpecSkills: EliteSpecSkillMap
-  glyphFormVariants: GlyphFormVariantMap
-  skillVariantExclusions: SkillVariantExclusions
-  wvwFactOverrides: WvwFactOverrides
-  rechargeWvwOverrides: RechargeWvwOverrides
-  resourceCosts: ResourceCostsById
-  legends: Legend[]
-  pets: Pet[]
-  familiars: Familiar[]
-  soulbeastBeastmode: SoulbeastBeastmodeMap
-  runes: Rune[]
-  sigils: Sigil[]
-  infusions: Infusion[]
-  relics: Relic[]
-  relicEffects: RelicEffectsById
-  food: Consumable[]
-  utility: Consumable[]
-  tomeChapters: TomeChaptersByTomeId
+  itemStatIcons: Record<string, string>;
+  itemStatLegalIds: ItemStatLegalIds;
+  eliteSpecSkills: EliteSpecSkillMap;
+  glyphFormVariants: GlyphFormVariantMap;
+  skillVariantExclusions: SkillVariantExclusions;
+  wvwFactOverrides: WvwFactOverrides;
+  rechargeWvwOverrides: RechargeWvwOverrides;
+  resourceCosts: ResourceCostsById;
+  legends: Legend[];
+  pets: Pet[];
+  familiars: Familiar[];
+  soulbeastBeastmode: SoulbeastBeastmodeMap;
+  runes: Rune[];
+  sigils: Sigil[];
+  infusions: Infusion[];
+  relics: Relic[];
+  relicEffects: RelicEffectsById;
+  food: Consumable[];
+  utility: Consumable[];
+  tomeChapters: TomeChaptersByTomeId;
 }

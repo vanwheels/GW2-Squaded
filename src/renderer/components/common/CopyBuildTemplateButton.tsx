@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import type { Build, GameData } from '@shared/types'
-import { encodeBuildTemplate } from '@shared/chat-link/build-template-codec'
+import { useState } from 'react';
+import type { Build, GameData } from '@shared/types';
+import { encodeBuildTemplate } from '@shared/chat-link/build-template-codec';
 
 interface Props {
-  build: Build
-  gameData: GameData
+  build: Build;
+  gameData: GameData;
 }
 
-type Status = 'idle' | 'done' | 'error'
+type Status = 'idle' | 'done' | 'error';
 
 /**
  * Copies the current build's official GW2 "Build Template" chat link (`[&D...]`, traits + skills
@@ -17,23 +17,31 @@ type Status = 'idle' | 'done' | 'error'
  * unlike `SharePanel`) — encoding is synchronous, so there's no `busy` state.
  */
 export function CopyBuildTemplateButton({ build, gameData }: Props) {
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<Status>('idle');
 
   async function handleClick(): Promise<void> {
     try {
-      const { code } = encodeBuildTemplate(build, gameData)
-      await navigator.clipboard.writeText(code)
-      setStatus('done')
-      setTimeout(() => setStatus('idle'), 1500)
+      const { code } = encodeBuildTemplate(build, gameData);
+      await navigator.clipboard.writeText(code);
+      setStatus('done');
+      setTimeout(() => setStatus('idle'), 1500);
     } catch {
-      setStatus('error')
-      setTimeout(() => setStatus('idle'), 2500)
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2500);
     }
   }
 
   return (
-    <button type="button" onClick={() => void handleClick()} title="Copy an official GW2 build-template chat link (traits + skills)">
-      {status === 'done' ? 'Copied!' : status === 'error' ? 'Failed — try again' : 'Copy Build Template'}
+    <button
+      type="button"
+      onClick={() => void handleClick()}
+      title="Copy an official GW2 build-template chat link (traits + skills)"
+    >
+      {status === 'done'
+        ? 'Copied!'
+        : status === 'error'
+          ? 'Failed — try again'
+          : 'Copy Build Template'}
     </button>
-  )
+  );
 }

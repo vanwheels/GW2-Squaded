@@ -1,6 +1,6 @@
-import type { EquipmentSlot, EquipmentSlotKey, Profession, ProfessionWeapon } from '@shared/types'
+import type { EquipmentSlot, EquipmentSlotKey, Profession, ProfessionWeapon } from '@shared/types';
 
-export type EquipmentValue = Partial<Record<EquipmentSlotKey, EquipmentSlot>>
+export type EquipmentValue = Partial<Record<EquipmentSlotKey, EquipmentSlot>>;
 
 /** GW2 API weapon-type key (`ProfessionWeapon`'s key in `profession.weapons`) to gw2skills icon
  *  filename slug — both `weapon-mini/` (small badge art) and `weapon-placeholder/` (large empty-
@@ -28,26 +28,34 @@ const WEAPON_ICON_SLUG: Record<string, string> = {
   Sword: 'sword',
   Torch: 'torch',
   Trident: 'trident',
-  Warhorn: 'warhorn'
-}
+  Warhorn: 'warhorn',
+};
 
 /** `Trident`/`Speargun` are `Aquatic`-flagged and never usable on land. `Spear` is also
  *  `Aquatic`-flagged but, as of the Janthir Wilds expansion, usable on land too (with its own
  *  `NoUnderwater`-flagged land skill ids — see `profession-mechanic.ts`/`weapon-skills.ts`) — so
  *  it can't be excluded from land weapon options by the `Aquatic` flag alone. */
-export const AQUATIC_ONLY_WEAPON_NAMES = new Set(['Trident', 'Speargun'])
+export const AQUATIC_ONLY_WEAPON_NAMES = new Set(['Trident', 'Speargun']);
 
-export function weaponMiniIcon(weaponType: string | null | undefined, isAquatic: boolean): string | undefined {
-  const slug = weaponType === 'Spear' && !isAquatic ? 'spear-land' : weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
+export function weaponMiniIcon(
+  weaponType: string | null | undefined,
+  isAquatic: boolean,
+): string | undefined {
+  const slug =
+    weaponType === 'Spear' && !isAquatic
+      ? 'spear-land'
+      : weaponType
+        ? WEAPON_ICON_SLUG[weaponType]
+        : undefined;
   // Relative (no leading slash): the packaged app loads index.html via `file://`, where a
   // root-absolute path resolves against the OS filesystem root, not the app's own directory —
   // broke every local icon in production (see COMPLETED.md/git history, discovered post-release).
-  return slug ? `icons/weapon-mini/${slug}.png` : undefined
+  return slug ? `icons/weapon-mini/${slug}.png` : undefined;
 }
 
 export function weaponPlaceholderIcon(weaponType: string | null | undefined): string | undefined {
-  const slug = weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
-  return slug ? `icons/weapon-placeholder/${slug}.png` : undefined
+  const slug = weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined;
+  return slug ? `icons/weapon-placeholder/${slug}.png` : undefined;
 }
 
 /** Weapon types this profession can use in a given hand context. Not gated by equipped elite
@@ -55,15 +63,18 @@ export function weaponPlaceholderIcon(weaponType: string | null | undefined): st
  *  profession permanently available, regardless of which spec is currently equipped. */
 export function weaponOptionsFor(
   profession: Profession | undefined,
-  filter: (name: string, w: ProfessionWeapon) => boolean
+  filter: (name: string, w: ProfessionWeapon) => boolean,
 ): [string, ProfessionWeapon][] {
-  if (!profession) return []
-  return Object.entries(profession.weapons).filter(([name, w]) => filter(name, w))
+  if (!profession) return [];
+  return Object.entries(profession.weapons).filter(([name, w]) => filter(name, w));
 }
 
-export function isTwoHandedWeapon(profession: Profession | undefined, weaponType: string | null | undefined): boolean {
-  if (!weaponType) return false
-  return profession?.weapons[weaponType]?.flags.includes('TwoHand') ?? false
+export function isTwoHandedWeapon(
+  profession: Profession | undefined,
+  weaponType: string | null | undefined,
+): boolean {
+  if (!weaponType) return false;
+  return profession?.weapons[weaponType]?.flags.includes('TwoHand') ?? false;
 }
 
 /**
@@ -81,29 +92,29 @@ export function weaponPairHandlers(
   value: EquipmentValue,
   onChange: (value: EquipmentValue) => void,
   mainKey: EquipmentSlotKey,
-  offKey: EquipmentSlotKey
+  offKey: EquipmentSlotKey,
 ) {
-  const mainSlot = value[mainKey]
-  const offSlot = value[offKey]
-  const isTwoHanded = isTwoHandedWeapon(profession, mainSlot?.weaponType)
+  const mainSlot = value[mainKey];
+  const offSlot = value[offKey];
+  const isTwoHanded = isTwoHandedWeapon(profession, mainSlot?.weaponType);
 
   function chooseMain(weaponType: string | null): void {
-    const newIsTwoHanded = isTwoHandedWeapon(profession, weaponType)
-    const itemStatId = mainSlot?.itemStatId ?? null
-    const nextMain: EquipmentSlot = { itemStatId, weaponType }
+    const newIsTwoHanded = isTwoHandedWeapon(profession, weaponType);
+    const itemStatId = mainSlot?.itemStatId ?? null;
+    const nextMain: EquipmentSlot = { itemStatId, weaponType };
     const nextOff: EquipmentSlot = newIsTwoHanded
       ? { itemStatId, weaponType }
       : isTwoHanded
         ? { itemStatId: null, weaponType: null }
-        : (offSlot ?? { itemStatId: null, weaponType: null })
-    onChange({ ...value, [mainKey]: nextMain, [offKey]: nextOff })
+        : (offSlot ?? { itemStatId: null, weaponType: null });
+    onChange({ ...value, [mainKey]: nextMain, [offKey]: nextOff });
   }
 
   function chooseOff(weaponType: string | null): void {
-    onChange({ ...value, [offKey]: { itemStatId: offSlot?.itemStatId ?? null, weaponType } })
+    onChange({ ...value, [offKey]: { itemStatId: offSlot?.itemStatId ?? null, weaponType } });
   }
 
-  return { mainSlot, offSlot, isTwoHanded, chooseMain, chooseOff }
+  return { mainSlot, offSlot, isTwoHanded, chooseMain, chooseOff };
 }
 
 /** A single (unpaired) weapon slot's weapon-type setter — underwater sets only, see
@@ -112,7 +123,8 @@ export function weaponPairHandlers(
 export function chooseSingleWeapon(
   value: EquipmentValue,
   onChange: (value: EquipmentValue) => void,
-  key: EquipmentSlotKey
+  key: EquipmentSlotKey,
 ): (weaponType: string | null) => void {
-  return (weaponType) => onChange({ ...value, [key]: { itemStatId: value[key]?.itemStatId ?? null, weaponType } })
+  return (weaponType) =>
+    onChange({ ...value, [key]: { itemStatId: value[key]?.itemStatId ?? null, weaponType } });
 }

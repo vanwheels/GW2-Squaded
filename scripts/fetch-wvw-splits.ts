@@ -42,45 +42,53 @@
  * Run manually via `npm run fetch-wvw-splits`, after `npm run fetch-game-data` (matches wiki page
  * titles against the already-fetched data/game-data/{skills,traits}.json by name).
  */
-import { readFile, writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../src/shared/types/game-data'
-import { BOON_NAMES, CONDITION_NAMES } from '../src/shared/boon-calc/constants'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type {
+  Skill,
+  Trait,
+  WvwFactOverride,
+  WvwFactOverrides,
+} from '../src/shared/types/game-data';
+import { BOON_NAMES, CONDITION_NAMES } from '../src/shared/boon-calc/constants';
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache';
 
-const WIKI_API = 'https://wiki.guildwars2.com/api.php'
-const REQUEST_DELAY_MS = 150
+const WIKI_API = 'https://wiki.guildwars2.com/api.php';
+const REQUEST_DELAY_MS = 150;
 // Same gotcha as fetch-elite-spec-skills.ts: the wiki returns 403 for Node's default User-Agent.
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-const NAME_BY_LOWER = new Map<string, string>([...BOON_NAMES, ...CONDITION_NAMES].map((n) => [n.toLowerCase(), n]))
+const NAME_BY_LOWER = new Map<string, string>(
+  [...BOON_NAMES, ...CONDITION_NAMES].map((n) => [n.toLowerCase(), n]),
+);
 /** Shorthand/alternate names the wiki's `{{skill fact|...}}`/`{{trait fact|...}}` templates use
  *  for a boon/condition instead of its canonical API `Fact.status` string (found live 2026-08-06 on
  *  Firebrand Mantra pages — "Blind" for Blinded, "immobilized" for Immobile). Without these, a
  *  wikitext line using the alt name is silently dropped by `parseFactLines` (not in `NAME_BY_LOWER`
  *  at all) rather than logged, so the boon/condition it splits ends up looking simply unsplit —
  *  add more here if a future page turns up another alias, rather than guessing at others upfront. */
-const WIKI_NAME_ALIASES: Record<string, string> = { blind: 'Blinded', immobilized: 'Immobile' }
-for (const [alias, canonical] of Object.entries(WIKI_NAME_ALIASES)) NAME_BY_LOWER.set(alias, canonical)
+const WIKI_NAME_ALIASES: Record<string, string> = { blind: 'Blinded', immobilized: 'Immobile' };
+for (const [alias, canonical] of Object.entries(WIKI_NAME_ALIASES))
+  NAME_BY_LOWER.set(alias, canonical);
 
 /** Wiki article titles for shout-style skills keep surrounding quote marks the API's skill.name
  *  drops (or vice versa) — try both forms, same helper as fetch-elite-spec-skills.ts. */
 function titleVariants(title: string): string[] {
-  const unquoted = title.replace(/^"(.*)"$/, '$1')
-  return unquoted === title ? [title, `"${title}"`] : [title, unquoted]
+  const unquoted = title.replace(/^"(.*)"$/, '$1');
+  return unquoted === title ? [title, `"${title}"`] : [title, unquoted];
 }
 
 async function fetchCategoryMembers(category: string): Promise<Set<string>> {
-  const titles = new Set<string>()
-  let continueParams: Record<string, string> = {}
+  const titles = new Set<string>();
+  let continueParams: Record<string, string> = {};
   for (;;) {
     const params = new URLSearchParams({
       action: 'query',
@@ -88,29 +96,32 @@ async function fetchCategoryMembers(category: string): Promise<Set<string>> {
       cmtitle: category,
       cmlimit: '500',
       format: 'json',
-      ...continueParams
-    })
-    const response = await fetch(`${WIKI_API}?${params.toString()}`, { headers: { 'User-Agent': USER_AGENT } })
-    if (!response.ok) throw new Error(`Wiki API request failed: ${response.status} ${response.statusText}`)
+      ...continueParams,
+    });
+    const response = await fetch(`${WIKI_API}?${params.toString()}`, {
+      headers: { 'User-Agent': USER_AGENT },
+    });
+    if (!response.ok)
+      throw new Error(`Wiki API request failed: ${response.status} ${response.statusText}`);
     const data = (await response.json()) as {
-      query?: { categorymembers?: { title: string }[] }
-      continue?: Record<string, string>
-    }
-    for (const member of data.query?.categorymembers ?? []) titles.add(member.title)
+      query?: { categorymembers?: { title: string }[] };
+      continue?: Record<string, string>;
+    };
+    for (const member of data.query?.categorymembers ?? []) titles.add(member.title);
     if (data.continue) {
-      continueParams = data.continue
-      await sleep(REQUEST_DELAY_MS)
+      continueParams = data.continue;
+      await sleep(REQUEST_DELAY_MS);
     } else {
-      break
+      break;
     }
   }
-  return titles
+  return titles;
 }
 
 interface ParsedFactLine {
-  name: string // properly-cased boon/condition name
-  duration: number
-  gameModeTokens: string[] | null // null = no `game mode=` param (applies everywhere)
+  name: string; // properly-cased boon/condition name
+  duration: number;
+  gameModeTokens: string[] | null; // null = no `game mode=` param (applies everywhere)
 }
 
 /** Extracts every `{{skill fact|...}}` / `{{trait fact|...}}` invocation's boon/condition-name,
@@ -119,67 +130,84 @@ interface ParsedFactLine {
  *  affects non-boon fact types (which are discarded below), and any resulting corruption on a
  *  boon fact is caught by the API-duration cross-check in validateAndBuildOverride. */
 function parseFactLines(wikitext: string): ParsedFactLine[] {
-  const out: ParsedFactLine[] = []
-  const templateRe = /\{\{\s*(?:skill|trait)\s*fact\s*\|(.*?)\}\}/gis
+  const out: ParsedFactLine[] = [];
+  const templateRe = /\{\{\s*(?:skill|trait)\s*fact\s*\|(.*?)\}\}/gis;
   for (const match of wikitext.matchAll(templateRe)) {
-    const segments = match[1].split('|').map((s) => s.trim())
-    const rawName = segments[0]?.toLowerCase()
-    if (!rawName) continue
-    const name = NAME_BY_LOWER.get(rawName)
-    if (!name) continue // not a boon/condition fact (damage, healing, radius, ...)
+    const segments = match[1].split('|').map((s) => s.trim());
+    const rawName = segments[0]?.toLowerCase();
+    if (!rawName) continue;
+    const name = NAME_BY_LOWER.get(rawName);
+    if (!name) continue; // not a boon/condition fact (damage, healing, radius, ...)
 
-    let duration: number | null = null
-    let gameModeTokens: string[] | null = null
+    let duration: number | null = null;
+    let gameModeTokens: string[] | null = null;
     for (const seg of segments.slice(1)) {
-      const modeMatch = /^game\s*mode\s*=\s*(.+)$/i.exec(seg)
+      const modeMatch = /^game\s*mode\s*=\s*(.+)$/i.exec(seg);
       if (modeMatch) {
-        gameModeTokens = modeMatch[1].toLowerCase().split(/[\s,]+/).filter(Boolean)
-        continue
+        gameModeTokens = modeMatch[1]
+          .toLowerCase()
+          .split(/[\s,]+/)
+          .filter(Boolean);
+        continue;
       }
       if (duration === null && /^\d+(\.\d+)?$/.test(seg)) {
-        duration = Number(seg)
+        duration = Number(seg);
       }
     }
-    if (duration === null) continue // no bare numeric value found — not a duration-bearing fact
-    out.push({ name, duration, gameModeTokens })
+    if (duration === null) continue; // no bare numeric value found — not a duration-bearing fact
+    out.push({ name, duration, gameModeTokens });
   }
-  return out
+  return out;
 }
 
 interface CandidateObject {
-  kind: 'skill' | 'trait'
-  id: number
-  name: string
-  statusCounts: Map<string, number> // boon/condition name -> count of Buff facts with that status
-  statusDurations: Map<string, number[]> // boon/condition name -> every one of those facts' own API durations, in order
+  kind: 'skill' | 'trait';
+  id: number;
+  name: string;
+  statusCounts: Map<string, number>; // boon/condition name -> count of Buff facts with that status
+  statusDurations: Map<string, number[]>; // boon/condition name -> every one of those facts' own API durations, in order
 }
 
-function collectCandidates(objects: (Skill | Trait)[], kind: 'skill' | 'trait'): Map<string, CandidateObject[]> {
-  const byName = new Map<string, CandidateObject[]>()
+function collectCandidates(
+  objects: (Skill | Trait)[],
+  kind: 'skill' | 'trait',
+): Map<string, CandidateObject[]> {
+  const byName = new Map<string, CandidateObject[]>();
   for (const obj of objects) {
-    const statusCounts = new Map<string, number>()
-    const statusDurations = new Map<string, number[]>()
+    const statusCounts = new Map<string, number>();
+    const statusDurations = new Map<string, number[]>();
     for (const fact of [...obj.facts, ...obj.traitedFacts]) {
-      if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') continue
-      if (!NAME_BY_LOWER.has(fact.status.toLowerCase())) continue
-      statusCounts.set(fact.status, (statusCounts.get(fact.status) ?? 0) + 1)
-      const durations = statusDurations.get(fact.status) ?? []
-      durations.push(fact.duration)
-      statusDurations.set(fact.status, durations)
+      if (
+        fact.type !== 'Buff' ||
+        typeof fact.status !== 'string' ||
+        typeof fact.duration !== 'number'
+      )
+        continue;
+      if (!NAME_BY_LOWER.has(fact.status.toLowerCase())) continue;
+      statusCounts.set(fact.status, (statusCounts.get(fact.status) ?? 0) + 1);
+      const durations = statusDurations.get(fact.status) ?? [];
+      durations.push(fact.duration);
+      statusDurations.set(fact.status, durations);
     }
-    if (statusCounts.size === 0) continue
-    const candidate: CandidateObject = { kind, id: obj.id, name: obj.name, statusCounts, statusDurations }
-    const list = byName.get(obj.name) ?? []
-    list.push(candidate)
-    byName.set(obj.name, list)
+    if (statusCounts.size === 0) continue;
+    const candidate: CandidateObject = {
+      kind,
+      id: obj.id,
+      name: obj.name,
+      statusCounts,
+      statusDurations,
+    };
+    const list = byName.get(obj.name) ?? [];
+    list.push(candidate);
+    byName.set(obj.name, list);
   }
-  return byName
+  return byName;
 }
 
-const EPSILON = 0.01
+const EPSILON = 0.01;
 
 function containsWithinEpsilon(durations: number[], target: number): boolean {
-  return durations.some((d) => Math.abs(d - target) <= EPSILON)
+  return durations.some((d) => Math.abs(d - target) <= EPSILON);
 }
 
 /** Given all parsed wiki fact-lines for one boon/condition name on one page, decides whether
@@ -190,18 +218,20 @@ function resolveOverride(
   lines: ParsedFactLine[],
   candidate: CandidateObject,
   pageTitle: string,
-  log: string[]
+  log: string[],
 ): WvwFactOverride | undefined {
-  const factCount = candidate.statusCounts.get(boonName) ?? 0
-  const apiDurations = candidate.statusDurations.get(boonName) ?? []
+  const factCount = candidate.statusCounts.get(boonName) ?? 0;
+  const apiDurations = candidate.statusDurations.get(boonName) ?? [];
 
-  const withMode = lines.filter((l) => l.gameModeTokens !== null)
-  const withoutMode = lines.filter((l) => l.gameModeTokens === null)
-  if (withMode.length === 0) return undefined // not actually split for this boon, nothing to do
+  const withMode = lines.filter((l) => l.gameModeTokens !== null);
+  const withoutMode = lines.filter((l) => l.gameModeTokens === null);
+  if (withMode.length === 0) return undefined; // not actually split for this boon, nothing to do
 
   if (withoutMode.length > 0) {
-    log.push(`skip (mixed modal/non-modal): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
-    return undefined
+    log.push(
+      `skip (mixed modal/non-modal): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`,
+    );
+    return undefined;
   }
 
   // Bucket by explicit 'pve'/'wvw' token, not "wvw" vs "everything else" — a genuine 3-way split
@@ -211,11 +241,13 @@ function resolveOverride(
   // perfectly resolvable — live-verified 2026-08-06, ~80 pages hit this across the full dataset. A
   // pvp-only line (tagged neither 'pve' nor 'wvw') is outside this app's PvE-default/WvW-override
   // model and is simply ignored, not counted toward either bucket.
-  const wvwLines = withMode.filter((l) => l.gameModeTokens!.includes('wvw'))
-  const pveLines = withMode.filter((l) => l.gameModeTokens!.includes('pve'))
+  const wvwLines = withMode.filter((l) => l.gameModeTokens!.includes('wvw'));
+  const pveLines = withMode.filter((l) => l.gameModeTokens!.includes('pve'));
   if (wvwLines.length > 1 || pveLines.length > 1) {
-    log.push(`skip (ambiguous multi-entry): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
-    return undefined
+    log.push(
+      `skip (ambiguous multi-entry): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`,
+    );
+    return undefined;
   }
 
   if (factCount > 1) {
@@ -227,60 +259,64 @@ function resolveOverride(
     // apply the wrong override. `sources.ts`'s `extractFromFacts` collapses every raw fact for
     // this status down to one row using this override at read time, once it exists.
     if (pveLines.length !== 1) {
-      log.push(`skip (cardinality ${factCount}, no clean single pve line): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
-      return undefined
+      log.push(
+        `skip (cardinality ${factCount}, no clean single pve line): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`,
+      );
+      return undefined;
     }
     if (!containsWithinEpsilon(apiDurations, pveLines[0].duration)) {
       log.push(
-        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed PvE=${pveLines[0].duration}`
-      )
-      return undefined
+        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed PvE=${pveLines[0].duration}`,
+      );
+      return undefined;
     }
-    if (wvwLines.length === 0) return 'omit'
+    if (wvwLines.length === 0) return 'omit';
     if (!containsWithinEpsilon(apiDurations, wvwLines[0].duration)) {
       log.push(
-        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed WvW=${wvwLines[0].duration}`
-      )
-      return undefined
+        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed WvW=${wvwLines[0].duration}`,
+      );
+      return undefined;
     }
-    return wvwLines[0].duration
+    return wvwLines[0].duration;
   }
 
   if (factCount === 0) {
-    log.push(`skip (no matching Buff fact on object): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
-    return undefined
+    log.push(
+      `skip (no matching Buff fact on object): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`,
+    );
+    return undefined;
   }
 
-  const apiDuration = apiDurations[0]
+  const apiDuration = apiDurations[0];
 
   if (pveLines.length === 1 && wvwLines.length === 1) {
     if (Math.abs(apiDuration - pveLines[0].duration) > EPSILON) {
       log.push(
-        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed PvE=${pveLines[0].duration}`
-      )
-      return undefined
+        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed PvE=${pveLines[0].duration}`,
+      );
+      return undefined;
     }
-    return wvwLines[0].duration
+    return wvwLines[0].duration;
   }
 
   if (pveLines.length === 1 && wvwLines.length === 0) {
     if (Math.abs(apiDuration - pveLines[0].duration) > EPSILON) {
       log.push(
-        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed PvE=${pveLines[0].duration}`
-      )
-      return undefined
+        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed PvE=${pveLines[0].duration}`,
+      );
+      return undefined;
     }
-    return 'omit'
+    return 'omit';
   }
 
   if (pveLines.length === 0 && wvwLines.length === 1) {
     if (Math.abs(apiDuration - wvwLines[0].duration) > EPSILON) {
       log.push(
-        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed WvW-only=${wvwLines[0].duration}`
-      )
-      return undefined
+        `skip (validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=${apiDuration}, parsed WvW-only=${wvwLines[0].duration}`,
+      );
+      return undefined;
     }
-    return undefined // API already reflects the sole (WvW-tagged) value — nothing to override
+    return undefined; // API already reflects the sole (WvW-tagged) value — nothing to override
   }
 
   // Every game-mode-tagged line exists, but none of them is 'pve' or 'wvw' — i.e. every line is
@@ -293,11 +329,13 @@ function resolveOverride(
   // "doesn't apply outside PvE") and Kinetic Accelerators (trait 2052, Fury tagged `pvp` only, no
   // pve/wvw counterpart at all).
   if (pveLines.length === 0 && wvwLines.length === 0) {
-    return 'omit'
+    return 'omit';
   }
 
-  log.push(`skip (unhandled combination): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
-  return undefined
+  log.push(
+    `skip (unhandled combination): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`,
+  );
+  return undefined;
 }
 
 /**
@@ -318,7 +356,10 @@ function resolveOverride(
  * instead of loosening the general validation (which exists to catch genuine wiki/API drift, not
  * to paper over this specific rounding quirk).
  */
-const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>; trait: Record<number, Record<string, WvwFactOverride>> } = {
+const MANUAL_OVERRIDES: {
+  skill: Record<number, Record<string, WvwFactOverride>>;
+  trait: Record<number, Record<string, WvwFactOverride>>;
+} = {
   skill: {
     41988: { Quickness: 2.5 }, // Overwhelming Celerity — WvW value per 2025-04-15 patch notes
     42983: { Quickness: 1 }, // Potent Haste — WvW value unchanged since 2020-02-25; entry exists to
@@ -977,7 +1018,7 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // pve/wvw split (confirmed during the earlier Conduit `wvw-fact-overrides.json` leg this same
     // day). See `boon-calc/sources.ts`'s own comment near `LEGEND_FORM_FACT_SKILL_IDS` for the
     // full writeup, including why Found Purpose was deliberately NOT added the same way.
-    77371: { Burning: 4 }
+    77371: { Burning: 4 },
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -1271,7 +1312,14 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // exists" hazard as Fox's Fury/Darkrazor's Daring, and here it's worse since 2 of the 3 are
     // genuinely different concepts (base vs. Entity-conditional) — left as a documented gap, not
     // modeled wrong.
-    2352: { Fury: 5, Resistance: 2, Stability: 2, Resolution: 'omit', Protection: 2, Quickness: 'omit' },
+    2352: {
+      Fury: 5,
+      Resistance: 2,
+      Stability: 2,
+      Resolution: 'omit',
+      Protection: 2,
+      Quickness: 'omit',
+    },
     //
     // Shared Wisdom (2355, Adept major — "grant boons to allies whenever you use a Legendary Entity
     // Skill, depending on which skill was used"): all 5 of its per-skill grants are clean, single-
@@ -1332,135 +1380,145 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Resolution (Dwarf Stance) are NOT touched here: wiki confirms those are a genuine 2-status
     // split (pve+wvw=Stability, pvp=Resolution) already correctly modeled as 2 separate facts
     // pre-dating this patch, unrelated to this leak.
-    2440: { Fury: 10, Resistance: 5, Protection: 5, Quickness: 5, Might: 10 }
-  }
-}
+    2440: { Fury: 10, Resistance: 5, Protection: 5, Quickness: 5, Might: 10 },
+  },
+};
 
 function applyManualOverrides(result: WvwFactOverrides, log: string[]): void {
   for (const kind of ['skill', 'trait'] as const) {
     for (const [idStr, overrides] of Object.entries(MANUAL_OVERRIDES[kind])) {
-      const id = Number(idStr)
-      const existing = result[kind][id] ?? {}
+      const id = Number(idStr);
+      const existing = result[kind][id] ?? {};
       for (const [boonName, value] of Object.entries(overrides)) {
         if (existing[boonName] !== undefined && existing[boonName] !== value) {
-          log.push(`manual override REPLACES automated result: ${kind} ${id} / ${boonName} — automated=${existing[boonName]}, manual=${value}`)
+          log.push(
+            `manual override REPLACES automated result: ${kind} ${id} / ${boonName} — automated=${existing[boonName]}, manual=${value}`,
+          );
         }
-        existing[boonName] = value
+        existing[boonName] = value;
       }
-      result[kind][id] = existing
+      result[kind][id] = existing;
     }
   }
 }
 
 async function main(): Promise<void> {
-  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
-  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[]
+  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[];
+  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[];
 
-  const skillsByName = collectCandidates(skills, 'skill')
-  const traitsByName = collectCandidates(traits, 'trait')
+  const skillsByName = collectCandidates(skills, 'skill');
+  const traitsByName = collectCandidates(traits, 'trait');
 
-  console.log('Fetching Category:Split skills / Category:Split traits member lists...')
+  console.log('Fetching Category:Split skills / Category:Split traits member lists...');
   const [splitSkillTitles, splitTraitTitles] = await Promise.all([
     fetchCategoryMembers('Category:Split skills'),
-    fetchCategoryMembers('Category:Split traits')
-  ])
-  console.log(`  Split skills: ${splitSkillTitles.size}, split traits: ${splitTraitTitles.size}`)
+    fetchCategoryMembers('Category:Split traits'),
+  ]);
+  console.log(`  Split skills: ${splitSkillTitles.size}, split traits: ${splitTraitTitles.size}`);
 
   function inSplitCategory(name: string, titles: Set<string>): boolean {
-    return titleVariants(name).some((v) => titles.has(v))
+    return titleVariants(name).some((v) => titles.has(v));
   }
 
-  const skillPages = [...skillsByName.keys()].filter((n) => inSplitCategory(n, splitSkillTitles))
-  const traitPages = [...traitsByName.keys()].filter((n) => inSplitCategory(n, splitTraitTitles))
-  const skippedAmbiguousName: string[] = []
+  const skillPages = [...skillsByName.keys()].filter((n) => inSplitCategory(n, splitSkillTitles));
+  const traitPages = [...traitsByName.keys()].filter((n) => inSplitCategory(n, splitTraitTitles));
+  const skippedAmbiguousName: string[] = [];
   for (const [name, list] of skillsByName) {
     if (list.length > 1 && inSplitCategory(name, splitSkillTitles)) {
-      skippedAmbiguousName.push(`skill "${name}" -> ids [${list.map((c) => c.id).join(', ')}]`)
+      skippedAmbiguousName.push(`skill "${name}" -> ids [${list.map((c) => c.id).join(', ')}]`);
     }
   }
   for (const [name, list] of traitsByName) {
     if (list.length > 1 && inSplitCategory(name, splitTraitTitles)) {
-      skippedAmbiguousName.push(`trait "${name}" -> ids [${list.map((c) => c.id).join(', ')}]`)
+      skippedAmbiguousName.push(`trait "${name}" -> ids [${list.map((c) => c.id).join(', ')}]`);
     }
   }
 
   console.log(
     `Candidate pages to fetch: ${skillPages.length} skills + ${traitPages.length} traits` +
-      ` (${skippedAmbiguousName.length} excluded — name maps to multiple ids)`
-  )
+      ` (${skippedAmbiguousName.length} excluded — name maps to multiple ids)`,
+  );
 
-  const result: WvwFactOverrides = { skill: {}, trait: {} }
-  const log: string[] = []
-  let fetched = 0
-  const totalPages = skillPages.length + traitPages.length
+  const result: WvwFactOverrides = { skill: {}, trait: {} };
+  const log: string[] = [];
+  let fetched = 0;
+  const totalPages = skillPages.length + traitPages.length;
 
-  async function processPage(name: string, byName: Map<string, CandidateObject[]>, bucket: Record<number, Record<string, WvwFactOverride>>) {
-    const candidates = byName.get(name)
-    if (!candidates || candidates.length !== 1) return // ambiguous name, already logged above
-    const candidate = candidates[0]
+  async function processPage(
+    name: string,
+    byName: Map<string, CandidateObject[]>,
+    bucket: Record<number, Record<string, WvwFactOverride>>,
+  ) {
+    const candidates = byName.get(name);
+    if (!candidates || candidates.length !== 1) return; // ambiguous name, already logged above
+    const candidate = candidates[0];
 
-    let wikitext: string | null
+    let wikitext: string | null;
     try {
-      wikitext = await fetchWikiPage(name)
+      wikitext = await fetchWikiPage(name);
     } catch (err) {
-      log.push(`skip (fetch error): ${candidate.kind} ${candidate.id} "${name}" — ${(err as Error).message}`)
-      return
+      log.push(
+        `skip (fetch error): ${candidate.kind} ${candidate.id} "${name}" — ${(err as Error).message}`,
+      );
+      return;
     }
     if (wikitext === null) {
-      log.push(`skip (page not found): ${candidate.kind} ${candidate.id} "${name}"`)
-      return
+      log.push(`skip (page not found): ${candidate.kind} ${candidate.id} "${name}"`);
+      return;
     }
 
-    const lines = parseFactLines(wikitext)
-    const linesByBoon = new Map<string, ParsedFactLine[]>()
+    const lines = parseFactLines(wikitext);
+    const linesByBoon = new Map<string, ParsedFactLine[]>();
     for (const line of lines) {
-      const list = linesByBoon.get(line.name) ?? []
-      list.push(line)
-      linesByBoon.set(line.name, list)
+      const list = linesByBoon.get(line.name) ?? [];
+      list.push(line);
+      linesByBoon.set(line.name, list);
     }
 
-    const overrides: Record<string, WvwFactOverride> = {}
+    const overrides: Record<string, WvwFactOverride> = {};
     for (const boonName of candidate.statusCounts.keys()) {
-      const boonLines = linesByBoon.get(boonName)
-      if (!boonLines) continue
-      const override = resolveOverride(boonName, boonLines, candidate, name, log)
-      if (override !== undefined) overrides[boonName] = override
+      const boonLines = linesByBoon.get(boonName);
+      if (!boonLines) continue;
+      const override = resolveOverride(boonName, boonLines, candidate, name, log);
+      if (override !== undefined) overrides[boonName] = override;
     }
 
-    if (Object.keys(overrides).length > 0) bucket[candidate.id] = overrides
+    if (Object.keys(overrides).length > 0) bucket[candidate.id] = overrides;
   }
 
   for (const name of skillPages) {
-    await processPage(name, skillsByName, result.skill)
-    fetched++
-    if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`)
+    await processPage(name, skillsByName, result.skill);
+    fetched++;
+    if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`);
   }
   for (const name of traitPages) {
-    await processPage(name, traitsByName, result.trait)
-    fetched++
-    if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`)
+    await processPage(name, traitsByName, result.trait);
+    fetched++;
+    if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`);
   }
 
-  applyManualOverrides(result, log)
-  await flushWikiCache()
+  applyManualOverrides(result, log);
+  await flushWikiCache();
 
-  await writeFile(join(DATA_DIR, 'wvw-fact-overrides.json'), JSON.stringify(result, null, 2))
+  await writeFile(join(DATA_DIR, 'wvw-fact-overrides.json'), JSON.stringify(result, null, 2));
 
-  const skillOverrideCount = Object.keys(result.skill).length
-  const traitOverrideCount = Object.keys(result.trait).length
+  const skillOverrideCount = Object.keys(result.skill).length;
+  const traitOverrideCount = Object.keys(result.trait).length;
   console.log(
     `\nDone. WvW overrides written for ${skillOverrideCount} skills + ${traitOverrideCount} traits` +
-      ` to wvw-fact-overrides.json.`
-  )
-  console.log(`\n${log.length} lines skipped (ambiguous/unvalidated) — see below:`)
-  for (const line of log) console.warn(`  - ${line}`)
+      ` to wvw-fact-overrides.json.`,
+  );
+  console.log(`\n${log.length} lines skipped (ambiguous/unvalidated) — see below:`);
+  for (const line of log) console.warn(`  - ${line}`);
   if (skippedAmbiguousName.length > 0) {
-    console.warn(`\n${skippedAmbiguousName.length} pages excluded outright (name maps to multiple ids):`)
-    for (const line of skippedAmbiguousName) console.warn(`  - ${line}`)
+    console.warn(
+      `\n${skippedAmbiguousName.length} pages excluded outright (name maps to multiple ids):`,
+    );
+    for (const line of skippedAmbiguousName) console.warn(`  - ${line}`);
   }
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

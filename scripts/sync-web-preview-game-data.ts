@@ -12,27 +12,27 @@
  * accidentally ships. `worker/public/` is gitignored: `data/game-data/` stays the only committed
  * copy, this is purely a build artifact regenerated on every `build:web-preview`.
  */
-import { copyFile, mkdir } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { GAME_DATA_FILE_NAMES } from '../src/shared/game-data/data-files'
+import { copyFile, mkdir } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { GAME_DATA_FILE_NAMES } from '../src/shared/game-data/data-files';
 
-const scriptDir = dirname(fileURLToPath(import.meta.url))
-const projectRoot = join(scriptDir, '..')
-const sourceDir = join(projectRoot, 'data', 'game-data')
-const destDir = join(projectRoot, 'worker', 'public', 'game-data')
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const projectRoot = join(scriptDir, '..');
+const sourceDir = join(projectRoot, 'data', 'game-data');
+const destDir = join(projectRoot, 'worker', 'public', 'game-data');
 
 async function main(): Promise<void> {
-  await mkdir(destDir, { recursive: true })
+  await mkdir(destDir, { recursive: true });
 
   for (const fileName of GAME_DATA_FILE_NAMES) {
-    await copyFile(join(sourceDir, fileName), join(destDir, fileName))
+    await copyFile(join(sourceDir, fileName), join(destDir, fileName));
   }
 
-  console.log(`Synced ${GAME_DATA_FILE_NAMES.length} game-data file(s) to ${destDir}`)
+  console.log(`Synced ${GAME_DATA_FILE_NAMES.length} game-data file(s) to ${destDir}`);
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

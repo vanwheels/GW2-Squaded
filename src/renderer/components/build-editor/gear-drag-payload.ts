@@ -1,4 +1,4 @@
-const MIME = 'application/x-gw2squaded-gear-upgrade'
+const MIME = 'application/x-gw2squaded-gear-upgrade';
 
 /**
  * Drag payload for the copy/paste feature (2026-07-30): a category tag ("stat"/"rune"/"sigil"/
@@ -15,23 +15,23 @@ const MIME = 'application/x-gw2squaded-gear-upgrade'
  * `name` is harmless there too since dropping into a same-shaped list finds the identical id back.
  */
 export interface GearDragPayload {
-  category: string
-  id: number
-  name?: string
+  category: string;
+  id: number;
+  name?: string;
 }
 
 export function setGearDragData(e: React.DragEvent, payload: GearDragPayload): void {
-  e.dataTransfer.setData(MIME, JSON.stringify(payload))
-  e.dataTransfer.effectAllowed = 'copy'
+  e.dataTransfer.setData(MIME, JSON.stringify(payload));
+  e.dataTransfer.effectAllowed = 'copy';
 }
 
 export function readGearDragData(e: React.DragEvent): GearDragPayload | null {
-  const raw = e.dataTransfer.getData(MIME)
-  if (!raw) return null
+  const raw = e.dataTransfer.getData(MIME);
+  if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as GearDragPayload
-    return typeof parsed.category === 'string' && typeof parsed.id === 'number' ? parsed : null
+    const parsed = JSON.parse(raw) as GearDragPayload;
+    return typeof parsed.category === 'string' && typeof parsed.id === 'number' ? parsed : null;
   } catch {
-    return null
+    return null;
   }
 }

@@ -1,8 +1,8 @@
-import type { Fact } from '../types'
-import { ATTRIBUTE_DISPLAY_NAME } from '../gear-calc/attribute-totals'
+import type { Fact } from '../types';
+import { ATTRIBUTE_DISPLAY_NAME } from '../gear-calc/attribute-totals';
 
 function formatNumber(n: number): string {
-  return Math.round(n).toLocaleString()
+  return Math.round(n).toLocaleString();
 }
 
 /** One tooltip-ready fact line: display text plus the fact's own CDN icon (straight off the API's
@@ -11,8 +11,8 @@ function formatNumber(n: number): string {
  *  can render an icon-glyph-then-text row instead of plain text. `icon` is `null` for the rare fact
  *  with no `icon` field on it. */
 export interface FactLine {
-  icon: string | null
-  text: string
+  icon: string | null;
+  text: string;
 }
 
 /**
@@ -30,48 +30,66 @@ export interface FactLine {
  * only has one entry so far).
  */
 export function factLine(fact: Fact): FactLine | null {
-  const icon = fact.icon ?? null
+  const icon = fact.icon ?? null;
   switch (fact.type) {
     case 'Recharge':
-      return typeof fact.value === 'number' ? { icon, text: `Recharge: ${fact.value}s` } : null
+      return typeof fact.value === 'number' ? { icon, text: `Recharge: ${fact.value}s` } : null;
     case 'Damage': {
-      const hitCount = fact.hit_count
-      return typeof hitCount === 'number' ? { icon, text: `Damage: ${hitCount} hit${hitCount === 1 ? '' : 's'}` } : null
+      const hitCount = fact.hit_count;
+      return typeof hitCount === 'number'
+        ? { icon, text: `Damage: ${hitCount} hit${hitCount === 1 ? '' : 's'}` }
+        : null;
     }
     case 'HealingAdjust': {
-      const hitCount = fact.hit_count
-      return typeof hitCount === 'number' ? { icon, text: `Healing: ${hitCount} hit${hitCount === 1 ? '' : 's'}` } : null
+      const hitCount = fact.hit_count;
+      return typeof hitCount === 'number'
+        ? { icon, text: `Healing: ${hitCount} hit${hitCount === 1 ? '' : 's'}` }
+        : null;
     }
     case 'AttributeAdjust':
-      return typeof fact.value === 'number' && (typeof fact.text === 'string' || typeof fact.target === 'string')
-        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : fact.target} (base): ${formatNumber(fact.value)}` }
-        : null
+      return typeof fact.value === 'number' &&
+        (typeof fact.text === 'string' || typeof fact.target === 'string')
+        ? {
+            icon,
+            text: `${typeof fact.text === 'string' ? fact.text : fact.target} (base): ${formatNumber(fact.value)}`,
+          }
+        : null;
     case 'BuffConversion': {
-      const { percent, source, target } = fact
-      if (typeof percent !== 'number' || typeof source !== 'string' || typeof target !== 'string') return null
-      const sourceLabel = ATTRIBUTE_DISPLAY_NAME[source] ?? source
-      const targetLabel = ATTRIBUTE_DISPLAY_NAME[target] ?? target
-      return { icon, text: `${percent}% of ${sourceLabel} converted to ${targetLabel}` }
+      const { percent, source, target } = fact;
+      if (typeof percent !== 'number' || typeof source !== 'string' || typeof target !== 'string')
+        return null;
+      const sourceLabel = ATTRIBUTE_DISPLAY_NAME[source] ?? source;
+      const targetLabel = ATTRIBUTE_DISPLAY_NAME[target] ?? target;
+      return { icon, text: `${percent}% of ${sourceLabel} converted to ${targetLabel}` };
     }
     case 'Number':
     case 'Range':
       return typeof fact.value === 'number'
-        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : fact.type}: ${formatNumber(fact.value)}` }
-        : null
+        ? {
+            icon,
+            text: `${typeof fact.text === 'string' ? fact.text : fact.type}: ${formatNumber(fact.value)}`,
+          }
+        : null;
     case 'Distance':
       return typeof fact.distance === 'number'
-        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Distance'}: ${formatNumber(fact.distance)}` }
-        : null
+        ? {
+            icon,
+            text: `${typeof fact.text === 'string' ? fact.text : 'Distance'}: ${formatNumber(fact.distance)}`,
+          }
+        : null;
     case 'Time':
       return typeof fact.duration === 'number'
         ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Time'}: ${fact.duration}s` }
-        : null
+        : null;
     case 'Percent':
       return typeof fact.percent === 'number'
-        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Percent'}: ${fact.percent}%` }
-        : null
+        ? {
+            icon,
+            text: `${typeof fact.text === 'string' ? fact.text : 'Percent'}: ${fact.percent}%`,
+          }
+        : null;
     default:
-      return null
+      return null;
   }
 }
 
@@ -175,7 +193,7 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // aggregate-contribution never share a fix). The API's own raw facts list 5 twice (once for wvw,
   // once for pvp, both the same value) rather than once for a shared "wvw pvp" mode — harmless,
   // `numericFactLines`'s `seen` dedup already collapses the exact duplicate.
-  1719: { 'Percent': 5, 'Critical Chance Increase': 20 },
+  1719: { Percent: 5, 'Critical Chance Increase': 20 },
 
   // Revenant Retribution majors/minors — 3rd leg of the sweep (2026-08-20). Every other Retribution
   // trait with a Number/Percent fact carries only one unambiguous value (Close Quarters, Dwarven
@@ -301,7 +319,7 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // to Healing per Kalla's Fervor|1%|game mode=pve pvp}}` + `{{skill fact|Damage|alt=Damage to
   // Healing per Kalla's Fervor|2%|game mode=wvw}}` — pve+pvp share 1, wvw alone rises to 2 (the
   // rare case where WvW is the outlier on the high side, not the low side).
-  2094: { 'Damage to Healing per Kalla\'s Fervor': 2 },
+  2094: { "Damage to Healing per Kalla's Fervor": 2 },
 
   // Revenant Vindicator majors/minors — 7th leg of the sweep (2026-08-20). Vindicator has no
   // `traitedFacts` at all (confirmed via a full scan), so none of this line's traits carry the
@@ -384,7 +402,7 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // by 18, a reference-build-rounding gap seen elsewhere, but the wvw/pvp legs match the wiki
   // exactly) — now curatable too since this table's matching was extended to `AttributeAdjust`
   // facts (2026-08-20).
-  2358: { 'Endurance Gained': 3, 'Energy Gain': 15, 'Healing': 389 },
+  2358: { 'Endurance Gained': 3, 'Energy Gain': 15, Healing: 389 },
 
   // Enhanced Embodiment (id 2379, Grandmaster major): "Reduce the recharge of invoking legends in
   // combat." Wiki: `{{skill fact|Recharge Reduced|40|game mode=pve}}` + `{{skill fact|Recharge
@@ -459,7 +477,10 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Increase|alt=Damage Increase to Defiant Foes|15|game mode=pve}}` + `{{...|10|game
   // mode=pvp wvw}}`). Its Stability grant ALSO splits per the wiki (6 pve / 3 wvw+pvp) but is left
   // uncurated — see this table's own Guardian-leg intro comment above.
-  1963: { 'Damage Increase to Disabled or Exposed Foes': 15, 'Damage Increase to Defiant Foes': 10 },
+  1963: {
+    'Damage Increase to Disabled or Exposed Foes': 15,
+    'Damage Increase to Defiant Foes': 10,
+  },
 
   // Big Game Hunter (id 1955, Dragonhunter Grandmaster): "Striking an enemy tethered by your Spear
   // of Justice inflicts vulnerability and increases strike damage dealt. Tether duration is
@@ -1276,7 +1297,11 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // fact|Life Siphon Healing|alt=Additional-Hit Healing|586|coefficient=0.03|game mode=pve}}` +
   // `{{...|294|...|game mode=wvw pvp}}` — 3 independently-ambiguous labels, all pve-high/wvw+pvp-low
   // by exactly half.
-  2286: { 'Life Siphon Damage': 1764, 'First-Hit Life Siphon Healing': 1764, 'Additional-Hit Healing': 294 },
+  2286: {
+    'Life Siphon Damage': 1764,
+    'First-Hit Life Siphon Healing': 1764,
+    'Additional-Hit Healing': 294,
+  },
 
   // Blinding Outburst (id 2301, Untamed Adept): "Venomous Outburst deals more damage and applies
   // blindness in addition to its other effects. Unleashed Ambush skills deal more damage." Wiki:
@@ -1661,7 +1686,11 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // game mode=pve wvw}}` + `{{...|100|game mode=pvp}}`, `{{...|below 50% Health|450|game mode=pve
   // wvw}}` + `{{...|150|game mode=pvp}}` — all 3 pve+wvw-high/pvp-low, matched exactly by the live
   // API's 3 `AttributeAdjust` pairs.
-  1931: { 'Healing Power above 75% Health': 150, 'Healing Power below 75% Health': 300, 'Healing Power below 50% Health': 450 },
+  1931: {
+    'Healing Power above 75% Health': 150,
+    'Healing Power below 75% Health': 300,
+    'Healing Power below 50% Health': 450,
+  },
 
   // Ritual of Life (id 780, Adept major): "Necromancer skills that heal you also revive nearby
   // downed allies." Wiki: `{{skill fact|revive percentage|3.5|game mode = pve}}` + `{{...|1|game
@@ -1786,7 +1815,12 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // wvw}}` (matches the API exactly), and `{{skill fact|boons removed|2|game mode = pve pvp}}` +
   // `{{...|1|game mode = wvw}}` (pve+pvp share 2, wvw alone drops to 1 — the rare "pve pvp, wvw"
   // split direction, same shape as Death Nova above).
-  909: { 'Boons Removed': 1, 'Life Siphon Damage': 997, 'First-Hit Life Siphon Healing': 997, 'Additional-Hit Healing': 108 },
+  909: {
+    'Boons Removed': 1,
+    'Life Siphon Damage': 997,
+    'First-Hit Life Siphon Healing': 997,
+    'Additional-Hit Healing': 108,
+  },
 
   // Scourge:
 
@@ -1912,8 +1946,8 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // the raw API's sole `Endurance Gained` fact, value 10), pvp alone at 15 since a 2022-02-28
   // patch. Today's patch notes: "Increased the endurance amount from 10 to 15" **[WvW]** — wvw
   // splits off from pve and rises to match pvp's existing 15, pve stays at 10.
-  1962: { 'Endurance Gained': 15 }
-}
+  1962: { 'Endurance Gained': 15 },
+};
 
 /**
  * Gated by the same `requires_trait` rule as the boon/condition extractor in `boon-calc/sources.ts`
@@ -1928,27 +1962,42 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
  * ambiguity, and filtering it against the base override would wrongly drop it too (see Serene
  * Rejuvenation's Numinous-Gift-conditioned pair in `NUMERIC_FACT_WVW_OVERRIDES` above).
  */
-export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds: ReadonlySet<number>, wvwOverrides?: Record<string, number>): FactLine[] {
-  const lines: FactLine[] = []
-  const seen = new Set<string>()
+export function numericFactLines(
+  facts: Fact[],
+  traitedFacts: Fact[],
+  activeIds: ReadonlySet<number>,
+  wvwOverrides?: Record<string, number>,
+): FactLine[] {
+  const lines: FactLine[] = [];
+  const seen = new Set<string>();
   for (const fact of [...facts, ...traitedFacts]) {
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
     // Same label a wvwOverrides entry is keyed by: the fact's own `text`, or (AttributeAdjust only,
     // mirroring factLine's own display fallback) its `target` when `text` is absent entirely — see
     // this file's Imbued Haste comment above for why that fallback is needed at all.
-    const label = typeof fact.text === 'string' ? fact.text : fact.type === 'AttributeAdjust' && typeof fact.target === 'string' ? fact.target : undefined
-    if (wvwOverrides && fact.requires_trait == null && typeof label === 'string' && label in wvwOverrides) {
-      const target = wvwOverrides[label]
-      if (fact.type === 'Number' && fact.value !== target) continue
-      if (fact.type === 'Percent' && fact.percent !== target) continue
-      if (fact.type === 'AttributeAdjust' && fact.value !== target) continue
-      if (fact.type === 'Time' && fact.duration !== target) continue
+    const label =
+      typeof fact.text === 'string'
+        ? fact.text
+        : fact.type === 'AttributeAdjust' && typeof fact.target === 'string'
+          ? fact.target
+          : undefined;
+    if (
+      wvwOverrides &&
+      fact.requires_trait == null &&
+      typeof label === 'string' &&
+      label in wvwOverrides
+    ) {
+      const target = wvwOverrides[label];
+      if (fact.type === 'Number' && fact.value !== target) continue;
+      if (fact.type === 'Percent' && fact.percent !== target) continue;
+      if (fact.type === 'AttributeAdjust' && fact.value !== target) continue;
+      if (fact.type === 'Time' && fact.duration !== target) continue;
     }
-    const line = factLine(fact)
+    const line = factLine(fact);
     if (line && !seen.has(line.text)) {
-      seen.add(line.text)
-      lines.push(line)
+      seen.add(line.text);
+      lines.push(line);
     }
   }
-  return lines
+  return lines;
 }

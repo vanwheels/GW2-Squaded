@@ -1,24 +1,24 @@
-import { Fragment, useMemo } from 'react'
-import type { Build } from '@shared/types'
-import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
-import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
-import { formatBoonPercent } from '@shared/boon-calc/format'
-import { useGameData } from '@renderer/state/game-data-store'
+import { Fragment, useMemo } from 'react';
+import type { Build } from '@shared/types';
+import { computeCharacterStats } from '@shared/gear-calc/derived-stats';
+import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state';
+import { formatBoonPercent } from '@shared/boon-calc/format';
+import { useGameData } from '@renderer/state/game-data-store';
 
 interface Props {
-  build: Build
+  build: Build;
   /** Still needed here even though `CombatStatePanel`'s controls render elsewhere now
    *  (2026-08-19, see `BuildEditorView`) — Might/Fury/target-armor/etc. feed directly into
    *  `computeCharacterStats`, so the numbers below must reflect the same `CombatState` the
    *  standalone strip is editing. */
-  combatState?: CombatState
+  combatState?: CombatState;
 }
 
 interface StatRow {
-  leftLabel: string
-  leftValue: string
-  rightLabel?: string
-  rightValue?: string
+  leftLabel: string;
+  leftValue: string;
+  rightLabel?: string;
+  rightValue?: string;
 }
 
 /**
@@ -32,29 +32,89 @@ interface StatRow {
  * the same grid row tracks and line up pixel-for-pixel.
  */
 export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props) {
-  const gameData = useGameData()
+  const gameData = useGameData();
 
   const stats = useMemo(
     () => computeCharacterStats(build, gameData, combatState),
-    [build, gameData, combatState]
-  )
+    [build, gameData, combatState],
+  );
 
-  const round = (n: number): number => Math.round(n)
+  const round = (n: number): number => Math.round(n);
 
   const rows: StatRow[] = [
-    { leftLabel: 'Power', leftValue: `${round(stats.attributes.power)}`, rightLabel: 'Condition Damage', rightValue: `${round(stats.attributes.conditionDamage)}` },
-    { leftLabel: 'Vitality', leftValue: `${round(stats.attributes.vitality)}`, rightLabel: 'Health', rightValue: `${round(stats.derived.health)}` },
-    { leftLabel: 'Toughness', leftValue: `${round(stats.attributes.toughness)}`, rightLabel: 'Armor', rightValue: `${round(stats.derived.armor)}` },
-    { leftLabel: 'Precision', leftValue: `${round(stats.attributes.precision)}`, rightLabel: 'Critical Chance', rightValue: `${formatBoonPercent(stats.derived.criticalChance)}%` },
-    { leftLabel: 'Ferocity', leftValue: `${round(stats.attributes.ferocity)}`, rightLabel: 'Critical Damage', rightValue: `${formatBoonPercent(stats.derived.criticalDamage)}%` },
-    { leftLabel: 'Concentration', leftValue: `${round(stats.attributes.concentration)}`, rightLabel: 'Boon Duration', rightValue: `${formatBoonPercent(stats.derived.boonDuration)}%` },
-    { leftLabel: 'Expertise', leftValue: `${round(stats.attributes.expertise)}`, rightLabel: 'Condition Duration', rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%` },
-    { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
-    { leftLabel: 'Life Steal', leftValue: `${formatBoonPercent(stats.derived.lifeStealPercent)}%`, rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
-    { leftLabel: 'Incoming Healing', leftValue: `${formatBoonPercent(stats.derived.incomingHealingPercent)}%`, rightLabel: 'Outgoing Condition Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%` },
-    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Healing', rightValue: `${formatBoonPercent(stats.derived.outgoingHealingPercent)}%` },
-    { leftLabel: '', leftValue: '', rightLabel: 'Movement Speed', rightValue: `${formatBoonPercent(stats.derived.movementSpeedPercent)}%` },
-  ]
+    {
+      leftLabel: 'Power',
+      leftValue: `${round(stats.attributes.power)}`,
+      rightLabel: 'Condition Damage',
+      rightValue: `${round(stats.attributes.conditionDamage)}`,
+    },
+    {
+      leftLabel: 'Vitality',
+      leftValue: `${round(stats.attributes.vitality)}`,
+      rightLabel: 'Health',
+      rightValue: `${round(stats.derived.health)}`,
+    },
+    {
+      leftLabel: 'Toughness',
+      leftValue: `${round(stats.attributes.toughness)}`,
+      rightLabel: 'Armor',
+      rightValue: `${round(stats.derived.armor)}`,
+    },
+    {
+      leftLabel: 'Precision',
+      leftValue: `${round(stats.attributes.precision)}`,
+      rightLabel: 'Critical Chance',
+      rightValue: `${formatBoonPercent(stats.derived.criticalChance)}%`,
+    },
+    {
+      leftLabel: 'Ferocity',
+      leftValue: `${round(stats.attributes.ferocity)}`,
+      rightLabel: 'Critical Damage',
+      rightValue: `${formatBoonPercent(stats.derived.criticalDamage)}%`,
+    },
+    {
+      leftLabel: 'Concentration',
+      leftValue: `${round(stats.attributes.concentration)}`,
+      rightLabel: 'Boon Duration',
+      rightValue: `${formatBoonPercent(stats.derived.boonDuration)}%`,
+    },
+    {
+      leftLabel: 'Expertise',
+      leftValue: `${round(stats.attributes.expertise)}`,
+      rightLabel: 'Condition Duration',
+      rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%`,
+    },
+    {
+      leftLabel: 'Healing Power',
+      leftValue: `${round(stats.attributes.healingPower)}`,
+      rightLabel: 'Magic Find',
+      rightValue: `${formatBoonPercent(stats.derived.magicFind)}%`,
+    },
+    {
+      leftLabel: 'Life Steal',
+      leftValue: `${formatBoonPercent(stats.derived.lifeStealPercent)}%`,
+      rightLabel: 'Outgoing Damage',
+      rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%`,
+    },
+    {
+      leftLabel: 'Incoming Healing',
+      leftValue: `${formatBoonPercent(stats.derived.incomingHealingPercent)}%`,
+      rightLabel: 'Outgoing Condition Damage',
+      rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%`,
+    },
+    {
+      leftLabel: '',
+      leftValue: '',
+      rightLabel: 'Outgoing Healing',
+      rightValue: `${formatBoonPercent(stats.derived.outgoingHealingPercent)}%`,
+    },
+    {
+      leftLabel: '',
+      leftValue: '',
+      rightLabel: 'Movement Speed',
+      rightValue: `${formatBoonPercent(stats.derived.movementSpeedPercent)}%`,
+    },
+  ];
 
   return (
     <div className="stats-panel">
@@ -74,5 +134,5 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props)
         ))}
       </div>
     </div>
-  )
+  );
 }

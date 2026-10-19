@@ -1,17 +1,17 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
-import { stripGw2Markup } from '@shared/gear-calc/format-description'
-import type { UpgradeRarity } from '@renderer/components/build-editor/UpgradePicker'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import { stripGw2Markup } from '@shared/gear-calc/format-description';
+import type { UpgradeRarity } from '@renderer/components/build-editor/UpgradePicker';
 
 interface Props {
   /** Tooltip body. `null`/`undefined` suppresses the tooltip entirely (no hover popup). */
-  content: ReactNode
-  children: ReactNode
-  className?: string
+  content: ReactNode;
+  children: ReactNode;
+  className?: string;
   /** For callers that need to position the trigger itself (e.g. an explicit CSS Grid
    *  `gridColumn`/`gridRow` placement) — the wrapping `<span>` is the actual grid/flex item, not
    *  `children`, so a style on `children` alone wouldn't reach it. */
-  style?: CSSProperties
+  style?: CSSProperties;
 }
 
 /**
@@ -20,22 +20,22 @@ interface Props {
  * scrollable/overflow-hidden ancestor panels, and positions itself from the trigger's
  * bounding rect on each hover rather than tracking the cursor.
  */
-const VIEWPORT_MARGIN = 8
+const VIEWPORT_MARGIN = 8;
 
 export function Tooltip({ content, children, className, style }: Props) {
-  const [open, setOpen] = useState(false)
-  const [coords, setCoords] = useState({ x: 0, y: 0 })
-  const triggerRef = useRef<HTMLSpanElement>(null)
-  const popupRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   function show(): void {
-    const rect = triggerRef.current?.getBoundingClientRect()
-    if (rect) setCoords({ x: rect.left + rect.width / 2, y: rect.top - 6 })
-    setOpen(true)
+    const rect = triggerRef.current?.getBoundingClientRect();
+    if (rect) setCoords({ x: rect.left + rect.width / 2, y: rect.top - 6 });
+    setOpen(true);
   }
 
   function hide(): void {
-    setOpen(false)
+    setOpen(false);
   }
 
   // The popup is centered/anchored via a CSS transform on a fixed-position box, so its rendered
@@ -43,16 +43,17 @@ export function Tooltip({ content, children, className, style }: Props) {
   // if the box overflows the viewport (common near window edges) — a pure shift of the anchor
   // point, since the transform offset from that anchor stays constant either way.
   useLayoutEffect(() => {
-    if (!open) return
-    const rect = popupRef.current?.getBoundingClientRect()
-    if (!rect) return
-    let dx = 0
-    let dy = 0
-    if (rect.left < VIEWPORT_MARGIN) dx = VIEWPORT_MARGIN - rect.left
-    else if (rect.right > window.innerWidth - VIEWPORT_MARGIN) dx = window.innerWidth - VIEWPORT_MARGIN - rect.right
-    if (rect.top < VIEWPORT_MARGIN) dy = VIEWPORT_MARGIN - rect.top
-    if (dx !== 0 || dy !== 0) setCoords((c) => ({ x: c.x + dx, y: c.y + dy }))
-  }, [open, content])
+    if (!open) return;
+    const rect = popupRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    let dx = 0;
+    let dy = 0;
+    if (rect.left < VIEWPORT_MARGIN) dx = VIEWPORT_MARGIN - rect.left;
+    else if (rect.right > window.innerWidth - VIEWPORT_MARGIN)
+      dx = window.innerWidth - VIEWPORT_MARGIN - rect.right;
+    if (rect.top < VIEWPORT_MARGIN) dy = VIEWPORT_MARGIN - rect.top;
+    if (dx !== 0 || dy !== 0) setCoords((c) => ({ x: c.x + dx, y: c.y + dy }));
+  }, [open, content]);
 
   return (
     <span
@@ -68,28 +69,33 @@ export function Tooltip({ content, children, className, style }: Props) {
       {open &&
         content != null &&
         createPortal(
-          <div ref={popupRef} className="tooltip-popup" style={{ left: coords.x, top: coords.y }} role="tooltip">
+          <div
+            ref={popupRef}
+            className="tooltip-popup"
+            style={{ left: coords.x, top: coords.y }}
+            role="tooltip"
+          >
             {content}
           </div>,
-          document.body
+          document.body,
         )}
     </span>
-  )
+  );
 }
 
 interface TooltipBodyProps {
-  title: string
-  description?: string
+  title: string;
+  description?: string;
   /** Icon URL shown beside the title, matching the in-game/gw2skills.net tooltip header
    *  convention. Omit for entries with no icon of their own (empty slots, "Unknown skill"
    *  placeholders, tome chapters). */
-  icon?: string
+  icon?: string;
   /** GW2 item-rarity color for the title text — same `UpgradeRarity` set as `UpgradePicker`'s
    *  badge-border `rarity` prop (see that prop's doc comment), fixed-per-category for most gear-
    *  upgrade types or resolved per-item for food/utility. Omit for categories with no rarity at
    *  all (traits/skills). `'basic'` renders unstyled, same as omitting it — GW2 itself doesn't
    *  color Basic-rarity item names. */
-  rarity?: UpgradeRarity
+  rarity?: UpgradeRarity;
 }
 
 /**
@@ -99,14 +105,20 @@ interface TooltipBodyProps {
  * `stripGw2Markup` call.
  */
 export function TooltipBody({ title, description, icon, rarity }: TooltipBodyProps) {
-  const clean = description ? stripGw2Markup(description) : undefined
+  const clean = description ? stripGw2Markup(description) : undefined;
   return (
     <>
       <div className="tooltip-header">
         {icon && <img className="tooltip-icon" src={icon} alt="" />}
-        <div className={rarity && rarity !== 'basic' ? `tooltip-title rarity-${rarity}` : 'tooltip-title'}>{title}</div>
+        <div
+          className={
+            rarity && rarity !== 'basic' ? `tooltip-title rarity-${rarity}` : 'tooltip-title'
+          }
+        >
+          {title}
+        </div>
       </div>
       {clean && <div className="tooltip-description">{clean}</div>}
     </>
-  )
+  );
 }

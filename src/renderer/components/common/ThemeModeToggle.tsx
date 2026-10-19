@@ -1,15 +1,15 @@
-import type { ThemeMode } from '@renderer/state/app-settings-store'
+import type { ThemeMode } from '@renderer/state/app-settings-store';
 
 interface Props {
-  value: ThemeMode
-  onChange: (value: ThemeMode) => void
+  value: ThemeMode;
+  onChange: (value: ThemeMode) => void;
 }
 
 const OPTIONS: { mode: ThemeMode; label: string }[] = [
   { mode: 'system', label: 'System' },
   { mode: 'light', label: 'Light' },
-  { mode: 'dark', label: 'Dark' }
-]
+  { mode: 'dark', label: 'Dark' },
+];
 
 /**
  * 3-way System/Light/Dark control (SettingsView's Display panel) — plain `<button>`s reusing the
@@ -34,5 +34,5 @@ export function ThemeModeToggle({ value, onChange }: Props) {
         </button>
       ))}
     </div>
-  )
+  );
 }

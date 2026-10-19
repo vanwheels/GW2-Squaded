@@ -1,12 +1,12 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { GameDataStoreProvider } from '@renderer/state/game-data-store'
-import { PickerRegistryProvider } from '@renderer/state/picker-registry'
-import { AppSettingsProvider } from '@renderer/state/app-settings-store'
-import { FavoriteConsumablesProvider } from '@renderer/state/favorite-consumables-store'
-import { BuildPreviewPage } from './BuildPreviewPage'
-import { webGameDataProvider } from './load-game-data-web'
-import '@renderer/styles/global.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { GameDataStoreProvider } from '@renderer/state/game-data-store';
+import { PickerRegistryProvider } from '@renderer/state/picker-registry';
+import { AppSettingsProvider } from '@renderer/state/app-settings-store';
+import { FavoriteConsumablesProvider } from '@renderer/state/favorite-consumables-store';
+import { BuildPreviewPage } from './BuildPreviewPage';
+import { webGameDataProvider } from './load-game-data-web';
+import '@renderer/styles/global.css';
 
 // BuildScreenshotGrid's tree calls several of App.tsx's context hooks unconditionally, even with
 // interactive={false} here (WeaponTypeBar/WeaponSkillBar/EquipmentEditor/EquipmentTextManifest/
@@ -32,5 +32,5 @@ createRoot(document.getElementById('root')!).render(
         </GameDataStoreProvider>
       </FavoriteConsumablesProvider>
     </AppSettingsProvider>
-  </StrictMode>
-)
+  </StrictMode>,
+);

@@ -1,6 +1,6 @@
-import { join } from 'node:path'
-import { is } from '@electron-toolkit/utils'
-import type { BrowserWindow } from 'electron'
+import { join } from 'node:path';
+import { is } from '@electron-toolkit/utils';
+import type { BrowserWindow } from 'electron';
 
 /**
  * Navigates `win` to this app's own renderer bundle — the same dev-server URL / packaged
@@ -12,8 +12,8 @@ import type { BrowserWindow } from 'electron'
  */
 export function loadRenderer(win: BrowserWindow, query?: Record<string, string>): Promise<void> {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    const search = query ? `?${new URLSearchParams(query).toString()}` : ''
-    return win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}${search}`)
+    const search = query ? `?${new URLSearchParams(query).toString()}` : '';
+    return win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}${search}`);
   }
-  return win.loadFile(join(__dirname, '../renderer/index.html'), query ? { query } : undefined)
+  return win.loadFile(join(__dirname, '../renderer/index.html'), query ? { query } : undefined);
 }

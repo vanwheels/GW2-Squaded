@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { Skill } from '../types';
 
 /**
  * Elementalist Evoker's 4 Meditation Utility skills (Fox's Fury/Otter's Compassion/Toad's
@@ -58,12 +58,14 @@ export const EVOKER_FAMILIAR_BASE_TO_TARGET_ID: ReadonlyMap<number, number> = ne
   [76711, 77282], // Fox's Fury
   [77190, 76563], // Otter's Compassion
   [77320, 77247], // Toad's Fortitude
-  [77038, 76583] // Hare's Agility
-])
+  [77038, 76583], // Hare's Agility
+]);
 
 /** Stop-set for `multi-effect.ts`'s `flipTargetSkills` — same purpose as `ADDITIVE_FLIP_PAIR_TARGET_
  *  IDS`, kept as its own set since this family isn't in `ADDITIVE_FLIP_PAIRS` (a swap, not a diff). */
-export const EVOKER_FAMILIAR_TARGET_IDS: ReadonlySet<number> = new Set(EVOKER_FAMILIAR_BASE_TO_TARGET_ID.values())
+export const EVOKER_FAMILIAR_TARGET_IDS: ReadonlySet<number> = new Set(
+  EVOKER_FAMILIAR_BASE_TO_TARGET_ID.values(),
+);
 
 /** The `Familiar.element` (`Build.familiarId`, resolved by the caller) that must be the build's
  *  current specialized element for a target id's own StunBreak fact to actually apply. */
@@ -71,14 +73,17 @@ export const EVOKER_FAMILIAR_SPECIALIZED_ELEMENT: ReadonlyMap<number, string> = 
   [77282, 'Fire'],
   [76563, 'Water'],
   [77247, 'Earth'],
-  [76583, 'Air']
-])
+  [76583, 'Air'],
+]);
 
 /** `skill`'s flip target if it's one of the 4 Evoker Meditation base ids above, else `null` — see
  *  this file's doc comment for why the target's facts should always be shown as the base's own,
  *  swap-not-stack, the same shape `activeAttunementVariantSkill`/`glyphFormFactSourceSkill` use. */
-export function evokerFamiliarFactSourceSkill(skill: Skill, skillsById: Map<number, Skill>): Skill | null {
-  const targetId = EVOKER_FAMILIAR_BASE_TO_TARGET_ID.get(skill.id)
-  if (targetId === undefined) return null
-  return skillsById.get(targetId) ?? null
+export function evokerFamiliarFactSourceSkill(
+  skill: Skill,
+  skillsById: Map<number, Skill>,
+): Skill | null {
+  const targetId = EVOKER_FAMILIAR_BASE_TO_TARGET_ID.get(skill.id);
+  if (targetId === undefined) return null;
+  return skillsById.get(targetId) ?? null;
 }

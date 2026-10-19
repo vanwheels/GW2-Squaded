@@ -1,13 +1,13 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
 interface Props {
   /** Runs the actual capture — `BuildEditorView`/`SquadCompEditorView` pass a thunk that calls
    *  `window.gw2Capture.captureBuildScreenshot`/`captureSquadScreenshot` with their current draft.
    *  See that provider's doc comment for the full offscreen-render pipeline this kicks off. */
-  capture: () => Promise<void>
+  capture: () => Promise<void>;
 }
 
-type Status = 'idle' | 'busy' | 'done' | 'error'
+type Status = 'idle' | 'busy' | 'done' | 'error';
 
 /**
  * Copies a screenshot of the current build/squad straight to the OS clipboard (via `capture`, see
@@ -23,23 +23,29 @@ type Status = 'idle' | 'busy' | 'done' | 'error'
  * always captures the full content in one shot — this component only tracks button status.
  */
 export function ScreenshotButton({ capture }: Props) {
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<Status>('idle');
 
   async function handleClick(): Promise<void> {
-    setStatus('busy')
+    setStatus('busy');
     try {
-      await capture()
-      setStatus('done')
-      setTimeout(() => setStatus('idle'), 1500)
+      await capture();
+      setStatus('done');
+      setTimeout(() => setStatus('idle'), 1500);
     } catch {
-      setStatus('error')
-      setTimeout(() => setStatus('idle'), 2500)
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2500);
     }
   }
 
   return (
     <button type="button" onClick={() => void handleClick()} disabled={status === 'busy'}>
-      {status === 'busy' ? 'Copying…' : status === 'done' ? 'Copied to clipboard!' : status === 'error' ? 'Failed — try again' : 'Copy screenshot'}
+      {status === 'busy'
+        ? 'Copying…'
+        : status === 'done'
+          ? 'Copied to clipboard!'
+          : status === 'error'
+            ? 'Failed — try again'
+            : 'Copy screenshot'}
     </button>
-  )
+  );
 }

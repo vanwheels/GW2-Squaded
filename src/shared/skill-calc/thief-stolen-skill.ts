@@ -1,5 +1,5 @@
-import type { Build, Skill } from '../types'
-import type { ProfessionMechanicBarEntry } from './profession-mechanic'
+import type { Build, Skill } from '../types';
+import type { ProfessionMechanicBarEntry } from './profession-mechanic';
 
 /**
  * Thief's F2 "Stolen Skill": which of these is actually usable depends on who you steal from in a
@@ -39,8 +39,8 @@ export const THIEF_STOLEN_SKILL_IDS: number[] = [
   1129, // Ice Shard Stab
   1123, // Consume Plasma
   1141, // Skull Fear
-  31438 // Essence Sap
-]
+  31438, // Essence Sap
+];
 
 /**
  * Thief's F2 mechanic-bar entry for the manually-picked Stolen Skill (`Build.thiefStolenSkillId`)
@@ -50,9 +50,12 @@ export const THIEF_STOLEN_SKILL_IDS: number[] = [
  * other spec-conditional bar in `profession-mechanic.ts`. Returns empty when no skill is chosen
  * yet, same as `evokerFamiliarBar`.
  */
-export function thiefStolenSkillBar(build: Build, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
-  if (build.thiefStolenSkillId === null) return []
-  const skill = skillsById.get(build.thiefStolenSkillId)
-  if (!skill) return []
-  return [{ slot: 'Profession_2', skill }]
+export function thiefStolenSkillBar(
+  build: Build,
+  skillsById: Map<number, Skill>,
+): ProfessionMechanicBarEntry[] {
+  if (build.thiefStolenSkillId === null) return [];
+  const skill = skillsById.get(build.thiefStolenSkillId);
+  if (!skill) return [];
+  return [{ slot: 'Profession_2', skill }];
 }

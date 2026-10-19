@@ -1,27 +1,27 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { Party, SquadComp, SquadSlot } from '@shared/types'
-import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types'
-import type { SyncTombstone } from '@shared/storage/storage-interface'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import type { Party, SquadComp, SquadSlot } from '@shared/types';
+import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types';
+import type { SyncTombstone } from '@shared/storage/storage-interface';
 
 interface SquadCompsStore {
-  squadComps: SquadComp[]
-  loading: boolean
-  refresh: () => Promise<void>
-  createSquadComp: (squadComp: SquadComp) => Promise<void>
-  updateSquadComp: (squadComp: SquadComp) => Promise<void>
-  removeSquadComp: (id: string) => Promise<void>
+  squadComps: SquadComp[];
+  loading: boolean;
+  refresh: () => Promise<void>;
+  createSquadComp: (squadComp: SquadComp) => Promise<void>;
+  updateSquadComp: (squadComp: SquadComp) => Promise<void>;
+  removeSquadComp: (id: string) => Promise<void>;
   /** Replaces local squad comps + their tombstones with a sync pull's authoritative merged result. */
-  applySyncedState: (squadComps: SquadComp[], tombstones: SyncTombstone[]) => Promise<void>
+  applySyncedState: (squadComps: SquadComp[], tombstones: SyncTombstone[]) => Promise<void>;
 }
 
-const SquadCompsStoreContext = createContext<SquadCompsStore | null>(null)
+const SquadCompsStoreContext = createContext<SquadCompsStore | null>(null);
 
 function blankSlot(): SquadSlot {
-  return { buildId: null, ghostPick: null, placeholderLabel: null }
+  return { buildId: null, ghostPick: null, placeholderLabel: null };
 }
 
 export function makeBlankParty(): Party {
-  return { slots: [blankSlot(), blankSlot(), blankSlot(), blankSlot(), blankSlot()] }
+  return { slots: [blankSlot(), blankSlot(), blankSlot(), blankSlot(), blankSlot()] };
 }
 
 /** Backfills fields absent on records saved before they existed — see `SquadComp.tags`/
@@ -34,12 +34,12 @@ export function normalizeSquadComp(squadComp: SquadComp): SquadComp {
     ...squadComp,
     tags: squadComp.tags ?? [],
     order: squadComp.order ?? Date.parse(squadComp.createdAt),
-    favorite: squadComp.favorite ?? false
-  })
+    favorite: squadComp.favorite ?? false,
+  });
 }
 
 export function makeBlankSquadComp(): SquadComp {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
     name: 'Untitled Squad',
@@ -50,71 +50,79 @@ export function makeBlankSquadComp(): SquadComp {
     tags: [],
     order: Date.now(),
     favorite: false,
-    schemaVersion: CURRENT_SCHEMA_VERSION
-  }
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+  };
 }
 
 export function SquadCompsStoreProvider({ children }: { children: ReactNode }) {
-  const [squadComps, setSquadComps] = useState<SquadComp[]>([])
-  const [loading, setLoading] = useState(true)
+  const [squadComps, setSquadComps] = useState<SquadComp[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await window.gw2Storage.squadComps.list()
-      setSquadComps(result.map(normalizeSquadComp).sort((a, b) => a.order - b.order))
+      const result = await window.gw2Storage.squadComps.list();
+      setSquadComps(result.map(normalizeSquadComp).sort((a, b) => a.order - b.order));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    void refresh()
-  }, [refresh])
+    void refresh();
+  }, [refresh]);
 
   const createSquadComp = useCallback(
     async (squadComp: SquadComp) => {
-      await window.gw2Storage.squadComps.create(squadComp)
-      await refresh()
+      await window.gw2Storage.squadComps.create(squadComp);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const updateSquadComp = useCallback(
     async (squadComp: SquadComp) => {
-      await window.gw2Storage.squadComps.update(squadComp)
-      await refresh()
+      await window.gw2Storage.squadComps.update(squadComp);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const removeSquadComp = useCallback(
     async (id: string) => {
-      await window.gw2Storage.squadComps.remove(id)
-      await refresh()
+      await window.gw2Storage.squadComps.remove(id);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const applySyncedState = useCallback(
     async (syncedSquadComps: SquadComp[], tombstones: SyncTombstone[]) => {
-      await window.gw2Storage.squadComps.replaceAll(syncedSquadComps, tombstones)
-      await refresh()
+      await window.gw2Storage.squadComps.replaceAll(syncedSquadComps, tombstones);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   return (
     <SquadCompsStoreContext.Provider
-      value={{ squadComps, loading, refresh, createSquadComp, updateSquadComp, removeSquadComp, applySyncedState }}
+      value={{
+        squadComps,
+        loading,
+        refresh,
+        createSquadComp,
+        updateSquadComp,
+        removeSquadComp,
+        applySyncedState,
+      }}
     >
       {children}
     </SquadCompsStoreContext.Provider>
-  )
+  );
 }
 
 export function useSquadCompsStore(): SquadCompsStore {
-  const store = useContext(SquadCompsStoreContext)
-  if (!store) throw new Error('useSquadCompsStore must be used within a SquadCompsStoreProvider')
-  return store
+  const store = useContext(SquadCompsStoreContext);
+  if (!store) throw new Error('useSquadCompsStore must be used within a SquadCompsStoreProvider');
+  return store;
 }

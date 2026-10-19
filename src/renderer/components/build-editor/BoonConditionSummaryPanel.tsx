@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import type { Build } from '@shared/types'
+import { useMemo } from 'react';
+import type { Build } from '@shared/types';
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CONTROL_MATCHERS,
@@ -16,34 +16,41 @@ import {
   groupNamedFactSources,
   type BoonConditionGroup,
   type ComboSource,
-  type NamedFactGroup
-} from '@shared/boon-calc/sources'
-import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
-import { BOON_NAMES, CONDITION_NAMES, AURA_NAMES } from '@shared/boon-calc/constants'
+  type NamedFactGroup,
+} from '@shared/boon-calc/sources';
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format';
+import { BOON_NAMES, CONDITION_NAMES, AURA_NAMES } from '@shared/boon-calc/constants';
 import {
   BOON_CONDITION_ICONS,
   AURA_ICONS,
   CONTROL_ICONS,
   MISCELLANEOUS_ICONS,
   BOON_STRIP_CORRUPT_ICONS,
-  COMBO_ICONS
-} from '@shared/boon-calc/icons'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { TooltipBody } from '@renderer/components/common/Tooltip'
-import { BoonConditionIconRow, type BoonConditionIconItem } from '@renderer/components/squad-editor/BoonConditionIconRow'
+  COMBO_ICONS,
+} from '@shared/boon-calc/icons';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { TooltipBody } from '@renderer/components/common/Tooltip';
+import {
+  BoonConditionIconRow,
+  type BoonConditionIconItem,
+} from '@renderer/components/squad-editor/BoonConditionIconRow';
 
 interface Props {
-  build: Build
+  build: Build;
 }
 
 /** Every name in `names` always renders (greyed out via `boon-icon-row-icon-inactive` when this
  *  build doesn't produce it), same "fixed grid, never reflows" treatment `SkillsEditor`'s old
  *  in-bar rows used. */
-function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], icons: Record<string, string>): BoonConditionIconItem[] {
-  const groupByName = new Map(groups.map((g) => [g.name, g]))
+function iconItemsFor(
+  groups: BoonConditionGroup[],
+  names: readonly string[],
+  icons: Record<string, string>,
+): BoonConditionIconItem[] {
+  const groupByName = new Map(groups.map((g) => [g.name, g]));
   return names.map((name) => {
-    const group = groupByName.get(name)
+    const group = groupByName.get(name);
     return {
       key: name,
       icon: icons[name],
@@ -60,7 +67,9 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
                   {s.category === 'boon' && s.targetCount !== null && (
                     <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>
                   )}
-                  {s.triggerNote && <span className="boon-source-trigger-note">{s.triggerNote}</span>}
+                  {s.triggerNote && (
+                    <span className="boon-source-trigger-note">{s.triggerNote}</span>
+                  )}
                 </span>
                 <span className="boon-source-duration">
                   {formatBoonDuration(s.scaledDurationSeconds)}s
@@ -72,9 +81,9 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
         </>
       ) : (
         <TooltipBody title={name} />
-      )
-    }
-  })
+      ),
+    };
+  });
 }
 
 /** Same "always show every name, grey out unproduced ones" treatment as `iconItemsFor`, for
@@ -83,10 +92,14 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
  *  free-form magnitude string, not a scaled duration), so the tooltip line is built differently.
  *  `targetCount` (only ever populated for `Cleanse`, see `NamedFactSource.targetCount`'s doc
  *  comment) renders the same "Up to N" badge `iconItemsFor` shows for boons. */
-function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[], icons: Record<string, string>): BoonConditionIconItem[] {
-  const groupByName = new Map(groups.map((g) => [g.name, g]))
+function namedFactIconItemsFor(
+  groups: NamedFactGroup[],
+  names: readonly string[],
+  icons: Record<string, string>,
+): BoonConditionIconItem[] {
+  const groupByName = new Map(groups.map((g) => [g.name, g]));
   return names.map((name) => {
-    const group = groupByName.get(name)
+    const group = groupByName.get(name);
     return {
       key: name,
       icon: icons[name],
@@ -100,7 +113,9 @@ function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[
                 <span className="tooltip-fact-label">
                   <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
                   <span>{s.sourceName}</span>
-                  {s.targetCount !== null && <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>}
+                  {s.targetCount !== null && (
+                    <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>
+                  )}
                 </span>
                 {s.detail && <span className="boon-source-duration">{s.detail}</span>}
               </li>
@@ -109,9 +124,9 @@ function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[
         </>
       ) : (
         <TooltipBody title={name} />
-      )
-    }
-  })
+      ),
+    };
+  });
 }
 
 /** The API gives one generic icon per Combo Field/Finisher fact (not per `field_type`/
@@ -119,10 +134,14 @@ function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[
  *  always exactly 2 icons (Field, Finisher), with the specific types this build produces listed in
  *  the tooltip instead of shown as distinct icons. */
 function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
-  const fields = sources.filter((s) => s.kind === 'field')
-  const finishers = sources.filter((s) => s.kind === 'finisher')
+  const fields = sources.filter((s) => s.kind === 'field');
+  const finishers = sources.filter((s) => s.kind === 'finisher');
 
-  function item(kind: 'field' | 'finisher', label: string, entries: ComboSource[]): BoonConditionIconItem {
+  function item(
+    kind: 'field' | 'finisher',
+    label: string,
+    entries: ComboSource[],
+  ): BoonConditionIconItem {
     return {
       key: kind,
       icon: COMBO_ICONS[kind],
@@ -145,11 +164,11 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
           </>
         ) : (
           <TooltipBody title={`Combo ${label}`} />
-        )
-    }
+        ),
+    };
   }
 
-  return [item('field', 'Field', fields), item('finisher', 'Finisher', finishers)]
+  return [item('field', 'Field', fields), item('finisher', 'Finisher', finishers)];
 }
 
 /**
@@ -177,57 +196,101 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
  * split is future work.
  */
 export function BoonConditionSummaryPanel({ build }: Props) {
-  const gameData = useGameData()
-  const { partyWideOnly } = useAppSettings()
+  const gameData = useGameData();
+  const { partyWideOnly } = useAppSettings();
 
-  const boonConditionGroups = useMemo(() => groupBoonConditionSources(computeBoonConditionSources(build, gameData)), [build, gameData])
-  const auraGroups = useMemo(() => groupBoonConditionSources(computeAuraSources(build, gameData)), [build, gameData])
+  const boonConditionGroups = useMemo(
+    () => groupBoonConditionSources(computeBoonConditionSources(build, gameData)),
+    [build, gameData],
+  );
+  const auraGroups = useMemo(
+    () => groupBoonConditionSources(computeAuraSources(build, gameData)),
+    [build, gameData],
+  );
   const controlGroups = useMemo(
     () => groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)),
-    [build, gameData]
-  )
+    [build, gameData],
+  );
   const miscGroups = useMemo(
-    () => groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)),
-    [build, gameData]
-  )
+    () =>
+      groupNamedFactSources(
+        computeNamedFactSources(
+          build,
+          gameData,
+          MISCELLANEOUS_MATCHERS,
+          NAMED_FACT_TARGET_COUNT_TABLES,
+        ),
+      ),
+    [build, gameData],
+  );
   const stripCorruptGroups = useMemo(
-    () => groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)),
-    [build, gameData]
-  )
-  const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData])
-  const [comboFieldItem, comboFinisherItem] = useMemo(() => comboIconItems(comboSources), [comboSources])
+    () =>
+      groupNamedFactSources(
+        computeNamedFactSources(
+          build,
+          gameData,
+          BOON_STRIP_CORRUPT_MATCHERS,
+          NAMED_FACT_TARGET_COUNT_TABLES,
+        ),
+      ),
+    [build, gameData],
+  );
+  const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData]);
+  const [comboFieldItem, comboFinisherItem] = useMemo(
+    () => comboIconItems(comboSources),
+    [comboSources],
+  );
 
   // "Party-wide only" (TODO.md, flagged 2026-08-16) only ever narrows the ally-facing rows — Boons,
   // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
   // Conditions/Control/Strip/Corrupt are enemy-facing and stay unfiltered regardless of the toggle
   // (see `filterPartyWideGroups`'s doc comment).
   const rows: { label: string; items: BoonConditionIconItem[] }[] = [
-    { label: 'Conditions', items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS) },
+    {
+      label: 'Conditions',
+      items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS),
+    },
     {
       label: 'Boons',
-      items: iconItemsFor(partyWideOnly ? filterPartyWideGroups(boonConditionGroups) : boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS)
+      items: iconItemsFor(
+        partyWideOnly ? filterPartyWideGroups(boonConditionGroups) : boonConditionGroups,
+        BOON_NAMES,
+        BOON_CONDITION_ICONS,
+      ),
     },
-    { label: 'Auras', items: iconItemsFor(partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups, AURA_NAMES, AURA_ICONS) },
-    { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
+    {
+      label: 'Auras',
+      items: iconItemsFor(
+        partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups,
+        AURA_NAMES,
+        AURA_ICONS,
+      ),
+    },
+    {
+      label: 'Control',
+      items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS),
+    },
     {
       label: 'Misc.',
       items: namedFactIconItemsFor(
         partyWideOnly ? filterPartyWideGroups(miscGroups) : miscGroups,
         Object.keys(MISCELLANEOUS_MATCHERS),
-        MISCELLANEOUS_ICONS
-      )
+        MISCELLANEOUS_ICONS,
+      ),
     },
     {
       label: 'Strips / Corrupts / Cleanses',
       items: namedFactIconItemsFor(
-        partyWideOnly ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES) : stripCorruptGroups,
+        partyWideOnly
+          ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES)
+          : stripCorruptGroups,
         Object.keys(BOON_STRIP_CORRUPT_MATCHERS),
-        BOON_STRIP_CORRUPT_ICONS
-      )
+        BOON_STRIP_CORRUPT_ICONS,
+      ),
     },
     { label: 'Combo Fields', items: [comboFieldItem] },
-    { label: 'Combo Finishers', items: [comboFinisherItem] }
-  ]
+    { label: 'Combo Finishers', items: [comboFinisherItem] },
+  ];
 
   return (
     <div className="boon-summary-panel">
@@ -246,5 +309,5 @@ export function BoonConditionSummaryPanel({ build }: Props) {
         </div>
       ))}
     </div>
-  )
+  );
 }

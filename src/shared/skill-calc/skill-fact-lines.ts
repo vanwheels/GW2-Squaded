@@ -1,12 +1,12 @@
-import type { Fact, RechargeWvwOverrides, ResourceCostsById, Skill } from '../types'
-import { factLine, type FactLine } from './fact-numbers'
-import { healingLinesForSkill } from './healing-calc'
-import { barrierLinesForSkill } from './barrier-calc'
-import { damageLinesForSkill } from './damage-calc'
-import { siphonDamageLinesForSkill } from './siphon-damage-calc'
-import { withRechargeOverride } from './recharge-override'
-import { resourceCostLines } from './resource-cost-lines'
-import { CLEANSING_IRE_CLEANSE_FACTS } from '../boon-calc/sources'
+import type { Fact, RechargeWvwOverrides, ResourceCostsById, Skill } from '../types';
+import { factLine, type FactLine } from './fact-numbers';
+import { healingLinesForSkill } from './healing-calc';
+import { barrierLinesForSkill } from './barrier-calc';
+import { damageLinesForSkill } from './damage-calc';
+import { siphonDamageLinesForSkill } from './siphon-damage-calc';
+import { withRechargeOverride } from './recharge-override';
+import { resourceCostLines } from './resource-cost-lines';
+import { CLEANSING_IRE_CLEANSE_FACTS } from '../boon-calc/sources';
 
 /**
  * Curated per-skill overrides for `Percent`-type facts the GW2 API duplicates once per game mode
@@ -33,27 +33,34 @@ import { CLEANSING_IRE_CLEANSE_FACTS } from '../boon-calc/sources'
  * ambiguity) sharing the Barrier fact's own icon rather than the Damage facts' icon — an API data
  * bug, not a genuine 5th duplicate — so that one occurrence is relabeled rather than dropped.
  */
-const CURATED_PERCENT_FACT_OVERRIDES: Record<number, Array<{ text: string; percent: number; action: 'drop' | { displayText: string } }>> = {
+const CURATED_PERCENT_FACT_OVERRIDES: Record<
+  number,
+  Array<{ text: string; percent: number; action: 'drop' | { displayText: string } }>
+> = {
   71816: [
     { text: 'Damage Increase per Interval', percent: 50, action: 'drop' },
     { text: 'Max Damage Increase', percent: 150, action: 'drop' },
     { text: 'Barrier Increase per Interval', percent: 33.333, action: 'drop' },
-    { text: 'Damage Increase per Interval', percent: 20, action: { displayText: 'Barrier Increase per Interval' } },
-    { text: 'Max Barrier', percent: 100, action: 'drop' }
-  ]
-}
+    {
+      text: 'Damage Increase per Interval',
+      percent: 20,
+      action: { displayText: 'Barrier Increase per Interval' },
+    },
+    { text: 'Max Barrier', percent: 100, action: 'drop' },
+  ],
+};
 
 /** Applies `CURATED_PERCENT_FACT_OVERRIDES` to one fact ahead of `factLine`/`realValueLine` — `null`
  *  return means "drop this fact," a relabeled copy means "keep it, but render under this text
  *  instead," and the fact is returned unchanged when this skill/fact pair has no override at all
  *  (the overwhelming majority of calls, including every fact on every skill without an entry above). */
 function applyCuratedPercentOverride(fact: Fact, skillId: number): Fact | null {
-  if (fact.type !== 'Percent' || typeof fact.percent !== 'number') return fact
-  const overrides = CURATED_PERCENT_FACT_OVERRIDES[skillId]
-  if (!overrides) return fact
-  const match = overrides.find((o) => o.text === fact.text && o.percent === fact.percent)
-  if (!match) return fact
-  return match.action === 'drop' ? null : { ...fact, text: match.action.displayText }
+  if (fact.type !== 'Percent' || typeof fact.percent !== 'number') return fact;
+  const overrides = CURATED_PERCENT_FACT_OVERRIDES[skillId];
+  if (!overrides) return fact;
+  const match = overrides.find((o) => o.text === fact.text && o.percent === fact.percent);
+  if (!match) return fact;
+  return match.action === 'drop' ? null : { ...fact, text: match.action.displayText };
 }
 
 /**
@@ -75,15 +82,15 @@ const CURATED_NUMERIC_FACT_VALUES: Record<number, Record<string, number>> = {
   // Lesser Seed of Life (granted by the Cultivated Synergy trait). Raw API's single "Conditions
   // Removed" fact (2) is the pve value, unaffected by this patch; wiki: wvw 2 -> 1 (a split newly
   // introduced by this patch, previously unsplit), 2026-09-29 patch.
-  31776: { 'Conditions Removed': 1 }
-}
+  31776: { 'Conditions Removed': 1 },
+};
 
 /** Applies `CURATED_NUMERIC_FACT_VALUES` to one fact ahead of `factLine` — returns the fact
  *  unchanged when this skill/fact-text pair has no override (the overwhelming majority of calls). */
 function applyCuratedNumericFactValue(fact: Fact, skillId: number): Fact {
-  if (fact.type !== 'Number' || typeof fact.text !== 'string') return fact
-  const value = CURATED_NUMERIC_FACT_VALUES[skillId]?.[fact.text]
-  return value === undefined ? fact : { ...fact, value }
+  if (fact.type !== 'Number' || typeof fact.text !== 'string') return fact;
+  const value = CURATED_NUMERIC_FACT_VALUES[skillId]?.[fact.text];
+  return value === undefined ? fact : { ...fact, value };
 }
 
 /**
@@ -103,10 +110,14 @@ function applyCuratedNumericFactValue(fact: Fact, skillId: number): Fact {
  * `null` for a skill with no entry in the table, or when Cleansing Ire (trait 1649) isn't equipped —
  * harmless no-op, the overwhelming majority of calls.
  */
-function cleansingIreTooltipLine(skill: Skill, activeIds: ReadonlySet<number>, icon: string | null): FactLine | null {
-  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id]
-  if (!entry || !activeIds.has(1649)) return null
-  return { icon, text: `Conditions Removed: ${entry.detail}` }
+function cleansingIreTooltipLine(
+  skill: Skill,
+  activeIds: ReadonlySet<number>,
+  icon: string | null,
+): FactLine | null {
+  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id];
+  if (!entry || !activeIds.has(1649)) return null;
+  return { icon, text: `Conditions Removed: ${entry.detail}` };
 }
 
 function realValueLine(
@@ -114,15 +125,19 @@ function realValueLine(
   damageByLabel: Map<string, number>,
   healingByLabel: Map<string, number>,
   barrierByLabel: Map<string, number>,
-  siphonDamageByLabel: Map<string, number>
+  siphonDamageByLabel: Map<string, number>,
 ): FactLine | null {
-  if (typeof fact.text !== 'string') return null
-  const icon = fact.icon ?? null
+  if (typeof fact.text !== 'string') return null;
+  const icon = fact.icon ?? null;
   if (fact.type === 'Damage' && damageByLabel.has(fact.text)) {
-    return { icon, text: `${fact.text}: ${damageByLabel.get(fact.text)!.toLocaleString()}` }
+    return { icon, text: `${fact.text}: ${damageByLabel.get(fact.text)!.toLocaleString()}` };
   }
-  if (fact.type === 'AttributeAdjust' && fact.target === 'Power' && siphonDamageByLabel.has(fact.text)) {
-    return { icon, text: `${fact.text}: ${siphonDamageByLabel.get(fact.text)!.toLocaleString()}` }
+  if (
+    fact.type === 'AttributeAdjust' &&
+    fact.target === 'Power' &&
+    siphonDamageByLabel.has(fact.text)
+  ) {
+    return { icon, text: `${fact.text}: ${siphonDamageByLabel.get(fact.text)!.toLocaleString()}` };
   }
   if (fact.type === 'AttributeAdjust' && fact.target === 'Healing') {
     // Barrier is a different resource bar than Health, checked first since the GW2 API mislabels
@@ -130,13 +145,13 @@ function realValueLine(
     // `factText` (not `target`) is what actually distinguishes the two for a given skill, and no
     // skill has ever been found with the same fact text curated in both tables.
     if (barrierByLabel.has(fact.text)) {
-      return { icon, text: `${fact.text}: ${barrierByLabel.get(fact.text)!.toLocaleString()}` }
+      return { icon, text: `${fact.text}: ${barrierByLabel.get(fact.text)!.toLocaleString()}` };
     }
     if (healingByLabel.has(fact.text)) {
-      return { icon, text: `${fact.text}: ${healingByLabel.get(fact.text)!.toLocaleString()}` }
+      return { icon, text: `${fact.text}: ${healingByLabel.get(fact.text)!.toLocaleString()}` };
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -179,35 +194,51 @@ export function skillFactLines(
   healingPower: number,
   targetArmor: number,
   rechargeWvwOverrides?: RechargeWvwOverrides,
-  resourceCosts?: ResourceCostsById
+  resourceCosts?: ResourceCostsById,
 ): FactLine[] {
-  const damageByLabel = new Map(damageLinesForSkill(skill, power, targetArmor, activeIds).map((l) => [l.label, l.value]))
-  const healingByLabel = new Map(healingLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
-  const barrierByLabel = new Map(barrierLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
-  const siphonDamageByLabel = new Map(siphonDamageLinesForSkill(skill, power, activeIds).map((l) => [l.label, l.value]))
+  const damageByLabel = new Map(
+    damageLinesForSkill(skill, power, targetArmor, activeIds).map((l) => [l.label, l.value]),
+  );
+  const healingByLabel = new Map(
+    healingLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]),
+  );
+  const barrierByLabel = new Map(
+    barrierLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]),
+  );
+  const siphonDamageByLabel = new Map(
+    siphonDamageLinesForSkill(skill, power, activeIds).map((l) => [l.label, l.value]),
+  );
 
-  const facts = rechargeWvwOverrides ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill) : skill.facts
+  const facts = rechargeWvwOverrides
+    ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill)
+    : skill.facts;
 
-  const lines: FactLine[] = resourceCosts ? resourceCostLines(skill.id, resourceCosts) : []
-  const seen = new Set<string>()
-  for (const line of lines) seen.add(line.text)
-  let cleansingIreIcon: string | null = null
+  const lines: FactLine[] = resourceCosts ? resourceCostLines(skill.id, resourceCosts) : [];
+  const seen = new Set<string>();
+  for (const line of lines) seen.add(line.text);
+  let cleansingIreIcon: string | null = null;
   for (const rawFact of [...facts, ...skill.traitedFacts]) {
-    if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
-    if (rawFact.requires_trait === 1649 && rawFact.type === 'Number' && rawFact.text === 'Conditions Removed') {
-      cleansingIreIcon = rawFact.icon ?? null
-      continue
+    if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue;
+    if (
+      rawFact.requires_trait === 1649 &&
+      rawFact.type === 'Number' &&
+      rawFact.text === 'Conditions Removed'
+    ) {
+      cleansingIreIcon = rawFact.icon ?? null;
+      continue;
     }
-    const percentAdjusted = applyCuratedPercentOverride(rawFact, skill.id)
-    if (!percentAdjusted) continue
-    const fact = applyCuratedNumericFactValue(percentAdjusted, skill.id)
-    const line = realValueLine(fact, damageByLabel, healingByLabel, barrierByLabel, siphonDamageByLabel) ?? factLine(fact)
+    const percentAdjusted = applyCuratedPercentOverride(rawFact, skill.id);
+    if (!percentAdjusted) continue;
+    const fact = applyCuratedNumericFactValue(percentAdjusted, skill.id);
+    const line =
+      realValueLine(fact, damageByLabel, healingByLabel, barrierByLabel, siphonDamageByLabel) ??
+      factLine(fact);
     if (line && !seen.has(line.text)) {
-      seen.add(line.text)
-      lines.push(line)
+      seen.add(line.text);
+      lines.push(line);
     }
   }
-  const cleansingIreLine = cleansingIreTooltipLine(skill, activeIds, cleansingIreIcon)
-  if (cleansingIreLine && !seen.has(cleansingIreLine.text)) lines.push(cleansingIreLine)
-  return lines
+  const cleansingIreLine = cleansingIreTooltipLine(skill, activeIds, cleansingIreIcon);
+  if (cleansingIreLine && !seen.has(cleansingIreLine.text)) lines.push(cleansingIreLine);
+  return lines;
 }

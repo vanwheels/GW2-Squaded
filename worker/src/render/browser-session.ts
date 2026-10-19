@@ -1,5 +1,5 @@
-import puppeteer, { type Browser } from '@cloudflare/puppeteer'
-import type { Env } from '../env'
+import puppeteer, { type Browser } from '@cloudflare/puppeteer';
+import type { Env } from '../env';
 
 /**
  * Acquires a Browser Rendering session for `build-screenshot.ts`/`squad-screenshot.ts`, reusing a
@@ -18,15 +18,17 @@ import type { Env } from '../env'
  * `.close()` would tear it down immediately and defeat the whole point.
  */
 export async function getBrowserSession(env: Env): Promise<Browser> {
-  const sessionId = await pickFreeSessionId(env)
+  const sessionId = await pickFreeSessionId(env);
   if (sessionId) {
     try {
-      return await puppeteer.connect(env.MYBROWSER, sessionId)
+      return await puppeteer.connect(env.MYBROWSER, sessionId);
     } catch (err) {
-      console.log(`[browser session] couldn't reuse session ${sessionId}, launching fresh instead: ${err}`)
+      console.log(
+        `[browser session] couldn't reuse session ${sessionId}, launching fresh instead: ${err}`,
+      );
     }
   }
-  return await puppeteer.launch(env.MYBROWSER)
+  return await puppeteer.launch(env.MYBROWSER);
 }
 
 /** Active sessions with no worker currently attached (`connectionId` unset) are free to reuse.
@@ -34,8 +36,10 @@ export async function getBrowserSession(env: Env): Promise<Browser> {
  *  — under concurrent requests, always picking the first-listed free session would have them all
  *  race for the same one instead of spreading across whatever's actually free. */
 async function pickFreeSessionId(env: Env): Promise<string | undefined> {
-  const sessions = await puppeteer.sessions(env.MYBROWSER)
-  const free = sessions.filter((session) => !session.connectionId).map((session) => session.sessionId)
-  if (free.length === 0) return undefined
-  return free[Math.floor(Math.random() * free.length)]
+  const sessions = await puppeteer.sessions(env.MYBROWSER);
+  const free = sessions
+    .filter((session) => !session.connectionId)
+    .map((session) => session.sessionId);
+  if (free.length === 0) return undefined;
+  return free[Math.floor(Math.random() * free.length)];
 }

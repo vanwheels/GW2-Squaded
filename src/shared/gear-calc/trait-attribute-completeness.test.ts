@@ -1,9 +1,14 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Fact } from '../types'
-import { CURATED_CONVERSIONS, CURATED_FLAT_BONUSES, ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES, WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES } from './trait-attributes'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Fact } from '../types';
+import {
+  CURATED_CONVERSIONS,
+  CURATED_FLAT_BONUSES,
+  ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES,
+  WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES,
+} from './trait-attributes';
 import {
   DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES,
   FURY_ATTRIBUTE_TRAIT_BONUSES,
@@ -14,8 +19,8 @@ import {
   MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES,
   QUICKNESS_ATTRIBUTE_TRAIT_BONUSES,
   REGENERATION_ATTRIBUTE_TRAIT_BONUSES,
-  REVEALED_ATTRIBUTE_TRAIT_BONUSES
-} from './combat-state'
+  REVEALED_ATTRIBUTE_TRAIT_BONUSES,
+} from './combat-state';
 
 /**
  * Trait attribute-bonus completeness scan — TODO.md's "Automated testing strategy" #1 (agreed
@@ -51,22 +56,25 @@ import {
  */
 
 interface TraitDataFile {
-  id: number
-  name: string
-  facts: Fact[]
-  traitedFacts: Fact[]
+  id: number;
+  name: string;
+  facts: Fact[];
+  traitedFacts: Fact[];
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const traits: TraitDataFile[] = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/traits.json'), 'utf-8'))
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const traits: TraitDataFile[] = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../data/game-data/traits.json'), 'utf-8'),
+);
 
 /** A trait "touches a character attribute" if either its `facts` or `traitedFacts` array carries an
  *  `AttributeAdjust` (flat point grant) or `BuffConversion` (percent-of-X-into-Y grant) fact — the
  *  two shapes `trait-attributes.ts`'s file header identifies as the ones that *can* encode a genuine
  *  stat grant, even though most turn out not to be one (see this file's own header comment). */
 function touchesAttribute(trait: TraitDataFile): boolean {
-  const isAttributeFact = (f: Fact): boolean => f.type === 'AttributeAdjust' || f.type === 'BuffConversion'
-  return trait.facts.some(isAttributeFact) || trait.traitedFacts.some(isAttributeFact)
+  const isAttributeFact = (f: Fact): boolean =>
+    f.type === 'AttributeAdjust' || f.type === 'BuffConversion';
+  return trait.facts.some(isAttributeFact) || trait.traitedFacts.some(isAttributeFact);
 }
 
 /** Every trait id already accounted for by a curated table this codebase actually consults when
@@ -87,8 +95,8 @@ const COVERED_TRAIT_IDS = new Set<number>([
   ...Object.keys(MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(REVEALED_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES).map(Number),
-  ...Object.keys(DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES).map(Number)
-])
+  ...Object.keys(DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES).map(Number),
+]);
 
 /**
  * Every trait reviewed by the 2026-08-12 completeness sweep and found NOT to be a genuine
@@ -199,36 +207,47 @@ const EXCLUDED_TRAIT_IDS: Record<number, string> = {
   // condition-tick-proc (1)
   1696: "Condition-damage-per-tick proc coefficient (Terror's Fear damage-over-time), not a character-stat gain — same shape as Healer's Gift.", // Terror
   // buff-proc (1)
-  263: "Value of a temporary on-cast buff (Arcane Lightning, a 15s Ferocity effect granted only while using an Arcane skill), not a passive stat.", // Arcane Lightning
+  263: 'Value of a temporary on-cast buff (Arcane Lightning, a 15s Ferocity effect granted only while using an Arcane skill), not a passive stat.', // Arcane Lightning
   // requires_trait cross-reference (1)
   1480: "Same Healing-970 heal-proc coefficient already curated as excluded on trait 1474 (Soldier's Comfort) — this trait's own traitedFacts entry is a requires_trait:1474 cross-reference showing their combined tooltip, not a separate stat gain on this trait itself.", // Marching Orders
-}
+};
 
 describe('trait attribute-bonus completeness', () => {
   it('accounts for every attribute-touching trait in the curated tables or the exclusion list', () => {
-    const uncovered: string[] = []
+    const uncovered: string[] = [];
     for (const trait of traits) {
-      if (!touchesAttribute(trait)) continue
-      if (COVERED_TRAIT_IDS.has(trait.id)) continue
-      if (trait.id in EXCLUDED_TRAIT_IDS) continue
-      uncovered.push(`${trait.id} (${trait.name})`)
+      if (!touchesAttribute(trait)) continue;
+      if (COVERED_TRAIT_IDS.has(trait.id)) continue;
+      if (trait.id in EXCLUDED_TRAIT_IDS) continue;
+      uncovered.push(`${trait.id} (${trait.name})`);
     }
-    expect(uncovered, 'New/previously-missed attribute-touching trait(s) — add to a curated table in trait-attributes.ts/combat-state.ts, or to this test\'s EXCLUDED_TRAIT_IDS with a reason.').toEqual([])
-  })
+    expect(
+      uncovered,
+      "New/previously-missed attribute-touching trait(s) — add to a curated table in trait-attributes.ts/combat-state.ts, or to this test's EXCLUDED_TRAIT_IDS with a reason.",
+    ).toEqual([]);
+  });
 
   it('has no exclusion entry for a trait that is already curated (dead/redundant entry)', () => {
-    const redundant = Object.keys(EXCLUDED_TRAIT_IDS).map(Number).filter((id) => COVERED_TRAIT_IDS.has(id))
-    expect(redundant, 'Trait id(s) covered by a curated table AND listed in EXCLUDED_TRAIT_IDS — remove the now-redundant exclusion entry.').toEqual([])
-  })
+    const redundant = Object.keys(EXCLUDED_TRAIT_IDS)
+      .map(Number)
+      .filter((id) => COVERED_TRAIT_IDS.has(id));
+    expect(
+      redundant,
+      'Trait id(s) covered by a curated table AND listed in EXCLUDED_TRAIT_IDS — remove the now-redundant exclusion entry.',
+    ).toEqual([]);
+  });
 
   it('has no exclusion entry for a trait that no longer exists or no longer touches an attribute', () => {
-    const traitsById = new Map(traits.map((t) => [t.id, t]))
+    const traitsById = new Map(traits.map((t) => [t.id, t]));
     const stale = Object.keys(EXCLUDED_TRAIT_IDS)
       .map(Number)
       .filter((id) => {
-        const trait = traitsById.get(id)
-        return !trait || !touchesAttribute(trait)
-      })
-    expect(stale, 'Trait id(s) in EXCLUDED_TRAIT_IDS that no longer exist in traits.json or no longer carry an AttributeAdjust/BuffConversion fact — a balance patch likely reworked them; remove the stale entry.').toEqual([])
-  })
-})
+        const trait = traitsById.get(id);
+        return !trait || !touchesAttribute(trait);
+      });
+    expect(
+      stale,
+      'Trait id(s) in EXCLUDED_TRAIT_IDS that no longer exist in traits.json or no longer carry an AttributeAdjust/BuffConversion fact — a balance patch likely reworked them; remove the stale entry.',
+    ).toEqual([]);
+  });
+});

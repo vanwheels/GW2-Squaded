@@ -1,21 +1,21 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { Build } from '@shared/types'
-import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types'
-import type { SyncTombstone } from '@shared/storage/storage-interface'
-import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import type { Build } from '@shared/types';
+import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types';
+import type { SyncTombstone } from '@shared/storage/storage-interface';
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills';
 
 interface BuildsStore {
-  builds: Build[]
-  loading: boolean
-  refresh: () => Promise<void>
-  createBuild: (build: Build) => Promise<void>
-  updateBuild: (build: Build) => Promise<void>
-  removeBuild: (id: string) => Promise<void>
+  builds: Build[];
+  loading: boolean;
+  refresh: () => Promise<void>;
+  createBuild: (build: Build) => Promise<void>;
+  updateBuild: (build: Build) => Promise<void>;
+  removeBuild: (id: string) => Promise<void>;
   /** Replaces local builds + their tombstones with a sync pull's authoritative merged result. */
-  applySyncedState: (builds: Build[], tombstones: SyncTombstone[]) => Promise<void>
+  applySyncedState: (builds: Build[], tombstones: SyncTombstone[]) => Promise<void>;
 }
 
-const BuildsStoreContext = createContext<BuildsStore | null>(null)
+const BuildsStoreContext = createContext<BuildsStore | null>(null);
 
 /** Backfills fields absent on records saved before they existed — see `Build.tags`/`Build.order`
  *  doc comments. No storage migration; every read goes through this. `weaverPreviousAttunement`
@@ -26,19 +26,20 @@ const BuildsStoreContext = createContext<BuildsStore | null>(null)
  *  Also runs the load-time schema check (`withCurrentSchemaVersion`, shared/types) — see its doc
  *  comment. */
 export function normalizeBuild(build: Build): Build {
-  const isWeaver = build.specializations.some((s) => s?.specializationId === WEAVER_SPEC_ID)
+  const isWeaver = build.specializations.some((s) => s?.specializationId === WEAVER_SPEC_ID);
   return withCurrentSchemaVersion({
     ...build,
     tags: build.tags ?? [],
     order: build.order ?? Date.parse(build.createdAt),
     favorite: build.favorite ?? false,
-    weaverPreviousAttunement: build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null),
-    updatedAtGw2Build: build.updatedAtGw2Build ?? null
-  })
+    weaverPreviousAttunement:
+      build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null),
+    updatedAtGw2Build: build.updatedAtGw2Build ?? null,
+  });
 }
 
 export function makeBlankBuild(): Build {
-  const now = new Date().toISOString()
+  const now = new Date().toISOString();
   return {
     id: crypto.randomUUID(),
     name: 'Untitled Build',
@@ -68,59 +69,59 @@ export function makeBlankBuild(): Build {
     tags: [],
     order: Date.now(),
     favorite: false,
-    schemaVersion: CURRENT_SCHEMA_VERSION
-  }
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+  };
 }
 
 export function BuildsStoreProvider({ children }: { children: ReactNode }) {
-  const [builds, setBuilds] = useState<Build[]>([])
-  const [loading, setLoading] = useState(true)
+  const [builds, setBuilds] = useState<Build[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = await window.gw2Storage.builds.list()
-      setBuilds(result.map(normalizeBuild).sort((a, b) => a.order - b.order))
+      const result = await window.gw2Storage.builds.list();
+      setBuilds(result.map(normalizeBuild).sort((a, b) => a.order - b.order));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    void refresh()
-  }, [refresh])
+    void refresh();
+  }, [refresh]);
 
   const createBuild = useCallback(
     async (build: Build) => {
-      await window.gw2Storage.builds.create(build)
-      await refresh()
+      await window.gw2Storage.builds.create(build);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const updateBuild = useCallback(
     async (build: Build) => {
-      await window.gw2Storage.builds.update(build)
-      await refresh()
+      await window.gw2Storage.builds.update(build);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const removeBuild = useCallback(
     async (id: string) => {
-      await window.gw2Storage.builds.remove(id)
-      await refresh()
+      await window.gw2Storage.builds.remove(id);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   const applySyncedState = useCallback(
     async (syncedBuilds: Build[], tombstones: SyncTombstone[]) => {
-      await window.gw2Storage.builds.replaceAll(syncedBuilds, tombstones)
-      await refresh()
+      await window.gw2Storage.builds.replaceAll(syncedBuilds, tombstones);
+      await refresh();
     },
-    [refresh]
-  )
+    [refresh],
+  );
 
   return (
     <BuildsStoreContext.Provider
@@ -128,11 +129,11 @@ export function BuildsStoreProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </BuildsStoreContext.Provider>
-  )
+  );
 }
 
 export function useBuildsStore(): BuildsStore {
-  const store = useContext(BuildsStoreContext)
-  if (!store) throw new Error('useBuildsStore must be used within a BuildsStoreProvider')
-  return store
+  const store = useContext(BuildsStoreContext);
+  if (!store) throw new Error('useBuildsStore must be used within a BuildsStoreProvider');
+  return store;
 }

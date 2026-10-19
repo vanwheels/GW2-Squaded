@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Build, Fact, Skill } from '../types'
-import { computeBoonConditionSources, computeNamedFactSources, CONTROL_MATCHERS } from './sources'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Build, Fact, Skill } from '../types';
+import { computeBoonConditionSources, computeNamedFactSources, CONTROL_MATCHERS } from './sources';
 
 /**
  * Regression test for "debuffs and boons are being generated twice ... because it's counting the
@@ -19,18 +19,22 @@ import { computeBoonConditionSources, computeNamedFactSources, CONTROL_MATCHERS 
  * `extractSkillSourcesWithAdditiveDedup`, shared by all 4.
  */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 function loadGameData<T>(name: string): T {
-  return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8')) as T
+  return JSON.parse(
+    readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'),
+  ) as T;
 }
 
 // Every Band Together skill's real content (Vulnerability/Torment/Immobile/Stability/Resistance/
 // Barrier/etc.) lives entirely in synthetic-facts.json, not raw skills.json (confirmed — see
 // COMPLETED.md's "Legendary Renegade Stance skills are missing on-cast effects" curation) — must be
 // merged in the same way `load-game-data.ts`'s `withSyntheticFacts` does, or none of it is testable.
-const rawSkills = loadGameData<Skill[]>('skills.json')
-const syntheticFacts = loadGameData<Record<string, Fact[]>>('synthetic-facts.json')
-const skillsWithSynthetics = rawSkills.map((s) => (syntheticFacts[s.id] ? { ...s, facts: [...s.facts, ...syntheticFacts[s.id]] } : s))
+const rawSkills = loadGameData<Skill[]>('skills.json');
+const syntheticFacts = loadGameData<Record<string, Fact[]>>('synthetic-facts.json');
+const skillsWithSynthetics = rawSkills.map((s) =>
+  syntheticFacts[s.id] ? { ...s, facts: [...s.facts, ...syntheticFacts[s.id]] } : s,
+);
 
 const gameData = {
   skills: skillsWithSynthetics,
@@ -51,8 +55,8 @@ const gameData = {
   soulbeastBeastmode: loadGameData('soulbeast-beastmode.json'),
   familiars: loadGameData('familiars.json'),
   relics: loadGameData('relics.json'),
-  relicEffects: loadGameData('relic-effects.json')
-} as Parameters<typeof computeBoonConditionSources>[1]
+  relicEffects: loadGameData('relic-effects.json'),
+} as Parameters<typeof computeBoonConditionSources>[1];
 
 function baseBuild(overrides: Partial<Build>): Build {
   return {
@@ -85,41 +89,44 @@ function baseBuild(overrides: Partial<Build>): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 // Legend5 = Legendary Renegade Stance: heal 45686 (Breakrazor's Bastion), utilities [42949
 // Razorclaw's Rage, 40485 Icerazor's Ire, 41220 Darkrazor's Daring] — all 4 Band Together pairs.
 const renegadeBuild = baseBuild({
-  skills: { kind: 'revenant', legends: ['Legend5', null], activeLegendIndex: 0 }
-})
+  skills: { kind: 'revenant', legends: ['Legend5', null], activeLegendIndex: 0 },
+});
 
 describe('Legendary Renegade Stance — Band Together additive-flip-pair dedup', () => {
-  it('Darkrazor\'s Daring\'s Daze appears once in the Control named-fact totals, not twice', () => {
-    const control = computeNamedFactSources(renegadeBuild, gameData, CONTROL_MATCHERS)
-    const daze = control.filter((f) => f.name === 'Daze' && (f.sourceId === 41220 || f.sourceId === 72366))
-    expect(daze).toHaveLength(1)
-  })
+  it("Darkrazor's Daring's Daze appears once in the Control named-fact totals, not twice", () => {
+    const control = computeNamedFactSources(renegadeBuild, gameData, CONTROL_MATCHERS);
+    const daze = control.filter(
+      (f) => f.name === 'Daze' && (f.sourceId === 41220 || f.sourceId === 72366),
+    );
+    expect(daze).toHaveLength(1);
+  });
 
-  it('Icerazor\'s Ire\'s shared facts (Vulnerability x2, Torment, Immobile) each appear once, not duplicated by the enhanced cast', () => {
-    const sources = computeBoonConditionSources(renegadeBuild, gameData)
-    const fromIcerazor = sources.filter((s) => s.sourceId === 40485 || s.sourceId === 72359)
-    const counts = new Map<string, number>()
+  it("Icerazor's Ire's shared facts (Vulnerability x2, Torment, Immobile) each appear once, not duplicated by the enhanced cast", () => {
+    const sources = computeBoonConditionSources(renegadeBuild, gameData);
+    const fromIcerazor = sources.filter((s) => s.sourceId === 40485 || s.sourceId === 72359);
+    const counts = new Map<string, number>();
     for (const s of fromIcerazor) {
-      const key = `${s.boonOrConditionName}|${s.scaledDurationSeconds}|${s.applyCount}`
-      counts.set(key, (counts.get(key) ?? 0) + 1)
+      const key = `${s.boonOrConditionName}|${s.scaledDurationSeconds}|${s.applyCount}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
     }
     for (const [key, count] of counts) {
-      expect(count, `duplicate row for ${key}`).toBe(1)
+      expect(count, `duplicate row for ${key}`).toBe(1);
     }
-  })
+  });
 
-  it('but the enhanced cast\'s genuinely NEW content (Resistance from Darkrazor\'s Daring) still counts', () => {
-    const sources = computeBoonConditionSources(renegadeBuild, gameData)
+  it("but the enhanced cast's genuinely NEW content (Resistance from Darkrazor's Daring) still counts", () => {
+    const sources = computeBoonConditionSources(renegadeBuild, gameData);
     const resistance = sources.filter(
-      (s) => (s.sourceId === 41220 || s.sourceId === 72366) && s.boonOrConditionName === 'Resistance'
-    )
-    expect(resistance).toHaveLength(1)
-  })
-})
+      (s) =>
+        (s.sourceId === 41220 || s.sourceId === 72366) && s.boonOrConditionName === 'Resistance',
+    );
+    expect(resistance).toHaveLength(1);
+  });
+});

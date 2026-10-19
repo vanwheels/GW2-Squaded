@@ -1,0 +1,16 @@
+dist/**
+out/**
+build/**
+release/**
+node_modules/**
+data/game-data/**
+worker/.wrangler/**
+worker/dist/**
+worker/public/**
+worker/node_modules/**
+package-lock.json
+worker/package-lock.json
+*.tsbuildinfo
+
+# Docs/markdown are left in prose formatting, not Prettier's.
+**/*.md

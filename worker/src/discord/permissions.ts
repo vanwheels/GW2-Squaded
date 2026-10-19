@@ -1,7 +1,7 @@
-import { getActionPermission, type BoardAction, type BoardType } from '../db'
-import type { Env } from '../env'
-import { UserError } from './errors'
-import { isAdministrator, type InteractionMember } from './interaction-types'
+import { getActionPermission, type BoardAction, type BoardType } from '../db';
+import type { Env } from '../env';
+import { UserError } from './errors';
+import { isAdministrator, type InteractionMember } from './interaction-types';
 
 /** Enforces `action_permissions` for one guild/board/action, per docs/discord-bot.md's role-gate
  *  design. Throws `UserError` (not a boolean) since every call site's next step on failure is
@@ -13,15 +13,15 @@ export async function requireActionPermission(
   guildId: string,
   boardType: BoardType,
   action: BoardAction,
-  member: InteractionMember
+  member: InteractionMember,
 ): Promise<void> {
-  if (isAdministrator(member)) return
+  if (isAdministrator(member)) return;
 
-  const roleId = await getActionPermission(env, guildId, boardType, action)
-  if (roleId === null) return
-  if (member.roles.includes(roleId)) return
+  const roleId = await getActionPermission(env, guildId, boardType, action);
+  if (roleId === null) return;
+  if (member.roles.includes(roleId)) return;
 
-  throw new UserError(`You need the <@&${roleId}> role to do that.`)
+  throw new UserError(`You need the <@&${roleId}> role to do that.`);
 }
 
 /**
@@ -37,9 +37,12 @@ export async function requireActionPermission(
  * surfaced when both would fail — same as the original serialized order (permission checked
  * first) — even though both now run in parallel. Only the success-path latency changes.
  */
-export async function withPermissionCheck<T>(permissionCheck: Promise<void>, work: Promise<T>): Promise<T> {
-  const [permissionResult, workResult] = await Promise.allSettled([permissionCheck, work])
-  if (permissionResult.status === 'rejected') throw permissionResult.reason
-  if (workResult.status === 'rejected') throw workResult.reason
-  return workResult.value
+export async function withPermissionCheck<T>(
+  permissionCheck: Promise<void>,
+  work: Promise<T>,
+): Promise<T> {
+  const [permissionResult, workResult] = await Promise.allSettled([permissionCheck, work]);
+  if (permissionResult.status === 'rejected') throw permissionResult.reason;
+  if (workResult.status === 'rejected') throw workResult.reason;
+  return workResult.value;
 }

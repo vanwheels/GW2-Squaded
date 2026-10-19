@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react';
 import type {
   Build,
   Legend,
@@ -9,8 +9,8 @@ import type {
   SkillSelection,
   StandardSkillSelection,
   WvwFactOverride,
-  WvwFactOverrides
-} from '@shared/types'
+  WvwFactOverrides,
+} from '@shared/types';
 import {
   activeTraitIds,
   auraFactsForSkill,
@@ -27,41 +27,58 @@ import {
   type ComboSource,
   type LegendFormAttributeContext,
   type LegendFormFact,
-  type NamedFactSource
-} from '@shared/boon-calc/sources'
-import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
-import { conditionDamagePerStack } from '@shared/skill-calc/condition-damage-calc'
-import type { FactLine } from '@shared/skill-calc/fact-numbers'
-import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
-import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
-import { branchConditionalFacts, type ConditionalBranch } from '@shared/skill-calc/branch-conditional-facts'
-import { EVOKER_FAMILIAR_SPECIALIZED_ELEMENT, evokerFamiliarFactSourceSkill } from '@shared/skill-calc/evoker-familiar-facts'
-import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
-import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
-import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides'
-import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
-import type { GlyphFormVariantMap } from '@shared/types'
-import { isRacialSkill } from '@shared/skill-calc/racial-skills'
-import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
-import { AURA_ICONS, BOON_CONDITION_ICONS, BOON_STRIP_CORRUPT_ICONS, COMBO_ICONS, CONTROL_ICONS, MISCELLANEOUS_ICONS } from '@shared/boon-calc/icons'
-import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
-import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
-import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { useGameData } from '@renderer/state/game-data-store'
-import { usePickerOpen } from '@renderer/state/picker-registry'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { WeaponSkillBar } from './WeaponSkillBar'
-import { ProfessionMechanicBar } from './ProfessionMechanicBar'
-import { PetsEditor } from './PetsEditor'
-import { SkillBarIcon } from './SkillBarIcon'
-import { DodgeIndicator } from './DodgeIndicator'
+  type NamedFactSource,
+} from '@shared/boon-calc/sources';
+import { skillFactLines } from '@shared/skill-calc/skill-fact-lines';
+import { conditionDamagePerStack } from '@shared/skill-calc/condition-damage-calc';
+import type { FactLine } from '@shared/skill-calc/fact-numbers';
+import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect';
+import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs';
+import {
+  branchConditionalFacts,
+  type ConditionalBranch,
+} from '@shared/skill-calc/branch-conditional-facts';
+import {
+  EVOKER_FAMILIAR_SPECIALIZED_ELEMENT,
+  evokerFamiliarFactSourceSkill,
+} from '@shared/skill-calc/evoker-familiar-facts';
+import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect';
+import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills';
+import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides';
+import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms';
+import type { GlyphFormVariantMap } from '@shared/types';
+import { isRacialSkill } from '@shared/skill-calc/racial-skills';
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format';
+import {
+  AURA_ICONS,
+  BOON_CONDITION_ICONS,
+  BOON_STRIP_CORRUPT_ICONS,
+  COMBO_ICONS,
+  CONTROL_ICONS,
+  MISCELLANEOUS_ICONS,
+} from '@shared/boon-calc/icons';
+import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals';
+import { computeCharacterStats } from '@shared/gear-calc/derived-stats';
+import {
+  DEFAULT_COMBAT_STATE,
+  TARGET_ARMOR_VALUES,
+  type CombatState,
+} from '@shared/gear-calc/combat-state';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { useGameData } from '@renderer/state/game-data-store';
+import { usePickerOpen } from '@renderer/state/picker-registry';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { WeaponSkillBar } from './WeaponSkillBar';
+import { ProfessionMechanicBar } from './ProfessionMechanicBar';
+import { PetsEditor } from './PetsEditor';
+import { SkillBarIcon } from './SkillBarIcon';
+import { DodgeIndicator } from './DodgeIndicator';
 
 interface Props {
-  build: Build
-  value: SkillSelection
-  onChange: (value: SkillSelection) => void
+  build: Build;
+  value: SkillSelection;
+  onChange: (value: SkillSelection) => void;
   onBuildChange: (
     patch: Partial<
       Pick<
@@ -77,16 +94,16 @@ interface Props {
         | 'thiefStolenSkillId'
         | 'vindicatorAspectFlipped'
       >
-    >
-  ) => void
-  equippedSpecializationIds: ReadonlySet<number>
+    >,
+  ) => void;
+  equippedSpecializationIds: ReadonlySet<number>;
   /** Threaded down to every skill tooltip in this bar so their real Damage/Healing numbers (see
    *  `skillFactLines`) match `StatsPanel`'s displayed Power/Healing Power and the target-armor
    *  assumption, instead of silently ignoring combat-state toggles. */
-  combatState?: CombatState
+  combatState?: CombatState;
 }
 
-type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
+type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite';
 
 /**
  * Laid out as a CSS grid mirroring the real HUD's bottom bar: a Land/Underwater toggle icon sits
@@ -99,11 +116,23 @@ type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
  * rows (`weapon`/`utility-skills`) land in the same grid row and line up exactly regardless of how
  * tall the profession-mechanic bar or the legend-picker row above them is.
  */
-export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds, combatState = DEFAULT_COMBAT_STATE }: Props) {
+export function SkillsEditor({
+  build,
+  value,
+  onChange,
+  onBuildChange,
+  equippedSpecializationIds,
+  combatState = DEFAULT_COMBAT_STATE,
+}: Props) {
   return (
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && (
-        <PetsEditor build={build} onBuildChange={onBuildChange} equippedSpecializationIds={equippedSpecializationIds} combatState={combatState} />
+        <PetsEditor
+          build={build}
+          onBuildChange={onBuildChange}
+          equippedSpecializationIds={equippedSpecializationIds}
+          combatState={combatState}
+        />
       )}
       <WeaponSkillBar
         build={build}
@@ -172,7 +201,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
         )}
       </div>
     </div>
-  )
+  );
 }
 
 /** Shared by both editors: activeTraitIds + gear-derived boon/condition duration %, needed to
@@ -181,21 +210,31 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
  *  `skillFactLines`) scale against — same `computeCharacterStats` call `StatsPanel` uses, so both
  *  agree. */
 export function useDurationContext(build: Build, combatState: CombatState = DEFAULT_COMBAT_STATE) {
-  const gameData = useGameData()
-  const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
-  const legendIds = useMemo(() => equippedLegendIds(build), [build])
-  const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
-  const characterAttributes = useMemo(() => computeCharacterStats(build, gameData, combatState).attributes, [build, gameData, combatState])
-  const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass]
-  return { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor }
+  const gameData = useGameData();
+  const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits]);
+  const legendIds = useMemo(() => equippedLegendIds(build), [build]);
+  const durationPercent = useMemo(
+    () => boonConditionDurationPercent(build, gameData),
+    [build, gameData],
+  );
+  const characterAttributes = useMemo(
+    () => computeCharacterStats(build, gameData, combatState).attributes,
+    [build, gameData, combatState],
+  );
+  const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass];
+  return { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor };
 }
 
-const BOON_CONDITION_ICONS_BY_NAME: Record<string, string> = BOON_CONDITION_ICONS
-const AURA_ICONS_BY_NAME: Record<string, string> = AURA_ICONS
+const BOON_CONDITION_ICONS_BY_NAME: Record<string, string> = BOON_CONDITION_ICONS;
+const AURA_ICONS_BY_NAME: Record<string, string> = AURA_ICONS;
 /** Control/Miscellaneous/Strip-Corrupt-Cleanse names never collide (confirmed by each matcher
  *  table's own doc comment in sources.ts — 3 disjoint, hand-verified label sets), so one merged
  *  icon lookup covers every `NamedFactSource.name` a skill tooltip can produce. */
-const NAMED_FACT_ICONS_BY_NAME: Record<string, string> = { ...CONTROL_ICONS, ...MISCELLANEOUS_ICONS, ...BOON_STRIP_CORRUPT_ICONS }
+const NAMED_FACT_ICONS_BY_NAME: Record<string, string> = {
+  ...CONTROL_ICONS,
+  ...MISCELLANEOUS_ICONS,
+  ...BOON_STRIP_CORRUPT_ICONS,
+};
 
 /** Optional extra fact categories `factsBlock` renders below the boon/condition list — everything
  *  `computeAuraSources`/`computeNamedFactSources`/`computeComboSources` cover for a whole build,
@@ -203,15 +242,15 @@ const NAMED_FACT_ICONS_BY_NAME: Record<string, string> = { ...CONTROL_ICONS, ...
  *  Optional/defaulted so every pre-existing `factsBlock` call site (trait tooltips, which don't
  *  compute any of these) keeps compiling unchanged. */
 export interface SkillNamedFacts {
-  auraFacts?: BoonConditionSource[]
-  namedFactSources?: NamedFactSource[]
-  comboFacts?: ComboSource[]
+  auraFacts?: BoonConditionSource[];
+  namedFactSources?: NamedFactSource[];
+  comboFacts?: ComboSource[];
   /** See `legend-attribute-details.ts` — per-legend attribute-bonus text for traits like Bolstered
    *  Bonds, a different shape from the boon-granting `legendIcon`/`legendName` badge already on
    *  `BoonConditionSource` (Spirit Boon's shape). Currently only ever populated for trait tooltips
    *  (`TraitsEditor.tsx`), but kept here rather than a bespoke param, same "available everywhere,
    *  used where it applies" convention as every other optional field on this interface. */
-  legendAttributeFacts?: LegendFormFact[]
+  legendAttributeFacts?: LegendFormFact[];
 }
 
 /**
@@ -220,8 +259,18 @@ export interface SkillNamedFacts {
  * `condition-damage-calc.ts`'s `conditionDamagePerStack` for which condition names it covers and why
  * (Leg 2 of TODO.md's condition-damage display, scoped to skill tooltips only, never traits).
  */
-export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}, conditionDamage?: number) {
-  const { auraFacts = [], namedFactSources = [], comboFacts = [], legendAttributeFacts = [] } = namedFacts
+export function factsBlock(
+  numericLines: FactLine[],
+  boonFacts: BoonConditionSource[],
+  namedFacts: SkillNamedFacts = {},
+  conditionDamage?: number,
+) {
+  const {
+    auraFacts = [],
+    namedFactSources = [],
+    comboFacts = [],
+    legendAttributeFacts = [],
+  } = namedFacts;
   return (
     <>
       {numericLines.length > 0 && (
@@ -238,16 +287,31 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
         <ul className="tooltip-boon-facts">
           {boonFacts.map((f, i) => {
             const perStackDamage =
-              f.category === 'condition' && conditionDamage !== undefined ? conditionDamagePerStack(f.boonOrConditionName, conditionDamage) : null
+              f.category === 'condition' && conditionDamage !== undefined
+                ? conditionDamagePerStack(f.boonOrConditionName, conditionDamage)
+                : null;
             return (
               <li key={i}>
                 <span className="tooltip-fact-label">
-                  {f.legendIcon && <img className="tooltip-fact-icon tooltip-fact-legend-icon" src={f.legendIcon} alt="" title={f.legendName} />}
+                  {f.legendIcon && (
+                    <img
+                      className="tooltip-fact-icon tooltip-fact-legend-icon"
+                      src={f.legendIcon}
+                      alt=""
+                      title={f.legendName}
+                    />
+                  )}
                   {BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName] && (
-                    <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
+                    <img
+                      className="tooltip-fact-icon"
+                      src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]}
+                      alt=""
+                    />
                   )}
                   <span>{f.boonOrConditionName}</span>
-                  {f.instanceLabel && <span className="boon-source-instance-label">{f.instanceLabel}</span>}
+                  {f.instanceLabel && (
+                    <span className="boon-source-instance-label">{f.instanceLabel}</span>
+                  )}
                   {f.category === 'boon' && f.targetCount !== null && (
                     <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
                   )}
@@ -258,11 +322,13 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
                     {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
                   </span>
                   {perStackDamage !== null && (
-                    <span className="boon-source-condition-damage">≈ {(perStackDamage * f.applyCount).toLocaleString()} dmg/s</span>
+                    <span className="boon-source-condition-damage">
+                      ≈ {(perStackDamage * f.applyCount).toLocaleString()} dmg/s
+                    </span>
                   )}
                 </span>
               </li>
-            )
+            );
           })}
         </ul>
       )}
@@ -285,7 +351,11 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
             <li key={i}>
               <span className="tooltip-fact-label">
                 {AURA_ICONS_BY_NAME[f.boonOrConditionName] && (
-                  <img className="tooltip-fact-icon" src={AURA_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
+                  <img
+                    className="tooltip-fact-icon"
+                    src={AURA_ICONS_BY_NAME[f.boonOrConditionName]}
+                    alt=""
+                  />
                 )}
                 <span>{f.boonOrConditionName}</span>
               </span>
@@ -302,9 +372,17 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
           {namedFactSources.map((f, i) => (
             <li key={i}>
               <span className="tooltip-fact-label">
-                {NAMED_FACT_ICONS_BY_NAME[f.name] && <img className="tooltip-fact-icon" src={NAMED_FACT_ICONS_BY_NAME[f.name]} alt="" />}
+                {NAMED_FACT_ICONS_BY_NAME[f.name] && (
+                  <img
+                    className="tooltip-fact-icon"
+                    src={NAMED_FACT_ICONS_BY_NAME[f.name]}
+                    alt=""
+                  />
+                )}
                 <span>{f.name}</span>
-                {f.targetCount !== null && <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>}
+                {f.targetCount !== null && (
+                  <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
+                )}
               </span>
               {f.detail && <span className="boon-source-duration">{f.detail}</span>}
             </li>
@@ -325,14 +403,17 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
         </ul>
       )}
     </>
-  )
+  );
 }
 
 /** Shared "labeled alternative-outcome section" renderer for `ConditionalBranch[]` — factored out
  *  of `skillTooltipContent` so `TraitsEditor.tsx` can draw the exact same divider style for
  *  `branchConditionalTraitFacts` (e.g. Strengthening Stanzas' 3 mutually-exclusive per-Refrain
  *  self-buffs) rather than a trait-specific reimplementation. */
-export function conditionalBranchesBlock(branches: ConditionalBranch[] | null, conditionDamage?: number) {
+export function conditionalBranchesBlock(
+  branches: ConditionalBranch[] | null,
+  conditionDamage?: number,
+) {
   return branches?.map((branch) => (
     <div key={branch.label}>
       <div className="tooltip-divider">
@@ -341,7 +422,7 @@ export function conditionalBranchesBlock(branches: ConditionalBranch[] | null, c
       {branch.description && <div className="tooltip-description">{branch.description}</div>}
       {factsBlock(branch.numericLines, branch.facts, {}, conditionDamage)}
     </div>
-  ))
+  ));
 }
 
 /** Every non-boon/condition category a single skill's tooltip should show — Auras plus the 3
@@ -356,54 +437,61 @@ export function skillNamedFacts(
   legendIds: Set<string>,
   wvwOverride: Record<string, WvwFactOverride> | undefined,
   legends: Legend[] = [],
-  legendFormAttrs?: LegendFormAttributeContext
+  legendFormAttrs?: LegendFormAttributeContext,
 ): SkillNamedFacts {
   return {
     auraFacts: auraFactsForSkill(skill, activeIds, legendIds, wvwOverride),
     namedFactSources: [
       ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, CONTROL_MATCHERS),
       ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, MISCELLANEOUS_MATCHERS),
-      ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
+      ...namedFactsForSkill(
+        skill,
+        activeIds,
+        legendIds,
+        wvwOverride,
+        BOON_STRIP_CORRUPT_MATCHERS,
+        NAMED_FACT_TARGET_COUNT_TABLES,
+      ),
     ],
     comboFacts: comboFactsForSkill(skill, activeIds),
-    legendAttributeFacts: legendFormFactsForSkill(skill, legendIds, legends, legendFormAttrs)
-  }
+    legendAttributeFacts: legendFormFactsForSkill(skill, legendIds, legends, legendFormAttrs),
+  };
 }
 
 export interface SkillVariantContext {
-  skills: Skill[]
-  skillsById: Map<number, Skill>
-  wvwFactOverrides: WvwFactOverrides
+  skills: Skill[];
+  skillsById: Map<number, Skill>;
+  wvwFactOverrides: WvwFactOverrides;
   /** WvW-correct `Recharge`-fact override map — see `recharge-override.ts`'s `withRechargeOverride`
    *  and `skillFactLines`'s own `rechargeWvwOverrides` param. */
-  rechargeWvwOverrides: RechargeWvwOverrides
+  rechargeWvwOverrides: RechargeWvwOverrides;
   /** Wiki-sourced Energy/Initiative/Upkeep/Health Cost per skill — see
    *  `resource-cost-lines.ts`'s `resourceCostLines` and `skillFactLines`'s own `resourceCosts` param. */
-  resourceCosts: ResourceCostsById
+  resourceCosts: ResourceCostsById;
   /** The build's equipped Revenant legends (`equippedLegendIds`) — see `LegendConditionalTargetCountOverride`. */
-  legendIds: Set<string>
+  legendIds: Set<string>;
   /** The full legend list (`gameData.legends`) — see `boonConditionFactsForSkill`'s `legends` param /
    *  `BoonConditionSource.legendIcon` (resolves which legend a `PrefixedBuff` fact's boon names). */
-  legends: Legend[]
-  durationPercent: { boon: number; condition: number }
+  legends: Legend[];
+  durationPercent: { boon: number; condition: number };
   /** Current Power/Healing Power/Condition Damage (`useDurationContext`'s `characterAttributes`) and
    *  assumed target armor a skill's real Damage/Healing/condition-damage tooltip lines scale against
    *  — see `skillFactLines`/`conditionDamagePerStack`. */
-  characterAttributes: { power: number; healingPower: number; conditionDamage: number }
-  targetArmor: number
+  characterAttributes: { power: number; healingPower: number; conditionDamage: number };
+  targetArmor: number;
   /** Wiki-sourced Druid Glyph normal/celestial form data plus whether the build's Celestial Avatar
    *  toggle is currently on — see `glyph-forms.ts`'s `glyphFormFactSourceSkill`. Harmless for every
    *  non-Ranger build: `glyphFormVariants` never matches a non-Glyph skill id. */
-  glyphFormVariants: GlyphFormVariantMap
-  celestialAvatarActive: boolean
+  glyphFormVariants: GlyphFormVariantMap;
+  celestialAvatarActive: boolean;
   /** The build's current Elementalist attunement — see `multi-effect.ts`'s
    *  `activeAttunementVariantSkill`. Harmless for every non-Elementalist build/context: no other
    *  profession's skills ever carry a non-null `Skill.attunement`, so this never matches. */
-  activeAttunement: Build['activeAttunement']
+  activeAttunement: Build['activeAttunement'];
   /** The `Familiar.element` (Fire/Water/Earth/Air) the build's `familiarId` resolves to, or `null` —
    *  see `evoker-familiar-facts.ts`'s `EVOKER_FAMILIAR_SPECIALIZED_ELEMENT`. Harmless for every
    *  non-Evoker build/context: only the 4 Evoker Meditation target ids ever check this. */
-  familiarElement: string | null
+  familiarElement: string | null;
 }
 
 /**
@@ -421,13 +509,27 @@ export interface SkillVariantContext {
  * The two never both match the same skill (no profession has both kinds of Glyph), so either one
  * winning the `??` is unambiguous.
  */
-export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], activeIds: Set<number>, variantContext: SkillVariantContext) {
-  const { power, healingPower, conditionDamage } = variantContext.characterAttributes
-  const glyphFormSkill = glyphFormFactSourceSkill(skill, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, variantContext.skillsById)
-  const attunementVariantSkill = activeAttunementVariantSkill(skill, variantContext.activeAttunement, variantContext.skills)
-  const familiarFactSkill = evokerFamiliarFactSourceSkill(skill, variantContext.skillsById)
-  const swappedFactSkill = glyphFormSkill ?? attunementVariantSkill ?? familiarFactSkill
-  const factSourceSkill = swappedFactSkill ?? skill
+export function skillTooltipContent(
+  skill: Skill,
+  facts: BoonConditionSource[],
+  activeIds: Set<number>,
+  variantContext: SkillVariantContext,
+) {
+  const { power, healingPower, conditionDamage } = variantContext.characterAttributes;
+  const glyphFormSkill = glyphFormFactSourceSkill(
+    skill,
+    variantContext.celestialAvatarActive,
+    variantContext.glyphFormVariants,
+    variantContext.skillsById,
+  );
+  const attunementVariantSkill = activeAttunementVariantSkill(
+    skill,
+    variantContext.activeAttunement,
+    variantContext.skills,
+  );
+  const familiarFactSkill = evokerFamiliarFactSourceSkill(skill, variantContext.skillsById);
+  const swappedFactSkill = glyphFormSkill ?? attunementVariantSkill ?? familiarFactSkill;
+  const factSourceSkill = swappedFactSkill ?? skill;
   const numericLines = skillFactLines(
     factSourceSkill,
     activeIds,
@@ -435,8 +537,8 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
     healingPower,
     variantContext.targetArmor,
     variantContext.rechargeWvwOverrides,
-    variantContext.resourceCosts
-  )
+    variantContext.resourceCosts,
+  );
   const effectiveFacts = swappedFactSkill
     ? boonConditionFactsForSkill(
         swappedFactSkill,
@@ -444,20 +546,38 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         variantContext.legendIds,
         variantContext.durationPercent,
         variantContext.wvwFactOverrides.skill[swappedFactSkill.id],
-        variantContext.legends
+        variantContext.legends,
       )
-    : facts
+    : facts;
   const rawNamedFacts = skillNamedFacts(
     factSourceSkill,
     activeIds,
     variantContext.legendIds,
     variantContext.wvwFactOverrides.skill[factSourceSkill.id],
     variantContext.legends,
-    { power, healingPower, targetArmor: variantContext.targetArmor }
-  )
-  const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(factSourceSkill.id, rawNamedFacts, variantContext.familiarElement)
-  const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
-  const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent, healingPower, activeIds, variantContext.legendIds, variantContext.legends)
+    { power, healingPower, targetArmor: variantContext.targetArmor },
+  );
+  const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(
+    factSourceSkill.id,
+    rawNamedFacts,
+    variantContext.familiarElement,
+  );
+  const enhancement = additiveEnhancementFacts(
+    skill,
+    numericLines,
+    effectiveFacts,
+    effectiveNamedFacts,
+    activeIds,
+    variantContext,
+  );
+  const branches = branchConditionalFacts(
+    factSourceSkill,
+    variantContext.durationPercent,
+    healingPower,
+    activeIds,
+    variantContext.legendIds,
+    variantContext.legends,
+  );
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
@@ -467,7 +587,12 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           <div className="tooltip-divider">
             <span className="tooltip-section-label">{enhancement.triggerLabel}</span>
           </div>
-          {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts, conditionDamage)}
+          {factsBlock(
+            enhancement.numericLines,
+            enhancement.facts,
+            enhancement.namedFacts,
+            conditionDamage,
+          )}
         </>
       )}
       {conditionalBranchesBlock(branches, conditionDamage)}
@@ -480,7 +605,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         </>
       )}
     </>
-  )
+  );
 }
 
 /** Composite content-key for a `BoonConditionSource`/aura fact — deliberately excludes `sourceId`/
@@ -488,15 +613,25 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
  *  enhancement flip target by construction, so `additiveEnhancementFacts` can recognize "the same
  *  boon/condition grant, computed off a different id" as already-shown rather than new. */
 function boonFactContentKey(f: BoonConditionSource): string {
-  return [f.category, f.boonOrConditionName, f.isCondition, f.scaledDurationSeconds, f.applyCount, f.requiresTraitId, f.targetCount, f.instanceLabel ?? '', f.legendName ?? ''].join('|')
+  return [
+    f.category,
+    f.boonOrConditionName,
+    f.isCondition,
+    f.scaledDurationSeconds,
+    f.applyCount,
+    f.requiresTraitId,
+    f.targetCount,
+    f.instanceLabel ?? '',
+    f.legendName ?? '',
+  ].join('|');
 }
 
 function namedFactContentKey(f: NamedFactSource): string {
-  return [f.name, f.detail ?? '', f.targetCount].join('|')
+  return [f.name, f.detail ?? '', f.targetCount].join('|');
 }
 
 function comboFactContentKey(f: ComboSource): string {
-  return [f.kind, f.fieldType, f.finisherType].join('|')
+  return [f.kind, f.fieldType, f.finisherType].join('|');
 }
 
 /**
@@ -516,14 +651,19 @@ function additiveEnhancementFacts(
   baseFacts: BoonConditionSource[],
   baseNamedFacts: SkillNamedFacts,
   activeIds: Set<number>,
-  variantContext: SkillVariantContext
-): { triggerLabel: string; numericLines: FactLine[]; facts: BoonConditionSource[]; namedFacts: SkillNamedFacts } | null {
-  const pair = ADDITIVE_FLIP_PAIRS.get(skill.id)
-  if (!pair) return null
-  const targetSkill = variantContext.skillsById.get(pair.targetId)
-  if (!targetSkill) return null
+  variantContext: SkillVariantContext,
+): {
+  triggerLabel: string;
+  numericLines: FactLine[];
+  facts: BoonConditionSource[];
+  namedFacts: SkillNamedFacts;
+} | null {
+  const pair = ADDITIVE_FLIP_PAIRS.get(skill.id);
+  if (!pair) return null;
+  const targetSkill = variantContext.skillsById.get(pair.targetId);
+  if (!targetSkill) return null;
 
-  const { power, healingPower } = variantContext.characterAttributes
+  const { power, healingPower } = variantContext.characterAttributes;
   const targetNumericLines = skillFactLines(
     targetSkill,
     activeIds,
@@ -531,48 +671,54 @@ function additiveEnhancementFacts(
     healingPower,
     variantContext.targetArmor,
     variantContext.rechargeWvwOverrides,
-    variantContext.resourceCosts
-  )
+    variantContext.resourceCosts,
+  );
   const targetFacts = boonConditionFactsForSkill(
     targetSkill,
     activeIds,
     variantContext.legendIds,
     variantContext.durationPercent,
     variantContext.wvwFactOverrides.skill[targetSkill.id],
-    variantContext.legends
-  )
+    variantContext.legends,
+  );
   const targetNamedFacts = skillNamedFacts(
     targetSkill,
     activeIds,
     variantContext.legendIds,
     variantContext.wvwFactOverrides.skill[targetSkill.id],
     variantContext.legends,
-    { power, healingPower, targetArmor: variantContext.targetArmor }
-  )
+    { power, healingPower, targetArmor: variantContext.targetArmor },
+  );
 
-  const baseNumericKeys = new Set(baseNumericLines.map((l) => l.text))
-  const baseFactKeys = new Set(baseFacts.map(boonFactContentKey))
-  const baseAuraKeys = new Set((baseNamedFacts.auraFacts ?? []).map(boonFactContentKey))
-  const baseNamedKeys = new Set((baseNamedFacts.namedFactSources ?? []).map(namedFactContentKey))
-  const baseComboKeys = new Set((baseNamedFacts.comboFacts ?? []).map(comboFactContentKey))
+  const baseNumericKeys = new Set(baseNumericLines.map((l) => l.text));
+  const baseFactKeys = new Set(baseFacts.map(boonFactContentKey));
+  const baseAuraKeys = new Set((baseNamedFacts.auraFacts ?? []).map(boonFactContentKey));
+  const baseNamedKeys = new Set((baseNamedFacts.namedFactSources ?? []).map(namedFactContentKey));
+  const baseComboKeys = new Set((baseNamedFacts.comboFacts ?? []).map(comboFactContentKey));
 
-  const numericLines = targetNumericLines.filter((l) => !baseNumericKeys.has(l.text))
-  const facts = targetFacts.filter((f) => !baseFactKeys.has(boonFactContentKey(f)))
+  const numericLines = targetNumericLines.filter((l) => !baseNumericKeys.has(l.text));
+  const facts = targetFacts.filter((f) => !baseFactKeys.has(boonFactContentKey(f)));
   const namedFacts: SkillNamedFacts = {
-    auraFacts: (targetNamedFacts.auraFacts ?? []).filter((f) => !baseAuraKeys.has(boonFactContentKey(f))),
-    namedFactSources: (targetNamedFacts.namedFactSources ?? []).filter((f) => !baseNamedKeys.has(namedFactContentKey(f))),
-    comboFacts: (targetNamedFacts.comboFacts ?? []).filter((f) => !baseComboKeys.has(comboFactContentKey(f)))
-  }
+    auraFacts: (targetNamedFacts.auraFacts ?? []).filter(
+      (f) => !baseAuraKeys.has(boonFactContentKey(f)),
+    ),
+    namedFactSources: (targetNamedFacts.namedFactSources ?? []).filter(
+      (f) => !baseNamedKeys.has(namedFactContentKey(f)),
+    ),
+    comboFacts: (targetNamedFacts.comboFacts ?? []).filter(
+      (f) => !baseComboKeys.has(comboFactContentKey(f)),
+    ),
+  };
 
   const isEmpty =
     numericLines.length === 0 &&
     facts.length === 0 &&
     (namedFacts.auraFacts?.length ?? 0) === 0 &&
     (namedFacts.namedFactSources?.length ?? 0) === 0 &&
-    (namedFacts.comboFacts?.length ?? 0) === 0
-  if (isEmpty) return null
+    (namedFacts.comboFacts?.length ?? 0) === 0;
+  if (isEmpty) return null;
 
-  return { triggerLabel: pair.triggerLabel, numericLines, facts, namedFacts }
+  return { triggerLabel: pair.triggerLabel, numericLines, facts, namedFacts };
 }
 
 /**
@@ -591,16 +737,29 @@ function additiveEnhancementFacts(
 function evokerFamiliarBonusFacts(
   factSourceSkillId: number,
   namedFacts: SkillNamedFacts,
-  buildFamiliarElement: string | null
-): { namedFacts: SkillNamedFacts; bonus: { triggerLabel: string; namedFacts: SkillNamedFacts } | null } {
-  const requiredElement = EVOKER_FAMILIAR_SPECIALIZED_ELEMENT.get(factSourceSkillId)
-  if (!requiredElement) return { namedFacts, bonus: null }
+  buildFamiliarElement: string | null,
+): {
+  namedFacts: SkillNamedFacts;
+  bonus: { triggerLabel: string; namedFacts: SkillNamedFacts } | null;
+} {
+  const requiredElement = EVOKER_FAMILIAR_SPECIALIZED_ELEMENT.get(factSourceSkillId);
+  if (!requiredElement) return { namedFacts, bonus: null };
 
-  const stunBreak = (namedFacts.namedFactSources ?? []).filter((f) => f.name === 'Breaks Stun')
-  const rest: SkillNamedFacts = { ...namedFacts, namedFactSources: (namedFacts.namedFactSources ?? []).filter((f) => f.name !== 'Breaks Stun') }
-  if (stunBreak.length === 0 || buildFamiliarElement !== requiredElement) return { namedFacts: rest, bonus: null }
+  const stunBreak = (namedFacts.namedFactSources ?? []).filter((f) => f.name === 'Breaks Stun');
+  const rest: SkillNamedFacts = {
+    ...namedFacts,
+    namedFactSources: (namedFacts.namedFactSources ?? []).filter((f) => f.name !== 'Breaks Stun'),
+  };
+  if (stunBreak.length === 0 || buildFamiliarElement !== requiredElement)
+    return { namedFacts: rest, bonus: null };
 
-  return { namedFacts: rest, bonus: { triggerLabel: `${requiredElement} Specialized`, namedFacts: { namedFactSources: stunBreak } } }
+  return {
+    namedFacts: rest,
+    bonus: {
+      triggerLabel: `${requiredElement} Specialized`,
+      namedFacts: { namedFactSources: stunBreak },
+    },
+  };
 }
 
 /**
@@ -614,15 +773,15 @@ function evokerFamiliarBonusFacts(
 export function FlipSkillStack({
   skill,
   activeIds,
-  variantContext
+  variantContext,
 }: {
-  skill: Skill | undefined
-  activeIds: Set<number>
-  variantContext: SkillVariantContext
+  skill: Skill | undefined;
+  activeIds: Set<number>;
+  variantContext: SkillVariantContext;
 }) {
-  if (!skill) return null
-  const flips = flipTargetSkills(skill, variantContext.skillsById)
-  if (flips.length === 0) return null
+  if (!skill) return null;
+  const flips = flipTargetSkills(skill, variantContext.skillsById);
+  if (flips.length === 0) return null;
   return (
     <div className="skill-slot-flip-stack">
       {flips.map((f) => {
@@ -632,18 +791,21 @@ export function FlipSkillStack({
           variantContext.legendIds,
           variantContext.durationPercent,
           variantContext.wvwFactOverrides.skill[f.skill.id],
-          variantContext.legends
-        )
+          variantContext.legends,
+        );
         return (
-          <Tooltip key={f.skill.id} content={skillTooltipContent(f.skill, facts, activeIds, variantContext)}>
+          <Tooltip
+            key={f.skill.id}
+            content={skillTooltipContent(f.skill, facts, activeIds, variantContext)}
+          >
             <span className="skill-slot-flip-icon">
               <img src={f.skill.icon} alt={f.label} />
             </span>
           </Tooltip>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 /**
@@ -657,53 +819,74 @@ export function FlipSkillStack({
  * that function's doc comment.
  */
 function groupSkillsByCategory(skills: Skill[]): { category: string | null; skills: Skill[] }[] {
-  const order: (string | null)[] = []
-  const bySkillCategory = new Map<string | null, Skill[]>()
+  const order: (string | null)[] = [];
+  const bySkillCategory = new Map<string | null, Skill[]>();
   for (const skill of skills) {
-    const category = skillPickerCategory(skill)
+    const category = skillPickerCategory(skill);
     if (!bySkillCategory.has(category)) {
-      bySkillCategory.set(category, [])
-      order.push(category)
+      bySkillCategory.set(category, []);
+      order.push(category);
     }
-    bySkillCategory.get(category)!.push(skill)
+    bySkillCategory.get(category)!.push(skill);
   }
-  order.sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0))
-  return order.map((category) => ({ category, skills: bySkillCategory.get(category)! }))
+  order.sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0));
+  return order.map((category) => ({ category, skills: bySkillCategory.get(category)! }));
 }
 
 interface StandardProps {
-  build: Build
-  value: StandardSkillSelection
-  onChange: (value: SkillSelection) => void
-  equippedSpecializationIds: ReadonlySet<number>
-  combatState: CombatState
+  build: Build;
+  value: StandardSkillSelection;
+  onChange: (value: SkillSelection) => void;
+  equippedSpecializationIds: ReadonlySet<number>;
+  combatState: CombatState;
 }
 
-function StandardSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState }: StandardProps) {
-  const profession = build.profession
-  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
-  const { skillsById, skillsForProfessionAndSlot } = gameData
-  const { showRacialSkills } = useAppSettings()
-  const { open, openThis, close } = usePickerOpen()
-  const [openSlot, setOpenSlot] = useState<SlotId | null>(null)
-  const slotButtonRefs = useRef<Partial<Record<SlotId, HTMLButtonElement | null>>>({})
+function StandardSkillsEditor({
+  build,
+  value,
+  onChange,
+  equippedSpecializationIds,
+  combatState,
+}: StandardProps) {
+  const profession = build.profession;
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } =
+    useDurationContext(build, combatState);
+  const { skillsById, skillsForProfessionAndSlot } = gameData;
+  const { showRacialSkills } = useAppSettings();
+  const { open, openThis, close } = usePickerOpen();
+  const [openSlot, setOpenSlot] = useState<SlotId | null>(null);
+  const slotButtonRefs = useRef<Partial<Record<SlotId, HTMLButtonElement | null>>>({});
 
   // Racial skills are filtered from the *option list* only — an already-equipped racial skill
   // (chosen before the setting was turned off) still resolves fine via `skillsById` and renders
   // normally, same as `showUnderwater` never strips a saved build's data.
-  const filterRacial = (options: Skill[]): Skill[] => (showRacialSkills ? options : options.filter((s) => !isRacialSkill(s)))
+  const filterRacial = (options: Skill[]): Skill[] =>
+    showRacialSkills ? options : options.filter((s) => !isRacialSkill(s));
   const healOptions = filterRacial(
-    skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId, activeIds)
-  )
+    skillsForProfessionAndSlot(
+      profession,
+      'Heal',
+      equippedSpecializationIds,
+      build.familiarId,
+      activeIds,
+    ),
+  );
   const utilityOptions = filterRacial(
-    skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds, null, activeIds)
-  )
+    skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds, null, activeIds),
+  );
   const eliteOptions = filterRacial(
-    skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds, null, activeIds)
-  )
+    skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds, null, activeIds),
+  );
 
   function skillFacts(skill: Skill): BoonConditionSource[] {
-    return boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
+    return boonConditionFactsForSkill(
+      skill,
+      activeIds,
+      legendIds,
+      durationPercent,
+      gameData.wvwFactOverrides.skill[skill.id],
+      gameData.legends,
+    );
   }
 
   const variantContext: SkillVariantContext = {
@@ -720,63 +903,93 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID,
     activeAttunement: build.activeAttunement,
-    familiarElement: gameData.familiars.find((f) => f.id === build.familiarId)?.element ?? null
-  }
+    familiarElement: gameData.familiars.find((f) => f.id === build.familiarId)?.element ?? null,
+  };
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
-    const utility: StandardSkillSelection['utility'] = [...value.utility]
-    utility[slotIndex] = skillId
-    onChange({ ...value, utility })
+    const utility: StandardSkillSelection['utility'] = [...value.utility];
+    utility[slotIndex] = skillId;
+    onChange({ ...value, utility });
   }
 
-  function slotConfig(slot: SlotId): { label: string; chosenId: number | null; options: Skill[]; select: (id: number | null) => void } {
+  function slotConfig(slot: SlotId): {
+    label: string;
+    chosenId: number | null;
+    options: Skill[];
+    select: (id: number | null) => void;
+  } {
     switch (slot) {
       case 'heal':
-        return { label: 'Heal', chosenId: value.heal, options: healOptions, select: (id) => onChange({ ...value, heal: id }) }
+        return {
+          label: 'Heal',
+          chosenId: value.heal,
+          options: healOptions,
+          select: (id) => onChange({ ...value, heal: id }),
+        };
       case 'elite':
-        return { label: 'Elite', chosenId: value.elite, options: eliteOptions, select: (id) => onChange({ ...value, elite: id }) }
+        return {
+          label: 'Elite',
+          chosenId: value.elite,
+          options: eliteOptions,
+          select: (id) => onChange({ ...value, elite: id }),
+        };
       default: {
-        const slotIndex = Number(slot.slice(-1)) as 0 | 1 | 2
-        const chosenElsewhere = value.utility.filter((_, i) => i !== slotIndex)
+        const slotIndex = Number(slot.slice(-1)) as 0 | 1 | 2;
+        const chosenElsewhere = value.utility.filter((_, i) => i !== slotIndex);
         return {
           label: `Utility ${slotIndex + 1}`,
           chosenId: value.utility[slotIndex],
           options: utilityOptions.filter((s) => !chosenElsewhere.includes(s.id)),
-          select: (id) => setUtility(slotIndex, id)
-        }
+          select: (id) => setUtility(slotIndex, id),
+        };
       }
     }
   }
 
-  const slots: SlotId[] = ['heal', 'utility0', 'utility1', 'utility2', 'elite']
+  const slots: SlotId[] = ['heal', 'utility0', 'utility1', 'utility2', 'elite'];
 
   return (
     <div className="skills-editor ingame-skill-bar-utility-skills">
       <div className="skill-bar">
         {slots.map((slot) => {
-          const { label, chosenId } = slotConfig(slot)
-          const chosen = chosenId !== null ? skillsById.get(chosenId) : undefined
+          const { label, chosenId } = slotConfig(slot);
+          const chosen = chosenId !== null ? skillsById.get(chosenId) : undefined;
           return (
             <div className="skill-slot-stack" key={slot}>
-              <Tooltip content={chosen ? skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext) : <TooltipBody title={label} />}>
+              <Tooltip
+                content={
+                  chosen ? (
+                    skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext)
+                  ) : (
+                    <TooltipBody title={label} />
+                  )
+                }
+              >
                 <button
                   ref={(el) => {
-                    slotButtonRefs.current[slot] = el
+                    slotButtonRefs.current[slot] = el;
                   }}
                   type="button"
-                  className={open && openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'}
+                  className={
+                    open && openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'
+                  }
                   onClick={() => {
                     if (open && openSlot === slot) {
-                      close()
+                      close();
                     } else {
-                      setOpenSlot(slot)
-                      openThis()
+                      setOpenSlot(slot);
+                      openThis();
                     }
                   }}
                 >
                   {chosen ? (
                     <img
-                      src={glyphFormDisplayIcon(chosen, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, skillsById)}
+                      src={glyphFormDisplayIcon(
+                        chosen,
+                        variantContext.celestialAvatarActive,
+                        variantContext.glyphFormVariants,
+                        skillsById,
+                      )}
                       alt={chosen.name}
                     />
                   ) : (
@@ -784,19 +997,23 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                   )}
                 </button>
               </Tooltip>
-              <FlipSkillStack skill={chosen} activeIds={activeIds} variantContext={variantContext} />
+              <FlipSkillStack
+                skill={chosen}
+                activeIds={activeIds}
+                variantContext={variantContext}
+              />
             </div>
-          )
+          );
         })}
       </div>
 
       {openSlot &&
         (() => {
-          const { label, chosenId, options, select } = slotConfig(openSlot)
+          const { label, chosenId, options, select } = slotConfig(openSlot);
           function choose(id: number | null): void {
-            select(id)
-            close()
-            setOpenSlot(null)
+            select(id);
+            close();
+            setOpenSlot(null);
           }
           return (
             <FloatingPanel
@@ -812,7 +1029,9 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                   <Tooltip content={<TooltipBody title="None" />}>
                     <button
                       type="button"
-                      className={chosenId === null ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                      className={
+                        chosenId === null ? 'skill-icon-button chosen' : 'skill-icon-button'
+                      }
                       onClick={() => choose(null)}
                     >
                       <span className="skill-option-none">—</span>
@@ -823,10 +1042,15 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                   <div className="skill-category-column" key={category ?? '(none)'}>
                     <div className="skill-category-header">{category ?? 'Other'}</div>
                     {skillsInCategory.map((s) => (
-                      <Tooltip key={s.id} content={skillTooltipContent(s, skillFacts(s), activeIds, variantContext)}>
+                      <Tooltip
+                        key={s.id}
+                        content={skillTooltipContent(s, skillFacts(s), activeIds, variantContext)}
+                      >
                         <button
                           type="button"
-                          className={chosenId === s.id ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                          className={
+                            chosenId === s.id ? 'skill-icon-button chosen' : 'skill-icon-button'
+                          }
                           onClick={() => choose(s.id)}
                         >
                           <img src={s.icon} alt={s.name} />
@@ -837,23 +1061,23 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                 ))}
               </div>
             </FloatingPanel>
-          )
+          );
         })()}
     </div>
-  )
+  );
 }
 
 interface RevenantProps {
-  build: Build
-  value: RevenantSkillSelection
-  onChange: (value: SkillSelection) => void
-  equippedSpecializationIds: ReadonlySet<number>
-  combatState: CombatState
+  build: Build;
+  value: RevenantSkillSelection;
+  onChange: (value: SkillSelection) => void;
+  equippedSpecializationIds: ReadonlySet<number>;
+  combatState: CombatState;
   /** Split the same way `WeaponSkillBar` is (see its doc comment): `select` is the Legend 1/Legend
    *  2 pickers plus the cycle icon between them that swaps which legend is active, `bar` is just
    *  the resulting read-only skill row — so `SkillsEditor` can align `bar` with the weapon skills
    *  row regardless of how tall the picker row above it is. */
-  section: 'select' | 'bar'
+  section: 'select' | 'bar';
 }
 
 /**
@@ -863,14 +1087,25 @@ interface RevenantProps {
  * between them to swap which one is active, and the currently-active legend's fixed skill bar
  * (read-only icons with boon/condition tooltips, same as the standard skill bar).
  */
-function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState, section }: RevenantProps) {
-  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
-  const { skillsById, legendsById, legendsForSpecializations } = gameData
-  const { open, openThis, close } = usePickerOpen()
-  const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
-  const legendButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null])
+function RevenantSkillsEditor({
+  build,
+  value,
+  onChange,
+  equippedSpecializationIds,
+  combatState,
+  section,
+}: RevenantProps) {
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } =
+    useDurationContext(build, combatState);
+  const { skillsById, legendsById, legendsForSpecializations } = gameData;
+  const { open, openThis, close } = usePickerOpen();
+  const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null);
+  const legendButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([
+    null,
+    null,
+  ]);
 
-  const availableLegends = legendsForSpecializations(equippedSpecializationIds)
+  const availableLegends = legendsForSpecializations(equippedSpecializationIds);
   const variantContext: SkillVariantContext = {
     skills: gameData.skills,
     skillsById,
@@ -889,86 +1124,123 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: false,
     activeAttunement: build.activeAttunement,
-    familiarElement: null
-  }
+    familiarElement: null,
+  };
 
   function skillTooltipFor(skillId: number) {
-    const skill = skillsById.get(skillId)
-    if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
-    return skillTooltipContent(skill, facts, activeIds, variantContext)
+    const skill = skillsById.get(skillId);
+    if (!skill) return null;
+    const facts = boonConditionFactsForSkill(
+      skill,
+      activeIds,
+      legendIds,
+      durationPercent,
+      gameData.wvwFactOverrides.skill[skill.id],
+      gameData.legends,
+    );
+    return skillTooltipContent(skill, facts, activeIds, variantContext);
   }
 
   function chooseLegend(slotIndex: 0 | 1, legendId: string | null): void {
-    const legends: [string | null, string | null] = [...value.legends]
-    legends[slotIndex] = legendId
-    onChange({ ...value, legends })
-    close()
-    setOpenLegendSlot(null)
+    const legends: [string | null, string | null] = [...value.legends];
+    legends[slotIndex] = legendId;
+    onChange({ ...value, legends });
+    close();
+    setOpenLegendSlot(null);
   }
 
   if (section === 'bar') {
-    const activeLegendId = value.legends[value.activeLegendIndex]
-    const activeLegend = activeLegendId !== null ? legendsById.get(activeLegendId) : undefined
+    const activeLegendId = value.legends[value.activeLegendIndex];
+    const activeLegend = activeLegendId !== null ? legendsById.get(activeLegendId) : undefined;
     // Legend7 (Legendary Alliance) only: swap each slot's base ("Aspect of the Archemorus") id for
     // its "Aspect of Saint Viktor" counterpart when toggled — see `vindicator-aspect.ts`. Every
     // other Legend ignores `vindicatorAspectFlipped` entirely (ids resolve unchanged).
-    const aspectFlipped = activeLegend?.specializationId === VINDICATOR_SPEC_ID && build.vindicatorAspectFlipped
+    const aspectFlipped =
+      activeLegend?.specializationId === VINDICATOR_SPEC_ID && build.vindicatorAspectFlipped;
     return (
       <div className="ingame-skill-bar-utility-skills skill-bar">
         {activeLegend ? (
           [activeLegend.heal, ...activeLegend.utilities, activeLegend.elite].map((baseSkillId) => {
-            const skillId = vindicatorAspectSkillId(baseSkillId, aspectFlipped, skillsById)
-            const skill = skillsById.get(skillId)
+            const skillId = vindicatorAspectSkillId(baseSkillId, aspectFlipped, skillsById);
+            const skill = skillsById.get(skillId);
             return (
               <div className="skill-slot-stack" key={baseSkillId}>
-                <Tooltip content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}>
+                <Tooltip
+                  content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}
+                >
                   <button type="button" className="skill-slot-button" disabled>
-                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>}
+                    {skill ? (
+                      <img src={skill.icon} alt={skill.name} />
+                    ) : (
+                      <span className="skill-slot-placeholder">?</span>
+                    )}
                   </button>
                 </Tooltip>
-                <FlipSkillStack skill={skill} activeIds={activeIds} variantContext={variantContext} />
+                <FlipSkillStack
+                  skill={skill}
+                  activeIds={activeIds}
+                  variantContext={variantContext}
+                />
               </div>
-            )
+            );
           })
         ) : (
           <div className="skill-picker-header">Choose a legend above to see its skill bar</div>
         )}
       </div>
-    )
+    );
   }
 
   function legendSlot(slotIndex: 0 | 1) {
-    const legendId = value.legends[slotIndex]
-    const legend = legendId !== null ? legendsById.get(legendId) : undefined
-    const chosenElsewhere = value.legends[slotIndex === 0 ? 1 : 0]
+    const legendId = value.legends[slotIndex];
+    const legend = legendId !== null ? legendsById.get(legendId) : undefined;
+    const chosenElsewhere = value.legends[slotIndex === 0 ? 1 : 0];
     return (
       <div key={slotIndex} className="legend-slot">
         <div className="legend-slot-label">Legend {slotIndex + 1}</div>
-        <Tooltip content={legend ? <TooltipBody title={legend.name} /> : <TooltipBody title="No legend chosen" />}>
+        <Tooltip
+          content={
+            legend ? <TooltipBody title={legend.name} /> : <TooltipBody title="No legend chosen" />
+          }
+        >
           <button
             ref={(el) => {
-              legendButtonRefs.current[slotIndex] = el
+              legendButtonRefs.current[slotIndex] = el;
             }}
             type="button"
-            className={open && openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            className={
+              open && openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'
+            }
             onClick={() => {
               if (open && openLegendSlot === slotIndex) {
-                close()
+                close();
               } else {
-                setOpenLegendSlot(slotIndex)
-                openThis()
+                setOpenLegendSlot(slotIndex);
+                openThis();
               }
             }}
           >
-            {legend ? <img src={legend.icon} alt={legend.name} /> : <span className="skill-slot-placeholder">Legend</span>}
+            {legend ? (
+              <img src={legend.icon} alt={legend.name} />
+            ) : (
+              <span className="skill-slot-placeholder">Legend</span>
+            )}
           </button>
         </Tooltip>
         {openLegendSlot === slotIndex && (
-          <FloatingPanel open={open} anchorRef={{ current: legendButtonRefs.current[slotIndex] }} onClose={close} className="skill-picker">
+          <FloatingPanel
+            open={open}
+            anchorRef={{ current: legendButtonRefs.current[slotIndex] }}
+            onClose={close}
+            className="skill-picker"
+          >
             <div className="skill-picker-header">Legend {slotIndex + 1}</div>
             <div className="skill-picker-grid">
-              <button type="button" className="skill-option-button" onClick={() => chooseLegend(slotIndex, null)}>
+              <button
+                type="button"
+                className="skill-option-button"
+                onClick={() => chooseLegend(slotIndex, null)}
+              >
                 <span className="skill-option-none">—</span>
                 <span className="skill-option-name">None</span>
               </button>
@@ -978,7 +1250,9 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
                   <button
                     key={l.id}
                     type="button"
-                    className={legendId === l.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                    className={
+                      legendId === l.id ? 'skill-option-button chosen' : 'skill-option-button'
+                    }
                     onClick={() => chooseLegend(slotIndex, l.id)}
                   >
                     <img src={l.icon} alt={l.name} />
@@ -989,7 +1263,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
           </FloatingPanel>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -999,11 +1273,13 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
         type="button"
         className="skill-bar-icon-button"
         title="Swap active legend"
-        onClick={() => onChange({ ...value, activeLegendIndex: value.activeLegendIndex === 0 ? 1 : 0 })}
+        onClick={() =>
+          onChange({ ...value, activeLegendIndex: value.activeLegendIndex === 0 ? 1 : 0 })
+        }
       >
         <SkillBarIcon kind="cycle" />
       </button>
       {legendSlot(1)}
     </div>
-  )
+  );
 }

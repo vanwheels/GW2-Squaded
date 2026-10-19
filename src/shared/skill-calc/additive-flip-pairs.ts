@@ -41,12 +41,12 @@
  * automatic diff's assumptions here.
  */
 export interface AdditiveFlipPair {
-  targetId: number
+  targetId: number;
   /** Divider heading shown above the enhancement-only facts, e.g. "When Enhanced". Deliberately
    *  short (the tooltip popup caps at 300px wide) and worded per-family rather than one blanket
    *  string, since the 3 families' triggers are genuinely different mechanics (a chained-cast
    *  "enhance the next skill" buff vs. a trait pick vs. an attunement/specialization state). */
-  triggerLabel: string
+  triggerLabel: string;
 }
 
 export const ADDITIVE_FLIP_PAIRS: ReadonlyMap<number, AdditiveFlipPair> = new Map([
@@ -66,9 +66,9 @@ export const ADDITIVE_FLIP_PAIRS: ReadonlyMap<number, AdditiveFlipPair> = new Ma
   // by the normal fact-gating machinery) — wiki-confirmed 2026-08-14
   // (`other-profession-flip-duplicates.ts`'s Guardian-leg doc comment).
   [62555, { targetId: 62596, triggerLabel: 'With Indomitable Courage' }], // Crashing Courage
-  [62648, { targetId: 62532, triggerLabel: 'With Indomitable Courage' }] // Crashing Courage (ground-targeted)
-])
+  [62648, { targetId: 62532, triggerLabel: 'With Indomitable Courage' }], // Crashing Courage (ground-targeted)
+]);
 
 export const ADDITIVE_FLIP_PAIR_TARGET_IDS: ReadonlySet<number> = new Set(
-  Array.from(ADDITIVE_FLIP_PAIRS.values(), (pair) => pair.targetId)
-)
+  Array.from(ADDITIVE_FLIP_PAIRS.values(), (pair) => pair.targetId),
+);

@@ -1,20 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { Build } from '@shared/types'
-import { isLikelyBuild } from '@shared/share/validate'
-import { isBuildStaleSincePatch } from '@shared/types/build'
-import { getBuildAutoTags } from '@shared/tags/auto-tags'
-import { useBuildsStore, makeBlankBuild } from '@renderer/state/builds-store'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useDataUpdate } from '@renderer/state/data-update-store'
-import { useTagFilter } from '@renderer/state/use-tag-filter'
-import { reorderBefore } from '@renderer/lib/reorder'
-import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
-import { professionAccentColor } from '@renderer/lib/profession-colors'
-import { formatRelativeTime } from '@renderer/lib/format-relative-time'
-import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView'
-import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
-import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
-import { ContextMenu } from '@renderer/components/common/ContextMenu'
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { Build } from '@shared/types';
+import { isLikelyBuild } from '@shared/share/validate';
+import { isBuildStaleSincePatch } from '@shared/types/build';
+import { getBuildAutoTags } from '@shared/tags/auto-tags';
+import { useBuildsStore, makeBlankBuild } from '@renderer/state/builds-store';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useDataUpdate } from '@renderer/state/data-update-store';
+import { useTagFilter } from '@renderer/state/use-tag-filter';
+import { reorderBefore } from '@renderer/lib/reorder';
+import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites';
+import { professionAccentColor } from '@renderer/lib/profession-colors';
+import { formatRelativeTime } from '@renderer/lib/format-relative-time';
+import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView';
+import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton';
+import { TagFilterBar } from '@renderer/components/common/TagFilterBar';
+import { ContextMenu } from '@renderer/components/common/ContextMenu';
 
 interface Props {
   /** Set by `App.tsx` when the Squads tab's right-click "Edit" jumps here for a specific build —
@@ -22,78 +22,89 @@ interface Props {
    *  reports back via `onRequestedEditBuildHandled` so `App` can clear the request (otherwise
    *  switching away and back to Builds would keep reopening it). `null`/omitted is the normal
    *  "no pending cross-tab request" case. */
-  requestedEditBuildId?: string | null
-  onRequestedEditBuildHandled?: () => void
+  requestedEditBuildId?: string | null;
+  onRequestedEditBuildHandled?: () => void;
 }
 
 export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }: Props) {
-  const { builds, loading, createBuild, updateBuild, removeBuild } = useBuildsStore()
-  const { professions, specializationsById } = useGameData()
-  const { localGw2Build } = useDataUpdate()
-  const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null)
-  const [dragId, setDragId] = useState<string | null>(null)
-  const [dropTargetId, setDropTargetId] = useState<string | null>(null)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; build: Build } | null>(null)
+  const { builds, loading, createBuild, updateBuild, removeBuild } = useBuildsStore();
+  const { professions, specializationsById } = useGameData();
+  const { localGw2Build } = useDataUpdate();
+  const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; build: Build } | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (!requestedEditBuildId) return
-    const build = builds.find((b) => b.id === requestedEditBuildId)
-    if (build) setEditing({ build, isNew: false })
-    onRequestedEditBuildHandled?.()
+    if (!requestedEditBuildId) return;
+    const build = builds.find((b) => b.id === requestedEditBuildId);
+    if (build) setEditing({ build, isNew: false });
+    onRequestedEditBuildHandled?.();
     // Fires once per incoming request id, not on every `builds`/`onRequestedEditBuildHandled`
     // identity change — same single-measure-per-transition reasoning as `FloatingPanel`'s effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestedEditBuildId])
+  }, [requestedEditBuildId]);
 
   const getTags = useCallback(
-    (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],
-    [professions, specializationsById]
-  )
+    (build: Build) => [
+      ...getBuildAutoTags(build, { professions, specializationsById }),
+      ...build.tags,
+    ],
+    [professions, specializationsById],
+  );
   const { query, setQuery, tagStates, toggleTag, clearTag, filtered } = useTagFilter({
     records: builds,
     getName: (build) => build.name,
-    getTags
-  })
-  const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
+    getTags,
+  });
+  const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds]);
 
   /** Show the equipped elite spec's own icon (matches the in-game/gw2skills convention of
    *  identifying a character by its elite spec, not its base profession) when one's chosen —
    *  same pattern as `SlotTile`'s `eliteSpecIconFor`. */
   function eliteSpecIconFor(build: Build): string | undefined {
-    const eliteSpecId = build.specializations[2]?.specializationId
-    const eliteSpec = eliteSpecId != null ? specializationsById.get(eliteSpecId) : undefined
-    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined
+    const eliteSpecId = build.specializations[2]?.specializationId;
+    const eliteSpec = eliteSpecId != null ? specializationsById.get(eliteSpecId) : undefined;
+    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined;
   }
 
   async function handleImport(data: unknown): Promise<void> {
-    if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.')
-    const now = new Date().toISOString()
+    if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.');
+    const now = new Date().toISOString();
     // `updatedAtGw2Build` refers to the sharer's own local game-data snapshot, not this
     // importer's — nulled out (== "unknown") rather than carried over, see `Build.updatedAtGw2Build`.
-    await createBuild({ ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now, updatedAtGw2Build: null })
+    await createBuild({
+      ...data,
+      id: crypto.randomUUID(),
+      createdAt: now,
+      updatedAt: now,
+      updatedAtGw2Build: null,
+    });
   }
 
   function handleDrop(beforeId: string | null): void {
-    const draggedId = dragId
-    setDragId(null)
-    setDropTargetId(null)
-    if (!draggedId || draggedId === beforeId) return
-    const build = builds.find((b) => b.id === draggedId)
-    if (!build) return
-    const order = reorderBefore(filtered, draggedId, beforeId)
-    if (order !== build.order) void updateBuild({ ...build, order })
+    const draggedId = dragId;
+    setDragId(null);
+    setDropTargetId(null);
+    if (!draggedId || draggedId === beforeId) return;
+    const build = builds.find((b) => b.id === draggedId);
+    if (!build) return;
+    const order = reorderBefore(filtered, draggedId, beforeId);
+    if (order !== build.order) void updateBuild({ ...build, order });
   }
 
   /** Not a content edit (same reasoning as `order`) — doesn't bump `updatedAt`. */
   function toggleFavorite(build: Build): void {
-    void updateBuild({ ...build, favorite: !build.favorite })
+    void updateBuild({ ...build, favorite: !build.favorite });
   }
 
   /** Right-click "Duplicate" — clones the record under a fresh id, same pattern `handleImport`
    *  above already uses (fresh `createdAt`/`updatedAt`/`order`), plus a name suffix so the copy
    *  doesn't look identical to its source in the list. */
   async function handleDuplicateBuild(build: Build): Promise<void> {
-    const now = new Date().toISOString()
+    const now = new Date().toISOString();
     await createBuild({
       ...build,
       id: crypto.randomUUID(),
@@ -101,8 +112,8 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
       createdAt: now,
       updatedAt: now,
       order: Date.now(),
-      favorite: false
-    })
+      favorite: false,
+    });
   }
 
   if (editing) {
@@ -110,11 +121,11 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
       <BuildEditorView
         build={editing.build}
         onBack={async (build) => {
-          await (editing.isNew ? createBuild(build) : updateBuild(build))
-          setEditing(null)
+          await (editing.isNew ? createBuild(build) : updateBuild(build));
+          setEditing(null);
         }}
       />
-    )
+    );
   }
 
   return (
@@ -123,7 +134,9 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
         <h2>Builds</h2>
         <div className="view-header-actions">
           <ImportFromLinkButton kind="build" kindLabel="build" onImport={handleImport} />
-          <button onClick={() => setEditing({ build: makeBlankBuild(), isNew: true })}>+ New build</button>
+          <button onClick={() => setEditing({ build: makeBlankBuild(), isNew: true })}>
+            + New build
+          </button>
         </div>
       </div>
 
@@ -146,42 +159,52 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
           {filtered.length === 0 ? (
             <p className="empty-state">No builds match your search/filter.</p>
           ) : (
-            <ul className="record-list" onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(null)}>
+            <ul
+              className="record-list"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDrop(null)}
+            >
               {sortFavoritesFirst(filtered, (build) => build.favorite).map((build) => {
-                const profession = professions.find((p) => p.id === build.profession)
+                const profession = professions.find((p) => p.id === build.profession);
                 const className = [
                   dragId === build.id ? 'record-card-dragging' : null,
-                  dropTargetId === build.id ? 'record-card-drop-target' : null
+                  dropTargetId === build.id ? 'record-card-drop-target' : null,
                 ]
                   .filter(Boolean)
-                  .join(' ')
-                const accentColor = professionAccentColor(build.profession)
+                  .join(' ');
+                const accentColor = professionAccentColor(build.profession);
                 return (
                   <li
                     key={build.id}
                     className={className || undefined}
-                    style={accentColor ? ({ '--profession-accent': accentColor } as React.CSSProperties) : undefined}
+                    style={
+                      accentColor
+                        ? ({ '--profession-accent': accentColor } as React.CSSProperties)
+                        : undefined
+                    }
                     draggable
-                    title={build.favorite ? 'Middle-click to unfavorite' : 'Middle-click to favorite'}
+                    title={
+                      build.favorite ? 'Middle-click to unfavorite' : 'Middle-click to favorite'
+                    }
                     {...middleClickToggle(() => toggleFavorite(build))}
                     onDragStart={() => setDragId(build.id)}
                     onDragEnd={() => {
-                      setDragId(null)
-                      setDropTargetId(null)
+                      setDragId(null);
+                      setDropTargetId(null);
                     }}
                     onDragOver={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setDropTargetId(build.id)
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDropTargetId(build.id);
                     }}
                     onDragLeave={() => setDropTargetId((id) => (id === build.id ? null : id))}
                     onDrop={(e) => {
-                      e.stopPropagation()
-                      handleDrop(build.id)
+                      e.stopPropagation();
+                      handleDrop(build.id);
                     }}
                     onContextMenu={(e) => {
-                      e.preventDefault()
-                      setContextMenu({ x: e.clientX, y: e.clientY, build })
+                      e.preventDefault();
+                      setContextMenu({ x: e.clientX, y: e.clientY, build });
                     }}
                   >
                     <button
@@ -193,10 +216,19 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
                     >
                       ×
                     </button>
-                    <span className={build.favorite ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
+                    <span
+                      className={
+                        build.favorite
+                          ? 'favorite-star is-favorite'
+                          : 'favorite-star favorite-star-hint'
+                      }
+                    >
                       {build.favorite ? '★' : '☆'}
                     </span>
-                    <button className="record-open" onClick={() => setEditing({ build, isNew: false })}>
+                    <button
+                      className="record-open"
+                      onClick={() => setEditing({ build, isNew: false })}
+                    >
                       {profession && (
                         <img
                           className="record-open-icon"
@@ -223,7 +255,7 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
                       </span>
                     </button>
                   </li>
-                )
+                );
               })}
             </ul>
           )}
@@ -237,12 +269,12 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
           items={[
             {
               label: contextMenu.build.favorite ? 'Unfavorite' : 'Favorite',
-              onSelect: () => toggleFavorite(contextMenu.build)
+              onSelect: () => toggleFavorite(contextMenu.build),
             },
-            { label: 'Duplicate', onSelect: () => void handleDuplicateBuild(contextMenu.build) }
+            { label: 'Duplicate', onSelect: () => void handleDuplicateBuild(contextMenu.build) },
           ]}
         />
       )}
     </section>
-  )
+  );
 }

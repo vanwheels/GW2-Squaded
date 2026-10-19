@@ -1,15 +1,15 @@
-import type { Skill } from '../types'
-import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge'
-import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect'
-import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
-import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs'
-import { EVOKER_FAMILIAR_TARGET_IDS } from './evoker-familiar-facts'
-import { TURRET_SUB_ABILITY_IDS } from './turret-sub-abilities'
-import { resolvedFlipSkillId } from './flip-skill-overrides'
+import type { Skill } from '../types';
+import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge';
+import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect';
+import { isNonActionableFlipTarget } from './non-actionable-flip-targets';
+import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs';
+import { EVOKER_FAMILIAR_TARGET_IDS } from './evoker-familiar-facts';
+import { TURRET_SUB_ABILITY_IDS } from './turret-sub-abilities';
+import { resolvedFlipSkillId } from './flip-skill-overrides';
 
 export interface SkillVariantEffect {
-  label: string
-  skill: Skill
+  label: string;
+  skill: Skill;
 }
 
 /**
@@ -35,7 +35,7 @@ export function relatedVariantSkills(skill: Skill, allSkills: Skill[]): SkillVar
   return allSkills
     .filter((s) => s.name === skill.name && s.attunement !== null)
     .sort((a, b) => (a.attunement ?? '').localeCompare(b.attunement ?? ''))
-    .map((variant) => ({ label: variant.attunement ?? variant.name, skill: variant }))
+    .map((variant) => ({ label: variant.attunement ?? variant.name, skill: variant }));
 }
 
 /**
@@ -50,8 +50,15 @@ export function relatedVariantSkills(skill: Skill, allSkills: Skill[]): SkillVar
  * variant matches the given attunement — callers should fall back to `skill`'s own facts in that
  * case, same fail-open posture as `glyphFormFactSourceSkill`.
  */
-export function activeAttunementVariantSkill(skill: Skill, activeAttunement: string, allSkills: Skill[]): Skill | null {
-  return relatedVariantSkills(skill, allSkills).find((v) => v.skill.attunement === activeAttunement)?.skill ?? null
+export function activeAttunementVariantSkill(
+  skill: Skill,
+  activeAttunement: string,
+  allSkills: Skill[],
+): Skill | null {
+  return (
+    relatedVariantSkills(skill, allSkills).find((v) => v.skill.attunement === activeAttunement)
+      ?.skill ?? null
+  );
 }
 
 /**
@@ -98,42 +105,45 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
  * per turret with no pattern), so a matching turret id returns both hand-curated ids directly
  * instead of following `current.flipSkill`, see that table's own doc comment for the full survey.
  */
-export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
-  const out: SkillVariantEffect[] = []
+export function flipTargetSkills(
+  skill: Skill,
+  skillsById: Map<number, Skill>,
+): SkillVariantEffect[] {
+  const out: SkillVariantEffect[] = [];
 
   if (VINDICATOR_ASPECT_ARCHEMORUS_IDS.has(skill.id)) {
-    return out
+    return out;
   }
 
-  const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(skill.id)
+  const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(skill.id);
   if (turretSubAbilityIds) {
     for (const id of turretSubAbilityIds) {
-      const sub = skillsById.get(id)
-      if (sub) out.push({ label: sub.name, skill: sub })
+      const sub = skillsById.get(id);
+      if (sub) out.push({ label: sub.name, skill: sub });
     }
-    return out
+    return out;
   }
 
-  let current = skill
-  const seen = new Set<number>([skill.id])
-  let currentFlipId = resolvedFlipSkillId(current)
+  let current = skill;
+  const seen = new Set<number>([skill.id]);
+  let currentFlipId = resolvedFlipSkillId(current);
   while (currentFlipId !== null) {
-    const next = skillsById.get(currentFlipId)
-    if (!next || seen.has(next.id)) break
-    if (isNonActionableFlipTarget(next.id)) break
-    if (ADDITIVE_FLIP_PAIR_TARGET_IDS.has(next.id)) break
-    if (EVOKER_FAMILIAR_TARGET_IDS.has(next.id)) break
-    seen.add(next.id)
-    out.push({ label: next.name, skill: next })
-    current = next
-    currentFlipId = resolvedFlipSkillId(current)
+    const next = skillsById.get(currentFlipId);
+    if (!next || seen.has(next.id)) break;
+    if (isNonActionableFlipTarget(next.id)) break;
+    if (ADDITIVE_FLIP_PAIR_TARGET_IDS.has(next.id)) break;
+    if (EVOKER_FAMILIAR_TARGET_IDS.has(next.id)) break;
+    seen.add(next.id);
+    out.push({ label: next.name, skill: next });
+    current = next;
+    currentFlipId = resolvedFlipSkillId(current);
   }
 
-  const finalChargeId = MANTRA_FINAL_CHARGE_IDS[current.id]
+  const finalChargeId = MANTRA_FINAL_CHARGE_IDS[current.id];
   if (finalChargeId !== undefined && !seen.has(finalChargeId)) {
-    const finalCharge = skillsById.get(finalChargeId)
-    if (finalCharge) out.push({ label: finalCharge.name, skill: finalCharge })
+    const finalCharge = skillsById.get(finalChargeId);
+    if (finalCharge) out.push({ label: finalCharge.name, skill: finalCharge });
   }
 
-  return out
+  return out;
 }

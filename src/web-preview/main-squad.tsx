@@ -1,13 +1,13 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { GameDataStoreProvider } from '@renderer/state/game-data-store'
-import { PickerRegistryProvider } from '@renderer/state/picker-registry'
-import { AppSettingsProvider } from '@renderer/state/app-settings-store'
-import { FavoriteConsumablesProvider } from '@renderer/state/favorite-consumables-store'
-import { BuildsStoreProvider } from '@renderer/state/builds-store'
-import { SquadPreviewPage } from './SquadPreviewPage'
-import { webGameDataProvider } from './load-game-data-web'
-import '@renderer/styles/global.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { GameDataStoreProvider } from '@renderer/state/game-data-store';
+import { PickerRegistryProvider } from '@renderer/state/picker-registry';
+import { AppSettingsProvider } from '@renderer/state/app-settings-store';
+import { FavoriteConsumablesProvider } from '@renderer/state/favorite-consumables-store';
+import { BuildsStoreProvider } from '@renderer/state/builds-store';
+import { SquadPreviewPage } from './SquadPreviewPage';
+import { webGameDataProvider } from './load-game-data-web';
+import '@renderer/styles/global.css';
 
 // Same provider-completeness reasoning as `main.tsx` (see its own doc comment) — one addition
 // here: `SquadCompScreenshotGrid`'s tree reaches `PartyRow` → `SlotTile`, which calls
@@ -33,5 +33,5 @@ createRoot(document.getElementById('root')!).render(
         </BuildsStoreProvider>
       </FavoriteConsumablesProvider>
     </AppSettingsProvider>
-  </StrictMode>
-)
+  </StrictMode>,
+);

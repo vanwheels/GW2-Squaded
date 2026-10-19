@@ -1,82 +1,91 @@
-import { useMemo, useState } from 'react'
-import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
-import type { SquadCompSharePayload } from '@shared/share/types'
-import { useBuildsStore } from '@renderer/state/builds-store'
-import { makeBlankParty, useSquadCompsStore } from '@renderer/state/squad-comps-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { SharePanel } from '@renderer/components/common/SharePanel'
-import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
-import { TagInput } from '@renderer/components/common/TagInput'
-import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
-import { Modal } from '@renderer/components/common/Modal'
-import { BuildsSidebar } from './BuildsSidebar'
-import { SquadCompScreenshotGrid } from './SquadCompScreenshotGrid'
-import type { BuildDragPayload } from './drag-payload'
+import { useMemo, useState } from 'react';
+import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types';
+import type { SquadCompSharePayload } from '@shared/share/types';
+import { useBuildsStore } from '@renderer/state/builds-store';
+import { makeBlankParty, useSquadCompsStore } from '@renderer/state/squad-comps-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { SharePanel } from '@renderer/components/common/SharePanel';
+import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton';
+import { TagInput } from '@renderer/components/common/TagInput';
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch';
+import { Modal } from '@renderer/components/common/Modal';
+import { BuildsSidebar } from './BuildsSidebar';
+import { SquadCompScreenshotGrid } from './SquadCompScreenshotGrid';
+import type { BuildDragPayload } from './drag-payload';
 
 interface Props {
-  squadComp: SquadComp
-  onBack: (squadComp: SquadComp) => Promise<void>
+  squadComp: SquadComp;
+  onBack: (squadComp: SquadComp) => Promise<void>;
   /** Passed straight through to `BuildsSidebar` — see its doc comment on the same prop name. */
-  onEditBuild: (buildId: string) => void
+  onEditBuild: (buildId: string) => void;
 }
 
 /** WvW's real squad cap is 50 players (10 parties of 5) — see TODO.md. */
-const MAX_PARTIES = 10
+const MAX_PARTIES = 10;
 
 export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
-  const [draft, setDraft] = useState<SquadComp>(squadComp)
-  const [saving, setSaving] = useState(false)
+  const [draft, setDraft] = useState<SquadComp>(squadComp);
+  const [saving, setSaving] = useState(false);
   /** Phone-width-only (see `.squad-editor-builds-toggle`/`.builds-sidebar-modal` in global.css) —
    *  the persistent `BuildsSidebar` column doesn't fit a phone's width, so below that breakpoint
    *  it's reached through this toggle instead, rendered a second time inside a `Modal`. Has no
    *  effect at wider tiers, where the toggle button itself is CSS-hidden and the in-flow sidebar
    *  stays visible as before. */
-  const [mobileBuildsOpen, setMobileBuildsOpen] = useState(false)
-  const { builds } = useBuildsStore()
-  const { squadComps } = useSquadCompsStore()
-  const { partyWideOnly, setPartyWideOnly } = useAppSettings()
-  const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
-  const tagSuggestions = useMemo(() => [...new Set(squadComps.flatMap((s) => s.tags))].sort(), [squadComps])
+  const [mobileBuildsOpen, setMobileBuildsOpen] = useState(false);
+  const { builds } = useBuildsStore();
+  const { squadComps } = useSquadCompsStore();
+  const { partyWideOnly, setPartyWideOnly } = useAppSettings();
+  const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds]);
+  const tagSuggestions = useMemo(
+    () => [...new Set(squadComps.flatMap((s) => s.tags))].sort(),
+    [squadComps],
+  );
 
   /** Bundles every build referenced by the current roster into the share payload as a full
    *  standalone snapshot (not bare `buildId`s, which only resolve in this user's own local
    *  database) — see `SquadCompSharePayload`'s doc comment. */
   function buildSharePayload(): SquadCompSharePayload {
-    const referencedIds = new Set<string>()
+    const referencedIds = new Set<string>();
     for (const party of draft.parties) {
       for (const slot of party.slots) {
-        if (slot.buildId) referencedIds.add(slot.buildId)
+        if (slot.buildId) referencedIds.add(slot.buildId);
       }
     }
-    const sharedBuilds: Record<string, Build> = {}
+    const sharedBuilds: Record<string, Build> = {};
     for (const id of referencedIds) {
-      const found = buildsById.get(id)
-      if (found) sharedBuilds[id] = found
+      const found = buildsById.get(id);
+      if (found) sharedBuilds[id] = found;
     }
-    return { squadComp: draft, builds: sharedBuilds }
+    return { squadComp: draft, builds: sharedBuilds };
   }
 
-  function updateSlot(partyIndex: number, slotIndex: number, updater: (slot: SquadSlot) => SquadSlot): void {
+  function updateSlot(
+    partyIndex: number,
+    slotIndex: number,
+    updater: (slot: SquadSlot) => SquadSlot,
+  ): void {
     setDraft((prev) => ({
       ...prev,
       parties: prev.parties.map((party, pIdx) => {
-        if (pIdx !== partyIndex) return party
-        const slots = party.slots.map((slot, sIdx) => (sIdx === slotIndex ? updater(slot) : slot)) as PartySlots
-        return { ...party, slots }
-      })
-    }))
+        if (pIdx !== partyIndex) return party;
+        const slots = party.slots.map((slot, sIdx) =>
+          sIdx === slotIndex ? updater(slot) : slot,
+        ) as PartySlots;
+        return { ...party, slots };
+      }),
+    }));
   }
 
   function assignBuild(partyIndex: number, slotIndex: number, buildId: string | null): void {
-    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId, ghostPick: null }))
+    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId, ghostPick: null }));
   }
 
   function assignGhost(partyIndex: number, slotIndex: number, ghostPick: GhostPick | null): void {
-    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId: null, ghostPick }))
+    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId: null, ghostPick }));
   }
 
   function changeLabel(partyIndex: number, slotIndex: number, label: string | null): void {
-    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, placeholderLabel: label }))
+    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, placeholderLabel: label }));
   }
 
   /**
@@ -87,45 +96,55 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
    */
   function dropBuild(partyIndex: number, slotIndex: number, payload: BuildDragPayload): void {
     setDraft((prev) => {
-      const parties = prev.parties.map((party) => ({ ...party, slots: [...party.slots] as PartySlots }))
-      const targetSlot = parties[partyIndex].slots[slotIndex]
-      const targetPrevBuildId = targetSlot.buildId
-      parties[partyIndex].slots[slotIndex] = { ...targetSlot, buildId: payload.buildId, ghostPick: null }
+      const parties = prev.parties.map((party) => ({
+        ...party,
+        slots: [...party.slots] as PartySlots,
+      }));
+      const targetSlot = parties[partyIndex].slots[slotIndex];
+      const targetPrevBuildId = targetSlot.buildId;
+      parties[partyIndex].slots[slotIndex] = {
+        ...targetSlot,
+        buildId: payload.buildId,
+        ghostPick: null,
+      };
 
       if (payload.sourcePartyIndex !== null && payload.sourceSlotIndex !== null) {
-        const isSameSlot = payload.sourcePartyIndex === partyIndex && payload.sourceSlotIndex === slotIndex
+        const isSameSlot =
+          payload.sourcePartyIndex === partyIndex && payload.sourceSlotIndex === slotIndex;
         if (!isSameSlot) {
-          const sourceSlot = parties[payload.sourcePartyIndex].slots[payload.sourceSlotIndex]
+          const sourceSlot = parties[payload.sourcePartyIndex].slots[payload.sourceSlotIndex];
           parties[payload.sourcePartyIndex].slots[payload.sourceSlotIndex] = {
             ...sourceSlot,
             buildId: targetPrevBuildId,
-            ghostPick: null
-          }
+            ghostPick: null,
+          };
         }
       }
 
-      return { ...prev, parties }
-    })
+      return { ...prev, parties };
+    });
   }
 
   function addParty(): void {
     setDraft((prev) =>
-      prev.parties.length >= MAX_PARTIES ? prev : { ...prev, parties: [...prev.parties, makeBlankParty()] }
-    )
+      prev.parties.length >= MAX_PARTIES
+        ? prev
+        : { ...prev, parties: [...prev.parties, makeBlankParty()] },
+    );
   }
 
   function removeParty(partyIndex: number): void {
-    setDraft((prev) => ({ ...prev, parties: prev.parties.filter((_, i) => i !== partyIndex) }))
+    setDraft((prev) => ({ ...prev, parties: prev.parties.filter((_, i) => i !== partyIndex) }));
   }
 
   /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
    *  editor is what commits the squad (see the "auto-save on back" behavior this replaced). */
   async function handleBack(): Promise<void> {
-    setSaving(true)
+    setSaving(true);
     try {
-      await onBack({ ...draft, updatedAt: new Date().toISOString() })
+      await onBack({ ...draft, updatedAt: new Date().toISOString() });
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
@@ -141,12 +160,22 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
-        <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
+        <TagInput
+          tags={draft.tags}
+          onChange={(tags) => setDraft({ ...draft, tags })}
+          suggestions={tagSuggestions}
+        />
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
-        <button type="button" className="squad-editor-builds-toggle" onClick={() => setMobileBuildsOpen(true)}>
+        <button
+          type="button"
+          className="squad-editor-builds-toggle"
+          onClick={() => setMobileBuildsOpen(true)}
+        >
           Builds
         </button>
-        <ScreenshotButton capture={() => window.gw2Capture.captureSquadScreenshot({ squadComp: draft })} />
+        <ScreenshotButton
+          capture={() => window.gw2Capture.captureSquadScreenshot({ squadComp: draft })}
+        />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>
 
@@ -167,9 +196,13 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
         />
       </div>
 
-      <Modal open={mobileBuildsOpen} onClose={() => setMobileBuildsOpen(false)} className="builds-sidebar-modal">
+      <Modal
+        open={mobileBuildsOpen}
+        onClose={() => setMobileBuildsOpen(false)}
+        className="builds-sidebar-modal"
+      >
         <BuildsSidebar onEditBuild={onEditBuild} onClose={() => setMobileBuildsOpen(false)} />
       </Modal>
     </section>
-  )
+  );
 }

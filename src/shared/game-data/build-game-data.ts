@@ -1,4 +1,13 @@
-import type { Fact, GameData, Legend, Profession, Specialization, RelicEffectsById, Skill, Trait } from '../types'
+import type {
+  Fact,
+  GameData,
+  Legend,
+  Profession,
+  Specialization,
+  RelicEffectsById,
+  Skill,
+  Trait,
+} from '../types';
 
 /**
  * Reads and parses one named file from whatever game-data source is active — `data/game-data/`
@@ -7,7 +16,7 @@ import type { Fact, GameData, Legend, Profession, Specialization, RelicEffectsBy
  * async either way (a plain object is a valid "already resolved" value to `await`), so one
  * `buildGameData` body below serves both callers.
  */
-export type JsonReader = <T>(fileName: string) => Promise<T> | T
+export type JsonReader = <T>(fileName: string) => Promise<T> | T;
 
 /**
  * `synthetic-facts.json`'s merge — hand-curated, wiki-sourced `Fact` objects for skills the GW2
@@ -18,19 +27,22 @@ export type JsonReader = <T>(fileName: string) => Promise<T> | T
  */
 function withSyntheticFacts(skills: Skill[], syntheticFacts: Record<string, Fact[]>): Skill[] {
   return skills.map((skill) => {
-    const extra = syntheticFacts[skill.id]
-    return extra ? { ...skill, facts: [...skill.facts, ...extra] } : skill
-  })
+    const extra = syntheticFacts[skill.id];
+    return extra ? { ...skill, facts: [...skill.facts, ...extra] } : skill;
+  });
 }
 
 /** `synthetic-trait-facts.json`'s merge — `withSyntheticFacts`'s trait counterpart. See
  *  `docs/game-data.md` for the full writeup (dodge-roll proc-skill traits, the "Dogding" typo gap,
  *  the Saint of zu Heltzer reversal, etc.) — unchanged by this extraction. */
-function withSyntheticTraitFacts(traits: Trait[], syntheticTraitFacts: Record<string, Fact[]>): Trait[] {
+function withSyntheticTraitFacts(
+  traits: Trait[],
+  syntheticTraitFacts: Record<string, Fact[]>,
+): Trait[] {
   return traits.map((trait) => {
-    const extra = syntheticTraitFacts[trait.id]
-    return extra ? { ...trait, facts: [...trait.facts, ...extra] } : trait
-  })
+    const extra = syntheticTraitFacts[trait.id];
+    return extra ? { ...trait, facts: [...trait.facts, ...extra] } : trait;
+  });
 }
 
 /**
@@ -44,8 +56,11 @@ function withSyntheticTraitFacts(traits: Trait[], syntheticTraitFacts: Record<st
  * takes the generated entry, not the synthetic one — remove the now-redundant synthetic entry
  * instead of leaving a dead override in place.
  */
-function withSyntheticRelicEffects(relicEffects: RelicEffectsById, syntheticRelicEffects: RelicEffectsById): RelicEffectsById {
-  return { ...syntheticRelicEffects, ...relicEffects }
+function withSyntheticRelicEffects(
+  relicEffects: RelicEffectsById,
+  syntheticRelicEffects: RelicEffectsById,
+): RelicEffectsById {
+  return { ...syntheticRelicEffects, ...relicEffects };
 }
 
 /** `tango-icons.json`'s merge — see `Profession.tangoIcon`/`Specialization.tangoIcon` and
@@ -54,14 +69,17 @@ function withSyntheticRelicEffects(relicEffects: RelicEffectsById, syntheticReli
 function withTangoIcons(
   professions: Profession[],
   specializations: Specialization[],
-  tangoIcons: { professions: Record<string, string>; specializations: Record<string, string> }
+  tangoIcons: { professions: Record<string, string>; specializations: Record<string, string> },
 ): [Profession[], Specialization[]] {
-  const mergedProfessions = professions.map((p) => ({ ...p, tangoIcon: tangoIcons.professions[p.id] }))
+  const mergedProfessions = professions.map((p) => ({
+    ...p,
+    tangoIcon: tangoIcons.professions[p.id],
+  }));
   const mergedSpecializations = specializations.map((s) => {
-    const tangoIcon = tangoIcons.specializations[String(s.id)]
-    return tangoIcon ? { ...s, tangoIcon } : s
-  })
-  return [mergedProfessions, mergedSpecializations]
+    const tangoIcon = tangoIcons.specializations[String(s.id)];
+    return tangoIcon ? { ...s, tangoIcon } : s;
+  });
+  return [mergedProfessions, mergedSpecializations];
 }
 
 /**
@@ -73,16 +91,18 @@ function withChatLinkIds(
   professions: Profession[],
   legends: Legend[],
   chatLinkIds: {
-    professions: Record<string, { code: number; skillPalette: [number, number][] }>
-    legends: Record<string, number>
-  }
+    professions: Record<string, { code: number; skillPalette: [number, number][] }>;
+    legends: Record<string, number>;
+  },
 ): [Profession[], Legend[]] {
   const mergedProfessions = professions.map((p) => {
-    const ids = chatLinkIds.professions[p.id]
-    return ids ? { ...p, code: ids.code, skillPalette: ids.skillPalette } : { ...p, code: 0, skillPalette: [] }
-  })
-  const mergedLegends = legends.map((l) => ({ ...l, code: chatLinkIds.legends[l.id] ?? 0 }))
-  return [mergedProfessions, mergedLegends]
+    const ids = chatLinkIds.professions[p.id];
+    return ids
+      ? { ...p, code: ids.code, skillPalette: ids.skillPalette }
+      : { ...p, code: 0, skillPalette: [] };
+  });
+  const mergedLegends = legends.map((l) => ({ ...l, code: chatLinkIds.legends[l.id] ?? 0 }));
+  return [mergedProfessions, mergedLegends];
 }
 
 /**
@@ -99,18 +119,24 @@ export async function buildGameData(readJson: JsonReader): Promise<GameData> {
   const [professionsWithTango, specializations] = withTangoIcons(
     await readJson('professions.json'),
     await readJson('specializations.json'),
-    await readJson('tango-icons.json')
-  )
+    await readJson('tango-icons.json'),
+  );
   const [professions, legends] = withChatLinkIds(
     professionsWithTango,
     await readJson('legends.json'),
-    await readJson('chat-link-ids.json')
-  )
+    await readJson('chat-link-ids.json'),
+  );
   return {
     professions,
     specializations,
-    traits: withSyntheticTraitFacts(await readJson('traits.json'), await readJson('synthetic-trait-facts.json')),
-    skills: withSyntheticFacts(await readJson('skills.json'), await readJson('synthetic-facts.json')),
+    traits: withSyntheticTraitFacts(
+      await readJson('traits.json'),
+      await readJson('synthetic-trait-facts.json'),
+    ),
+    skills: withSyntheticFacts(
+      await readJson('skills.json'),
+      await readJson('synthetic-facts.json'),
+    ),
     itemStats: await readJson('itemstats.json'),
     itemStatIcons: await readJson('itemstat-icons.json'),
     itemStatLegalIds: await readJson('itemstat-legal-ids.json'),
@@ -128,9 +154,12 @@ export async function buildGameData(readJson: JsonReader): Promise<GameData> {
     sigils: await readJson('sigils.json'),
     infusions: await readJson('infusions.json'),
     relics: await readJson('relics.json'),
-    relicEffects: withSyntheticRelicEffects(await readJson('relic-effects.json'), await readJson('synthetic-relic-effects.json')),
+    relicEffects: withSyntheticRelicEffects(
+      await readJson('relic-effects.json'),
+      await readJson('synthetic-relic-effects.json'),
+    ),
     food: await readJson('food.json'),
     utility: await readJson('utility.json'),
-    tomeChapters: await readJson('tome-chapters.json')
-  }
+    tomeChapters: await readJson('tome-chapters.json'),
+  };
 }

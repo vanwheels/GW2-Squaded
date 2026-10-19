@@ -1,6 +1,9 @@
 /// <reference lib="webworker" />
-import { optimizeGear } from '@shared/gear-calc/gear-optimize'
-import type { GearOptimizerWorkerRequest, GearOptimizerWorkerResponse } from './gear-optimizer-protocol'
+import { optimizeGear } from '@shared/gear-calc/gear-optimize';
+import type {
+  GearOptimizerWorkerRequest,
+  GearOptimizerWorkerResponse,
+} from './gear-optimizer-protocol';
 
 /**
  * Runs `optimizeGear` off the main thread (see TODO.md's "Move `optimizeGear` off the main thread
@@ -15,16 +18,16 @@ import type { GearOptimizerWorkerRequest, GearOptimizerWorkerResponse } from './
  * (the cancel mechanism — there's no cooperative-cancellation path into the middle of a synchronous
  * DFS) kills the worker outright, so the next run always starts fresh anyway.
  */
-declare const self: DedicatedWorkerGlobalScope
+declare const self: DedicatedWorkerGlobalScope;
 
 self.onmessage = (event: MessageEvent<GearOptimizerWorkerRequest>) => {
-  const { input } = event.data
+  const { input } = event.data;
   const result = optimizeGear(input, {
     onProgress: (progress) => {
-      const message: GearOptimizerWorkerResponse = { type: 'progress', progress }
-      self.postMessage(message)
-    }
-  })
-  const message: GearOptimizerWorkerResponse = { type: 'result', result }
-  self.postMessage(message)
-}
+      const message: GearOptimizerWorkerResponse = { type: 'progress', progress };
+      self.postMessage(message);
+    },
+  });
+  const message: GearOptimizerWorkerResponse = { type: 'result', result };
+  self.postMessage(message);
+};

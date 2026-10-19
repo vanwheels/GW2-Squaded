@@ -1,9 +1,9 @@
-import type { Environment, ProfessionWeapon, Skill } from '../types'
+import type { Environment, ProfessionWeapon, Skill } from '../types';
 
 /** Ranger Untamed's specialization id — see `unleashedWeaponOneId`'s doc comment. */
-export const UNTAMED_SPEC_ID = 72
+export const UNTAMED_SPEC_ID = 72;
 
-const LAND_ONLY_FLAG = 'NoUnderwater'
+const LAND_ONLY_FLAG = 'NoUnderwater';
 
 /** Every id reachable from `startId` by following `Skill.flipSkill` (e.g. an autoattack chain's
  *  2nd/3rd hit) — used to exclude a weapon's own base autoattack chain from the search for its
@@ -11,13 +11,13 @@ const LAND_ONLY_FLAG = 'NoUnderwater'
  *  `specializationId === 72` (Hammer itself is Untamed-exclusive) and would otherwise be mistaken
  *  for the alternate. */
 function flipChainIds(startId: number, skillsById: Map<number, Skill>): Set<number> {
-  const ids = new Set<number>()
-  let current: number | null = startId
+  const ids = new Set<number>();
+  let current: number | null = startId;
   while (current !== null && !ids.has(current)) {
-    ids.add(current)
-    current = skillsById.get(current)?.flipSkill ?? null
+    ids.add(current);
+    current = skillsById.get(current)?.flipSkill ?? null;
   }
-  return ids
+  return ids;
 }
 
 /**
@@ -40,22 +40,26 @@ export function unleashedWeaponOneId(
   weaponType: string,
   weapon: ProfessionWeapon,
   environment: Environment,
-  skillsById: Map<number, Skill>
+  skillsById: Map<number, Skill>,
 ): number | null {
-  const baseIds = weapon.skills.filter((s) => s.slot === 'Weapon_1').map((s) => s.id)
-  if (baseIds.length === 0) return null
-  const excluded = new Set(baseIds.flatMap((id) => [...flipChainIds(id, skillsById)]))
+  const baseIds = weapon.skills.filter((s) => s.slot === 'Weapon_1').map((s) => s.id);
+  if (baseIds.length === 0) return null;
+  const excluded = new Set(baseIds.flatMap((id) => [...flipChainIds(id, skillsById)]));
 
   const candidates = [...skillsById.values()].filter(
-    (s) => s.specializationId === UNTAMED_SPEC_ID && s.slot === 'Weapon_1' && s.weaponType === weaponType && !excluded.has(s.id)
-  )
-  if (candidates.length === 0) return null
-  if (candidates.length === 1) return candidates[0].id
+    (s) =>
+      s.specializationId === UNTAMED_SPEC_ID &&
+      s.slot === 'Weapon_1' &&
+      s.weaponType === weaponType &&
+      !excluded.has(s.id),
+  );
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0].id;
 
-  const landOnly = candidates.filter((s) => s.flags.includes(LAND_ONLY_FLAG))
-  const notLandOnly = candidates.filter((s) => !s.flags.includes(LAND_ONLY_FLAG))
+  const landOnly = candidates.filter((s) => s.flags.includes(LAND_ONLY_FLAG));
+  const notLandOnly = candidates.filter((s) => !s.flags.includes(LAND_ONLY_FLAG));
   if (landOnly.length === 1 && notLandOnly.length === 1) {
-    return environment === 'land' ? landOnly[0].id : notLandOnly[0].id
+    return environment === 'land' ? landOnly[0].id : notLandOnly[0].id;
   }
-  return candidates[0].id
+  return candidates[0].id;
 }

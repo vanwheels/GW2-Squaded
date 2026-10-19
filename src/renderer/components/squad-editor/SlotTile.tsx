@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import type { Build, GhostPick, SquadSlot } from '@shared/types'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useBuildsStore } from '@renderer/state/builds-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { TooltipBody } from '@renderer/components/common/Tooltip'
-import { ContextMenu } from '@renderer/components/common/ContextMenu'
-import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker'
-import { BuildPreviewModal } from '@renderer/components/build-editor/BuildPreviewModal'
+import { useState } from 'react';
+import type { Build, GhostPick, SquadSlot } from '@shared/types';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useBuildsStore } from '@renderer/state/builds-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { TooltipBody } from '@renderer/components/common/Tooltip';
+import { ContextMenu } from '@renderer/components/common/ContextMenu';
+import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker';
+import { BuildPreviewModal } from '@renderer/components/build-editor/BuildPreviewModal';
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CLEANSE_ONLY_NAMES,
@@ -21,50 +21,50 @@ import {
   filterPartyWideNamedFactGroups,
   groupBoonConditionSources,
   groupNamedFactSources,
-  type ComboSource
-} from '@shared/boon-calc/sources'
+  type ComboSource,
+} from '@shared/boon-calc/sources';
 import {
   AURA_ICONS,
   BOON_CONDITION_ICONS,
   BOON_STRIP_CORRUPT_ICONS,
   COMBO_ICONS,
   CONTROL_ICONS,
-  MISCELLANEOUS_ICONS
-} from '@shared/boon-calc/icons'
-import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
-import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants'
-import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow'
-import { readBuildDragData, setBuildDragData, type BuildDragPayload } from './drag-payload'
+  MISCELLANEOUS_ICONS,
+} from '@shared/boon-calc/icons';
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format';
+import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants';
+import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow';
+import { readBuildDragData, setBuildDragData, type BuildDragPayload } from './drag-payload';
 
 interface Props {
-  slot: SquadSlot
-  build: Build | undefined
-  builds: Build[]
-  showSummary: boolean
-  partyIndex: number
-  slotIndex: number
-  onAssign: (buildId: string | null) => void
-  onAssignGhost: (ghostPick: GhostPick | null) => void
-  onLabelChange: (label: string | null) => void
-  onDropBuild: (payload: BuildDragPayload) => void
+  slot: SquadSlot;
+  build: Build | undefined;
+  builds: Build[];
+  showSummary: boolean;
+  partyIndex: number;
+  slotIndex: number;
+  onAssign: (buildId: string | null) => void;
+  onAssignGhost: (ghostPick: GhostPick | null) => void;
+  onLabelChange: (label: string | null) => void;
+  onDropBuild: (payload: BuildDragPayload) => void;
   /** Passed straight through to a right-click "Edit" — see `BuildsSidebar`'s doc comment on the
    *  same prop name. */
-  onEditBuild: (buildId: string) => void
+  onEditBuild: (buildId: string) => void;
 }
 
-const GHOST_PREFIX = 'ghost:'
-const GHOST_PLACEHOLDER_DESCRIPTION = 'Placeholder — no build saved yet'
+const GHOST_PREFIX = 'ghost:';
+const GHOST_PLACEHOLDER_DESCRIPTION = 'Placeholder — no build saved yet';
 
 function encodeGhostId(pick: GhostPick): string {
-  return `${GHOST_PREFIX}${pick.profession}:${pick.specializationId ?? ''}`
+  return `${GHOST_PREFIX}${pick.profession}:${pick.specializationId ?? ''}`;
 }
 
 function decodeGhostId(id: string): GhostPick {
-  const rest = id.slice(GHOST_PREFIX.length)
-  const separatorIndex = rest.lastIndexOf(':')
-  const profession = rest.slice(0, separatorIndex)
-  const specStr = rest.slice(separatorIndex + 1)
-  return { profession, specializationId: specStr.length > 0 ? Number(specStr) : null }
+  const rest = id.slice(GHOST_PREFIX.length);
+  const separatorIndex = rest.lastIndexOf(':');
+  const profession = rest.slice(0, separatorIndex);
+  const specStr = rest.slice(separatorIndex + 1);
+  return { profession, specializationId: specStr.length > 0 ? Number(specStr) : null };
 }
 
 /**
@@ -98,35 +98,41 @@ export function SlotTile({
   onAssignGhost,
   onLabelChange,
   onDropBuild,
-  onEditBuild
+  onEditBuild,
 }: Props) {
-  const gameData = useGameData()
-  const { updateBuild } = useBuildsStore()
-  const { partyWideOnly } = useAppSettings()
-  const [dragOver, setDragOver] = useState(false)
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
-  const [previewBuild, setPreviewBuild] = useState<Build | null>(null)
+  const gameData = useGameData();
+  const { updateBuild } = useBuildsStore();
+  const { partyWideOnly } = useAppSettings();
+  const [dragOver, setDragOver] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [previewBuild, setPreviewBuild] = useState<Build | null>(null);
 
   function eliteSpecIconFor(build: Build): string | undefined {
     // Show the equipped elite spec's own icon (matches the in-game/gw2skills convention of
     // identifying a character by its elite spec, not its base profession) when one's chosen.
-    const eliteSpecId = build.specializations[2]?.specializationId
-    const eliteSpec = eliteSpecId != null ? gameData.specializationsById.get(eliteSpecId) : undefined
-    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined
+    const eliteSpecId = build.specializations[2]?.specializationId;
+    const eliteSpec =
+      eliteSpecId != null ? gameData.specializationsById.get(eliteSpecId) : undefined;
+    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined;
   }
 
   const buildOptions: UpgradeOption<string>[] = builds.map((b) => {
-    const profession = gameData.professions.find((p) => p.id === b.profession)
-    return { id: b.id, name: b.name, icon: eliteSpecIconFor(b) ?? profession?.tangoIcon ?? '', description: profession?.name ?? b.profession }
-  })
+    const profession = gameData.professions.find((p) => p.id === b.profession);
+    return {
+      id: b.id,
+      name: b.name,
+      icon: eliteSpecIconFor(b) ?? profession?.tangoIcon ?? '',
+      description: profession?.name ?? b.profession,
+    };
+  });
 
   const ghostOptions: UpgradeOption<string>[] = gameData.professions.flatMap((p) => {
     const coreOption: UpgradeOption<string> = {
       id: encodeGhostId({ profession: p.id, specializationId: null }),
       name: `${p.name} (Core)`,
       icon: p.tangoIcon,
-      description: GHOST_PLACEHOLDER_DESCRIPTION
-    }
+      description: GHOST_PLACEHOLDER_DESCRIPTION,
+    };
     const eliteOptions: UpgradeOption<string>[] = gameData
       .specializationsForProfession(p.id)
       .filter((s) => s.elite)
@@ -134,20 +140,20 @@ export function SlotTile({
         id: encodeGhostId({ profession: p.id, specializationId: s.id }),
         name: s.name,
         icon: s.tangoIcon ?? p.tangoIcon,
-        description: GHOST_PLACEHOLDER_DESCRIPTION
-      }))
-    return [coreOption, ...eliteOptions]
-  })
+        description: GHOST_PLACEHOLDER_DESCRIPTION,
+      }));
+    return [coreOption, ...eliteOptions];
+  });
 
-  const options = [...buildOptions, ...ghostOptions]
+  const options = [...buildOptions, ...ghostOptions];
 
-  const chosenId = slot.buildId ?? (slot.ghostPick ? encodeGhostId(slot.ghostPick) : null)
+  const chosenId = slot.buildId ?? (slot.ghostPick ? encodeGhostId(slot.ghostPick) : null);
 
   function handleChoose(id: string | null): void {
     if (id !== null && id.startsWith(GHOST_PREFIX)) {
-      onAssignGhost(decodeGhostId(id))
+      onAssignGhost(decodeGhostId(id));
     } else {
-      onAssign(id)
+      onAssign(id);
     }
   }
 
@@ -157,30 +163,56 @@ export function SlotTile({
    *  already persisted and already visible elsewhere, so there's nothing install-specific to add.
    *  Ghost options (ids starting with `GHOST_PREFIX`) aren't real builds and can't be favorited. */
   function isBuildFavorite(id: string): boolean {
-    return !id.startsWith(GHOST_PREFIX) && (builds.find((b) => b.id === id)?.favorite ?? false)
+    return !id.startsWith(GHOST_PREFIX) && (builds.find((b) => b.id === id)?.favorite ?? false);
   }
 
   function toggleBuildFavorite(id: string): void {
-    if (id.startsWith(GHOST_PREFIX)) return
-    const b = builds.find((b) => b.id === id)
-    if (b) void updateBuild({ ...b, favorite: !b.favorite })
+    if (id.startsWith(GHOST_PREFIX)) return;
+    const b = builds.find((b) => b.id === id);
+    if (b) void updateBuild({ ...b, favorite: !b.favorite });
   }
 
-  const ghostProfession = slot.ghostPick ? gameData.professions.find((p) => p.id === slot.ghostPick?.profession) : undefined
+  const ghostProfession = slot.ghostPick
+    ? gameData.professions.find((p) => p.id === slot.ghostPick?.profession)
+    : undefined;
   const ghostSpec =
-    slot.ghostPick?.specializationId != null ? gameData.specializationsById.get(slot.ghostPick.specializationId) : undefined
-  const ghostName = ghostSpec ? ghostSpec.name : ghostProfession ? `${ghostProfession.name} (Core)` : undefined
+    slot.ghostPick?.specializationId != null
+      ? gameData.specializationsById.get(slot.ghostPick.specializationId)
+      : undefined;
+  const ghostName = ghostSpec
+    ? ghostSpec.name
+    : ghostProfession
+      ? `${ghostProfession.name} (Core)`
+      : undefined;
 
-  const groups = build ? groupBoonConditionSources(computeBoonConditionSources(build, gameData)) : []
-  const auraGroups = build ? groupBoonConditionSources(computeAuraSources(build, gameData)) : []
-  const controlGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)) : []
+  const groups = build
+    ? groupBoonConditionSources(computeBoonConditionSources(build, gameData))
+    : [];
+  const auraGroups = build ? groupBoonConditionSources(computeAuraSources(build, gameData)) : [];
+  const controlGroups = build
+    ? groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS))
+    : [];
   const miscGroups = build
-    ? groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES))
-    : []
+    ? groupNamedFactSources(
+        computeNamedFactSources(
+          build,
+          gameData,
+          MISCELLANEOUS_MATCHERS,
+          NAMED_FACT_TARGET_COUNT_TABLES,
+        ),
+      )
+    : [];
   const stripCorruptGroups = build
-    ? groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES))
-    : []
-  const comboSources = build ? computeComboSources(build, gameData) : []
+    ? groupNamedFactSources(
+        computeNamedFactSources(
+          build,
+          gameData,
+          BOON_STRIP_CORRUPT_MATCHERS,
+          NAMED_FACT_TARGET_COUNT_TABLES,
+        ),
+      )
+    : [];
+  const comboSources = build ? computeComboSources(build, gameData) : [];
 
   // "Party-wide only" (TODO.md, flagged 2026-08-16) only narrows the ally-facing rows below — Boons,
   // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
@@ -188,7 +220,10 @@ export function SlotTile({
   // (see `filterPartyWideGroups`'s doc comment). `iconItems(false, ...)`'s own `isCondition` filter
   // discards any condition group left in a passed-in already-filtered `sourceGroups`, so this only
   // ever needs to filter once, not once per row.
-  function iconItems(isCondition: boolean, sourceGroups: typeof groups = groups): BoonConditionIconItem[] {
+  function iconItems(
+    isCondition: boolean,
+    sourceGroups: typeof groups = groups,
+  ): BoonConditionIconItem[] {
     return sourceGroups
       .filter((g) => g.isCondition === isCondition)
       .map((g) => ({
@@ -199,28 +234,35 @@ export function SlotTile({
             title={g.name}
             description={g.sources
               .map((s) => {
-                const target = s.category === 'boon' ? formatTargetCount(s.targetCount) : null
-                const trigger = s.triggerNote ? ` [${s.triggerNote}]` : ''
-                return `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s${target ? ` (${target})` : ''}${trigger}`
+                const target = s.category === 'boon' ? formatTargetCount(s.targetCount) : null;
+                const trigger = s.triggerNote ? ` [${s.triggerNote}]` : '';
+                return `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s${target ? ` (${target})` : ''}${trigger}`;
               })
               .join('\n')}
           />
-        )
-      }))
+        ),
+      }));
   }
 
-  const auraItems: BoonConditionIconItem[] = (partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups).map((g) => ({
+  const auraItems: BoonConditionIconItem[] = (
+    partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups
+  ).map((g) => ({
     key: g.name,
     icon: AURA_ICONS[g.name as AuraName],
     tooltip: (
       <TooltipBody
         title={g.name}
-        description={g.sources.map((s) => `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s`).join('\n')}
+        description={g.sources
+          .map((s) => `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s`)
+          .join('\n')}
       />
-    )
-  }))
+    ),
+  }));
 
-  function namedFactItems(namedGroups: typeof controlGroups, icons: Record<string, string>): BoonConditionIconItem[] {
+  function namedFactItems(
+    namedGroups: typeof controlGroups,
+    icons: Record<string, string>,
+  ): BoonConditionIconItem[] {
     return namedGroups.map((g) => ({
       key: g.name,
       icon: icons[g.name],
@@ -229,34 +271,40 @@ export function SlotTile({
           title={g.name}
           description={g.sources
             .map((s) => {
-              const target = formatTargetCount(s.targetCount)
-              return `${s.sourceName}${s.detail ? `: ${s.detail}` : ''}${target ? ` (${target})` : ''}`
+              const target = formatTargetCount(s.targetCount);
+              return `${s.sourceName}${s.detail ? `: ${s.detail}` : ''}${target ? ` (${target})` : ''}`;
             })
             .join('\n')}
         />
-      )
-    }))
+      ),
+    }));
   }
 
   function comboItems(sources: ComboSource[]): BoonConditionIconItem[] {
-    const fields = sources.filter((s) => s.kind === 'field')
-    const finishers = sources.filter((s) => s.kind === 'finisher')
-    function item(kind: 'field' | 'finisher', label: string, entries: ComboSource[]): BoonConditionIconItem | null {
-      if (entries.length === 0) return null
+    const fields = sources.filter((s) => s.kind === 'field');
+    const finishers = sources.filter((s) => s.kind === 'finisher');
+    function item(
+      kind: 'field' | 'finisher',
+      label: string,
+      entries: ComboSource[],
+    ): BoonConditionIconItem | null {
+      if (entries.length === 0) return null;
       return {
         key: kind,
         icon: COMBO_ICONS[kind],
         tooltip: (
           <TooltipBody
             title={`Combo ${label}`}
-            description={entries.map((s) => `${s.sourceName}: ${s.fieldType ?? s.finisherType}`).join('\n')}
+            description={entries
+              .map((s) => `${s.sourceName}: ${s.fieldType ?? s.finisherType}`)
+              .join('\n')}
           />
-        )
-      }
+        ),
+      };
     }
     return [item('field', 'Field', fields), item('finisher', 'Finisher', finishers)].filter(
-      (i): i is BoonConditionIconItem => i !== null
-    )
+      (i): i is BoonConditionIconItem => i !== null,
+    );
   }
 
   return (
@@ -264,27 +312,36 @@ export function SlotTile({
       className={dragOver ? 'slot-tile drag-over' : 'slot-tile'}
       draggable={build !== undefined}
       onDragStart={(e) => {
-        if (build) setBuildDragData(e, { buildId: build.id, sourcePartyIndex: partyIndex, sourceSlotIndex: slotIndex })
+        if (build)
+          setBuildDragData(e, {
+            buildId: build.id,
+            sourcePartyIndex: partyIndex,
+            sourceSlotIndex: slotIndex,
+          });
       }}
       onDragOver={(e) => {
-        e.preventDefault()
-        setDragOver(true)
+        e.preventDefault();
+        setDragOver(true);
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={(e) => {
-        e.preventDefault()
-        setDragOver(false)
-        const payload = readBuildDragData(e)
-        if (payload) onDropBuild(payload)
+        e.preventDefault();
+        setDragOver(false);
+        const payload = readBuildDragData(e);
+        if (payload) onDropBuild(payload);
       }}
       onContextMenu={(e) => {
-        if (!build) return
-        e.preventDefault()
-        setContextMenu({ x: e.clientX, y: e.clientY })
+        if (!build) return;
+        e.preventDefault();
+        setContextMenu({ x: e.clientX, y: e.clientY });
       }}
     >
       <UpgradePicker
-        label={slot.placeholderLabel && slot.placeholderLabel.length > 0 ? slot.placeholderLabel : 'Build'}
+        label={
+          slot.placeholderLabel && slot.placeholderLabel.length > 0
+            ? slot.placeholderLabel
+            : 'Build'
+        }
         options={options}
         chosenId={chosenId}
         onChoose={handleChoose}
@@ -307,17 +364,24 @@ export function SlotTile({
       )}
       {showSummary && build && (
         <div className="slot-tile-summary">
-          <BoonConditionIconRow items={iconItems(false, partyWideOnly ? filterPartyWideGroups(groups) : groups)} />
+          <BoonConditionIconRow
+            items={iconItems(false, partyWideOnly ? filterPartyWideGroups(groups) : groups)}
+          />
           <BoonConditionIconRow items={iconItems(true)} />
           <BoonConditionIconRow items={namedFactItems(controlGroups, CONTROL_ICONS)} />
           <BoonConditionIconRow items={auraItems} />
           <BoonConditionIconRow
-            items={namedFactItems(partyWideOnly ? filterPartyWideGroups(miscGroups) : miscGroups, MISCELLANEOUS_ICONS)}
+            items={namedFactItems(
+              partyWideOnly ? filterPartyWideGroups(miscGroups) : miscGroups,
+              MISCELLANEOUS_ICONS,
+            )}
           />
           <BoonConditionIconRow
             items={namedFactItems(
-              partyWideOnly ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES) : stripCorruptGroups,
-              BOON_STRIP_CORRUPT_ICONS
+              partyWideOnly
+                ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES)
+                : stripCorruptGroups,
+              BOON_STRIP_CORRUPT_ICONS,
             )}
           />
           <BoonConditionIconRow items={comboItems(comboSources)} />
@@ -330,11 +394,11 @@ export function SlotTile({
           onClose={() => setContextMenu(null)}
           items={[
             { label: 'Preview', onSelect: () => setPreviewBuild(build) },
-            { label: 'Edit', onSelect: () => onEditBuild(build.id) }
+            { label: 'Edit', onSelect: () => onEditBuild(build.id) },
           ]}
         />
       )}
       <BuildPreviewModal build={previewBuild} onClose={() => setPreviewBuild(null)} />
     </div>
-  )
+  );
 }

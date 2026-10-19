@@ -17,5 +17,5 @@ export const MANTRA_FINAL_CHARGE_IDS: Record<number, number> = {
   40114: 41328, // Mantra of Liberation — Portent of Freedom -> Unhindered Delivery
   42360: 44008, // Mantra of Truth — Echo of Truth -> Voice of Truth
   42864: 44248, // Mantra of Lore — Opening Passage -> Clarified Conclusion
-  45082: 42924 // Mantra of Flame — Flame Rush -> Flame Surge
-}
+  45082: 42924, // Mantra of Flame — Flame Rush -> Flame Surge
+};

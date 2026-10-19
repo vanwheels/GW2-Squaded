@@ -25,8 +25,8 @@ const TROUBADOUR_TALE_SKILL_IDS: readonly number[] = [
   76850, // Tale of the Soulkeeper
   76971, // Tale of the August Queen
   77066, // Tale of the Tortured Mastermind
-  77178 // Tale of the Valiant Marshal
-]
+  77178, // Tale of the Valiant Marshal
+];
 
 /**
  * Mirage's (specialization id 59) "Mirage Mirror" (44677) and "Mirage Retreat" (45666) utility
@@ -38,8 +38,8 @@ const TROUBADOUR_TALE_SKILL_IDS: readonly number[] = [
  */
 const MIRAGE_DECEPTION_SKILL_IDS: readonly number[] = [
   44677, // Mirage Mirror
-  45666 // Mirage Retreat
-]
+  45666, // Mirage Retreat
+];
 
 /**
  * Necromancer's "Necrotic Traversal" (10600, Summon Flesh Wurm's sacrifice-and-teleport flip skill)
@@ -49,16 +49,19 @@ const MIRAGE_DECEPTION_SKILL_IDS: readonly number[] = [
  * Necrotic Traversal landing in the uncategorized bucket alone, matching TODO.md's ask ("should be
  * associated with/grouped near Summon Flesh Wurm instead").
  */
-const NECROTIC_TRAVERSAL_SKILL_ID = 10600
+const NECROTIC_TRAVERSAL_SKILL_ID = 10600;
 
 const SKILL_CATEGORY_OVERRIDES: ReadonlyMap<number, string> = new Map([
   ...TROUBADOUR_TALE_SKILL_IDS.map((id): [number, string] => [id, 'Tale']),
   ...MIRAGE_DECEPTION_SKILL_IDS.map((id): [number, string] => [id, 'Deception']),
-  [NECROTIC_TRAVERSAL_SKILL_ID, 'Minion']
-])
+  [NECROTIC_TRAVERSAL_SKILL_ID, 'Minion'],
+]);
 
 /** Resolves a skill's picker category, applying `SKILL_CATEGORY_OVERRIDES` for the known ids the
  *  API leaves uncategorized before falling back to the skill's own `categories[0]`. */
-export function skillPickerCategory(skill: { id: number; categories: readonly string[] }): string | null {
-  return SKILL_CATEGORY_OVERRIDES.get(skill.id) ?? skill.categories[0] ?? null
+export function skillPickerCategory(skill: {
+  id: number;
+  categories: readonly string[];
+}): string | null {
+  return SKILL_CATEGORY_OVERRIDES.get(skill.id) ?? skill.categories[0] ?? null;
 }

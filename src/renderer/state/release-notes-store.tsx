@@ -1,13 +1,13 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { ReleaseNotesModal } from '@renderer/components/common/ReleaseNotesModal'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { ReleaseNotesModal } from '@renderer/components/common/ReleaseNotesModal';
 
-const STORAGE_KEY = 'gw2squaded.lastSeenReleaseNotesVersion'
+const STORAGE_KEY = 'gw2squaded.lastSeenReleaseNotesVersion';
 
 interface ReleaseNotesValue {
-  openReleaseNotes: () => void
+  openReleaseNotes: () => void;
 }
 
-const ReleaseNotesContext = createContext<ReleaseNotesValue | null>(null)
+const ReleaseNotesContext = createContext<ReleaseNotesValue | null>(null);
 
 /**
  * Owns the "What's New" modal (full CHANGELOG.md rendered in-app — see `ReleaseNotesModal`) and
@@ -21,35 +21,35 @@ const ReleaseNotesContext = createContext<ReleaseNotesValue | null>(null)
  * this same modal instance via `openReleaseNotes()`.
  */
 export function ReleaseNotesProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void window.gw2Updater.getAppVersion().then((version) => {
-      if (cancelled || !version) return
-      const lastSeen = localStorage.getItem(STORAGE_KEY)
-      if (lastSeen !== null && lastSeen !== version) setOpen(true)
-      localStorage.setItem(STORAGE_KEY, version)
-    })
+      if (cancelled || !version) return;
+      const lastSeen = localStorage.getItem(STORAGE_KEY);
+      if (lastSeen !== null && lastSeen !== version) setOpen(true);
+      localStorage.setItem(STORAGE_KEY, version);
+    });
     return () => {
-      cancelled = true
-    }
-  }, [])
+      cancelled = true;
+    };
+  }, []);
 
   const value: ReleaseNotesValue = {
-    openReleaseNotes: () => setOpen(true)
-  }
+    openReleaseNotes: () => setOpen(true),
+  };
 
   return (
     <ReleaseNotesContext.Provider value={value}>
       {children}
       <ReleaseNotesModal open={open} onClose={() => setOpen(false)} />
     </ReleaseNotesContext.Provider>
-  )
+  );
 }
 
 export function useReleaseNotes(): ReleaseNotesValue {
-  const ctx = useContext(ReleaseNotesContext)
-  if (!ctx) throw new Error('useReleaseNotes must be used within a ReleaseNotesProvider')
-  return ctx
+  const ctx = useContext(ReleaseNotesContext);
+  if (!ctx) throw new Error('useReleaseNotes must be used within a ReleaseNotesProvider');
+  return ctx;
 }

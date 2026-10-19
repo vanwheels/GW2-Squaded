@@ -76,40 +76,40 @@
  * entry is a genuine contradiction (not just "neither old nor new"), bucketed as its own
  * `self-conflict` outcome rather than an undifferentiated `mismatch`.
  */
-import { readFile, writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { Skill, Trait } from '../src/shared/types/game-data'
-import { CURATED_DAMAGE_COEFFICIENTS } from '../src/shared/skill-calc/damage-calc'
-import { CURATED_HEALING_COEFFICIENTS } from '../src/shared/skill-calc/healing-calc'
-import { CURATED_BARRIER_COEFFICIENTS } from '../src/shared/skill-calc/barrier-calc'
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { Skill, Trait } from '../src/shared/types/game-data';
+import { CURATED_DAMAGE_COEFFICIENTS } from '../src/shared/skill-calc/damage-calc';
+import { CURATED_HEALING_COEFFICIENTS } from '../src/shared/skill-calc/healing-calc';
+import { CURATED_BARRIER_COEFFICIENTS } from '../src/shared/skill-calc/barrier-calc';
 import {
   TARGET_COUNT_OVERRIDES,
   CONDITION_CLEANSE_TARGETS,
   isFlatTargetCountOverride,
   type SourceTargetCountOverride,
-  type TargetCountOverride
-} from '../src/shared/boon-calc/sources'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+  type TargetCountOverride,
+} from '../src/shared/boon-calc/sources';
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache';
 
-const WIKI_API = 'https://wiki.guildwars2.com/api.php'
+const WIKI_API = 'https://wiki.guildwars2.com/api.php';
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
-const REQUEST_DELAY_MS = 150
+const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)';
+const REQUEST_DELAY_MS = 150;
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** Every dated patch page under `Category:Balance updates`, paginated the same way
  *  `fetch-elite-spec-skills.ts`'s `fetchSpecSkillPages` handles `continue` tokens. Sorted
  *  chronologically — `Game updates/YYYY-MM-DD` titles sort correctly as plain strings. */
 async function fetchBalanceUpdateTitles(): Promise<string[]> {
-  const titles: string[] = []
-  let continueParams: Record<string, string> = {}
+  const titles: string[] = [];
+  let continueParams: Record<string, string> = {};
   for (;;) {
     const params = new URLSearchParams({
       action: 'query',
@@ -118,25 +118,28 @@ async function fetchBalanceUpdateTitles(): Promise<string[]> {
       cmlimit: '500',
       format: 'json',
       formatversion: '2',
-      ...continueParams
-    })
-    const response = await fetch(`${WIKI_API}?${params.toString()}`, { headers: { 'User-Agent': USER_AGENT } })
-    if (!response.ok) throw new Error(`categorymembers fetch failed: ${response.status} ${response.statusText}`)
+      ...continueParams,
+    });
+    const response = await fetch(`${WIKI_API}?${params.toString()}`, {
+      headers: { 'User-Agent': USER_AGENT },
+    });
+    if (!response.ok)
+      throw new Error(`categorymembers fetch failed: ${response.status} ${response.statusText}`);
     const json = (await response.json()) as {
-      query?: { categorymembers?: { title: string }[] }
-      continue?: Record<string, string>
-    }
+      query?: { categorymembers?: { title: string }[] };
+      continue?: Record<string, string>;
+    };
     for (const member of json.query?.categorymembers ?? []) {
-      if (member.title.startsWith('Game updates/')) titles.push(member.title)
+      if (member.title.startsWith('Game updates/')) titles.push(member.title);
     }
     if (json.continue) {
-      continueParams = json.continue
-      await sleep(REQUEST_DELAY_MS)
+      continueParams = json.continue;
+      await sleep(REQUEST_DELAY_MS);
     } else {
-      break
+      break;
     }
   }
-  return titles.sort()
+  return titles.sort();
 }
 
 /** Extracts a `{{Skill infobox}}`/`{{Trait infobox}}`'s `| id = N` field — same shape as
@@ -145,12 +148,12 @@ async function fetchBalanceUpdateTitles(): Promise<string[]> {
  *  page). Not imported from there — every fetch-*.ts script owns its small parse helpers, same
  *  precedent as `titleVariants` being duplicated per-script rather than shared. */
 function parseInfoboxIds(wikitext: string): number[] {
-  const match = /\|\s*id\s*=\s*([^\n|}]+)/.exec(wikitext)
-  if (!match) return []
+  const match = /\|\s*id\s*=\s*([^\n|}]+)/.exec(wikitext);
+  if (!match) return [];
   return match[1]
     .split(',')
     .map((s) => Number(s.trim()))
-    .filter((n) => !Number.isNaN(n))
+    .filter((n) => !Number.isNaN(n));
 }
 
 /** Finds the first `{{game update icon|X}}`/`{{skill icon|X}}`/`{{simple icon|X}}`/`{{trait
@@ -161,32 +164,32 @@ function parseInfoboxIds(wikitext: string): number[] {
  *  attributes to the FIRST one; accepted as a known simplification, not chased further. Returns null
  *  for a line with no marker at all (most lines — general prose, not a per-skill change). */
 function extractTitleAndDescription(line: string): { title: string; description: string } | null {
-  const iconRe = /\{\{\s*(?:game update icon|skill icon|simple icon|trait icon)\s*\|([^}]*)\}\}/i
-  const m = iconRe.exec(line)
-  if (!m) return null
-  const title = m[1].split('|')[0].trim()
-  if (!title) return null
-  return { title, description: line.slice(m.index + m[0].length) }
+  const iconRe = /\{\{\s*(?:game update icon|skill icon|simple icon|trait icon)\s*\|([^}]*)\}\}/i;
+  const m = iconRe.exec(line);
+  if (!m) return null;
+  const title = m[1].split('|')[0].trim();
+  if (!title) return null;
+  return { title, description: line.slice(m.index + m[0].length) };
 }
 
 /** Mode suffix right after "to B", e.g. " in WvW only", " in PvP and WvW", "" (no suffix = applies
  *  everywhere). Returns null for "no suffix" (universal change), else the uppercased mode token
  *  list. */
 function parseModeTokens(tail: string): string[] | null {
-  const modeMatch = /\bin\s+((?:PvE|PvP|WvW)(?:\s*,?\s*(?:and|&)\s*(?:PvE|PvP|WvW))*)/i.exec(tail)
-  if (!modeMatch) return null
-  const tokens = modeMatch[1].match(/PvE|PvP|WvW/gi) ?? []
-  return tokens.map((t) => t.toUpperCase())
+  const modeMatch = /\bin\s+((?:PvE|PvP|WvW)(?:\s*,?\s*(?:and|&)\s*(?:PvE|PvP|WvW))*)/i.exec(tail);
+  if (!modeMatch) return null;
+  const tokens = modeMatch[1].match(/PvE|PvP|WvW/gi) ?? [];
+  return tokens.map((t) => t.toUpperCase());
 }
 
-type TableKind = 'damage' | 'healing' | 'barrier'
-type FieldKind = 'coefficient' | 'baseValue'
+type TableKind = 'damage' | 'healing' | 'barrier';
+type FieldKind = 'coefficient' | 'baseValue';
 
 const TABLE_NAMES: Record<TableKind, string> = {
   damage: 'CURATED_DAMAGE_COEFFICIENTS',
   healing: 'CURATED_HEALING_COEFFICIENTS',
-  barrier: 'CURATED_BARRIER_COEFFICIENTS'
-}
+  barrier: 'CURATED_BARRIER_COEFFICIENTS',
+};
 
 /** Live-surveyed label phrasings (2026-08-08, against all 59 `Category:Balance updates` pages —
  *  see this file's own doc comment for the ones deliberately left out). Order doesn't matter; the 3
@@ -203,18 +206,18 @@ const KNOWN_LABELS: { source: string; table: TableKind; field: FieldKind }[] = [
   { source: 'barrier coefficient', table: 'barrier', field: 'coefficient' },
   { source: 'barrier attribute scaling', table: 'barrier', field: 'coefficient' },
   { source: 'base heal(?:ing)?', table: 'healing', field: 'baseValue' },
-  { source: 'base barrier', table: 'barrier', field: 'baseValue' }
-]
+  { source: 'base barrier', table: 'barrier', field: 'baseValue' },
+];
 
 interface RawChange {
-  patchDate: string
-  patchTitle: string
-  wikiTitle: string
-  table: TableKind
-  field: FieldKind
-  oldValue: number
-  newValue: number
-  modeTokens: string[] | null
+  patchDate: string;
+  patchTitle: string;
+  wikiTitle: string;
+  table: TableKind;
+  field: FieldKind;
+  oldValue: number;
+  newValue: number;
+  modeTokens: string[] | null;
   /** True when the clause is phrased "pulse <label> from..." or "<label> per <word> from..." — a
    *  PER-HIT value, not the totaled-across-hits value `CURATED_DAMAGE_COEFFICIENTS.coefficient`
    *  itself stores (see that type's own doc comment; `fetch-skill-coefficients.ts`'s
@@ -223,7 +226,7 @@ interface RawChange {
    *  instead). Live-verified motivating case (2026-08-08): Ice Shards' 2020-02-25 patch states
    *  "Reduced power coefficient per strike from 0.24 to 0.16" — curated value is 0.48 (0.16 * 3
    *  strikes), which raw string comparison would otherwise flag as a false MISMATCH. */
-  perHit: boolean
+  perHit: boolean;
 }
 
 /** Every `<label> from A to B` clause in a description, for every known label — a line can carry
@@ -236,18 +239,30 @@ interface RawChange {
  *  treating them as the sentence-ending period, only a period NOT followed by a digit really ends
  *  the clause (live bug found + fixed 2026-08-08: a naive `[^.]*` stopped at the "0." inside "0.2"
  *  and truncated the tail before the trailing "in PvE only" it needed to see). */
-function parseChangeClauses(description: string): Omit<RawChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] {
-  const out: Omit<RawChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] = []
+function parseChangeClauses(
+  description: string,
+): Omit<RawChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] {
+  const out: Omit<RawChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] = [];
   for (const spec of KNOWN_LABELS) {
-    const re = new RegExp(`(pulse\\s+)?${spec.source}(?:\\s+per\\s+(\\w+))?\\s+from\\s+([\\d,]+(?:\\.\\d+)?)\\s+to\\s+([\\d,]+(?:\\.\\d+)?)((?:[^.]|\\.(?=\\d))*)\\.(?!\\d)`, 'gi')
+    const re = new RegExp(
+      `(pulse\\s+)?${spec.source}(?:\\s+per\\s+(\\w+))?\\s+from\\s+([\\d,]+(?:\\.\\d+)?)\\s+to\\s+([\\d,]+(?:\\.\\d+)?)((?:[^.]|\\.(?=\\d))*)\\.(?!\\d)`,
+      'gi',
+    );
     for (const m of description.matchAll(re)) {
-      const oldValue = Number(m[3].replace(/,/g, ''))
-      const newValue = Number(m[4].replace(/,/g, ''))
-      if (Number.isNaN(oldValue) || Number.isNaN(newValue)) continue
-      out.push({ table: spec.table, field: spec.field, oldValue, newValue, modeTokens: parseModeTokens(m[5]), perHit: Boolean(m[1] || m[2]) })
+      const oldValue = Number(m[3].replace(/,/g, ''));
+      const newValue = Number(m[4].replace(/,/g, ''));
+      if (Number.isNaN(oldValue) || Number.isNaN(newValue)) continue;
+      out.push({
+        table: spec.table,
+        field: spec.field,
+        oldValue,
+        newValue,
+        modeTokens: parseModeTokens(m[5]),
+        perHit: Boolean(m[1] || m[2]),
+      });
     }
   }
-  return out
+  return out;
 }
 
 /** Same normalization `fetch-skill-coefficients.ts`'s `byFactText` map uses — not shared, same
@@ -255,43 +270,46 @@ function parseChangeClauses(description: string): Omit<RawChange, 'patchDate' | 
  *  multi-hit skill's own `hit_count` (for `perHit` clauses) and to key into the existing
  *  `skill-coefficient-verification.json` audit trail for corroboration. */
 function normalizeFactText(s: string): string {
-  return s.trim().toLowerCase().replace(/\s+/g, ' ')
+  return s.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 // --- Reach extension (TARGET_COUNT_OVERRIDES / CONDITION_CLEANSE_TARGETS) — see module doc comment
 // for why this is a separate code path from the coefficient-table machinery above. ---
 
-type ReachTableKind = 'targetCount' | 'cleanseCount'
+type ReachTableKind = 'targetCount' | 'cleanseCount';
 
 const REACH_TABLE_NAMES: Record<ReachTableKind, string> = {
   targetCount: 'TARGET_COUNT_OVERRIDES',
-  cleanseCount: 'CONDITION_CLEANSE_TARGETS'
-}
+  cleanseCount: 'CONDITION_CLEANSE_TARGETS',
+};
 
 interface RawReachChange {
-  patchDate: string
-  patchTitle: string
-  wikiTitle: string
-  oldValue: number
-  newValue: number
-  modeTokens: string[] | null
+  patchDate: string;
+  patchTitle: string;
+  wikiTitle: string;
+  oldValue: number;
+  newValue: number;
+  modeTokens: string[] | null;
 }
 
 /** Live-surveyed phrasing (2026-08-08, see module doc comment): "(maximum) number of allied targets
  *  (affected) from A to B". Deliberately excludes the bare "number of targets" (no "allied") and
  *  "conditions removed" (a different field entirely) — see module doc comment for why. Same
  *  decimal-tolerant tail-boundary handling as `parseChangeClauses`'s regex. */
-const REACH_LABEL_RE = /(?:maximum\s+)?number of allied targets(?:\s+affected)?\s+from\s+([\d,]+(?:\.\d+)?)\s+to\s+([\d,]+(?:\.\d+)?)((?:[^.]|\.(?=\d))*)\.(?!\d)/gi
+const REACH_LABEL_RE =
+  /(?:maximum\s+)?number of allied targets(?:\s+affected)?\s+from\s+([\d,]+(?:\.\d+)?)\s+to\s+([\d,]+(?:\.\d+)?)((?:[^.]|\.(?=\d))*)\.(?!\d)/gi;
 
-function parseReachClauses(description: string): Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] {
-  const out: Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] = []
+function parseReachClauses(
+  description: string,
+): Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] {
+  const out: Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] = [];
   for (const m of description.matchAll(REACH_LABEL_RE)) {
-    const oldValue = Number(m[1].replace(/,/g, ''))
-    const newValue = Number(m[2].replace(/,/g, ''))
-    if (Number.isNaN(oldValue) || Number.isNaN(newValue)) continue
-    out.push({ oldValue, newValue, modeTokens: parseModeTokens(m[3]) })
+    const oldValue = Number(m[1].replace(/,/g, ''));
+    const newValue = Number(m[2].replace(/,/g, ''));
+    if (Number.isNaN(oldValue) || Number.isNaN(newValue)) continue;
+    out.push({ oldValue, newValue, modeTokens: parseModeTokens(m[3]) });
   }
-  return out
+  return out;
 }
 
 type ReachOutcome =
@@ -303,93 +321,134 @@ type ReachOutcome =
   | 'not-a-skill-or-trait' // id resolved via infobox, but isn't in local skills.json or traits.json
   | 'ambiguous-multiple-ids' // page's own id= lists >1 id, and not exactly one has curated reach data to disambiguate with
   | 'title-not-found' // no wiki page (or no id=) at this exact title
-  | 'complex-override' // curated value is a per-buff-line/conditional override (2026-08-11) — no single flat value to diff a patch's old/new reach against
+  | 'complex-override'; // curated value is a per-buff-line/conditional override (2026-08-11) — no single flat value to diff a patch's old/new reach against
 
 interface ReachOutcomeEntry {
-  wikiTitle: string
-  curatedTable?: ReachTableKind // set only for match/stale/mismatch/self-conflict — which of the two tables this entry checks
-  sourceKind?: 'skill' | 'trait'
-  sourceId?: number
-  sourceName?: string
-  latestPatchDate: string
-  patchTitle: string
-  oldValue: number
-  newValue: number
-  priorPatches: number
-  curatedValue?: TargetCountOverride
-  outcome: ReachOutcome
-  detail?: string
+  wikiTitle: string;
+  curatedTable?: ReachTableKind; // set only for match/stale/mismatch/self-conflict — which of the two tables this entry checks
+  sourceKind?: 'skill' | 'trait';
+  sourceId?: number;
+  sourceName?: string;
+  latestPatchDate: string;
+  patchTitle: string;
+  oldValue: number;
+  newValue: number;
+  priorPatches: number;
+  curatedValue?: TargetCountOverride;
+  outcome: ReachOutcome;
+  detail?: string;
 }
 
-const EPS_REACH = 0.01 // reach counts are always integers on the wiki; a tight epsilon just guards float noise
+const EPS_REACH = 0.01; // reach counts are always integers on the wiki; a tight epsilon just guards float noise
 
 /** Groups the raw reach clauses by wikiTitle (only one field this leg tracks, unlike the
  *  table/field-keyed coefficient grouping above), keeps only the most recent patch per group, then
  *  resolves each group's title to a skill/trait id and checks it against BOTH
  *  `TARGET_COUNT_OVERRIDES` and `CONDITION_CLEANSE_TARGETS` (see module doc comment for why both —
  *  the prose alone never says which table a reach change belongs to). */
-async function processReachGroups(reachRawChanges: RawReachChange[], skillsById: Map<number, Skill>, traitsById: Map<number, Trait>): Promise<ReachOutcomeEntry[]> {
-  const wvwRelevant = reachRawChanges.filter((c) => c.modeTokens === null || c.modeTokens.includes('WVW'))
-  const groups = new Map<string, RawReachChange[]>()
+async function processReachGroups(
+  reachRawChanges: RawReachChange[],
+  skillsById: Map<number, Skill>,
+  traitsById: Map<number, Trait>,
+): Promise<ReachOutcomeEntry[]> {
+  const wvwRelevant = reachRawChanges.filter(
+    (c) => c.modeTokens === null || c.modeTokens.includes('WVW'),
+  );
+  const groups = new Map<string, RawReachChange[]>();
   for (const c of wvwRelevant) {
-    const list = groups.get(c.wikiTitle) ?? []
-    list.push(c)
-    groups.set(c.wikiTitle, list)
+    const list = groups.get(c.wikiTitle) ?? [];
+    list.push(c);
+    groups.set(c.wikiTitle, list);
   }
 
-  const outcomes: ReachOutcomeEntry[] = []
+  const outcomes: ReachOutcomeEntry[] = [];
   for (const list of groups.values()) {
-    list.sort((a, b) => a.patchDate.localeCompare(b.patchDate))
-    const latest = list[list.length - 1]
-    const priorPatches = list.length - 1
-    const base = { wikiTitle: latest.wikiTitle, latestPatchDate: latest.patchDate, patchTitle: latest.patchTitle, oldValue: latest.oldValue, newValue: latest.newValue, priorPatches }
+    list.sort((a, b) => a.patchDate.localeCompare(b.patchDate));
+    const latest = list[list.length - 1];
+    const priorPatches = list.length - 1;
+    const base = {
+      wikiTitle: latest.wikiTitle,
+      latestPatchDate: latest.patchDate,
+      patchTitle: latest.patchTitle,
+      oldValue: latest.oldValue,
+      newValue: latest.newValue,
+      priorPatches,
+    };
 
-    const text = await fetchWikiPage(latest.wikiTitle)
+    const text = await fetchWikiPage(latest.wikiTitle);
     if (!text) {
-      outcomes.push({ ...base, outcome: 'title-not-found', detail: 'no wiki page at this exact title (patch-icon title may have since been renamed/merged)' })
-      continue
+      outcomes.push({
+        ...base,
+        outcome: 'title-not-found',
+        detail:
+          'no wiki page at this exact title (patch-icon title may have since been renamed/merged)',
+      });
+      continue;
     }
-    const ids = parseInfoboxIds(text)
+    const ids = parseInfoboxIds(text);
 
-    const kindOf = (id: number): 'skill' | 'trait' | undefined => (skillsById.has(id) ? 'skill' : traitsById.has(id) ? 'trait' : undefined)
+    const kindOf = (id: number): 'skill' | 'trait' | undefined =>
+      skillsById.has(id) ? 'skill' : traitsById.has(id) ? 'trait' : undefined;
     const hasCuratedReach = (id: number): boolean => {
-      const kind = kindOf(id)
-      if (!kind) return false
-      return TARGET_COUNT_OVERRIDES[kind][id] !== undefined || CONDITION_CLEANSE_TARGETS[kind][id] !== undefined
-    }
+      const kind = kindOf(id);
+      if (!kind) return false;
+      return (
+        TARGET_COUNT_OVERRIDES[kind][id] !== undefined ||
+        CONDITION_CLEANSE_TARGETS[kind][id] !== undefined
+      );
+    };
 
-    let resolvedId: number | undefined
+    let resolvedId: number | undefined;
     if (ids.length === 1) {
-      resolvedId = ids[0]
+      resolvedId = ids[0];
     } else if (ids.length > 1) {
-      const withEntries = ids.filter(hasCuratedReach)
-      if (withEntries.length === 1) resolvedId = withEntries[0]
+      const withEntries = ids.filter(hasCuratedReach);
+      if (withEntries.length === 1) resolvedId = withEntries[0];
     }
     if (resolvedId === undefined) {
       outcomes.push({
         ...base,
         outcome: ids.length === 0 ? 'title-not-found' : 'ambiguous-multiple-ids',
-        detail: ids.length === 0 ? 'page has no id= field' : `page id= lists [${ids.join(', ')}], not exactly one has curated reach data`
-      })
-      continue
+        detail:
+          ids.length === 0
+            ? 'page has no id= field'
+            : `page id= lists [${ids.join(', ')}], not exactly one has curated reach data`,
+      });
+      continue;
     }
 
-    const kind = kindOf(resolvedId)
+    const kind = kindOf(resolvedId);
     if (!kind) {
-      outcomes.push({ ...base, sourceId: resolvedId, outcome: 'not-a-skill-or-trait', detail: `id ${resolvedId} not in local skills.json or traits.json` })
-      continue
+      outcomes.push({
+        ...base,
+        sourceId: resolvedId,
+        outcome: 'not-a-skill-or-trait',
+        detail: `id ${resolvedId} not in local skills.json or traits.json`,
+      });
+      continue;
     }
-    const sourceName = kind === 'skill' ? skillsById.get(resolvedId)!.name : traitsById.get(resolvedId)!.name
+    const sourceName =
+      kind === 'skill' ? skillsById.get(resolvedId)!.name : traitsById.get(resolvedId)!.name;
 
     const perTable: { table: ReachTableKind; curated: SourceTargetCountOverride | undefined }[] = [
       { table: 'targetCount', curated: TARGET_COUNT_OVERRIDES[kind][resolvedId] },
-      { table: 'cleanseCount', curated: CONDITION_CLEANSE_TARGETS[kind][resolvedId] }
-    ]
-    const curatedHits = perTable.filter((p): p is { table: ReachTableKind; curated: SourceTargetCountOverride } => p.curated !== undefined)
+      { table: 'cleanseCount', curated: CONDITION_CLEANSE_TARGETS[kind][resolvedId] },
+    ];
+    const curatedHits = perTable.filter(
+      (p): p is { table: ReachTableKind; curated: SourceTargetCountOverride } =>
+        p.curated !== undefined,
+    );
 
     if (curatedHits.length === 0) {
-      outcomes.push({ ...base, sourceKind: kind, sourceId: resolvedId, sourceName, outcome: 'not-curated', detail: 'not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS' })
-      continue
+      outcomes.push({
+        ...base,
+        sourceKind: kind,
+        sourceId: resolvedId,
+        sourceName,
+        outcome: 'not-curated',
+        detail: 'not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS',
+      });
+      continue;
     }
 
     for (const hit of curatedHits) {
@@ -404,26 +463,35 @@ async function processReachGroups(reachRawChanges: RawReachChange[], skillsById:
           sourceId: resolvedId,
           sourceName,
           outcome: 'complex-override',
-          detail: `curated value is a per-buff-line/conditional override — patch shows a reach change ${latest.oldValue} -> ${latest.newValue}, needs a human read`
-        })
-        continue
+          detail: `curated value is a per-buff-line/conditional override — patch shows a reach change ${latest.oldValue} -> ${latest.newValue}, needs a human read`,
+        });
+        continue;
       }
-      let outcome: ReachOutcome
-      let detail: string | undefined
+      let outcome: ReachOutcome;
+      let detail: string | undefined;
       if (hit.curated === 'self') {
-        outcome = 'self-conflict'
-        detail = `curated 'self' (self-only) but patch shows a numeric allied-target reach change ${latest.oldValue} -> ${latest.newValue}`
+        outcome = 'self-conflict';
+        detail = `curated 'self' (self-only) but patch shows a numeric allied-target reach change ${latest.oldValue} -> ${latest.newValue}`;
       } else if (Math.abs(hit.curated - latest.newValue) <= EPS_REACH) {
-        outcome = 'match'
+        outcome = 'match';
       } else if (Math.abs(hit.curated - latest.oldValue) <= EPS_REACH) {
-        outcome = 'stale'
+        outcome = 'stale';
       } else {
-        outcome = 'mismatch'
+        outcome = 'mismatch';
       }
-      outcomes.push({ ...base, curatedTable: hit.table, sourceKind: kind, sourceId: resolvedId, sourceName, curatedValue: hit.curated, outcome, detail })
+      outcomes.push({
+        ...base,
+        curatedTable: hit.table,
+        sourceKind: kind,
+        sourceId: resolvedId,
+        sourceName,
+        curatedValue: hit.curated,
+        outcome,
+        detail,
+      });
     }
   }
-  return outcomes
+  return outcomes;
 }
 
 /** For a `perHit`-phrased damage clause, the local API's own `hit_count` on the matching Damage fact
@@ -431,14 +499,16 @@ async function processReachGroups(reachRawChanges: RawReachChange[], skillsById:
  *  wiki line to the curated (totaled) value. Falls back to 1 (no-op multiplier) when no matching
  *  fact/hit_count is found, so an unresolvable lookup never silently suppresses a real mismatch. */
 function damageHitCount(skill: Skill, factText: string): number {
-  const norm = normalizeFactText(factText)
-  const fact = skill.facts.find((f) => f.type === 'Damage' && normalizeFactText(f.text ?? '') === norm)
-  return typeof fact?.hit_count === 'number' && fact.hit_count > 0 ? fact.hit_count : 1
+  const norm = normalizeFactText(factText);
+  const fact = skill.facts.find(
+    (f) => f.type === 'Damage' && normalizeFactText(f.text ?? '') === norm,
+  );
+  return typeof fact?.hit_count === 'number' && fact.hit_count > 0 ? fact.hit_count : 1;
 }
 
 interface LiveWikiLookupEntry {
-  status: string
-  wikiValue?: number | string
+  status: string;
+  wikiValue?: number | string;
 }
 
 /** Cross-corroboration against `fetch-skill-coefficients.ts`'s own already-written audit trail
@@ -452,19 +522,24 @@ interface LiveWikiLookupEntry {
  *  reverting it), not a real gap in curation. Returns an empty map (corroboration simply
  *  unavailable, not fatal) if that file hasn't been generated yet. */
 async function loadLiveDamageVerification(): Promise<Map<string, LiveWikiLookupEntry>> {
-  const map = new Map<string, LiveWikiLookupEntry>()
+  const map = new Map<string, LiveWikiLookupEntry>();
   try {
-    const raw = JSON.parse(await readFile(join(DATA_DIR, 'skill-coefficient-verification.json'), 'utf-8')) as {
-      entries: { id: number; factText?: string; status: string; wikiValue?: number | string }[]
-    }
+    const raw = JSON.parse(
+      await readFile(join(DATA_DIR, 'skill-coefficient-verification.json'), 'utf-8'),
+    ) as {
+      entries: { id: number; factText?: string; status: string; wikiValue?: number | string }[];
+    };
     for (const e of raw.entries) {
-      if (e.factText === undefined) continue
-      map.set(`${e.id}|${normalizeFactText(e.factText)}`, { status: e.status, wikiValue: e.wikiValue })
+      if (e.factText === undefined) continue;
+      map.set(`${e.id}|${normalizeFactText(e.factText)}`, {
+        status: e.status,
+        wikiValue: e.wikiValue,
+      });
     }
   } catch {
     // not generated yet (or unreadable) — corroboration simply unavailable this run
   }
-  return map
+  return map;
 }
 
 /** Normalized curated-entry shape across all 3 tables — `DamageCoefficient` has no `baseValue` at
@@ -472,15 +547,15 @@ async function loadLiveDamageVerification(): Promise<Map<string, LiveWikiLookupE
  *  and only ever read when `field === 'baseValue'` (never true for the damage table, see
  *  `KNOWN_LABELS`). */
 interface CuratedEntryLike {
-  factText: string
-  requiresTrait?: number
-  coefficient: number
-  baseValue?: number
+  factText: string;
+  requiresTrait?: number;
+  coefficient: number;
+  baseValue?: number;
 }
 function getCuratedEntries(table: TableKind, id: number): CuratedEntryLike[] {
-  if (table === 'damage') return CURATED_DAMAGE_COEFFICIENTS[id] ?? []
-  if (table === 'healing') return CURATED_HEALING_COEFFICIENTS[id] ?? []
-  return CURATED_BARRIER_COEFFICIENTS[id] ?? []
+  if (table === 'damage') return CURATED_DAMAGE_COEFFICIENTS[id] ?? [];
+  if (table === 'healing') return CURATED_HEALING_COEFFICIENTS[id] ?? [];
+  return CURATED_BARRIER_COEFFICIENTS[id] ?? [];
 }
 
 type Outcome =
@@ -491,282 +566,380 @@ type Outcome =
   | 'not-a-skill' // id resolved, but isn't in local skills.json (a trait, or a since-removed skill)
   | 'ambiguous-multiple-entries' // >1 non-trait-gated curated entry for this id; patch note doesn't say which factText
   | 'ambiguous-multiple-ids' // page's own id= lists >1 id, and not exactly one has curated entries to disambiguate with
-  | 'title-not-found' // no wiki page (or no id=) at this exact title
+  | 'title-not-found'; // no wiki page (or no id=) at this exact title
 
 interface OutcomeEntry {
-  wikiTitle: string
-  table: TableKind
-  field: FieldKind
-  skillId?: number
-  skillName?: string
-  latestPatchDate: string
-  patchTitle: string
-  oldValue: number
-  newValue: number
-  priorPatches: number // earlier patches also touching this (wikiTitle, table, field) — context only, not compared
-  curatedFactText?: string
-  curatedValue?: number
+  wikiTitle: string;
+  table: TableKind;
+  field: FieldKind;
+  skillId?: number;
+  skillName?: string;
+  latestPatchDate: string;
+  patchTitle: string;
+  oldValue: number;
+  newValue: number;
+  priorPatches: number; // earlier patches also touching this (wikiTitle, table, field) — context only, not compared
+  curatedFactText?: string;
+  curatedValue?: number;
   /** Set only when `perHit` was true and a >1 hit_count was actually applied — the old/new values
    *  actually compared are `oldValue`/`newValue` times this, not the raw patch-note numbers (see
    *  `RawChange.perHit`'s doc comment). */
-  hitCountApplied?: number
-  outcome: Outcome
+  hitCountApplied?: number;
+  outcome: Outcome;
   /** For a damage-table `stale`/`mismatch` outcome only: what `skill-coefficient-verification.json`
    *  (today's live-wiki value) says about this same (id, factText) — see
    *  `loadLiveDamageVerification`'s doc comment. Absent when no corroboration data exists (Healing/
    *  Barrier tables, or the id/factText wasn't in that file). */
-  liveWikiCorroboration?: string
-  detail?: string
+  liveWikiCorroboration?: string;
+  detail?: string;
 }
 
-const EPS_COEFFICIENT = 0.005
-const EPS_BASE_VALUE = 0.5
+const EPS_COEFFICIENT = 0.005;
+const EPS_BASE_VALUE = 0.5;
 
 async function main(): Promise<void> {
-  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
-  const skillsById = new Map(skills.map((s) => [s.id, s]))
-  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[]
-  const traitsById = new Map(traits.map((t) => [t.id, t]))
-  const liveDamageVerification = await loadLiveDamageVerification()
+  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[];
+  const skillsById = new Map(skills.map((s) => [s.id, s]));
+  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[];
+  const traitsById = new Map(traits.map((t) => [t.id, t]));
+  const liveDamageVerification = await loadLiveDamageVerification();
 
-  console.log('Fetching Category:Balance updates page list...')
-  const patchTitles = await fetchBalanceUpdateTitles()
-  console.log(`Found ${patchTitles.length} dated balance-update patch pages (2022-present).`)
+  console.log('Fetching Category:Balance updates page list...');
+  const patchTitles = await fetchBalanceUpdateTitles();
+  console.log(`Found ${patchTitles.length} dated balance-update patch pages (2022-present).`);
 
-  const rawChanges: RawChange[] = []
-  const reachRawChanges: RawReachChange[] = []
-  let scanned = 0
+  const rawChanges: RawChange[] = [];
+  const reachRawChanges: RawReachChange[] = [];
+  let scanned = 0;
   for (const patchTitle of patchTitles) {
-    const text = await fetchWikiPage(patchTitle)
-    scanned++
+    const text = await fetchWikiPage(patchTitle);
+    scanned++;
     if (!text) {
-      console.log(`  WARNING: no wikitext for "${patchTitle}" (skipped)`)
-      continue
+      console.log(`  WARNING: no wikitext for "${patchTitle}" (skipped)`);
+      continue;
     }
-    const patchDate = patchTitle.replace(/^Game updates\//, '')
+    const patchDate = patchTitle.replace(/^Game updates\//, '');
     for (const line of text.split('\n')) {
-      const extracted = extractTitleAndDescription(line)
-      if (!extracted) continue
+      const extracted = extractTitleAndDescription(line);
+      if (!extracted) continue;
       for (const clause of parseChangeClauses(extracted.description)) {
-        rawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause })
+        rawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause });
       }
       for (const clause of parseReachClauses(extracted.description)) {
-        reachRawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause })
+        reachRawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause });
       }
     }
-    if (scanned % 10 === 0) console.log(`  [${scanned}/${patchTitles.length}] patch pages scanned...`)
+    if (scanned % 10 === 0)
+      console.log(`  [${scanned}/${patchTitles.length}] patch pages scanned...`);
   }
 
-  console.log(`\nParsed ${rawChanges.length} coefficient/base-value change clauses across ${patchTitles.length} patches.`)
-  const wvwRelevant = rawChanges.filter((c) => c.modeTokens === null || c.modeTokens.includes('WVW'))
-  console.log(`  ${wvwRelevant.length} WvW-relevant (no mode suffix, or explicitly names WvW) — only these can move a curated value.`)
-  console.log(`  ${rawChanges.length - wvwRelevant.length} PvE-only/PvP-only — can't affect the WvW-verified curated value, not compared.`)
+  console.log(
+    `\nParsed ${rawChanges.length} coefficient/base-value change clauses across ${patchTitles.length} patches.`,
+  );
+  const wvwRelevant = rawChanges.filter(
+    (c) => c.modeTokens === null || c.modeTokens.includes('WVW'),
+  );
+  console.log(
+    `  ${wvwRelevant.length} WvW-relevant (no mode suffix, or explicitly names WvW) — only these can move a curated value.`,
+  );
+  console.log(
+    `  ${rawChanges.length - wvwRelevant.length} PvE-only/PvP-only — can't affect the WvW-verified curated value, not compared.`,
+  );
 
   // Group by (wikiTitle, table, field); only the chronologically LATEST clause per group is worth
   // comparing against today's curated value (see module doc comment).
-  const groups = new Map<string, RawChange[]>()
+  const groups = new Map<string, RawChange[]>();
   for (const c of wvwRelevant) {
-    const key = `${c.wikiTitle} ${c.table} ${c.field}`
-    const list = groups.get(key) ?? []
-    list.push(c)
-    groups.set(key, list)
+    const key = `${c.wikiTitle} ${c.table} ${c.field}`;
+    const list = groups.get(key) ?? [];
+    list.push(c);
+    groups.set(key, list);
   }
-  console.log(`  ${groups.size} distinct (skill, table, field) groups — comparing each group's most recent patch only.\n`)
+  console.log(
+    `  ${groups.size} distinct (skill, table, field) groups — comparing each group's most recent patch only.\n`,
+  );
 
-  const outcomes: OutcomeEntry[] = []
-  let groupsProcessed = 0
+  const outcomes: OutcomeEntry[] = [];
+  let groupsProcessed = 0;
   for (const list of groups.values()) {
-    groupsProcessed++
-    list.sort((a, b) => a.patchDate.localeCompare(b.patchDate))
-    const latest = list[list.length - 1]
-    const priorPatches = list.length - 1
-    const base = { wikiTitle: latest.wikiTitle, table: latest.table, field: latest.field, latestPatchDate: latest.patchDate, patchTitle: latest.patchTitle, oldValue: latest.oldValue, newValue: latest.newValue, priorPatches }
+    groupsProcessed++;
+    list.sort((a, b) => a.patchDate.localeCompare(b.patchDate));
+    const latest = list[list.length - 1];
+    const priorPatches = list.length - 1;
+    const base = {
+      wikiTitle: latest.wikiTitle,
+      table: latest.table,
+      field: latest.field,
+      latestPatchDate: latest.patchDate,
+      patchTitle: latest.patchTitle,
+      oldValue: latest.oldValue,
+      newValue: latest.newValue,
+      priorPatches,
+    };
 
-    const text = await fetchWikiPage(latest.wikiTitle)
+    const text = await fetchWikiPage(latest.wikiTitle);
     if (!text) {
-      outcomes.push({ ...base, outcome: 'title-not-found', detail: 'no wiki page at this exact title (patch-icon title may have since been renamed/merged)' })
-      continue
+      outcomes.push({
+        ...base,
+        outcome: 'title-not-found',
+        detail:
+          'no wiki page at this exact title (patch-icon title may have since been renamed/merged)',
+      });
+      continue;
     }
-    const ids = parseInfoboxIds(text)
-    let resolvedId: number | undefined
+    const ids = parseInfoboxIds(text);
+    let resolvedId: number | undefined;
     if (ids.length === 1) {
-      resolvedId = ids[0]
+      resolvedId = ids[0];
     } else if (ids.length > 1) {
-      const withEntries = ids.filter((id) => getCuratedEntries(latest.table, id).length > 0)
-      if (withEntries.length === 1) resolvedId = withEntries[0]
+      const withEntries = ids.filter((id) => getCuratedEntries(latest.table, id).length > 0);
+      if (withEntries.length === 1) resolvedId = withEntries[0];
     }
     if (resolvedId === undefined) {
       outcomes.push({
         ...base,
         outcome: ids.length === 0 ? 'title-not-found' : 'ambiguous-multiple-ids',
-        detail: ids.length === 0 ? 'page has no id= field' : `page id= lists [${ids.join(', ')}], not exactly one has curated entries`
-      })
-      continue
+        detail:
+          ids.length === 0
+            ? 'page has no id= field'
+            : `page id= lists [${ids.join(', ')}], not exactly one has curated entries`,
+      });
+      continue;
     }
 
-    const skill = skillsById.get(resolvedId)
+    const skill = skillsById.get(resolvedId);
     if (!skill) {
-      outcomes.push({ ...base, skillId: resolvedId, outcome: 'not-a-skill', detail: `id ${resolvedId} not in local skills.json — likely a trait or a since-removed skill` })
-      continue
+      outcomes.push({
+        ...base,
+        skillId: resolvedId,
+        outcome: 'not-a-skill',
+        detail: `id ${resolvedId} not in local skills.json — likely a trait or a since-removed skill`,
+      });
+      continue;
     }
 
-    const entries = getCuratedEntries(latest.table, resolvedId).filter((e) => e.requiresTrait === undefined)
+    const entries = getCuratedEntries(latest.table, resolvedId).filter(
+      (e) => e.requiresTrait === undefined,
+    );
     if (entries.length === 0) {
-      outcomes.push({ ...base, skillId: resolvedId, skillName: skill.name, outcome: 'not-curated', detail: `not present in ${TABLE_NAMES[latest.table]}` })
-      continue
+      outcomes.push({
+        ...base,
+        skillId: resolvedId,
+        skillName: skill.name,
+        outcome: 'not-curated',
+        detail: `not present in ${TABLE_NAMES[latest.table]}`,
+      });
+      continue;
     }
     if (entries.length > 1) {
       outcomes.push({
-        ...base, skillId: resolvedId, skillName: skill.name, outcome: 'ambiguous-multiple-entries',
-        detail: `${entries.length} curated entries (factTexts: ${entries.map((e) => e.factText).join(', ')}) — patch note doesn't say which`
-      })
-      continue
+        ...base,
+        skillId: resolvedId,
+        skillName: skill.name,
+        outcome: 'ambiguous-multiple-entries',
+        detail: `${entries.length} curated entries (factTexts: ${entries.map((e) => e.factText).join(', ')}) — patch note doesn't say which`,
+      });
+      continue;
     }
 
-    const entry = entries[0]
-    const curatedValue = latest.field === 'coefficient' ? entry.coefficient : (entry.baseValue as number)
-    const eps = latest.field === 'coefficient' ? EPS_COEFFICIENT : EPS_BASE_VALUE
+    const entry = entries[0];
+    const curatedValue =
+      latest.field === 'coefficient' ? entry.coefficient : (entry.baseValue as number);
+    const eps = latest.field === 'coefficient' ? EPS_COEFFICIENT : EPS_BASE_VALUE;
 
     // A perHit-phrased damage clause states the PER-STRIKE value; the curated table stores the
     // totaled-across-hits value (same convention `fetch-skill-coefficients.ts` already handles) —
     // see `RawChange.perHit`'s doc comment.
-    let compareOld = latest.oldValue
-    let compareNew = latest.newValue
-    let hitCountApplied: number | undefined
+    let compareOld = latest.oldValue;
+    let compareNew = latest.newValue;
+    let hitCountApplied: number | undefined;
     if (latest.table === 'damage' && latest.field === 'coefficient' && latest.perHit) {
-      const hitCount = damageHitCount(skill, entry.factText)
+      const hitCount = damageHitCount(skill, entry.factText);
       if (hitCount > 1) {
-        compareOld = latest.oldValue * hitCount
-        compareNew = latest.newValue * hitCount
-        hitCountApplied = hitCount
+        compareOld = latest.oldValue * hitCount;
+        compareNew = latest.newValue * hitCount;
+        hitCountApplied = hitCount;
       }
     }
 
-    let outcome: Outcome
-    if (Math.abs(curatedValue - compareNew) <= eps) outcome = 'match'
-    else if (Math.abs(curatedValue - compareOld) <= eps) outcome = 'stale'
-    else outcome = 'mismatch'
+    let outcome: Outcome;
+    if (Math.abs(curatedValue - compareNew) <= eps) outcome = 'match';
+    else if (Math.abs(curatedValue - compareOld) <= eps) outcome = 'stale';
+    else outcome = 'mismatch';
 
-    let liveWikiCorroboration: string | undefined
+    let liveWikiCorroboration: string | undefined;
     if (latest.table === 'damage' && (outcome === 'stale' || outcome === 'mismatch')) {
-      liveWikiCorroboration = liveDamageVerification.get(`${resolvedId}|${normalizeFactText(entry.factText)}`)?.status
+      liveWikiCorroboration = liveDamageVerification.get(
+        `${resolvedId}|${normalizeFactText(entry.factText)}`,
+      )?.status;
     }
 
     outcomes.push({
-      ...base, skillId: resolvedId, skillName: skill.name, curatedFactText: entry.factText, curatedValue,
-      hitCountApplied, outcome, liveWikiCorroboration
-    })
+      ...base,
+      skillId: resolvedId,
+      skillName: skill.name,
+      curatedFactText: entry.factText,
+      curatedValue,
+      hitCountApplied,
+      outcome,
+      liveWikiCorroboration,
+    });
 
-    if (groupsProcessed % 50 === 0) console.log(`  [${groupsProcessed}/${groups.size}] groups resolved...`)
+    if (groupsProcessed % 50 === 0)
+      console.log(`  [${groupsProcessed}/${groups.size}] groups resolved...`);
   }
 
-  const counts: Partial<Record<Outcome, number>> = {}
-  for (const o of outcomes) counts[o.outcome] = (counts[o.outcome] ?? 0) + 1
+  const counts: Partial<Record<Outcome, number>> = {};
+  for (const o of outcomes) counts[o.outcome] = (counts[o.outcome] ?? 0) + 1;
 
-  console.log(`\nDone. ${outcomes.length} (skill, table, field) groups checked against their most recent patch.`)
-  console.log(`  MATCH:                       ${counts.match ?? 0}`)
-  console.log(`  STALE (needs re-curation!):  ${counts.stale ?? 0}`)
-  console.log(`  MISMATCH (neither old/new):  ${counts.mismatch ?? 0}`)
-  console.log(`  not-curated:                 ${counts['not-curated'] ?? 0}`)
-  console.log(`  not-a-skill:                 ${counts['not-a-skill'] ?? 0}`)
-  console.log(`  ambiguous-multiple-entries:  ${counts['ambiguous-multiple-entries'] ?? 0}`)
-  console.log(`  ambiguous-multiple-ids:      ${counts['ambiguous-multiple-ids'] ?? 0}`)
-  console.log(`  title-not-found:             ${counts['title-not-found'] ?? 0}`)
+  console.log(
+    `\nDone. ${outcomes.length} (skill, table, field) groups checked against their most recent patch.`,
+  );
+  console.log(`  MATCH:                       ${counts.match ?? 0}`);
+  console.log(`  STALE (needs re-curation!):  ${counts.stale ?? 0}`);
+  console.log(`  MISMATCH (neither old/new):  ${counts.mismatch ?? 0}`);
+  console.log(`  not-curated:                 ${counts['not-curated'] ?? 0}`);
+  console.log(`  not-a-skill:                 ${counts['not-a-skill'] ?? 0}`);
+  console.log(`  ambiguous-multiple-entries:  ${counts['ambiguous-multiple-entries'] ?? 0}`);
+  console.log(`  ambiguous-multiple-ids:      ${counts['ambiguous-multiple-ids'] ?? 0}`);
+  console.log(`  title-not-found:             ${counts['title-not-found'] ?? 0}`);
 
-  const stale = outcomes.filter((o) => o.outcome === 'stale')
+  const stale = outcomes.filter((o) => o.outcome === 'stale');
   if (stale.length > 0) {
-    const staleGenuine = stale.filter((o) => o.liveWikiCorroboration !== 'match')
-    const staleCorroboratedCurrent = stale.filter((o) => o.liveWikiCorroboration === 'match')
-    console.log(`\n--- STALE, likely genuine (curated value = this patch's OLD value; today's live wiki doesn't contradict it) ---`)
+    const staleGenuine = stale.filter((o) => o.liveWikiCorroboration !== 'match');
+    const staleCorroboratedCurrent = stale.filter((o) => o.liveWikiCorroboration === 'match');
+    console.log(
+      `\n--- STALE, likely genuine (curated value = this patch's OLD value; today's live wiki doesn't contradict it) ---`,
+    );
     for (const o of staleGenuine) {
-      const hitNote = o.hitCountApplied ? ` (x${o.hitCountApplied} hit_count applied)` : ''
-      console.log(`  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}${hitNote}`)
+      const hitNote = o.hitCountApplied ? ` (x${o.hitCountApplied} hit_count applied)` : '';
+      console.log(
+        `  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}${hitNote}`,
+      );
     }
     if (staleCorroboratedCurrent.length > 0) {
-      console.log(`\n--- STALE, but likely a FALSE POSITIVE (today's live-wiki sweep already says curated=match — this patch's change was probably reverted/superseded by a later patch outside Category:Balance updates) ---`)
+      console.log(
+        `\n--- STALE, but likely a FALSE POSITIVE (today's live-wiki sweep already says curated=match — this patch's change was probably reverted/superseded by a later patch outside Category:Balance updates) ---`,
+      );
       for (const o of staleCorroboratedCurrent) {
-        console.log(`  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`)
+        console.log(
+          `  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`,
+        );
       }
     }
   }
-  const mismatch = outcomes.filter((o) => o.outcome === 'mismatch')
+  const mismatch = outcomes.filter((o) => o.outcome === 'mismatch');
   if (mismatch.length > 0) {
-    console.log(`\n--- MISMATCH (curated value is neither this patch's old nor new value — see module doc comment: this bucket is`)
-    console.log(`    dominated by real-but-unmodeled shapes, not necessarily curation errors — spot-check before trusting) ---`)
+    console.log(
+      `\n--- MISMATCH (curated value is neither this patch's old nor new value — see module doc comment: this bucket is`,
+    );
+    console.log(
+      `    dominated by real-but-unmodeled shapes, not necessarily curation errors — spot-check before trusting) ---`,
+    );
     for (const o of mismatch) {
-      const hitNote = o.hitCountApplied ? ` (x${o.hitCountApplied} hit_count applied)` : ''
-      const corrobNote = o.liveWikiCorroboration ? ` [live-wiki today: ${o.liveWikiCorroboration}]` : ''
-      console.log(`  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}${hitNote}${corrobNote}`)
+      const hitNote = o.hitCountApplied ? ` (x${o.hitCountApplied} hit_count applied)` : '';
+      const corrobNote = o.liveWikiCorroboration
+        ? ` [live-wiki today: ${o.liveWikiCorroboration}]`
+        : '';
+      console.log(
+        `  - ${o.skillName} (id ${o.skillId}) / ${TABLE_NAMES[o.table]} "${o.curatedFactText}": curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}${hitNote}${corrobNote}`,
+      );
     }
   }
-  const ambiguous = outcomes.filter((o) => o.outcome === 'ambiguous-multiple-entries' || o.outcome === 'ambiguous-multiple-ids')
+  const ambiguous = outcomes.filter(
+    (o) => o.outcome === 'ambiguous-multiple-entries' || o.outcome === 'ambiguous-multiple-ids',
+  );
   if (ambiguous.length > 0) {
-    console.log(`\n--- AMBIGUOUS (couldn't pick a single curated entry/id automatically) ---`)
-    for (const o of ambiguous) console.log(`  - "${o.wikiTitle}" / ${TABLE_NAMES[o.table]}.${o.field}, patch ${o.latestPatchDate}: ${o.detail}`)
+    console.log(`\n--- AMBIGUOUS (couldn't pick a single curated entry/id automatically) ---`);
+    for (const o of ambiguous)
+      console.log(
+        `  - "${o.wikiTitle}" / ${TABLE_NAMES[o.table]}.${o.field}, patch ${o.latestPatchDate}: ${o.detail}`,
+      );
   }
-  const notFound = outcomes.filter((o) => o.outcome === 'title-not-found')
+  const notFound = outcomes.filter((o) => o.outcome === 'title-not-found');
   if (notFound.length > 0) {
-    console.log(`\n--- TITLE NOT FOUND ---`)
-    for (const o of notFound) console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`)
+    console.log(`\n--- TITLE NOT FOUND ---`);
+    for (const o of notFound)
+      console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`);
   }
 
   // --- Reach extension (TARGET_COUNT_OVERRIDES / CONDITION_CLEANSE_TARGETS) ---
-  console.log(`\nParsed ${reachRawChanges.length} allied-target-reach change clauses across ${patchTitles.length} patches.`)
-  const reachOutcomes = await processReachGroups(reachRawChanges, skillsById, traitsById)
-  const reachCounts: Partial<Record<ReachOutcome, number>> = {}
-  for (const o of reachOutcomes) reachCounts[o.outcome] = (reachCounts[o.outcome] ?? 0) + 1
+  console.log(
+    `\nParsed ${reachRawChanges.length} allied-target-reach change clauses across ${patchTitles.length} patches.`,
+  );
+  const reachOutcomes = await processReachGroups(reachRawChanges, skillsById, traitsById);
+  const reachCounts: Partial<Record<ReachOutcome, number>> = {};
+  for (const o of reachOutcomes) reachCounts[o.outcome] = (reachCounts[o.outcome] ?? 0) + 1;
 
-  console.log(`\nDone. ${reachOutcomes.length} reach records checked (some wikiTitles produce 2 — one per curated table).`)
-  console.log(`  MATCH:                       ${reachCounts.match ?? 0}`)
-  console.log(`  STALE (needs re-curation!):  ${reachCounts.stale ?? 0}`)
-  console.log(`  MISMATCH (neither old/new):  ${reachCounts.mismatch ?? 0}`)
-  console.log(`  SELF-CONFLICT:               ${reachCounts['self-conflict'] ?? 0}`)
-  console.log(`  COMPLEX-OVERRIDE (needs a human read): ${reachCounts['complex-override'] ?? 0}`)
-  console.log(`  not-curated:                 ${reachCounts['not-curated'] ?? 0}`)
-  console.log(`  not-a-skill-or-trait:        ${reachCounts['not-a-skill-or-trait'] ?? 0}`)
-  console.log(`  ambiguous-multiple-ids:      ${reachCounts['ambiguous-multiple-ids'] ?? 0}`)
-  console.log(`  title-not-found:             ${reachCounts['title-not-found'] ?? 0}`)
+  console.log(
+    `\nDone. ${reachOutcomes.length} reach records checked (some wikiTitles produce 2 — one per curated table).`,
+  );
+  console.log(`  MATCH:                       ${reachCounts.match ?? 0}`);
+  console.log(`  STALE (needs re-curation!):  ${reachCounts.stale ?? 0}`);
+  console.log(`  MISMATCH (neither old/new):  ${reachCounts.mismatch ?? 0}`);
+  console.log(`  SELF-CONFLICT:               ${reachCounts['self-conflict'] ?? 0}`);
+  console.log(`  COMPLEX-OVERRIDE (needs a human read): ${reachCounts['complex-override'] ?? 0}`);
+  console.log(`  not-curated:                 ${reachCounts['not-curated'] ?? 0}`);
+  console.log(`  not-a-skill-or-trait:        ${reachCounts['not-a-skill-or-trait'] ?? 0}`);
+  console.log(`  ambiguous-multiple-ids:      ${reachCounts['ambiguous-multiple-ids'] ?? 0}`);
+  console.log(`  title-not-found:             ${reachCounts['title-not-found'] ?? 0}`);
 
-  const reachStale = reachOutcomes.filter((o) => o.outcome === 'stale')
+  const reachStale = reachOutcomes.filter((o) => o.outcome === 'stale');
   if (reachStale.length > 0) {
-    console.log(`\n--- REACH STALE (needs re-curation) ---`)
+    console.log(`\n--- REACH STALE (needs re-curation) ---`);
     for (const o of reachStale) {
-      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`)
+      console.log(
+        `  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`,
+      );
     }
   }
-  const reachSelfConflict = reachOutcomes.filter((o) => o.outcome === 'self-conflict')
+  const reachSelfConflict = reachOutcomes.filter((o) => o.outcome === 'self-conflict');
   if (reachSelfConflict.length > 0) {
-    console.log(`\n--- REACH SELF-CONFLICT (curated 'self' but patch shows a numeric allied-target change) ---`)
+    console.log(
+      `\n--- REACH SELF-CONFLICT (curated 'self' but patch shows a numeric allied-target change) ---`,
+    );
     for (const o of reachSelfConflict) {
-      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`)
+      console.log(
+        `  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`,
+      );
     }
   }
-  const reachComplexOverride = reachOutcomes.filter((o) => o.outcome === 'complex-override')
+  const reachComplexOverride = reachOutcomes.filter((o) => o.outcome === 'complex-override');
   if (reachComplexOverride.length > 0) {
-    console.log(`\n--- REACH COMPLEX-OVERRIDE (per-buff-line/conditional curated value, needs a human read) ---`)
+    console.log(
+      `\n--- REACH COMPLEX-OVERRIDE (per-buff-line/conditional curated value, needs a human read) ---`,
+    );
     for (const o of reachComplexOverride) {
-      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`)
+      console.log(
+        `  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`,
+      );
     }
   }
-  const reachMismatch = reachOutcomes.filter((o) => o.outcome === 'mismatch')
+  const reachMismatch = reachOutcomes.filter((o) => o.outcome === 'mismatch');
   if (reachMismatch.length > 0) {
-    console.log(`\n--- REACH MISMATCH (curated value is neither this patch's old nor new value) ---`)
+    console.log(
+      `\n--- REACH MISMATCH (curated value is neither this patch's old nor new value) ---`,
+    );
     for (const o of reachMismatch) {
-      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`)
+      console.log(
+        `  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`,
+      );
     }
   }
-  const reachAmbiguous = reachOutcomes.filter((o) => o.outcome === 'ambiguous-multiple-ids')
+  const reachAmbiguous = reachOutcomes.filter((o) => o.outcome === 'ambiguous-multiple-ids');
   if (reachAmbiguous.length > 0) {
-    console.log(`\n--- REACH AMBIGUOUS (couldn't pick a single id automatically) ---`)
-    for (const o of reachAmbiguous) console.log(`  - "${o.wikiTitle}", patch ${o.latestPatchDate}: ${o.detail}`)
+    console.log(`\n--- REACH AMBIGUOUS (couldn't pick a single id automatically) ---`);
+    for (const o of reachAmbiguous)
+      console.log(`  - "${o.wikiTitle}", patch ${o.latestPatchDate}: ${o.detail}`);
   }
-  const reachNotFound = reachOutcomes.filter((o) => o.outcome === 'title-not-found')
+  const reachNotFound = reachOutcomes.filter((o) => o.outcome === 'title-not-found');
   if (reachNotFound.length > 0) {
-    console.log(`\n--- REACH TITLE NOT FOUND ---`)
-    for (const o of reachNotFound) console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`)
+    console.log(`\n--- REACH TITLE NOT FOUND ---`);
+    for (const o of reachNotFound)
+      console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`);
   }
 
-  await flushWikiCache()
+  await flushWikiCache();
 
   const file = {
     script: 'fetch-balance-patch-changes.ts',
@@ -781,13 +954,15 @@ async function main(): Promise<void> {
     reachTotalChangeClausesParsed: reachRawChanges.length,
     reachGroupsCompared: reachOutcomes.length,
     reachSummary: reachCounts,
-    reachEntries: reachOutcomes
-  }
-  await writeFile(join(DATA_DIR, 'balance-patch-verification.json'), JSON.stringify(file, null, 2))
-  console.log(`\nWrote ${outcomes.length} coefficient + ${reachOutcomes.length} reach verification records to data/game-data/balance-patch-verification.json`)
+    reachEntries: reachOutcomes,
+  };
+  await writeFile(join(DATA_DIR, 'balance-patch-verification.json'), JSON.stringify(file, null, 2));
+  console.log(
+    `\nWrote ${outcomes.length} coefficient + ${reachOutcomes.length} reach verification records to data/game-data/balance-patch-verification.json`,
+  );
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

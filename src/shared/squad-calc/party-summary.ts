@@ -19,83 +19,83 @@ import type {
   SoulbeastBeastmodeMap,
   TomeChaptersByTomeId,
   Trait,
-  WvwFactOverrides
-} from '../types'
+  WvwFactOverrides,
+} from '../types';
 import {
   computeAuraSources,
   computeBoonConditionSources,
   computeComboSources,
   computeNamedFactSources,
   isPartyWideTargetCount,
-  type SourceTargetCountOverride
-} from '../boon-calc/sources'
+  type SourceTargetCountOverride,
+} from '../boon-calc/sources';
 
 export interface PartyBoonConditionContribution {
-  slotIndex: number
-  buildName: string
-  sourceName: string
-  sourceIcon: string
-  scaledDurationSeconds: number
-  applyCount: number
+  slotIndex: number;
+  buildName: string;
+  sourceName: string;
+  sourceIcon: string;
+  scaledDurationSeconds: number;
+  applyCount: number;
   /** See `BoonConditionSource.targetCount`'s doc comment — `null` means unknown reach, not
    *  self-only. Only meaningful when `PartyBoonConditionEntry.isCondition` is false. */
-  targetCount: number | null
+  targetCount: number | null;
 }
 
 export interface PartyBoonConditionEntry {
-  name: string
-  isCondition: boolean
-  contributions: PartyBoonConditionContribution[]
+  name: string;
+  isCondition: boolean;
+  contributions: PartyBoonConditionContribution[];
 }
 
 export interface PartyAuraContribution {
-  slotIndex: number
-  buildName: string
-  sourceName: string
-  sourceIcon: string
-  scaledDurationSeconds: number
-  applyCount: number
+  slotIndex: number;
+  buildName: string;
+  sourceName: string;
+  sourceIcon: string;
+  scaledDurationSeconds: number;
+  applyCount: number;
   /** See `BoonConditionSource.targetCount`'s doc comment — populated the same way boons/conditions
    *  are (`extractFromFacts` resolves it uniformly regardless of category), added 2026-08-19 for the
    *  "party-wide only" filter (`filterPartyWideEntries`). Not surfaced in any aura tooltip today
    *  (unlike boons, `toAuraIconItems` has never shown a target-count badge) — this filter is its
    *  first real consumer. */
-  targetCount: number | null
+  targetCount: number | null;
 }
 
 export interface PartyAuraEntry {
-  name: string
-  contributions: PartyAuraContribution[]
+  name: string;
+  contributions: PartyAuraContribution[];
 }
 
 export interface PartyNamedFactContribution {
-  slotIndex: number
-  buildName: string
-  sourceName: string
-  sourceIcon: string
-  detail: string | null
+  slotIndex: number;
+  buildName: string;
+  sourceName: string;
+  sourceIcon: string;
+  detail: string | null;
   /** See `NamedFactSource.targetCount`'s doc comment — `null` for every matcher name without a
    *  curated target-count table (currently everything except `Cleanse`). */
-  targetCount: number | null
+  targetCount: number | null;
 }
 
 export interface PartyNamedFactEntry {
-  name: string
-  contributions: PartyNamedFactContribution[]
+  name: string;
+  contributions: PartyNamedFactContribution[];
 }
 
 export interface PartyComboContribution {
-  slotIndex: number
-  buildName: string
-  sourceName: string
-  sourceIcon: string
-  fieldType: string | null
-  finisherType: string | null
+  slotIndex: number;
+  buildName: string;
+  sourceName: string;
+  sourceIcon: string;
+  fieldType: string | null;
+  finisherType: string | null;
 }
 
 export interface PartyComboEntry {
-  kind: 'field' | 'finisher'
-  contributions: PartyComboContribution[]
+  kind: 'field' | 'finisher';
+  contributions: PartyComboContribution[];
 }
 
 /**
@@ -115,39 +115,43 @@ export function computePartyBoonConditionSummary(
   party: Party,
   buildsById: Map<string, Build>,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    itemStats: ItemStat[]
-    itemStatLegalIds: ItemStatLegalIds
-    infusions: Infusion[]
-    runes: Rune[]
-    sigils: Sigil[]
-    food: Consumable[]
-    utility: Consumable[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
-  }
+    skills: Skill[];
+    traits: Trait[];
+    itemStats: ItemStat[];
+    itemStatLegalIds: ItemStatLegalIds;
+    infusions: Infusion[];
+    runes: Rune[];
+    sigils: Sigil[];
+    food: Consumable[];
+    utility: Consumable[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+  },
 ): PartyBoonConditionEntry[] {
-  const map = new Map<string, PartyBoonConditionEntry>()
+  const map = new Map<string, PartyBoonConditionEntry>();
 
   party.slots.forEach((slot, slotIndex) => {
-    if (slot.buildId === null) return
-    const build = buildsById.get(slot.buildId)
-    if (!build) return
+    if (slot.buildId === null) return;
+    const build = buildsById.get(slot.buildId);
+    if (!build) return;
 
     for (const source of computeBoonConditionSources(build, gameData)) {
-      let entry = map.get(source.boonOrConditionName)
+      let entry = map.get(source.boonOrConditionName);
       if (!entry) {
-        entry = { name: source.boonOrConditionName, isCondition: source.isCondition, contributions: [] }
-        map.set(source.boonOrConditionName, entry)
+        entry = {
+          name: source.boonOrConditionName,
+          isCondition: source.isCondition,
+          contributions: [],
+        };
+        map.set(source.boonOrConditionName, entry);
       }
       entry.contributions.push({
         slotIndex,
@@ -156,12 +160,12 @@ export function computePartyBoonConditionSummary(
         sourceIcon: source.sourceIcon,
         scaledDurationSeconds: source.scaledDurationSeconds,
         applyCount: source.applyCount,
-        targetCount: source.targetCount
-      })
+        targetCount: source.targetCount,
+      });
     }
-  })
+  });
 
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Aura counterpart to `computePartyBoonConditionSummary` — same presence-union-with-attribution
@@ -170,32 +174,32 @@ export function computePartyAuraSummary(
   party: Party,
   buildsById: Map<string, Build>,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
-  }
+    skills: Skill[];
+    traits: Trait[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+  },
 ): PartyAuraEntry[] {
-  const map = new Map<string, PartyAuraEntry>()
+  const map = new Map<string, PartyAuraEntry>();
 
   party.slots.forEach((slot, slotIndex) => {
-    if (slot.buildId === null) return
-    const build = buildsById.get(slot.buildId)
-    if (!build) return
+    if (slot.buildId === null) return;
+    const build = buildsById.get(slot.buildId);
+    if (!build) return;
 
     for (const source of computeAuraSources(build, gameData)) {
-      let entry = map.get(source.boonOrConditionName)
+      let entry = map.get(source.boonOrConditionName);
       if (!entry) {
-        entry = { name: source.boonOrConditionName, contributions: [] }
-        map.set(source.boonOrConditionName, entry)
+        entry = { name: source.boonOrConditionName, contributions: [] };
+        map.set(source.boonOrConditionName, entry);
       }
       entry.contributions.push({
         slotIndex,
@@ -204,12 +208,12 @@ export function computePartyAuraSummary(
         sourceIcon: source.sourceIcon,
         scaledDurationSeconds: source.scaledDurationSeconds,
         applyCount: source.applyCount,
-        targetCount: source.targetCount
-      })
+        targetCount: source.targetCount,
+      });
     }
-  })
+  });
 
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Control/Miscellaneous/Strip&Corrupt&Cleanse counterpart to `computePartyBoonConditionSummary` —
@@ -222,35 +226,41 @@ export function computePartyNamedFactSummary(
   party: Party,
   buildsById: Map<string, Build>,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    sigils: Sigil[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
+    skills: Skill[];
+    traits: Trait[];
+    sigils: Sigil[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
   },
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
+  targetCountTables?: Record<
+    string,
+    {
+      skill: Record<number, SourceTargetCountOverride>;
+      trait: Record<number, SourceTargetCountOverride>;
+    }
+  >,
 ): PartyNamedFactEntry[] {
-  const map = new Map<string, PartyNamedFactEntry>()
+  const map = new Map<string, PartyNamedFactEntry>();
 
   party.slots.forEach((slot, slotIndex) => {
-    if (slot.buildId === null) return
-    const build = buildsById.get(slot.buildId)
-    if (!build) return
+    if (slot.buildId === null) return;
+    const build = buildsById.get(slot.buildId);
+    if (!build) return;
 
     for (const source of computeNamedFactSources(build, gameData, matchers, targetCountTables)) {
-      let entry = map.get(source.name)
+      let entry = map.get(source.name);
       if (!entry) {
-        entry = { name: source.name, contributions: [] }
-        map.set(source.name, entry)
+        entry = { name: source.name, contributions: [] };
+        map.set(source.name, entry);
       }
       entry.contributions.push({
         slotIndex,
@@ -258,12 +268,12 @@ export function computePartyNamedFactSummary(
         sourceName: source.sourceName,
         sourceIcon: source.sourceIcon,
         detail: source.detail,
-        targetCount: source.targetCount
-      })
+        targetCount: source.targetCount,
+      });
     }
-  })
+  });
 
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** Combo counterpart to `computePartyBoonConditionSummary` — same presence-union-with-attribution
@@ -274,28 +284,28 @@ export function computePartyComboSummary(
   party: Party,
   buildsById: Map<string, Build>,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-  }
+    skills: Skill[];
+    traits: Trait[];
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+  },
 ): PartyComboEntry[] {
-  const map = new Map<'field' | 'finisher', PartyComboEntry>()
+  const map = new Map<'field' | 'finisher', PartyComboEntry>();
 
   party.slots.forEach((slot, slotIndex) => {
-    if (slot.buildId === null) return
-    const build = buildsById.get(slot.buildId)
-    if (!build) return
+    if (slot.buildId === null) return;
+    const build = buildsById.get(slot.buildId);
+    if (!build) return;
 
     for (const source of computeComboSources(build, gameData)) {
-      let entry = map.get(source.kind)
+      let entry = map.get(source.kind);
       if (!entry) {
-        entry = { kind: source.kind, contributions: [] }
-        map.set(source.kind, entry)
+        entry = { kind: source.kind, contributions: [] };
+        map.set(source.kind, entry);
       }
       entry.contributions.push({
         slotIndex,
@@ -303,12 +313,12 @@ export function computePartyComboSummary(
         sourceName: source.sourceName,
         sourceIcon: source.sourceIcon,
         fieldType: source.fieldType,
-        finisherType: source.finisherType
-      })
+        finisherType: source.finisherType,
+      });
     }
-  })
+  });
 
-  return [...map.values()].sort((a, b) => a.kind.localeCompare(b.kind))
+  return [...map.values()].sort((a, b) => a.kind.localeCompare(b.kind));
 }
 
 /**
@@ -318,17 +328,32 @@ export function computePartyComboSummary(
  * any entry left with zero contributions; caller applies this only to ally-facing rows). Used by
  * `PartyRow`'s party-wide Boons/Auras/Miscellaneous summary rows.
  */
-export function filterPartyWideEntries<E extends { contributions: { targetCount: number | null }[] }>(entries: E[]): E[] {
+export function filterPartyWideEntries<
+  E extends { contributions: { targetCount: number | null }[] },
+>(entries: E[]): E[] {
   return entries
-    .map((e) => ({ ...e, contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)) }))
-    .filter((e) => e.contributions.length > 0)
+    .map((e) => ({
+      ...e,
+      contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)),
+    }))
+    .filter((e) => e.contributions.length > 0);
 }
 
 /** Same idea as `filterPartyWideEntries`, but only filters entries whose `name` is in `namesToFilter`
  *  — the party-summary counterpart to `filterPartyWideNamedFactGroups`, for `PartyRow`'s combined
  *  "Strips / Corrupts / Cleanses" row (only Cleanse is ally-facing). */
-export function filterPartyWideNamedFactEntries(entries: PartyNamedFactEntry[], namesToFilter: ReadonlySet<string>): PartyNamedFactEntry[] {
+export function filterPartyWideNamedFactEntries(
+  entries: PartyNamedFactEntry[],
+  namesToFilter: ReadonlySet<string>,
+): PartyNamedFactEntry[] {
   return entries
-    .map((e) => (namesToFilter.has(e.name) ? { ...e, contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)) } : e))
-    .filter((e) => e.contributions.length > 0)
+    .map((e) =>
+      namesToFilter.has(e.name)
+        ? {
+            ...e,
+            contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)),
+          }
+        : e,
+    )
+    .filter((e) => e.contributions.length > 0);
 }

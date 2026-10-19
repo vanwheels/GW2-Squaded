@@ -1,49 +1,58 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import type { Build, Legend, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
-import { NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
-import { traitFactLines } from '@shared/skill-calc/trait-fact-lines'
-import { withRechargeOverride } from '@shared/skill-calc/recharge-override'
-import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts'
-import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
-import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details'
-import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
-import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
-import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state'
-import { useGameData } from '@renderer/state/game-data-store'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
-import { factsBlock, conditionalBranchesBlock } from './SkillsEditor'
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import type {
+  Build,
+  Legend,
+  ProfessionId,
+  Specialization,
+  Trait,
+  TraitLineSelection,
+  TraitLineSlots,
+  WvwFactOverride,
+} from '@shared/types';
+import { NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers';
+import { traitFactLines } from '@shared/skill-calc/trait-fact-lines';
+import { withRechargeOverride } from '@shared/skill-calc/recharge-override';
+import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts';
+import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources';
+import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details';
+import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals';
+import { computeCharacterStats } from '@shared/gear-calc/derived-stats';
+import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state';
+import { useGameData } from '@renderer/state/game-data-store';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { UpgradePicker, type UpgradeOption } from './UpgradePicker';
+import { factsBlock, conditionalBranchesBlock } from './SkillsEditor';
 
 interface Props {
-  profession: ProfessionId
+  profession: ProfessionId;
   /** Needed only to derive gear-sourced boon/condition duration % for this editor's own trait
    *  tooltips (`boonConditionFactsForTrait`) — `value`/`onChange` below remain the source of truth
    *  for which specs/traits are actually chosen. */
-  build: Build
-  value: TraitLineSlots
-  onChange: (value: TraitLineSlots) => void
+  build: Build;
+  value: TraitLineSlots;
+  onChange: (value: TraitLineSlots) => void;
 }
 
-const LINE_INDICES = [0, 1, 2] as const
+const LINE_INDICES = [0, 1, 2] as const;
 /** Adept / Master / Grandmaster, matching GW2's `Trait.tier` (1-3), indexed to `chosenTraitIds`. */
-const TIERS = [1, 2, 3] as const
+const TIERS = [1, 2, 3] as const;
 /** Every specialization (core and elite alike, confirmed 2026-08-19 via a full scan of
  *  `data/game-data/specializations.json` — every entry's `majorTraitIds` is length 9, i.e. exactly
  *  3 per tier) has exactly 3 major traits per tier, so this is a safe fixed count for the
  *  hollow-placeholder major slots rendered before a specialization is chosen (see
  *  `trait-tier-group`'s placeholder branch below) — it always matches whatever spec ends up picked,
  *  never over- or under-reserves space. */
-const PLACEHOLDER_MAJOR_SLOTS = [0, 1, 2] as const
+const PLACEHOLDER_MAJOR_SLOTS = [0, 1, 2] as const;
 
 /** GW2's own trait-line connector color (light cyan-blue) — deliberately distinct from --accent
  *  (used for "selected" borders) so the two don't visually compete. */
-const CONNECTOR_COLOR = '#5ab7ff'
+const CONNECTOR_COLOR = '#5ab7ff';
 
 interface Segment {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
 }
 
 /**
@@ -59,92 +68,93 @@ function useTraitConnector(
   minorRefs: RefObject<(HTMLDivElement | null)[]>,
   majorRefs: RefObject<Map<number, HTMLButtonElement>>,
   chosenTraitIds: readonly (number | null)[],
-  active: boolean
+  active: boolean,
 ): Segment[] {
-  const [segments, setSegments] = useState<Segment[]>([])
-  const chosenKey = chosenTraitIds.join(',')
+  const [segments, setSegments] = useState<Segment[]>([]);
+  const chosenKey = chosenTraitIds.join(',');
 
   useEffect(() => {
-    const wrapper = wrapperRef.current
+    const wrapper = wrapperRef.current;
     if (!wrapper || !active) {
-      setSegments([])
-      return
+      setSegments([]);
+      return;
     }
 
     function recompute(): void {
-      const wrapperEl = wrapperRef.current
-      if (!wrapperEl) return
-      const rect = wrapperEl.getBoundingClientRect()
+      const wrapperEl = wrapperRef.current;
+      if (!wrapperEl) return;
+      const rect = wrapperEl.getBoundingClientRect();
       const centerOf = (el: HTMLElement): { x: number; y: number } => {
-        const r = el.getBoundingClientRect()
-        return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top }
-      }
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top };
+      };
 
-      const chain: { x: number; y: number }[] = []
-      ;(minorRefs.current ?? []).forEach((minorEl, tierIndex) => {
-        if (!minorEl) return
-        chain.push(centerOf(minorEl))
-        const traitId = chosenTraitIds[tierIndex]
-        const majorEl = traitId !== null && traitId !== undefined ? majorRefs.current?.get(traitId) : undefined
-        if (majorEl) chain.push(centerOf(majorEl))
-      })
+      const chain: { x: number; y: number }[] = [];
+      (minorRefs.current ?? []).forEach((minorEl, tierIndex) => {
+        if (!minorEl) return;
+        chain.push(centerOf(minorEl));
+        const traitId = chosenTraitIds[tierIndex];
+        const majorEl =
+          traitId !== null && traitId !== undefined ? majorRefs.current?.get(traitId) : undefined;
+        if (majorEl) chain.push(centerOf(majorEl));
+      });
 
-      const next: Segment[] = []
+      const next: Segment[] = [];
       for (let i = 0; i < chain.length - 1; i++) {
-        const a = chain[i]
-        const b = chain[i + 1]
-        next.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y })
+        const a = chain[i];
+        const b = chain[i + 1];
+        next.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
       }
 
-      setSegments(next)
+      setSegments(next);
     }
 
-    recompute()
-    const observer = new ResizeObserver(recompute)
-    observer.observe(wrapper)
-    return () => observer.disconnect()
+    recompute();
+    const observer = new ResizeObserver(recompute);
+    observer.observe(wrapper);
+    return () => observer.disconnect();
     // chosenKey stands in for chosenTraitIds (array identity changes every render otherwise)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, chosenKey])
+  }, [active, chosenKey]);
 
-  return segments
+  return segments;
 }
 
 interface TraitLineRowProps {
-  line: TraitLineSelection | null
-  chosenSpec: Specialization | undefined
-  specOptions: UpgradeOption[]
-  onChooseSpec: (specializationId: number | null) => void
-  onTraitChoice: (tierIndex: 0 | 1 | 2, traitId: number) => void
-  minorTraitsForSpecialization: (specializationId: number) => Trait[]
-  majorTraitsForSpecialization: (specializationId: number) => Trait[]
+  line: TraitLineSelection | null;
+  chosenSpec: Specialization | undefined;
+  specOptions: UpgradeOption[];
+  onChooseSpec: (specializationId: number | null) => void;
+  onTraitChoice: (tierIndex: 0 | 1 | 2, traitId: number) => void;
+  minorTraitsForSpecialization: (specializationId: number) => Trait[];
+  majorTraitsForSpecialization: (specializationId: number) => Trait[];
   /** All currently-active trait ids across every line (minors auto-active once their spec is
    *  equipped, majors once chosen) — gates a trait's own `requires_trait`-conditioned facts the
    *  same way `numericFactLines` gates skill facts, see `SkillsEditor.tsx`'s `useDurationContext`.
    *  Typed as the mutable `Set` (not `ReadonlySet`) `boonConditionFactsForTrait` expects, same as
    *  every other `activeIds` consumer in `boon-calc/sources.ts`. */
-  activeIds: Set<number>
+  activeIds: Set<number>;
   /** The build's equipped Revenant legends — see `boonConditionFactsForTrait`'s `equippedLegendIdSet`
    *  param / `LegendConditionalTargetCountOverride`. */
-  legendIds: Set<string>
+  legendIds: Set<string>;
   /** The full legend list (`gameData.legends`) — separate from `legendIds` above (which is only
    *  which legends are equipped): needed to resolve which legend a `PrefixedBuff` fact's
    *  `prefix.status` names, for traits like Spirit Boon (see `boonConditionFactsForTrait`'s
    *  `legends` param / `BoonConditionSource.legendIcon`). */
-  legends: Legend[]
+  legends: Legend[];
   /** Gear-derived boon/condition duration % — see `SkillsEditor.tsx`'s `useDurationContext`, whose
    *  shape this mirrors (computed once per render in the parent, reused across every trait shown). */
-  durationPercent: { boon: number; condition: number }
+  durationPercent: { boon: number; condition: number };
   /** Current Healing Power (`computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE)`'s own
    *  attribute total) — only real coefficient math a trait tooltip needs so far, see
    *  `CURATED_TRAIT_HEALING_COEFFICIENTS`. Uses the default combat state deliberately: Healing Power
    *  itself never varies by `CombatState` field (target armor, health tier, active boon count —
    *  none touch it), unlike the Power/target-armor pair `SkillsEditor.tsx`'s own tooltips need. */
-  healingPower: number
-  wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>
+  healingPower: number;
+  wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>;
   /** WvW-correct `Recharge`-fact override map, keyed by trait id — see `recharge-override.ts`'s
    *  `withRechargeOverride`. */
-  rechargeWvwOverridesByTraitId: Record<number, number>
+  rechargeWvwOverridesByTraitId: Record<number, number>;
 }
 
 function TraitLineRow({
@@ -161,18 +171,24 @@ function TraitLineRow({
   durationPercent,
   healingPower,
   wvwFactOverridesByTraitId,
-  rechargeWvwOverridesByTraitId
+  rechargeWvwOverridesByTraitId,
 }: TraitLineRowProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null])
-  const majorRefs = useRef<Map<number, HTMLButtonElement>>(new Map())
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
+  const majorRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
-  const chosenTraitIds = line?.chosenTraitIds ?? [null, null, null]
+  const chosenTraitIds = line?.chosenTraitIds ?? [null, null, null];
   // Gated on at least one major actually chosen (not just a spec picked): otherwise the connector
   // drew a full minor->minor->minor backbone across an otherwise-unselected line, which read oddly
   // (flagged 2026-08-16) since nothing had been picked yet to justify a line being drawn at all.
-  const hasChosenTrait = chosenTraitIds.some((id) => id !== null)
-  const segments = useTraitConnector(wrapperRef, minorRefs, majorRefs, chosenTraitIds, Boolean(chosenSpec && line && hasChosenTrait))
+  const hasChosenTrait = chosenTraitIds.some((id) => id !== null);
+  const segments = useTraitConnector(
+    wrapperRef,
+    minorRefs,
+    majorRefs,
+    chosenTraitIds,
+    Boolean(chosenSpec && line && hasChosenTrait),
+  );
 
   return (
     <div className="trait-line" ref={wrapperRef}>
@@ -211,29 +227,46 @@ function TraitLineRow({
        *  grid's real content matches that height on its own. */}
       <div className="trait-line-tiers-horizontal">
         {TIERS.map((tier, tierIndex) => {
-          const minor = chosenSpec ? minorTraitsForSpecialization(chosenSpec.id).find((t) => t.tier === tier) : undefined
+          const minor = chosenSpec
+            ? minorTraitsForSpecialization(chosenSpec.id).find((t) => t.tier === tier)
+            : undefined;
           const tierMajors = chosenSpec
             ? majorTraitsForSpecialization(chosenSpec.id)
                 .filter((t) => t.tier === tier)
                 .sort((a, b) => a.order - b.order)
-            : []
+            : [];
           return (
             <div className="trait-tier-group" key={tier}>
               {minor ? (
                 <Tooltip
                   content={
                     <>
-                      <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
+                      <TooltipBody
+                        title={minor.name}
+                        description={minor.description}
+                        icon={minor.icon}
+                      />
                       {factsBlock(
                         traitFactLines(
                           minor,
-                          withRechargeOverride(minor.facts, minor.id, rechargeWvwOverridesByTraitId),
+                          withRechargeOverride(
+                            minor.facts,
+                            minor.id,
+                            rechargeWvwOverridesByTraitId,
+                          ),
                           activeIds,
                           healingPower,
-                          NUMERIC_FACT_WVW_OVERRIDES[minor.id]
+                          NUMERIC_FACT_WVW_OVERRIDES[minor.id],
                         ),
-                        boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends),
-                        { legendAttributeFacts: legendAttributeDetailFacts(minor, legends) }
+                        boonConditionFactsForTrait(
+                          minor,
+                          activeIds,
+                          legendIds,
+                          durationPercent,
+                          wvwFactOverridesByTraitId[minor.id],
+                          legends,
+                        ),
+                        { legendAttributeFacts: legendAttributeDetailFacts(minor, legends) },
                       )}
                       {conditionalBranchesBlock(branchConditionalTraitFacts(minor))}
                     </>
@@ -242,7 +275,7 @@ function TraitLineRow({
                   <div
                     className="minor-trait"
                     ref={(el) => {
-                      minorRefs.current[tierIndex] = el
+                      minorRefs.current[tierIndex] = el;
                     }}
                   >
                     <img src={minor.icon} alt={minor.name} />
@@ -265,10 +298,17 @@ function TraitLineRow({
                                 withRechargeOverride(t.facts, t.id, rechargeWvwOverridesByTraitId),
                                 activeIds,
                                 healingPower,
-                                NUMERIC_FACT_WVW_OVERRIDES[t.id]
+                                NUMERIC_FACT_WVW_OVERRIDES[t.id],
                               ),
-                              boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends),
-                              { legendAttributeFacts: legendAttributeDetailFacts(t, legends) }
+                              boonConditionFactsForTrait(
+                                t,
+                                activeIds,
+                                legendIds,
+                                durationPercent,
+                                wvwFactOverridesByTraitId[t.id],
+                                legends,
+                              ),
+                              { legendAttributeFacts: legendAttributeDetailFacts(t, legends) },
                             )}
                             {conditionalBranchesBlock(branchConditionalTraitFacts(t))}
                           </>
@@ -277,10 +317,14 @@ function TraitLineRow({
                         <button
                           type="button"
                           ref={(el) => {
-                            if (el) majorRefs.current.set(t.id, el)
-                            else majorRefs.current.delete(t.id)
+                            if (el) majorRefs.current.set(t.id, el);
+                            else majorRefs.current.delete(t.id);
                           }}
-                          className={chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
+                          className={
+                            chosenTraitIds[tierIndex] === t.id
+                              ? 'major-trait selected'
+                              : 'major-trait'
+                          }
                           onClick={() => onTraitChoice(tierIndex as 0 | 1 | 2, t.id)}
                         >
                           <img src={t.icon} alt={t.name} />
@@ -288,15 +332,19 @@ function TraitLineRow({
                       </Tooltip>
                     ))
                   : PLACEHOLDER_MAJOR_SLOTS.map((i) => (
-                      <div key={i} className="major-trait trait-slot-placeholder" aria-hidden="true" />
+                      <div
+                        key={i}
+                        className="major-trait trait-slot-placeholder"
+                        aria-hidden="true"
+                      />
                     ))}
               </div>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -311,46 +359,61 @@ function TraitLineRow({
  * selection in `EquipmentEditor`).
  */
 export function TraitsEditor({ profession, build, value, onChange }: Props) {
-  const gameData = useGameData()
-  const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } = gameData
+  const gameData = useGameData();
+  const {
+    specializationsForProfession,
+    specializationsById,
+    majorTraitsForSpecialization,
+    minorTraitsForSpecialization,
+  } = gameData;
 
   // Gear-derived boon/condition duration % for this editor's own trait tooltips
   // (`boonConditionFactsForTrait`) — same `boonConditionDurationPercent` helper `SkillsEditor.tsx`'s
   // `useDurationContext` calls, used directly here since this editor doesn't need the rest of that
   // hook's return value (character attributes, target armor — nothing a trait tooltip's boon facts use).
-  const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
+  const durationPercent = useMemo(
+    () => boonConditionDurationPercent(build, gameData),
+    [build, gameData],
+  );
   // See `TraitLineRowProps.healingPower`'s own doc comment for why `DEFAULT_COMBAT_STATE` is safe
   // here even though this editor never takes a real `CombatState` prop.
-  const healingPower = useMemo(() => computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE).attributes.healingPower, [build, gameData])
+  const healingPower = useMemo(
+    () => computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE).attributes.healingPower,
+    [build, gameData],
+  );
 
-  const specs = specializationsForProfession(profession)
-  const lines = value
-  const eliteLineIndex = lines.findIndex((line) => line && specializationsById.get(line.specializationId)?.elite)
+  const specs = specializationsForProfession(profession);
+  const lines = value;
+  const eliteLineIndex = lines.findIndex(
+    (line) => line && specializationsById.get(line.specializationId)?.elite,
+  );
 
   function setLine(lineIndex: number, next: TraitLineSelection | null): void {
-    const nextLines = [...lines] as TraitLineSlots
-    nextLines[lineIndex] = next
-    onChange(nextLines)
+    const nextLines = [...lines] as TraitLineSlots;
+    nextLines[lineIndex] = next;
+    onChange(nextLines);
   }
 
   function chooseSpec(lineIndex: number, specializationId: number | null): void {
     if (specializationId === null) {
-      setLine(lineIndex, null)
-      return
+      setLine(lineIndex, null);
+      return;
     }
-    if (lines[lineIndex]?.specializationId === specializationId) return
-    setLine(lineIndex, { specializationId, chosenTraitIds: [null, null, null] })
+    if (lines[lineIndex]?.specializationId === specializationId) return;
+    setLine(lineIndex, { specializationId, chosenTraitIds: [null, null, null] });
   }
 
   function handleTraitChoice(lineIndex: number, tierIndex: 0 | 1 | 2, traitId: number): void {
-    const line = lines[lineIndex]
-    if (!line) return
-    const chosenTraitIds: TraitLineSelection['chosenTraitIds'] = [...line.chosenTraitIds]
-    chosenTraitIds[tierIndex] = chosenTraitIds[tierIndex] === traitId ? null : traitId
-    setLine(lineIndex, { ...line, chosenTraitIds })
+    const line = lines[lineIndex];
+    if (!line) return;
+    const chosenTraitIds: TraitLineSelection['chosenTraitIds'] = [...line.chosenTraitIds];
+    chosenTraitIds[tierIndex] = chosenTraitIds[tierIndex] === traitId ? null : traitId;
+    setLine(lineIndex, { ...line, chosenTraitIds });
   }
 
-  const usedSpecIds = new Set(lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId))
+  const usedSpecIds = new Set(
+    lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId),
+  );
 
   // Mirrors `boon-calc/sources.ts`'s `activeTraitIds`, scoped to this editor's own `TraitLineSlots`
   // value (`lines`) directly rather than routing through `activeTraitIds(build, ...)` — `build` is
@@ -358,27 +421,32 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
   // every call site) stays the source of truth for trait activity, unchanged from before `build`
   // was added to this component's props.
   const activeIds = useMemo(() => {
-    const ids = new Set<number>()
+    const ids = new Set<number>();
     for (const line of lines) {
-      if (!line) continue
-      for (const minor of minorTraitsForSpecialization(line.specializationId)) ids.add(minor.id)
-      for (const chosenId of line.chosenTraitIds) if (chosenId !== null) ids.add(chosenId)
+      if (!line) continue;
+      for (const minor of minorTraitsForSpecialization(line.specializationId)) ids.add(minor.id);
+      for (const chosenId of line.chosenTraitIds) if (chosenId !== null) ids.add(chosenId);
     }
-    return ids
-  }, [lines, minorTraitsForSpecialization])
-  const legendIds = useMemo(() => equippedLegendIds(build), [build])
+    return ids;
+  }, [lines, minorTraitsForSpecialization]);
+  const legendIds = useMemo(() => equippedLegendIds(build), [build]);
 
   return (
     <div className="traits-editor">
       {LINE_INDICES.map((lineIndex) => {
-        const line = lines[lineIndex]
-        const chosenSpec = line ? specializationsById.get(line.specializationId) : undefined
+        const line = lines[lineIndex];
+        const chosenSpec = line ? specializationsById.get(line.specializationId) : undefined;
         const availableSpecs = specs.filter(
           (s) =>
             s.id === line?.specializationId ||
-            (!usedSpecIds.has(s.id) && !(s.elite && eliteLineIndex !== -1 && eliteLineIndex !== lineIndex))
-        )
-        const specOptions: UpgradeOption[] = availableSpecs.map((s) => ({ id: s.id, name: s.name, icon: s.icon }))
+            (!usedSpecIds.has(s.id) &&
+              !(s.elite && eliteLineIndex !== -1 && eliteLineIndex !== lineIndex)),
+        );
+        const specOptions: UpgradeOption[] = availableSpecs.map((s) => ({
+          id: s.id,
+          name: s.name,
+          icon: s.icon,
+        }));
 
         return (
           <TraitLineRow
@@ -398,8 +466,8 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
             wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
             rechargeWvwOverridesByTraitId={gameData.rechargeWvwOverrides.trait}
           />
-        )
+        );
       })}
     </div>
-  )
+  );
 }

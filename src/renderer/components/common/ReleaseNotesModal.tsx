@@ -1,10 +1,10 @@
-import { Modal } from '@renderer/components/common/Modal'
-import { renderMarkdown } from '@renderer/components/common/markdown'
-import { changelogBody } from '@renderer/changelog'
+import { Modal } from '@renderer/components/common/Modal';
+import { renderMarkdown } from '@renderer/components/common/markdown';
+import { changelogBody } from '@renderer/changelog';
 
 interface Props {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 /** Renders the full CHANGELOG.md in-app, newest version first — see `ReleaseNotesProvider` for
@@ -20,5 +20,5 @@ export function ReleaseNotesModal({ open, onClose }: Props) {
       </div>
       <div className="release-notes-content">{renderMarkdown(changelogBody)}</div>
     </Modal>
-  )
+  );
 }

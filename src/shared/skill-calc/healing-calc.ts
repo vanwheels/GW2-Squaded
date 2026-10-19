@@ -1,4 +1,4 @@
-import type { Fact, Skill, Trait } from '../types'
+import type { Fact, Skill, Trait } from '../types';
 
 /**
  * A single wiki-verified `AttributeAdjust` healing fact: `Heal = baseValue + coefficient *
@@ -23,9 +23,9 @@ import type { Fact, Skill, Trait } from '../types'
  * itself carries.
  */
 export interface HealingCoefficient {
-  factText: string
-  baseValue: number
-  coefficient: number
+  factText: string;
+  baseValue: number;
+  coefficient: number;
   /**
    * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
    * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
@@ -38,7 +38,7 @@ export interface HealingCoefficient {
    * Inscriptions variant below) failed on missing/unreconcilable wiki data, not on this matching
    * problem.
    */
-  requiresTrait?: number
+  requiresTrait?: number;
 }
 
 /**
@@ -57,7 +57,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Cast" does (PvE 202/0.1 vs "pvp wvw" 171/0.07) — WvW value used.
   5503: [
     { factText: 'Healing', baseValue: 3275, coefficient: 0.5 },
-    { factText: 'Healing per Cast', baseValue: 171, coefficient: 0.07 }
+    { factText: 'Healing per Cast', baseValue: 171, coefficient: 0.07 },
   ],
   // Elementalist — Ether Renewal. No PvE/WvW split.
   5507: [{ factText: 'Healing', baseValue: 996, coefficient: 0.15 }],
@@ -77,7 +77,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   29535: [
     { factText: 'First Heal', baseValue: 2344, coefficient: 0.5 },
     { factText: 'Second Heal', baseValue: 1310, coefficient: 0.25 },
-    { factText: 'Third Heal', baseValue: 660, coefficient: 0.25 }
+    { factText: 'Third Heal', baseValue: 660, coefficient: 0.25 },
   ],
   // Elementalist — Soothing Water (Weaver). Single "Healing" pulse fact with a PvE/WvW base-value
   // split (PvE 1340 vs WvW 1541, same 0.2 coefficient) — WvW value used.
@@ -106,17 +106,17 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Engineer — A.E.D. (both ids share identical facts). No PvE/WvW split on either fact.
   21659: [
     { factText: 'Healing when lethal damage taken', baseValue: 12280, coefficient: 1.72 },
-    { factText: 'Healing', baseValue: 4344, coefficient: 0.6 }
+    { factText: 'Healing', baseValue: 4344, coefficient: 0.6 },
   ],
   30881: [
     { factText: 'Healing when lethal damage taken', baseValue: 12280, coefficient: 1.72 },
-    { factText: 'Healing', baseValue: 4344, coefficient: 0.6 }
+    { factText: 'Healing', baseValue: 4344, coefficient: 0.6 },
   ],
   // Engineer — Medic Gyro (Scrapper). Both facts keep the same base value across modes but the
   // coefficient itself splits (PvE 0.7/0.6 vs WvW 0.2/0.25) — WvW coefficients used.
   30357: [
     { factText: 'Personal Heal', baseValue: 4510, coefficient: 0.2 },
-    { factText: 'Area Pulse Heal', baseValue: 460, coefficient: 0.25 }
+    { factText: 'Area Pulse Heal', baseValue: 460, coefficient: 0.25 },
   ],
   // Engineer — Coolant Blast (Holosmith). PvE/WvW base-value split (PvE 4740 vs WvW 5250, same 0.8
   // coefficient) — WvW value used.
@@ -138,7 +138,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   63049: [
     { factText: 'Heal Pulse', baseValue: 230, coefficient: 0.05 },
     { factText: 'Healing', baseValue: 5130, coefficient: 1.0 },
-    { factText: 'Heal Pulse', baseValue: 276, coefficient: 0.05, requiresTrait: 2298 }
+    { factText: 'Heal Pulse', baseValue: 276, coefficient: 0.05, requiresTrait: 2298 },
   ],
   // Engineer — Mitotic State (Amalgam). Re-investigated 2026-08-13 (was left uncurated as an
   // unconfirmed "API base 305 vs. wiki 7625" mismatch): resolved — 305 is the API's own per-pulse
@@ -156,7 +156,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   9083: [
     { factText: 'Initial Self Heal', baseValue: 2600, coefficient: 0.4 },
     { factText: 'Self Heal per Pulse', baseValue: 650, coefficient: 0.16 },
-    { factText: 'Allied Heal per Pulse', baseValue: 1044, coefficient: 0.2 }
+    { factText: 'Allied Heal per Pulse', baseValue: 1044, coefficient: 0.2 },
   ],
   // Guardian — Signet of Resolve. PvE/WvW base-value split (PvE 8150 vs WvW 7286, same 1.25
   // coefficient) — WvW value used.
@@ -167,7 +167,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // split (PvE 6480 vs WvW 4854, same 0.667 coefficient) — WvW value used.
   30025: [
     { factText: 'Initial Heal', baseValue: 1608, coefficient: 0.333 },
-    { factText: 'Trap Heal', baseValue: 4854, coefficient: 0.667 }
+    { factText: 'Trap Heal', baseValue: 4854, coefficient: 0.667 },
   ],
   // Guardian — Restoring Reprieve (Firebrand's Mantra of Solace, regular charge). Single "Self-Heal"
   // fact with a PvE/WvW split (PvE 1478/0.54 vs WvW 199/0.1) — WvW value used.
@@ -180,7 +180,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // vs. fallback minimum heal), neither with a PvE/WvW split.
   62622: [
     { factText: 'Heal If Attacked', baseValue: 4264, coefficient: 1.54 },
-    { factText: 'Heal if no attacks are reversed.', baseValue: 2132, coefficient: 0.77 }
+    { factText: 'Heal if no attacks are reversed.', baseValue: 2132, coefficient: 0.77 },
   ],
   // Guardian — Resolute Stance (Luminary). No PvE/WvW split on any of the 3 facts (wiki flags the
   // Ally Healing coefficient with its own internal "unverified" maintenance tag, but it matches this
@@ -188,24 +188,24 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   76621: [
     { factText: 'Healing', baseValue: 6550, coefficient: 1.0 },
     { factText: 'Ally Healing', baseValue: 3350, coefficient: 1.0 },
-    { factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.05 }
+    { factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.05 },
   ],
   // Mesmer — Ether Feast.
   10176: [
     { factText: 'Healing', baseValue: 5560, coefficient: 1.0 },
-    { factText: 'Heal per Clone', baseValue: 640, coefficient: 0.1 }
+    { factText: 'Heal per Clone', baseValue: 640, coefficient: 0.1 },
   ],
   // Mesmer — Mirror. No PvE/WvW split.
   10177: [{ factText: 'Healing', baseValue: 5195, coefficient: 0.6 }],
   // Mesmer — Mantra of Recovery. No PvE/WvW split on either charge.
   10213: [
     { factText: 'Self-Healing', baseValue: 3275, coefficient: 0.5 },
-    { factText: 'Ally-Healing', baseValue: 1965, coefficient: 0.3 }
+    { factText: 'Ally-Healing', baseValue: 1965, coefficient: 0.3 },
   ],
   // Mesmer — Power Return. No PvE/WvW split.
   10214: [
     { factText: 'Healing', baseValue: 1640, coefficient: 0.25 },
-    { factText: 'Healing below 50%', baseValue: 2620, coefficient: 0.4 }
+    { factText: 'Healing below 50%', baseValue: 2620, coefficient: 0.4 },
   ],
   // Mesmer — Signet of the Ether. Active burst has no split. "Heal on Illusion Summon" has a PvE/WvW
   // base-value split (PvE 350 vs WvW 297, same ~0.06 coefficient) — WvW value used. The
@@ -214,14 +214,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // rather than trusting a non-standard extraction.
   21750: [
     { factText: 'Healing', baseValue: 5560, coefficient: 0.85 },
-    { factText: 'Heal on Illusion Summon', baseValue: 297, coefficient: 0.06 }
+    { factText: 'Heal on Illusion Summon', baseValue: 297, coefficient: 0.06 },
   ],
   // Mesmer — Well of Eternity (Chronomancer). Initial Self Heal's base value drops under the WvW
   // split (PvE 3230 vs WvW 2099, same 0.3 coefficient); Ending Heal keeps its base value (3870) but
   // the coefficient itself splits (PvE 1.2 vs WvW 0.8). WvW values used for both.
   30305: [
     { factText: 'Initial Self Heal', baseValue: 2099, coefficient: 0.3 },
-    { factText: 'Ending Heal', baseValue: 3870, coefficient: 0.8 }
+    { factText: 'Ending Heal', baseValue: 3870, coefficient: 0.8 },
   ],
   // Mesmer — False Oasis (Mirage). Single per-pulse "Healing" fact with a PvE/WvW split (PvE
   // 1620/0.5 vs WvW 1215/0.2) — WvW value used.
@@ -236,7 +236,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // split (PvE 1.0, WvW/PvP 0.5, same 2250 base) — WvW value used.
   76695: [
     { factText: 'Self-Healing', baseValue: 3535, coefficient: 1.0 },
-    { factText: 'Ally Healing', baseValue: 2250, coefficient: 0.5 }
+    { factText: 'Ally Healing', baseValue: 2250, coefficient: 0.5 },
   ],
   // Necromancer — Summon Blood Fiend (id 10547) has no table entry at all, deliberately. Its own
   // wiki Notes section states outright "it has 0 healing power and cannot be increased by any
@@ -259,12 +259,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // to curate it TO). WvW splits used for both facts on 10527 (PvE 2936/1.0, 664/0.5).
   10527: [
     { factText: 'Initial Self Heal', baseValue: 4454, coefficient: 1.0 },
-    { factText: 'Health per Second', baseValue: 496, coefficient: 0.2 }
+    { factText: 'Health per Second', baseValue: 496, coefficient: 0.2 },
   ],
   // Necromancer — Consume Conditions. No PvE/WvW split.
   10548: [
     { factText: 'Healing', baseValue: 6840, coefficient: 1.0 },
-    { factText: 'Heal per condition', baseValue: 724, coefficient: 0.1 }
+    { factText: 'Heal per condition', baseValue: 724, coefficient: 0.1 },
   ],
   // Necromancer — Taste of Death. WvW groups with PvE here (not PvP) — "pve wvw"=3960 vs pvp=4460 —
   // used the pve/wvw value.
@@ -280,7 +280,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   21762: [
     { factText: 'Passive Life-Siphon Healing', baseValue: 195, coefficient: 0.022 },
     { factText: 'Active Life Siphon Heal', baseValue: 600, coefficient: 0.24 },
-    { factText: 'Healing', baseValue: 5750, coefficient: 0.5 }
+    { factText: 'Healing', baseValue: 5750, coefficient: 0.5 },
   ],
   // Necromancer — "Your Soul Is Mine!" (Reaper). PvE/WvW base-value split (PvE 4555 vs WvW 6174,
   // same 0.7 coefficient) — WvW value used.
@@ -313,18 +313,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // COEFFICIENT as well as base value (not just base value) — WvW values used for both.
   31819: [
     { factText: 'Self-Healing', baseValue: 5589, coefficient: 1.25 },
-    { factText: 'Allied Healing', baseValue: 2535, coefficient: 1.0 }
+    { factText: 'Allied Healing', baseValue: 2535, coefficient: 1.0 },
   ],
   31867: [
     { factText: 'Self-Healing', baseValue: 2535, coefficient: 1.0 },
-    { factText: 'Allied Healing', baseValue: 5589, coefficient: 1.25 }
+    { factText: 'Allied Healing', baseValue: 5589, coefficient: 1.25 },
   ],
   // Ranger — "We Heal As One!". No PvE/WvW split.
   31914: [{ factText: 'Healing', baseValue: 6520, coefficient: 1.0 }],
   // Ranger — Bear Stance (Soulbeast). No PvE/WvW split on either fact.
   44948: [
     { factText: 'Healing', baseValue: 4963, coefficient: 0.4 },
-    { factText: 'Per Condition Removed', baseValue: 408, coefficient: 0.4 }
+    { factText: 'Per Condition Removed', baseValue: 408, coefficient: 0.4 },
   ],
   // Ranger — Soothing Breeze (Galeshot). No PvE/WvW split.
   77271: [{ factText: 'Healing', baseValue: 6520, coefficient: 1.0 }],
@@ -333,11 +333,11 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   28219: [
     { factText: 'Healing', baseValue: 4600, coefficient: 1.0 },
     { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   78681: [
     { factText: 'Healing', baseValue: 4600, coefficient: 1.0 },
-    { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 }
+    { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 },
   ],
   // Revenant — Enchanted Daggers (Legendary Assassin). Siphon Healing has no split. Initial Heal's
   // wiki base (1640, coefficient 0.25, no PvE/WvW split) never matched this app's own API base
@@ -352,14 +352,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   26937: [
     { factText: 'Siphon Healing', baseValue: 768, coefficient: 0.2 },
     { factText: 'Initial Heal', baseValue: 1560, coefficient: 0.25 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Infuse Light (Herald, Legendary Dragon Stance). No PvE/WvW split.
   27228: [{ factText: 'Healing', baseValue: 1853, coefficient: 1.0 }],
   // Revenant — Soothing Stone (Legendary Centaur Stance). No PvE/WvW split.
   27372: [
     { factText: 'Healing', baseValue: 5501, coefficient: 1.0 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Project Tranquility (Legendary Centaur Stance facet). Single "Healing" fact with a
   // PvE/WvW split (PvE 363 vs WvW 325, same 0.05 coefficient) — WvW value used.
@@ -368,18 +368,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // skills, not a shared page. No PvE/WvW split on either.
   62680: [
     { factText: 'Healing', baseValue: 714, coefficient: 0.22 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   62719: [
     { factText: 'Healing per Hit', baseValue: 714, coefficient: 0.22 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Shielding Hands (Conduit). Self-Healing has a PvE/WvW base-value split (PvE 1950
   // vs WvW 1310, same 0.2 coefficient) — WvW value used. Allied Healing has no split.
   77043: [
     { factText: 'Self-Healing', baseValue: 1310, coefficient: 0.2 },
     { factText: 'Allied Healing', baseValue: 975, coefficient: 0.1 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Thief — Withdraw. WvW split used (PvE was 4778/0.66).
   13021: [{ factText: 'Healing', baseValue: 5243, coefficient: 0.66 }],
@@ -394,7 +394,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // value used. The per-hit "Healing" fact has no split.
   21778: [
     { factText: 'Initial Self Heal', baseValue: 3578, coefficient: 0.4 },
-    { factText: 'Healing', baseValue: 1206, coefficient: 0.3 }
+    { factText: 'Healing', baseValue: 1206, coefficient: 0.3 },
   ],
   // Thief — Channeled Vigor (Daredevil). Wiki lists both facts as 3-pulse SUMMED totals (the
   // tooltip's own convention, confirmed in its Notes section) rather than this app's per-pulse
@@ -403,7 +403,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // confirming the derivation; the second coefficient just isn't a round number in-game).
   30400: [
     { factText: 'Heal if Endurance is Full', baseValue: 2440, coefficient: 0.5 },
-    { factText: 'Healing', baseValue: 1840, coefficient: 0.3743 }
+    { factText: 'Healing', baseValue: 1840, coefficient: 0.3743 },
   ],
   // Thief — Malicious Restoration (Deadeye). No PvE/WvW split.
   45088: [{ factText: 'Healing', baseValue: 7200, coefficient: 0.7 }],
@@ -416,7 +416,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // 4454/1.0; Area Heal PvE 857/0.666 vs WvW 520/0.2) — WvW values used for both.
   63292: [
     { factText: 'Self-Heal', baseValue: 4454, coefficient: 1.0 },
-    { factText: 'Area Heal', baseValue: 520, coefficient: 0.2 }
+    { factText: 'Area Heal', baseValue: 520, coefficient: 0.2 },
   ],
   // Warrior — Healing Signet (active burst only; the passive per-second tick isn't captured as an
   // `AttributeAdjust` fact in this app's skill data at all, so it can't be rendered here) and
@@ -435,13 +435,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // separate stacking tiers.
   62978: [
     { factText: 'Initial Healing', baseValue: 3260, coefficient: 0.5 },
-    { factText: 'Delayed Healing', baseValue: 3580, coefficient: 0.5 }
+    { factText: 'Delayed Healing', baseValue: 3580, coefficient: 0.5 },
   ],
   // Warrior — "We Shall Return!" (Paragon). No PvE/WvW split on either fact, despite the page's
   // header declaring a split exists.
   76755: [
     { factText: 'Healing', baseValue: 3890, coefficient: 0.7 },
-    { factText: 'Echo Healing', baseValue: 1950, coefficient: 0.5 }
+    { factText: 'Echo Healing', baseValue: 1950, coefficient: 0.5 },
   ],
   // Racial — Prayer to Dwayna (Human). No PvE/WvW split.
   12360: [{ factText: 'Healing', baseValue: 6520, coefficient: 0.85 }],
@@ -520,7 +520,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // summoned hammers. No PvE/WvW split.
   26557: [
     { factText: 'Healing', baseValue: 53, coefficient: 0.004 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Purifying Essence (Legendary Centaur Stance, Ventari facet). No PvE/WvW split on the
   // healing fact itself (only recharge splits).
@@ -531,7 +531,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   62793: [{ factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 }],
   62941: [
     { factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Necromancer — Nightmare Weapon (Ritualist utility, not Harbinger as previously noted here —
   // corrected 2026-08-23 after a live in-game screenshot showed the caster's own character panel;
@@ -583,12 +583,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   30461: [
     { factText: 'Passive Healing', baseValue: 202, coefficient: 0.15 },
     { factText: 'Active Heal Pulse', baseValue: 650, coefficient: 0.2 },
-    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 }
+    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 },
   ],
   68676: [
     { factText: 'Passive Healing', baseValue: 202, coefficient: 0.15 },
     { factText: 'Active Heal Pulse', baseValue: 650, coefficient: 0.2 },
-    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 }
+    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 },
   ],
   // Necromancer — Xinrae's Weapon (Harbinger). "Life Siphon Healing" splits by mode (PvE 1990/0.005
   // vs "pvp wvw" 1001/0.005, same coefficient) — WvW value used. The wiki doesn't separately document
@@ -607,13 +607,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   45773: [
     { factText: 'Healing', baseValue: 1439, coefficient: 0.25 },
     { factText: 'Life Siphon Healing', baseValue: 578, coefficient: 0.5 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Urn of Saint Viktor (Vindicator). PvE/WvW base-value split (PvE+PvP grouped 708 vs WvW
   // 450, same 0.22 coefficient) — WvW value used.
   62687: [
     { factText: 'Healing', baseValue: 450, coefficient: 0.22 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate).
   // PvE/WvW split added by the 2026-09-29 patch.
@@ -666,7 +666,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // splits (PvE 1.0/0.1 vs WvW 0.7/0.1) — WvW coefficients used.
   5510: [
     { factText: 'First-Hit Healing', baseValue: 1099, coefficient: 0.7 },
-    { factText: 'Additional-Hit Healing', baseValue: 550, coefficient: 0.1 }
+    { factText: 'Additional-Hit Healing', baseValue: 550, coefficient: 0.1 },
   ],
   // Elementalist — Cone of Cold. Wiki documents one 4-pulse-total fact per mode (PvE 1888/1.2, WvW/PvP
   // 1416/0.8); divided by 4 to match this app's per-pulse API facts (472 PvE, 354 WvW/PvP, both exact)
@@ -696,7 +696,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Elementalist — Pressure Blast (Catalyst hammer). No PvE/WvW split on either fact.
   40332: [
     { factText: 'Ally Healing', baseValue: 1285, coefficient: 0.5 },
-    { factText: 'Self Healing', baseValue: 1285, coefficient: 0.25 }
+    { factText: 'Self Healing', baseValue: 1285, coefficient: 0.25 },
   ],
   // Elementalist — Seiche (Catalyst hammer). No PvE/WvW split.
   41052: [{ factText: 'Healing', baseValue: 66, coefficient: 0.05 }],
@@ -713,7 +713,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // 1580/3159 vs PvE 2330/4659); coefficient is identical across modes for both.
   62948: [
     { factText: 'Lesser Healing', baseValue: 1580, coefficient: 0.225 },
-    { factText: 'Greater Healing', baseValue: 3159, coefficient: 0.45 }
+    { factText: 'Greater Healing', baseValue: 3159, coefficient: 0.45 },
   ],
   // Elementalist — Soothing Splash (Spear). No PvE/WvW split.
   72033: [{ factText: 'Healing per Unique Condition', baseValue: 23, coefficient: 0.05 }],
@@ -748,12 +748,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // here, PvP-only differs) — the API's own values (970/645) already match the WvW-correct number.
   71882: [
     { factText: 'Initial Heal', baseValue: 970, coefficient: 0.45 },
-    { factText: 'Pulse Heal', baseValue: 645, coefficient: 0.2 }
+    { factText: 'Pulse Heal', baseValue: 645, coefficient: 0.2 },
   ],
   // Guardian — Leap of Faith (Spear). No PvE/WvW split on either fact.
   9080: [
     { factText: 'First-Hit Healing', baseValue: 1750, coefficient: 0.2 },
-    { factText: 'Additional-Hit Healing', baseValue: 750, coefficient: 0.1 }
+    { factText: 'Additional-Hit Healing', baseValue: 750, coefficient: 0.1 },
   ],
   // Guardian — Symbol of Faith (Spear). No PvE/WvW split.
   9111: [{ factText: 'Healing', baseValue: 527, coefficient: 0.5 }],
@@ -764,14 +764,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Guardian — Empower (Spear). No PvE/WvW split on either fact.
   9265: [
     { factText: 'Final Heal', baseValue: 1500, coefficient: 0.5 },
-    { factText: 'Heal Pulses', baseValue: 496, coefficient: 0.17 }
+    { factText: 'Heal Pulses', baseValue: 496, coefficient: 0.17 },
   ],
   // Guardian — Helio Rush (Spear). "Illuminated" is a self-buff state (not a trait), so both facts are
   // the base skill's own effects, not a trait-conditional variant. Both split PvE/WvW+PvP by
   // coefficient (base value unchanged) — WvW coefficients used.
   72940: [
     { factText: 'Healing', baseValue: 805, coefficient: 0.4 },
-    { factText: 'Illuminated Healing', baseValue: 966, coefficient: 0.48 }
+    { factText: 'Illuminated Healing', baseValue: 966, coefficient: 0.48 },
   ],
   // Guardian — Daybreaking Slash (Spear). PvE/WvW+PvP base-value split (PvE 390 vs WvW 198), same
   // 0.06 coefficient both modes — WvW value used.
@@ -788,7 +788,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // `requires_trait` on either fact. Both split PvE/WvW+PvP by base value, same 0.1 coefficient both.
   73152: [
     { factText: 'Healing', baseValue: 1610, coefficient: 0.1 },
-    { factText: 'Empowered Healing', baseValue: 2890, coefficient: 0.1 }
+    { factText: 'Empowered Healing', baseValue: 2890, coefficient: 0.1 },
   ],
   // Necromancer — Chillblains (Staff 3). **Curated 2026-08-05** (previously excluded as the
   // Transfusion trap, see this table's Weapon-slot intro comment above) — this skill carries no
@@ -808,7 +808,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // now curated too, see `CURATED_SIPHON_DAMAGE_COEFFICIENTS`.
   30860: [
     { factText: 'First-Hit Life Siphon Healing', baseValue: 1764, coefficient: 0.2 },
-    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.033 }
+    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.033 },
   ],
   // Necromancer — Locust Swarm. 4 API facts: an untraited PvE/WvW+PvP pair (37/55, same 0.08
   // coefficient) plus a second pair gated behind trait 799 (Banshee's Wail) at 55/83 — only the
@@ -843,19 +843,19 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Necromancer — Path of Gluttony (Spear). No PvE/WvW split on either fact.
   71799: [
     { factText: 'First-Hit Healing', baseValue: 2410, coefficient: 0.4 },
-    { factText: 'Additional-Hit Healing', baseValue: 410, coefficient: 0.1 }
+    { factText: 'Additional-Hit Healing', baseValue: 410, coefficient: 0.1 },
   ],
   // Necromancer — Hungering Maelstrom (Spear). First-Hit Healing groups "pve wvw" together (vs a
   // lower PvP-only value) — the grouped value matches this app's own API value directly.
   // Additional-Hit Healing has no split.
   71813: [
     { factText: 'First-Hit Healing', baseValue: 1764, coefficient: 0.2 },
-    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.034 }
+    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.034 },
   ],
   // Necromancer — Enervation Blade (Spear). No PvE/WvW split on either fact.
   71986: [
     { factText: 'First-Hit Healing', baseValue: 202, coefficient: 0.05 },
-    { factText: 'Additional-Hit Healing', baseValue: 40, coefficient: 0.01 }
+    { factText: 'Additional-Hit Healing', baseValue: 40, coefficient: 0.01 },
   ],
   // Ranger — Sublime Conversion (Druid Staff). No PvE/WvW split.
   31496: [{ factText: 'Healing', baseValue: 162, coefficient: 0.025 }],
@@ -1015,7 +1015,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // entry rather than duplicated there.
   27356: [
     { factText: 'Healing', baseValue: 1478, coefficient: 0.5 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Natural Harmony, the LIVE/canonical id (27025, Legend6 `utilities[1]`) — its orphan
   // sibling 29082 (structurally unreachable, see the Protective Solace/Jade Winds writeup in
@@ -1028,7 +1028,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // here). 3-way split (PvE 2.75, WvW 1.75, PvP 1.0, same 1124 base in all 3) — WvW value used.
   27025: [
     { factText: 'Healing', baseValue: 1124, coefficient: 1.75 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Purifying Essence, the LIVE/canonical id (27715, Legend6 `utilities[2]`) — its own
   // orphan sibling 29197 (above, in the Heal/Utility section) already carries this exact same
@@ -1037,7 +1037,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // template for this skill carries no `game mode=` tag at all, matching 29197's own comment above).
   27715: [
     { factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   // Revenant — Breakrazor's Bastion, Legendary Renegade Stance's heal skill (45686 base, 72389 its
   // "Band Together"-enhanced flip target — see revenant-flip-duplicates.ts's doc comment; this was
@@ -1060,12 +1060,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Initial Self Heal', baseValue: 4529, coefficient: 0.8 },
     { factText: 'Heal Pulses', baseValue: 373, coefficient: 0.3 },
     { factText: 'Final Heal', baseValue: 1845, coefficient: 1.5 },
-    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
   72389: [
     { factText: 'Initial Self Heal', baseValue: 4529, coefficient: 0.8 },
     { factText: 'Heal Pulses', baseValue: 373, coefficient: 0.3 },
-    { factText: 'Final Heal', baseValue: 1845, coefficient: 1.5 }
+    { factText: 'Final Heal', baseValue: 1845, coefficient: 1.5 },
   ],
   // Revenant — Energy Expulsion, the ORPHAN id (29114, a same-named sibling of the live 27356
   // above — see that entry's comment). Deliberately left uncurated, now CONFIRMED (not just
@@ -1102,38 +1102,102 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // though it's not a legend skill and the live API exposes no Energy Cost fact for it either (a
   // separate, unrelated empty-facts gap — not curated here since nothing in this app displays a
   // Revenant Energy resource bar).
-  27220: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Light
-  28379: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Darkness
-  27014: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Elements
-  26644: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Strength
-  27760: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Chaos
-  29209: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Riposting Shadows
-  28231: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Phase Traversal
-  27107: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Impossible Odds
-  28406: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Jade Winds
-  28516: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Inspiring Reinforcement
-  26679: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Forced Engagement
-  27975: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Rite of the Great Dwarf
-  27322: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Pain Absorption
-  27505: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Banish Enchantment
-  27917: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Call to Anguish
-  28287: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Embrace the Darkness
-  42949: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Razorclaw's Rage
-  40485: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Icerazor's Ire
-  41220: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Darkrazor's Daring
-  28427: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Ventari's Will
-  26821: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Protective Solace
-  62832: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Nomad's Advance
-  62962: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Scavenger Burst
-  62878: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Reaver's Rage
-  62942: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Spear of Archemorus
-  62702: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Battle Dance
-  62796: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Awakening
-  77243: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Hex-Eater Vortex
-  77291: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Gladiator's Defense
-  76805: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Beguiling Haze
-  76968: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Twin Moon Sweep
-  28472: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Shackling Wave (Sword weapon skill)
+  27220: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Facet of Light
+  28379: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Facet of Darkness
+  27014: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Facet of Elements
+  26644: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Facet of Strength
+  27760: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Facet of Chaos
+  29209: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Riposting Shadows
+  28231: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Phase Traversal
+  27107: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Impossible Odds
+  28406: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Jade Winds
+  28516: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Inspiring Reinforcement
+  26679: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Forced Engagement
+  27975: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Rite of the Great Dwarf
+  27322: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Pain Absorption
+  27505: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Banish Enchantment
+  27917: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Call to Anguish
+  28287: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Embrace the Darkness
+  42949: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Razorclaw's Rage
+  40485: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Icerazor's Ire
+  41220: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Darkrazor's Daring
+  28427: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Ventari's Will
+  26821: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Protective Solace
+  62832: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Nomad's Advance
+  62962: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Scavenger Burst
+  62878: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Reaver's Rage
+  62942: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Spear of Archemorus
+  62702: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Battle Dance
+  62796: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Awakening
+  77243: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Hex-Eater Vortex
+  77291: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Gladiator's Defense
+  76805: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Beguiling Haze
+  76968: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Twin Moon Sweep
+  28472: [
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
+  ], // Shackling Wave (Sword weapon skill)
 
   // Dragon Slash—Boost (River's Flow, 80228, Bladesworn) — Bladesworn's support-branch reflavor of
   // its Boost burst; the only one of the 6 Sharp as the Wind/River's Flow variant ids with a real
@@ -1142,13 +1206,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Maximum = at full charge (same shape as the base skill's own Minimum/Maximum Damage pair).
   80228: [
     { factText: 'Minimum Healing', baseValue: 3215, coefficient: 0.8 },
-    { factText: 'Maximum Healing', baseValue: 6558, coefficient: 1.63 }
-  ]
-}
+    { factText: 'Maximum Healing', baseValue: 6558, coefficient: 1.63 },
+  ],
+};
 
 export interface HealingLine {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 /**
@@ -1158,25 +1222,32 @@ export interface HealingLine {
  * skill with no curated entry (the vast majority, until this table grows) rather than falling back
  * to an unscaled/wrong number.
  */
-export function healingLinesForSkill(skill: Skill, healingPower: number, activeIds: ReadonlySet<number>): HealingLine[] {
-  const entries = CURATED_HEALING_COEFFICIENTS[skill.id]
-  if (!entries) return []
+export function healingLinesForSkill(
+  skill: Skill,
+  healingPower: number,
+  activeIds: ReadonlySet<number>,
+): HealingLine[] {
+  const entries = CURATED_HEALING_COEFFICIENTS[skill.id];
+  if (!entries) return [];
 
-  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
-  const lines: HealingLine[] = []
+  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+  const lines: HealingLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(
       (f) =>
         f.type === 'AttributeAdjust' &&
         f.target === 'Healing' &&
         f.text === entry.factText &&
-        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
-    )
-    if (!fact) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    lines.push({
+      label: entry.factText,
+      value: Math.round(entry.baseValue + entry.coefficient * healingPower),
+    });
   }
-  return lines
+  return lines;
 }
 
 /**
@@ -1198,31 +1269,38 @@ export const CURATED_TRAIT_HEALING_COEFFICIENTS: Record<number, HealingCoefficie
   // content or a merge of a previously-diverged WvW value back to PvP parity — either way, patch
   // notes and current wiki text agree on the post-patch number). See
   // `docs/investigations/coefficient-verification-queue.md` for the full derivation.
-  351: [{ factText: 'Healing', baseValue: 1042, coefficient: 0.75 }]
-}
+  351: [{ factText: 'Healing', baseValue: 1042, coefficient: 0.75 }],
+};
 
 /**
  * Trait-tooltip counterpart to `healingLinesForSkill` — same `Heal = baseValue + coefficient *
  * healingPower` math and `requires_trait` gating, reading `CURATED_TRAIT_HEALING_COEFFICIENTS`
  * instead. Returns `[]` for any trait with no curated entry (the vast majority).
  */
-export function healingLinesForTrait(trait: Trait, healingPower: number, activeIds: ReadonlySet<number>): HealingLine[] {
-  const entries = CURATED_TRAIT_HEALING_COEFFICIENTS[trait.id]
-  if (!entries) return []
+export function healingLinesForTrait(
+  trait: Trait,
+  healingPower: number,
+  activeIds: ReadonlySet<number>,
+): HealingLine[] {
+  const entries = CURATED_TRAIT_HEALING_COEFFICIENTS[trait.id];
+  if (!entries) return [];
 
-  const allFacts: Fact[] = [...trait.facts, ...trait.traitedFacts]
-  const lines: HealingLine[] = []
+  const allFacts: Fact[] = [...trait.facts, ...trait.traitedFacts];
+  const lines: HealingLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(
       (f) =>
         f.type === 'AttributeAdjust' &&
         f.target === 'Healing' &&
         f.text === entry.factText &&
-        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
-    )
-    if (!fact) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    lines.push({
+      label: entry.factText,
+      value: Math.round(entry.baseValue + entry.coefficient * healingPower),
+    });
   }
-  return lines
+  return lines;
 }

@@ -82,8 +82,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 button {
@@ -1395,7 +1394,6 @@ input[type='password'] {
   white-space: nowrap;
 }
 
-
 /* Armor / Accessories / Weapon / Other side by side in one row (2026-08-19: Weapon used to be a
    full-width row below the other three, but that cost a large fixed chunk of vertical height for
    no real reason once weapon-type selection moved out to `WeaponTypeBar`, see that component).
@@ -2648,7 +2646,6 @@ input[type='password'] {
   width: 100%;
   margin-bottom: 8px;
 }
-
 
 .squad-editor {
   display: flex;

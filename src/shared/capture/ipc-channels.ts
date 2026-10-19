@@ -12,5 +12,5 @@ export const CaptureIpcChannel = {
   /** Capture-route renderer → main: signals that its render is fully painted (every icon decoded)
    *  and ready to be captured — resolves the corresponding `buildScreenshot`/`squadScreenshot`
    *  call's wait. */
-  signalReady: 'capture:signal-ready'
-} as const
+  signalReady: 'capture:signal-ready',
+} as const;

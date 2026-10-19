@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Build } from '../types'
-import { computeAuraSources, computeBoonConditionSources } from './sources'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Build } from '../types';
+import { computeAuraSources, computeBoonConditionSources } from './sources';
 
 /**
  * Regression guard for the 2026-08-19 fix to the "Light Aura shows in the Squad Builder's Boons row
@@ -16,9 +16,11 @@ import { computeAuraSources, computeBoonConditionSources } from './sources'
  * own documented contract (`BoonConditionSource.category`'s doc comment).
  */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 function loadGameData<T>(name: string): T {
-  return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8')) as T
+  return JSON.parse(
+    readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'),
+  ) as T;
 }
 
 const gameData = {
@@ -40,11 +42,11 @@ const gameData = {
   soulbeastBeastmode: loadGameData('soulbeast-beastmode.json'),
   familiars: loadGameData('familiars.json'),
   relics: loadGameData('relics.json'),
-  relicEffects: loadGameData('relic-effects.json')
-} as Parameters<typeof computeBoonConditionSources>[1]
+  relicEffects: loadGameData('relic-effects.json'),
+} as Parameters<typeof computeBoonConditionSources>[1];
 
-const LUMINARY_SPEC_ID = 81
-const RADIANT_RESOLVE_ID = 78604
+const LUMINARY_SPEC_ID = 81;
+const RADIANT_RESOLVE_ID = 78604;
 
 function baseBuild(overrides: Partial<Build>): Build {
   return {
@@ -52,7 +54,11 @@ function baseBuild(overrides: Partial<Build>): Build {
     name: 'radiant resolve aura routing test',
     notes: '',
     profession: 'Guardian',
-    specializations: [null, null, { specializationId: LUMINARY_SPEC_ID, chosenTraitIds: [null, null, null] }],
+    specializations: [
+      null,
+      null,
+      { specializationId: LUMINARY_SPEC_ID, chosenTraitIds: [null, null, null] },
+    ],
     skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: null },
     equipment: {},
     relicId: null,
@@ -77,27 +83,33 @@ function baseBuild(overrides: Partial<Build>): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 describe('Radiant Resolve (Luminary F2) — Light Aura routing', () => {
   it('computeAuraSources includes Light Aura', () => {
-    const build = baseBuild({})
-    const auraSources = computeAuraSources(build, gameData)
-    expect(auraSources.some((s) => s.boonOrConditionName === 'Light Aura' && s.category === 'aura')).toBe(true)
-  })
+    const build = baseBuild({});
+    const auraSources = computeAuraSources(build, gameData);
+    expect(
+      auraSources.some((s) => s.boonOrConditionName === 'Light Aura' && s.category === 'aura'),
+    ).toBe(true);
+  });
 
   it('computeBoonConditionSources does NOT include Light Aura (or any aura-category fact)', () => {
-    const build = baseBuild({})
-    const boonSources = computeBoonConditionSources(build, gameData)
-    expect(boonSources.some((s) => s.boonOrConditionName === 'Light Aura')).toBe(false)
-    expect(boonSources.every((s) => s.category !== 'aura')).toBe(true)
-  })
+    const build = baseBuild({});
+    const boonSources = computeBoonConditionSources(build, gameData);
+    expect(boonSources.some((s) => s.boonOrConditionName === 'Light Aura')).toBe(false);
+    expect(boonSources.every((s) => s.category !== 'aura')).toBe(true);
+  });
 
-  it('does not count the Empowered Staff branch\'s Regeneration (not countsTowardTotals, unlike Activate)', () => {
-    const build = baseBuild({})
-    const boonSources = computeBoonConditionSources(build, gameData)
-    expect(boonSources.some((s) => s.sourceId === RADIANT_RESOLVE_ID && s.boonOrConditionName === 'Regeneration')).toBe(false)
-  })
-})
+  it("does not count the Empowered Staff branch's Regeneration (not countsTowardTotals, unlike Activate)", () => {
+    const build = baseBuild({});
+    const boonSources = computeBoonConditionSources(build, gameData);
+    expect(
+      boonSources.some(
+        (s) => s.sourceId === RADIANT_RESOLVE_ID && s.boonOrConditionName === 'Regeneration',
+      ),
+    ).toBe(false);
+  });
+});

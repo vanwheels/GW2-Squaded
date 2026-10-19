@@ -1,9 +1,9 @@
-import { useRef } from 'react'
-import type { Build } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
-import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
-import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts'
+import { useRef } from 'react';
+import type { Build } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import { boonConditionFactsForSkill } from '@shared/boon-calc/sources';
+import { skillFactLines } from '@shared/skill-calc/skill-fact-lines';
+import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts';
 import {
   ALLIANCE_TACTICS_SKILL_ID,
   CATALYST_SPEC_ID,
@@ -17,32 +17,42 @@ import {
   RANGER_BEASTMODE_SPEC_ID,
   soulbeastBeastmodeBar,
   SPECTER_SPEC_ID,
-  type ProfessionMechanicBarEntry
-} from '@shared/skill-calc/profession-mechanic'
-import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
-import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
-import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/thief-stolen-skill'
-import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { usePickerOpen } from '@renderer/state/picker-registry'
-import { factsBlock, skillNamedFacts, useDurationContext, conditionalBranchesBlock } from './SkillsEditor'
+  type ProfessionMechanicBarEntry,
+} from '@shared/skill-calc/profession-mechanic';
+import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar';
+import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills';
+import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/thief-stolen-skill';
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { usePickerOpen } from '@renderer/state/picker-registry';
+import {
+  factsBlock,
+  skillNamedFacts,
+  useDurationContext,
+  conditionalBranchesBlock,
+} from './SkillsEditor';
 
 interface Props {
-  build: Build
-  equippedSpecializationIds: ReadonlySet<number>
+  build: Build;
+  equippedSpecializationIds: ReadonlySet<number>;
   onBuildChange: (
     patch: Partial<
       Pick<
         Build,
-        'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped' | 'activeAttunement' | 'weaverPreviousAttunement'
+        | 'activeBundleSkillId'
+        | 'familiarId'
+        | 'thiefStolenSkillId'
+        | 'vindicatorAspectFlipped'
+        | 'activeAttunement'
+        | 'weaverPreviousAttunement'
       >
-    >
-  ) => void
-  combatState: CombatState
+    >,
+  ) => void;
+  combatState: CombatState;
 }
 
-const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
+const THIEF_STOLEN_SKILL_SLOT = 'Profession_2';
 
 /**
  * The profession-mechanic ("F1-F5") bar: Guardian's Virtues, Warrior's Burst Skill (plus
@@ -146,33 +156,50 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * *future* `branchConditionalFacts` entry against both possible render paths (this bar and
  * `SkillsEditor.tsx`), not just one.
  */
-export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
-  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
-  const { professions, skillsById, tomeChapters, familiars } = gameData
-  const profession = professions.find((p) => p.id === build.profession)
-  const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
-  const stolenSkillButtonRef = useRef<HTMLButtonElement>(null)
+export function ProfessionMechanicBar({
+  build,
+  equippedSpecializationIds,
+  onBuildChange,
+  combatState,
+}: Props) {
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } =
+    useDurationContext(build, combatState);
+  const { professions, skillsById, tomeChapters, familiars } = gameData;
+  const profession = professions.find((p) => p.id === build.profession);
+  const {
+    open: stolenSkillPickerOpen,
+    openThis: openStolenSkillPicker,
+    close: closeStolenSkillPicker,
+  } = usePickerOpen();
+  const stolenSkillButtonRef = useRef<HTMLButtonElement>(null);
 
   function cycleFamiliar(): void {
-    const currentIndex = familiars.findIndex((f) => f.id === build.familiarId)
-    const next = familiars[(currentIndex + 1) % familiars.length]
-    onBuildChange({ familiarId: next.id })
+    const currentIndex = familiars.findIndex((f) => f.id === build.familiarId);
+    const next = familiars[(currentIndex + 1) % familiars.length];
+    onBuildChange({ familiarId: next.id });
   }
 
   function toggleStolenSkillPicker(): void {
-    if (stolenSkillPickerOpen) closeStolenSkillPicker()
-    else openStolenSkillPicker()
+    if (stolenSkillPickerOpen) closeStolenSkillPicker();
+    else openStolenSkillPicker();
   }
 
   function chooseStolenSkill(id: number | null): void {
-    onBuildChange({ thiefStolenSkillId: id })
-    closeStolenSkillPicker()
+    onBuildChange({ thiefStolenSkillId: id });
+    closeStolenSkillPicker();
   }
 
   function skillTooltipFor(skillId: number) {
-    const skill = skillsById.get(skillId)
-    if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
+    const skill = skillsById.get(skillId);
+    if (!skill) return null;
+    const facts = boonConditionFactsForSkill(
+      skill,
+      activeIds,
+      legendIds,
+      durationPercent,
+      gameData.wvwFactOverrides.skill[skill.id],
+      gameData.legends,
+    );
     const numericLines = skillFactLines(
       skill,
       activeIds,
@@ -180,73 +207,103 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
       characterAttributes.healingPower,
       targetArmor,
       gameData.rechargeWvwOverrides,
-      gameData.resourceCosts
-    )
-    const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id], gameData.legends, {
-      power: characterAttributes.power,
-      healingPower: characterAttributes.healingPower,
-      targetArmor
-    })
-    const branches = branchConditionalFacts(skill, durationPercent, characterAttributes.healingPower, activeIds, legendIds, gameData.legends)
+      gameData.resourceCosts,
+    );
+    const namedFacts = skillNamedFacts(
+      skill,
+      activeIds,
+      legendIds,
+      gameData.wvwFactOverrides.skill[skill.id],
+      gameData.legends,
+      {
+        power: characterAttributes.power,
+        healingPower: characterAttributes.healingPower,
+        targetArmor,
+      },
+    );
+    const branches = branchConditionalFacts(
+      skill,
+      durationPercent,
+      characterAttributes.healingPower,
+      activeIds,
+      legendIds,
+      gameData.legends,
+    );
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />
         {factsBlock(numericLines, facts, namedFacts, characterAttributes.conditionDamage)}
         {conditionalBranchesBlock(branches, characterAttributes.conditionDamage)}
       </>
-    )
+    );
   }
 
-  if (!profession) return null
+  if (!profession) return null;
 
-  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID)
-  const isLand = build.environment === 'land'
-  const mainKey = isLand ? (build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1') : build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2'
-  const mainHandWeaponType = build.equipment[mainKey]?.weaponType ?? null
+  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID);
+  const isLand = build.environment === 'land';
+  const mainKey = isLand
+    ? build.activeWeaponSet === 'A'
+      ? 'weaponA1'
+      : 'weaponB1'
+    : build.activeUnderwaterSet === 'U1'
+      ? 'weaponU1'
+      : 'weaponU2';
+  const mainHandWeaponType = build.equipment[mainKey]?.weaponType ?? null;
 
   let entries: ProfessionMechanicBarEntry[] = professionMechanicBar(
     profession,
     skillsById,
     equippedSpecializationIds,
     build.environment,
-    mainHandWeaponType
-  )
+    mainHandWeaponType,
+  );
   if (build.profession === 'Engineer') {
-    entries = [...engineerToolbeltBar(build, skillsById), ...entries]
+    entries = [...engineerToolbeltBar(build, skillsById), ...entries];
   }
   if (build.profession === 'Ranger' && equippedSpecializationIds.has(RANGER_BEASTMODE_SPEC_ID)) {
-    entries = [...soulbeastBeastmodeBar(build, skillsById, gameData.soulbeastBeastmode), ...entries]
+    entries = [
+      ...soulbeastBeastmodeBar(build, skillsById, gameData.soulbeastBeastmode),
+      ...entries,
+    ];
   }
   if (build.profession === 'Revenant' && equippedSpecializationIds.has(CONDUIT_SPEC_ID)) {
-    entries = [...conduitReleasePotentialBar(build, skillsById), ...entries]
+    entries = [...conduitReleasePotentialBar(build, skillsById), ...entries];
   }
   if (build.profession === 'Elementalist' && equippedSpecializationIds.has(CATALYST_SPEC_ID)) {
-    entries = [...entries, ...catalystJadeSphereBar(build, profession, skillsById)]
+    entries = [...entries, ...catalystJadeSphereBar(build, profession, skillsById)];
   }
-  const isEvoker = build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID)
+  const isEvoker =
+    build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID);
   if (isEvoker) {
-    entries = [...entries, ...evokerFamiliarBar(build, skillsById, familiars)]
+    entries = [...entries, ...evokerFamiliarBar(build, skillsById, familiars)];
   }
-  const showStolenSkillPicker = build.profession === 'Thief' && !equippedSpecializationIds.has(SPECTER_SPEC_ID)
+  const showStolenSkillPicker =
+    build.profession === 'Thief' && !equippedSpecializationIds.has(SPECTER_SPEC_ID);
   if (showStolenSkillPicker) {
-    entries = [...entries, ...thiefStolenSkillBar(build, skillsById)].sort((a, b) => a.slot.localeCompare(b.slot))
+    entries = [...entries, ...thiefStolenSkillBar(build, skillsById)].sort((a, b) =>
+      a.slot.localeCompare(b.slot),
+    );
   }
 
-  if (entries.length === 0 && !showStolenSkillPicker) return null
+  if (entries.length === 0 && !showStolenSkillPicker) return null;
 
   return (
     <div className="skill-bar profession-mechanic-bar ingame-skill-bar-mechanic">
       {entries.map((entry) => {
-        const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters)
-        const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5'
-        const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT
-        const isAllianceTacticsSlot = entry.skill.id === ALLIANCE_TACTICS_SKILL_ID
-        const attunement = build.profession === 'Elementalist' ? ELEMENTALIST_ATTUNEMENT_SLOTS[entry.slot] : undefined
+        const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters);
+        const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5';
+        const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT;
+        const isAllianceTacticsSlot = entry.skill.id === ALLIANCE_TACTICS_SKILL_ID;
+        const attunement =
+          build.profession === 'Elementalist'
+            ? ELEMENTALIST_ATTUNEMENT_SLOTS[entry.slot]
+            : undefined;
         const isActive =
           (isBundle && build.activeBundleSkillId === entry.skill.id) ||
           (isStolenSkillSlot && stolenSkillPickerOpen) ||
           (isAllianceTacticsSlot && build.vindicatorAspectFlipped) ||
-          (attunement !== undefined && build.activeAttunement === attunement)
+          (attunement !== undefined && build.activeAttunement === attunement);
         const onClick = isStolenSkillSlot
           ? toggleStolenSkillPicker
           : isBundle
@@ -259,12 +316,18 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
                   ? () =>
                       onBuildChange(
                         isWeaver
-                          ? { activeAttunement: attunement, weaverPreviousAttunement: build.activeAttunement }
-                          : { activeAttunement: attunement }
+                          ? {
+                              activeAttunement: attunement,
+                              weaverPreviousAttunement: build.activeAttunement,
+                            }
+                          : { activeAttunement: attunement },
                       )
-                  : undefined
+                  : undefined;
         return (
-          <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
+          <Tooltip
+            key={entry.slot}
+            content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}
+          >
             <button
               ref={isStolenSkillSlot ? stolenSkillButtonRef : undefined}
               type="button"
@@ -275,7 +338,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
               <img src={entry.skill.icon} alt={entry.skill.name} />
             </button>
           </Tooltip>
-        )
+        );
       })}
       {isEvoker && !entries.some((e) => e.slot === 'Profession_5') && (
         <Tooltip content={<TooltipBody title="Familiar" />}>
@@ -310,7 +373,11 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
               <Tooltip content={<TooltipBody title="None" />}>
                 <button
                   type="button"
-                  className={build.thiefStolenSkillId === null ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                  className={
+                    build.thiefStolenSkillId === null
+                      ? 'skill-icon-button chosen'
+                      : 'skill-icon-button'
+                  }
                   onClick={() => chooseStolenSkill(null)}
                 >
                   <span className="skill-option-none">—</span>
@@ -320,24 +387,31 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
             <div className="skill-category-column">
               <div className="skill-category-header">Stolen Skill</div>
               {THIEF_STOLEN_SKILL_IDS.map((id) => {
-                const skill = skillsById.get(id)
-                if (!skill) return null
+                const skill = skillsById.get(id);
+                if (!skill) return null;
                 return (
-                  <Tooltip key={id} content={skillTooltipFor(id) ?? <TooltipBody title={skill.name} />}>
+                  <Tooltip
+                    key={id}
+                    content={skillTooltipFor(id) ?? <TooltipBody title={skill.name} />}
+                  >
                     <button
                       type="button"
-                      className={build.thiefStolenSkillId === id ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                      className={
+                        build.thiefStolenSkillId === id
+                          ? 'skill-icon-button chosen'
+                          : 'skill-icon-button'
+                      }
                       onClick={() => chooseStolenSkill(id)}
                     >
                       <img src={skill.icon} alt={skill.name} />
                     </button>
                   </Tooltip>
-                )
+                );
               })}
             </div>
           </div>
         </FloatingPanel>
       )}
     </div>
-  )
+  );
 }

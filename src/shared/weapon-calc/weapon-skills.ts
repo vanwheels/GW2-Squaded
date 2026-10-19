@@ -1,6 +1,6 @@
-import type { Environment, ProfessionWeapon, ProfessionWeaponSkillSlot, Skill } from '../types'
+import type { Environment, ProfessionWeapon, ProfessionWeaponSkillSlot, Skill } from '../types';
 
-const LAND_ONLY_FLAG = 'NoUnderwater'
+const LAND_ONLY_FLAG = 'NoUnderwater';
 
 /**
  * Elementalist-only, live-API-verified 2026-08-01 while chasing the "Staff skill 4-5 stuck" bug
@@ -82,8 +82,8 @@ const ELEMENTALIST_WEAPON_4_5_ATTUNEMENT: Record<number, string> = {
   29533: 'Fire', // Wildfire
   30446: 'Water', // Water Globe
   30795: 'Air', // Lightning Orb
-  30336: 'Earth' // Dust Storm
-}
+  30336: 'Earth', // Dust Storm
+};
 
 /**
  * Thief-only, wiki-verified 2026-07-31 (no API field distinguishes these — every candidate is
@@ -107,8 +107,8 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
   63154: null, // Triple Threat (main hand scepter, off hand empty/default)
   13016: 'Dagger', // Flanking Strike (main hand sword, off hand dagger)
   80244: 'Pistol', // Flawless Execution (main hand sword, off hand pistol)
-  13112: null // Stab (main hand sword, off hand empty/default)
-}
+  13112: null, // Stab (main hand sword, off hand empty/default)
+};
 
 /**
  * Raw candidate skill ids that are retired/historical content the live API still returns for a
@@ -129,8 +129,8 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
  * Weapon_4 candidate, standalone with no flip stack — matching the current live tooltip.
  */
 const RETIRED_WEAPON_SKILL_IDS: ReadonlySet<number> = new Set([
-  28571 // Duelist's Preparation (Revenant off-hand Sword 4) — removed from the game 2017-11-07
-])
+  28571, // Duelist's Preparation (Revenant off-hand Sword 4) — removed from the game 2017-11-07
+]);
 
 /**
  * Elementalist Weaver (specialization id 56). Weaver tracks two simultaneously-active attunements
@@ -139,13 +139,13 @@ const RETIRED_WEAPON_SKILL_IDS: ReadonlySet<number> = new Set([
  * *both* (wiki: "Dual Attack", order-independent — Fire+Water and Water+Fire are the same skill;
  * attuning to the same element twice, e.g. Fire+Fire, gives the normal single-attunement skill 3).
  */
-export const WEAVER_SPEC_ID = 56
+export const WEAVER_SPEC_ID = 56;
 
 /** Fire > Water > Air > Earth — matches the priority order the GW2 API itself uses when tagging a
  *  Dual Attack skill's single `attunement` field (see `WEAVER_WEAPON_3_SKILLS`'s doc comment) and
  *  `ELEMENTALIST_ATTUNEMENT_SLOTS`'/`ELEMENTALIST_ATTUNEMENTS`' existing F1-F4 ordering. Used only
  *  to canonicalize an unordered attunement pair into one lookup-table key. */
-const WEAVER_ATTUNEMENT_PRIORITY: Record<string, number> = { Fire: 0, Water: 1, Air: 2, Earth: 3 }
+const WEAVER_ATTUNEMENT_PRIORITY: Record<string, number> = { Fire: 0, Water: 1, Air: 2, Earth: 3 };
 
 /**
  * Weaver's weapon-skill-3 "Dual Attack" table — hand-verified 2026-08-06 against the wiki's own
@@ -263,8 +263,8 @@ const WEAVER_WEAPON_3_SKILLS: Record<string, number> = {
   'Trident|Fire+Fire': 5566, // Steam
   'Trident|Water+Water': 5606, // Ice Wall
   'Trident|Air+Air': 5652, // Air Pocket
-  'Trident|Earth+Earth': 5662 // Magnetic Current
-}
+  'Trident|Earth+Earth': 5662, // Magnetic Current
+};
 
 /**
  * Looks up Weaver's weapon-skill-3 "Dual Attack" (or same-element default) id for a given weapon
@@ -276,13 +276,14 @@ const WEAVER_WEAPON_3_SKILLS: Record<string, number> = {
 export function weaverWeaponThreeSkillId(
   weaponType: string,
   currentAttunement: string,
-  previousAttunement: string
+  previousAttunement: string,
 ): number | null {
   const [first, second] =
-    (WEAVER_ATTUNEMENT_PRIORITY[currentAttunement] ?? 99) <= (WEAVER_ATTUNEMENT_PRIORITY[previousAttunement] ?? 99)
+    (WEAVER_ATTUNEMENT_PRIORITY[currentAttunement] ?? 99) <=
+    (WEAVER_ATTUNEMENT_PRIORITY[previousAttunement] ?? 99)
       ? [currentAttunement, previousAttunement]
-      : [previousAttunement, currentAttunement]
-  return WEAVER_WEAPON_3_SKILLS[`${weaponType}|${first}+${second}`] ?? null
+      : [previousAttunement, currentAttunement];
+  return WEAVER_WEAPON_3_SKILLS[`${weaponType}|${first}+${second}`] ?? null;
 }
 
 /**
@@ -347,66 +348,75 @@ export function resolveSkillBarIds(
   skillsById: Map<number, Skill>,
   equippedSpecializationIds: ReadonlySet<number> = new Set(),
   offWeaponType?: string | null,
-  attunement?: string | null
+  attunement?: string | null,
 ): (number | null)[] {
-  const slots = ['Weapon_1', 'Weapon_2', 'Weapon_3', 'Weapon_4', 'Weapon_5']
+  const slots = ['Weapon_1', 'Weapon_2', 'Weapon_3', 'Weapon_4', 'Weapon_5'];
   return slots.map((slotName) => {
-    let candidates = candidateSkills.filter((s) => s.slot === slotName)
-    if (candidates.length === 0) return null
+    let candidates = candidateSkills.filter((s) => s.slot === slotName);
+    if (candidates.length === 0) return null;
 
-    const live = candidates.filter((c) => !RETIRED_WEAPON_SKILL_IDS.has(c.id))
-    if (live.length > 0) candidates = live
+    const live = candidates.filter((c) => !RETIRED_WEAPON_SKILL_IDS.has(c.id));
+    if (live.length > 0) candidates = live;
 
     if (attunement) {
       const attuned = candidates.filter(
-        (c) => (skillsById.get(c.id)?.attunement ?? ELEMENTALIST_WEAPON_4_5_ATTUNEMENT[c.id]) === attunement
-      )
-      if (attuned.length > 0) candidates = attuned
+        (c) =>
+          (skillsById.get(c.id)?.attunement ?? ELEMENTALIST_WEAPON_4_5_ATTUNEMENT[c.id]) ===
+          attunement,
+      );
+      if (attuned.length > 0) candidates = attuned;
     }
-    if (candidates.length === 1) return candidates[0].id
+    if (candidates.length === 1) return candidates[0].id;
 
-    const idSet = new Set(candidates.map((c) => c.id))
+    const idSet = new Set(candidates.map((c) => c.id));
     const flipTargetIds = new Set(
       candidates
         .map((c) => skillsById.get(c.id)?.flipSkill ?? null)
-        .filter((id): id is number => id !== null && idSet.has(id) && !(id in THIEF_DUAL_WIELD_OFFHAND))
-    )
-    const withoutFlipTargets = candidates.filter((c) => !flipTargetIds.has(c.id))
-    if (withoutFlipTargets.length > 0) candidates = withoutFlipTargets
-    if (candidates.length === 1) return candidates[0].id
+        .filter(
+          (id): id is number => id !== null && idSet.has(id) && !(id in THIEF_DUAL_WIELD_OFFHAND),
+        ),
+    );
+    const withoutFlipTargets = candidates.filter((c) => !flipTargetIds.has(c.id));
+    if (withoutFlipTargets.length > 0) candidates = withoutFlipTargets;
+    if (candidates.length === 1) return candidates[0].id;
 
     if (candidates.length === 2) {
-      const withFlags = candidates.map((c) => ({ id: c.id, isLandOnly: skillsById.get(c.id)?.flags.includes(LAND_ONLY_FLAG) ?? false }))
-      const landOnly = withFlags.filter((c) => c.isLandOnly)
-      const notLandOnly = withFlags.filter((c) => !c.isLandOnly)
+      const withFlags = candidates.map((c) => ({
+        id: c.id,
+        isLandOnly: skillsById.get(c.id)?.flags.includes(LAND_ONLY_FLAG) ?? false,
+      }));
+      const landOnly = withFlags.filter((c) => c.isLandOnly);
+      const notLandOnly = withFlags.filter((c) => !c.isLandOnly);
       if (landOnly.length === 1 && notLandOnly.length === 1) {
-        return environment === 'land' ? landOnly[0].id : notLandOnly[0].id
+        return environment === 'land' ? landOnly[0].id : notLandOnly[0].id;
       }
     }
 
     const specMatched = candidates.filter((c) => {
-      const spec = skillsById.get(c.id)?.specializationId ?? null
-      return spec !== null && equippedSpecializationIds.has(spec)
-    })
+      const spec = skillsById.get(c.id)?.specializationId ?? null;
+      return spec !== null && equippedSpecializationIds.has(spec);
+    });
     if (specMatched.length > 0) {
-      candidates = specMatched
+      candidates = specMatched;
     } else {
-      const ungated = candidates.filter((c) => (skillsById.get(c.id)?.specializationId ?? null) === null)
-      if (ungated.length > 0) candidates = ungated
+      const ungated = candidates.filter(
+        (c) => (skillsById.get(c.id)?.specializationId ?? null) === null,
+      );
+      if (ungated.length > 0) candidates = ungated;
     }
-    if (candidates.length === 1) return candidates[0].id
+    if (candidates.length === 1) return candidates[0].id;
 
     if (offWeaponType !== undefined && candidates.every((c) => c.id in THIEF_DUAL_WIELD_OFFHAND)) {
-      const matched = candidates.filter((c) => THIEF_DUAL_WIELD_OFFHAND[c.id] === offWeaponType)
-      if (matched.length === 1) return matched[0].id
+      const matched = candidates.filter((c) => THIEF_DUAL_WIELD_OFFHAND[c.id] === offWeaponType);
+      if (matched.length === 1) return matched[0].id;
       if (matched.length === 0) {
-        const fallback = candidates.filter((c) => THIEF_DUAL_WIELD_OFFHAND[c.id] === null)
-        if (fallback.length === 1) return fallback[0].id
+        const fallback = candidates.filter((c) => THIEF_DUAL_WIELD_OFFHAND[c.id] === null);
+        if (fallback.length === 1) return fallback[0].id;
       }
     }
 
-    return candidates[0].id
-  })
+    return candidates[0].id;
+  });
 }
 
 /**
@@ -438,20 +448,43 @@ export function weaponSkillIdsForPair(
   mainWeaponType?: string | null,
   offWeaponType?: string | null,
   attunement?: string | null,
-  previousAttunement?: string | null
+  previousAttunement?: string | null,
 ): (number | null)[] {
   const mainIds = mainWeapon
-    ? resolveSkillBarIds(mainWeapon.skills, environment, skillsById, equippedSpecializationIds, offWeaponType, attunement)
-    : [null, null, null, null, null]
+    ? resolveSkillBarIds(
+        mainWeapon.skills,
+        environment,
+        skillsById,
+        equippedSpecializationIds,
+        offWeaponType,
+        attunement,
+      )
+    : [null, null, null, null, null];
   if (previousAttunement && attunement) {
     const offIds = offWeapon
-      ? resolveSkillBarIds(offWeapon.skills, environment, skillsById, equippedSpecializationIds, mainWeaponType, previousAttunement)
-      : [null, null, null, null, null]
-    const dualAttackId = mainWeaponType ? weaverWeaponThreeSkillId(mainWeaponType, attunement, previousAttunement) : null
-    return [mainIds[0], mainIds[1], dualAttackId ?? mainIds[2], offIds[3], offIds[4]]
+      ? resolveSkillBarIds(
+          offWeapon.skills,
+          environment,
+          skillsById,
+          equippedSpecializationIds,
+          mainWeaponType,
+          previousAttunement,
+        )
+      : [null, null, null, null, null];
+    const dualAttackId = mainWeaponType
+      ? weaverWeaponThreeSkillId(mainWeaponType, attunement, previousAttunement)
+      : null;
+    return [mainIds[0], mainIds[1], dualAttackId ?? mainIds[2], offIds[3], offIds[4]];
   }
   const offIds = offWeapon
-    ? resolveSkillBarIds(offWeapon.skills, environment, skillsById, equippedSpecializationIds, mainWeaponType, attunement)
-    : [null, null, null, null, null]
-  return [mainIds[0], mainIds[1], mainIds[2], offIds[3], offIds[4]]
+    ? resolveSkillBarIds(
+        offWeapon.skills,
+        environment,
+        skillsById,
+        equippedSpecializationIds,
+        mainWeaponType,
+        attunement,
+      )
+    : [null, null, null, null, null];
+  return [mainIds[0], mainIds[1], mainIds[2], offIds[3], offIds[4]];
 }

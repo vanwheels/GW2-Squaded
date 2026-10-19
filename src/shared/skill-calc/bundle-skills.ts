@@ -1,19 +1,19 @@
-import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } from '../types'
-import { resolveSkillBarIds } from '../weapon-calc/weapon-skills'
-import { GUNSABER_WEAPON_BAR_SKILL_IDS } from './gunsaber-skills'
+import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } from '../types';
+import { resolveSkillBarIds } from '../weapon-calc/weapon-skills';
+import { GUNSABER_WEAPON_BAR_SKILL_IDS } from './gunsaber-skills';
 import {
   DRAGON_SLASH_BAR_SKILL_IDS,
   DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS,
   DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS,
   DRAGON_TRIGGER_SKILL_ID,
   RIVERS_FLOW_TRAIT_ID,
-  SHARP_AS_THE_WIND_TRAIT_ID
-} from './dragon-slash-skills'
+  SHARP_AS_THE_WIND_TRAIT_ID,
+} from './dragon-slash-skills';
 
 /** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. Exported so
  *  `skill-calc/glyph-forms.ts` can read `Build.activeBundleSkillId` against the same id this file
  *  uses to swap the weapon bar — a Druid Glyph's real facts depend on the identical toggle. */
-export const CELESTIAL_AVATAR_SKILL_ID = 31869
+export const CELESTIAL_AVATAR_SKILL_ID = 31869;
 
 /**
  * The 5 real Celestial-Avatar-form skills, resolved by `categories.includes('CelestialAvatar')`
@@ -35,19 +35,19 @@ export const CELESTIAL_AVATAR_SKILL_ID = 31869
  * lower id deterministically, a documented known limitation rather than a guess.
  */
 function celestialAvatarSlotSkillIds(skillsById: Map<number, Skill>): (number | null)[] {
-  const bySlot = new Map<string, Skill[]>()
+  const bySlot = new Map<string, Skill[]>();
   for (const skill of skillsById.values()) {
     if (skill.categories.includes('CelestialAvatar') && skill.slot.startsWith('Weapon_')) {
-      const existing = bySlot.get(skill.slot)
-      if (existing) existing.push(skill)
-      else bySlot.set(skill.slot, [skill])
+      const existing = bySlot.get(skill.slot);
+      if (existing) existing.push(skill);
+      else bySlot.set(skill.slot, [skill]);
     }
   }
   return ['Weapon_1', 'Weapon_2', 'Weapon_3', 'Weapon_4', 'Weapon_5'].map((slot) => {
-    const candidates = bySlot.get(slot)
-    if (!candidates || candidates.length === 0) return null
-    return [...candidates].sort((a, b) => a.id - b.id)[0].id
-  })
+    const candidates = bySlot.get(slot);
+    if (!candidates || candidates.length === 0) return null;
+    return [...candidates].sort((a, b) => a.id - b.id)[0].id;
+  });
 }
 
 /**
@@ -77,8 +77,8 @@ const NECRO_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
   10574: [10554, 10604, 10588, 10594, 19504], // core Death Shroud
   30792: [29442, 30825, 29958, 30504, 30557], // Reaper's Shroud
   62567: [62611, 62621, 62672, 62539, 62563], // Harbinger Shroud
-  77238: [77061, 76864, 76741, 76684, 76607] // Ritualist's Shroud
-}
+  77238: [77061, 76864, 76741, 76684, 76607], // Ritualist's Shroud
+};
 
 /**
  * Thief Specter (specialization id 71, `SPECTER_SPEC_ID` in `profession-mechanic.ts`)'s "Enter
@@ -94,8 +94,8 @@ const NECRO_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
  * existing convention rather than guessing.
  */
 const SPECTER_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
-  63155: [63362, 63107, 63227, 63160, 63249] // Enter Shadow Shroud
-}
+  63155: [63362, 63107, 63227, 63160, 63249], // Enter Shadow Shroud
+};
 
 /** Every entry-skill id that toggles the weapon-skill row into a fixed 5-skill Shroud bundle —
  *  Necromancer's 4 Shroud variants plus Specter's — keyed the same way; merged into one lookup
@@ -104,7 +104,10 @@ const SPECTER_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
  *  `Downed_*`-slotted id actually reachable" without a full `Build` in hand) can check membership
  *  without re-deriving this hand-verified table — see this file's own doc comment above for why
  *  `slot: "Downed_*"` alone doesn't mean unreachable for Necromancer's 4 Shroud variants. */
-export const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SLOT_SKILLS, ...SPECTER_SHROUD_SLOT_SKILLS }
+export const SHROUD_SLOT_SKILLS: Record<number, number[]> = {
+  ...NECRO_SHROUD_SLOT_SKILLS,
+  ...SPECTER_SHROUD_SLOT_SKILLS,
+};
 
 /**
  * Guardian Luminary (specialization id 81)'s "Enter Radiant Forge" (77073, F4 — see
@@ -129,26 +132,26 @@ export const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SL
  * for a bonus "Empowered" effect on next use — confirmed by name cross-reference against each
  * virtue's own wiki-quoted Activate text.
  */
-const RADIANT_FORGE_ENTER_SKILL_ID = 77073
+const RADIANT_FORGE_ENTER_SKILL_ID = 77073;
 const RADIANT_FORGE_SLOT_SKILLS: Record<number, number[]> = {
   [RADIANT_FORGE_ENTER_SKILL_ID]: [
     76982, // Glaring Burst (wiki's own canonical id of the 5 weapon-state variants)
     77339, // Dazzling Hammer
     76708, // Luminous Staff
     76924, // Gleaming Blade
-    77197 // Radiant Bulwark
-  ]
-}
+    77197, // Radiant Bulwark
+  ],
+};
 
 /** Bladesworn's "Unsheathe Gunsaber" id (Warrior's Profession_1 F1 button — see
  *  `profession-mechanic.ts`'s Warrior weapon-type-filter carve-out for why it survives that
  *  filter) mapped to Gunsaber's own 5 weapon-bar skills — same bundle shape as Necromancer's
  *  Shroud above, except these 5 ids don't exist in the API at all and are hand-authored in
  *  `gunsaber-skills.ts` (see that file's doc comment for the full data-gap writeup). */
-const GUNSABER_UNSHEATHE_SKILL_ID = 62745
+const GUNSABER_UNSHEATHE_SKILL_ID = 62745;
 const GUNSABER_SLOT_SKILLS: Record<number, number[]> = {
-  [GUNSABER_UNSHEATHE_SKILL_ID]: GUNSABER_WEAPON_BAR_SKILL_IDS
-}
+  [GUNSABER_UNSHEATHE_SKILL_ID]: GUNSABER_WEAPON_BAR_SKILL_IDS,
+};
 
 /**
  * Which of Dragon Trigger's 3 possible 5-skill bars applies for a build — untraited, or reflavored
@@ -162,10 +165,13 @@ const GUNSABER_SLOT_SKILLS: Record<number, number[]> = {
  * `GADGETEER_GATED_SKILL_IDS` resolution.
  */
 function dragonSlashBarSkillIdsForBuild(build: Build): number[] {
-  const chosenTraitIds = new Set(build.specializations.flatMap((line) => line?.chosenTraitIds ?? []))
-  if (chosenTraitIds.has(SHARP_AS_THE_WIND_TRAIT_ID)) return DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS
-  if (chosenTraitIds.has(RIVERS_FLOW_TRAIT_ID)) return DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS
-  return DRAGON_SLASH_BAR_SKILL_IDS
+  const chosenTraitIds = new Set(
+    build.specializations.flatMap((line) => line?.chosenTraitIds ?? []),
+  );
+  if (chosenTraitIds.has(SHARP_AS_THE_WIND_TRAIT_ID))
+    return DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS;
+  if (chosenTraitIds.has(RIVERS_FLOW_TRAIT_ID)) return DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS;
+  return DRAGON_SLASH_BAR_SKILL_IDS;
 }
 
 /**
@@ -184,17 +190,30 @@ export function bundleCapableSkillIds(
   build: Build,
   skillsById: Map<number, Skill>,
   tomeChapters: TomeChaptersByTomeId,
-  mechanicBarSkillIds: number[]
+  mechanicBarSkillIds: number[],
 ): number[] {
-  const equippedIds = build.skills.kind === 'standard' ? [build.skills.heal, ...build.skills.utility, build.skills.elite] : []
-  const kitIds = equippedIds.filter((id): id is number => id !== null && (skillsById.get(id)?.bundleSkills?.length ?? 0) > 0)
-  const tomeIds = mechanicBarSkillIds.filter((id) => id in tomeChapters)
-  const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
-  const shroudIds = mechanicBarSkillIds.filter((id) => id in SHROUD_SLOT_SKILLS)
-  const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS)
-  const radiantForgeIds = mechanicBarSkillIds.filter((id) => id in RADIANT_FORGE_SLOT_SKILLS)
-  const dragonSlashIds = mechanicBarSkillIds.filter((id) => id === DRAGON_TRIGGER_SKILL_ID)
-  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds, ...radiantForgeIds, ...dragonSlashIds]
+  const equippedIds =
+    build.skills.kind === 'standard'
+      ? [build.skills.heal, ...build.skills.utility, build.skills.elite]
+      : [];
+  const kitIds = equippedIds.filter(
+    (id): id is number => id !== null && (skillsById.get(id)?.bundleSkills?.length ?? 0) > 0,
+  );
+  const tomeIds = mechanicBarSkillIds.filter((id) => id in tomeChapters);
+  const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID);
+  const shroudIds = mechanicBarSkillIds.filter((id) => id in SHROUD_SLOT_SKILLS);
+  const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS);
+  const radiantForgeIds = mechanicBarSkillIds.filter((id) => id in RADIANT_FORGE_SLOT_SKILLS);
+  const dragonSlashIds = mechanicBarSkillIds.filter((id) => id === DRAGON_TRIGGER_SKILL_ID);
+  return [
+    ...kitIds,
+    ...tomeIds,
+    ...celestialAvatarIds,
+    ...shroudIds,
+    ...gunsaberIds,
+    ...radiantForgeIds,
+    ...dragonSlashIds,
+  ];
 }
 
 /** Ids `ProfessionMechanicBar` makes clickable directly on their own F-bar icon rather than
@@ -208,17 +227,18 @@ export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTo
     id in GUNSABER_SLOT_SKILLS ||
     id in RADIANT_FORGE_SLOT_SKILLS ||
     id === DRAGON_TRIGGER_SKILL_ID
-  )
+  );
 }
 
 /** One resolved slot (1-5) of an active kit/tome bundle — either a real `Skill` (Kit) or a
  *  wiki-sourced `TomeChapter` (Tome); display components branch on `kind`. */
-export type BundleSlot = { kind: 'kit'; skill: Skill } | { kind: 'tome'; chapter: TomeChapter } | null
+export type BundleSlot =
+  { kind: 'kit'; skill: Skill } | { kind: 'tome'; chapter: TomeChapter } | null;
 
 export interface ActiveBundle {
-  kind: 'kit' | 'tome'
-  sourceSkill: Skill
-  slots: BundleSlot[]
+  kind: 'kit' | 'tome';
+  sourceSkill: Skill;
+  slots: BundleSlot[];
 }
 
 /**
@@ -231,24 +251,27 @@ export function resolveActiveBundle(
   build: Build,
   skillsById: Map<number, Skill>,
   tomeChapters: TomeChaptersByTomeId,
-  environment: Environment
+  environment: Environment,
 ): ActiveBundle | null {
-  const id = build.activeBundleSkillId
-  if (id === null) return null
-  const sourceSkill = skillsById.get(id)
-  if (!sourceSkill) return null
+  const id = build.activeBundleSkillId;
+  if (id === null) return null;
+  const sourceSkill = skillsById.get(id);
+  if (!sourceSkill) return null;
 
   if (sourceSkill.bundleSkills && sourceSkill.bundleSkills.length > 0) {
-    const candidates = sourceSkill.bundleSkills.map((skillId) => ({ id: skillId, slot: skillsById.get(skillId)?.slot ?? '' }))
-    const ids = resolveSkillBarIds(candidates, environment, skillsById)
+    const candidates = sourceSkill.bundleSkills.map((skillId) => ({
+      id: skillId,
+      slot: skillsById.get(skillId)?.slot ?? '',
+    }));
+    const ids = resolveSkillBarIds(candidates, environment, skillsById);
     return {
       kind: 'kit',
       sourceSkill,
       slots: ids.map((skillId) => {
-        const skill = skillId !== null ? skillsById.get(skillId) : undefined
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillId !== null ? skillsById.get(skillId) : undefined;
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
   if (id === CELESTIAL_AVATAR_SKILL_ID) {
@@ -256,46 +279,46 @@ export function resolveActiveBundle(
       kind: 'kit',
       sourceSkill,
       slots: celestialAvatarSlotSkillIds(skillsById).map((skillId) => {
-        const skill = skillId !== null ? skillsById.get(skillId) : undefined
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillId !== null ? skillsById.get(skillId) : undefined;
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
-  const shroudSlotIds = SHROUD_SLOT_SKILLS[id]
+  const shroudSlotIds = SHROUD_SLOT_SKILLS[id];
   if (shroudSlotIds) {
     return {
       kind: 'kit',
       sourceSkill,
       slots: shroudSlotIds.map((skillId) => {
-        const skill = skillsById.get(skillId)
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillsById.get(skillId);
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
-  const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id]
+  const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id];
   if (gunsaberSlotIds) {
     return {
       kind: 'kit',
       sourceSkill,
       slots: gunsaberSlotIds.map((skillId) => {
-        const skill = skillsById.get(skillId)
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillsById.get(skillId);
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
-  const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id]
+  const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id];
   if (radiantForgeSlotIds) {
     return {
       kind: 'kit',
       sourceSkill,
       slots: radiantForgeSlotIds.map((skillId) => {
-        const skill = skillsById.get(skillId)
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillsById.get(skillId);
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
   if (id === DRAGON_TRIGGER_SKILL_ID) {
@@ -303,26 +326,26 @@ export function resolveActiveBundle(
       kind: 'kit',
       sourceSkill,
       slots: dragonSlashBarSkillIdsForBuild(build).map((skillId) => {
-        const skill = skillsById.get(skillId)
-        return skill ? { kind: 'kit', skill } : null
-      })
-    }
+        const skill = skillsById.get(skillId);
+        return skill ? { kind: 'kit', skill } : null;
+      }),
+    };
   }
 
-  const chapters = tomeChapters[id]
+  const chapters = tomeChapters[id];
   if (chapters) {
-    const bySlot = new Map(chapters.map((c) => [c.slotIndex, c]))
+    const bySlot = new Map(chapters.map((c) => [c.slotIndex, c]));
     return {
       kind: 'tome',
       sourceSkill,
       slots: [0, 1, 2, 3, 4].map((i) => {
-        const chapter = bySlot.get(i)
-        return chapter ? { kind: 'tome', chapter } : null
-      })
-    }
+        const chapter = bySlot.get(i);
+        return chapter ? { kind: 'tome', chapter } : null;
+      }),
+    };
   }
 
-  return null
+  return null;
 }
 
 /**
@@ -341,46 +364,49 @@ export function bundleSkillIdsForBuild(
   bundleCapableIds: number[],
   skillsById: Map<number, Skill>,
   tomeChapters: TomeChaptersByTomeId,
-  environment: Environment
+  environment: Environment,
 ): { kitSkillIds: number[]; tomeChapters: TomeChapter[] } {
-  const kitSkillIds: number[] = []
-  const chapters: TomeChapter[] = []
+  const kitSkillIds: number[] = [];
+  const chapters: TomeChapter[] = [];
   for (const id of bundleCapableIds) {
-    const skill = skillsById.get(id)
+    const skill = skillsById.get(id);
     if (skill?.bundleSkills && skill.bundleSkills.length > 0) {
-      const candidates = skill.bundleSkills.map((skillId) => ({ id: skillId, slot: skillsById.get(skillId)?.slot ?? '' }))
+      const candidates = skill.bundleSkills.map((skillId) => ({
+        id: skillId,
+        slot: skillsById.get(skillId)?.slot ?? '',
+      }));
       for (const resolvedId of resolveSkillBarIds(candidates, environment, skillsById)) {
-        if (resolvedId !== null) kitSkillIds.push(resolvedId)
+        if (resolvedId !== null) kitSkillIds.push(resolvedId);
       }
-      continue
+      continue;
     }
     if (id === CELESTIAL_AVATAR_SKILL_ID) {
       for (const resolvedId of celestialAvatarSlotSkillIds(skillsById)) {
-        if (resolvedId !== null) kitSkillIds.push(resolvedId)
+        if (resolvedId !== null) kitSkillIds.push(resolvedId);
       }
-      continue
+      continue;
     }
-    const shroudSlotIds = SHROUD_SLOT_SKILLS[id]
+    const shroudSlotIds = SHROUD_SLOT_SKILLS[id];
     if (shroudSlotIds) {
-      kitSkillIds.push(...shroudSlotIds)
-      continue
+      kitSkillIds.push(...shroudSlotIds);
+      continue;
     }
-    const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id]
+    const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id];
     if (gunsaberSlotIds) {
-      kitSkillIds.push(...gunsaberSlotIds)
-      continue
+      kitSkillIds.push(...gunsaberSlotIds);
+      continue;
     }
-    const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id]
+    const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id];
     if (radiantForgeSlotIds) {
-      kitSkillIds.push(...radiantForgeSlotIds)
-      continue
+      kitSkillIds.push(...radiantForgeSlotIds);
+      continue;
     }
     if (id === DRAGON_TRIGGER_SKILL_ID) {
-      kitSkillIds.push(...dragonSlashBarSkillIdsForBuild(build))
-      continue
+      kitSkillIds.push(...dragonSlashBarSkillIdsForBuild(build));
+      continue;
     }
-    const tomeChaptersForId = tomeChapters[id]
-    if (tomeChaptersForId) chapters.push(...tomeChaptersForId)
+    const tomeChaptersForId = tomeChapters[id];
+    if (tomeChaptersForId) chapters.push(...tomeChaptersForId);
   }
-  return { kitSkillIds, tomeChapters: chapters }
+  return { kitSkillIds, tomeChapters: chapters };
 }

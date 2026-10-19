@@ -1,6 +1,6 @@
-import type { GameData } from '@shared/types'
-import { buildGameData } from '@shared/game-data/build-game-data'
-import type { GameDataProvider } from '@shared/game-data/game-data-provider'
+import type { GameData } from '@shared/types';
+import { buildGameData } from '@shared/game-data/build-game-data';
+import type { GameDataProvider } from '@shared/game-data/game-data-provider';
 
 /**
  * The web-preview bundle's `GameDataProvider` — reads the same `data/game-data/*.json` files
@@ -14,6 +14,6 @@ import type { GameDataProvider } from '@shared/game-data/game-data-provider'
  */
 export const webGameDataProvider: GameDataProvider = {
   getAll(): Promise<GameData> {
-    return buildGameData((fileName) => fetch(`/game-data/${fileName}`).then((r) => r.json()))
-  }
-}
+    return buildGameData((fileName) => fetch(`/game-data/${fileName}`).then((r) => r.json()));
+  },
+};

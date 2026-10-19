@@ -1,27 +1,27 @@
-import type { Build, SquadComp } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
+import type { Build, SquadComp } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
 
 /** `ScreenshotButton`'s payload for a Build editor capture — everything `CaptureHost`'s build
  *  route needs to reproduce the exact same render `BuildEditorView` had on screen. Everything else
  *  (theme, `showUnderwater`/`partyWideOnly` settings, game data, the builds store) resolves
  *  identically inside the offscreen window for free — see `offscreen-capture.ts`'s doc comment. */
 export interface BuildScreenshotPayload {
-  build: Build
-  combatState: CombatState
+  build: Build;
+  combatState: CombatState;
 }
 
 /** Same idea as `BuildScreenshotPayload`, for the Squad editor. `builds`/`buildsById` aren't part
  *  of this — every build a squad slot can reference is already persisted, so `CaptureHost`'s squad
  *  route just reads the same local builds store the real window would. */
 export interface SquadScreenshotPayload {
-  squadComp: SquadComp
+  squadComp: SquadComp;
 }
 
 /** What `CaptureHost` pulls via `getPayload` — tagged by which `captureXScreenshot` call spawned
  *  the offscreen window it's running in. */
 export type CapturePayload =
   | { kind: 'build'; payload: BuildScreenshotPayload }
-  | { kind: 'squad'; payload: SquadScreenshotPayload }
+  | { kind: 'squad'; payload: SquadScreenshotPayload };
 
 /**
  * The renderer's only way to produce a screenshot of a build/squad — reached via the
@@ -43,10 +43,10 @@ export type CapturePayload =
  * mobile-native implementation path.
  */
 export interface CaptureProvider {
-  captureBuildScreenshot(payload: BuildScreenshotPayload): Promise<void>
-  captureSquadScreenshot(payload: SquadScreenshotPayload): Promise<void>
+  captureBuildScreenshot(payload: BuildScreenshotPayload): Promise<void>;
+  captureSquadScreenshot(payload: SquadScreenshotPayload): Promise<void>;
   /** `CaptureHost`-only — see the interface doc comment. */
-  getPayload(token: string): Promise<CapturePayload | null>
+  getPayload(token: string): Promise<CapturePayload | null>;
   /** `CaptureHost`-only — see the interface doc comment. */
-  signalReady(token: string): Promise<void>
+  signalReady(token: string): Promise<void>;
 }

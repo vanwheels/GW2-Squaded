@@ -1,25 +1,28 @@
-import { asLikelyBuildFields, asLikelySquadCompFields } from '../share-validate'
+import { asLikelyBuildFields, asLikelySquadCompFields } from '../share-validate';
 
 /** Mirrors `share-resolve.ts`'s `StoredShare` (kept separate for the same "no shared module
  *  between these small internal shapes" reasoning as the rest of this Worker's duplicated types). */
 export interface StoredShare {
-  kind: 'build' | 'squadComp'
-  data: unknown
-  createdAt: string
+  kind: 'build' | 'squadComp';
+  data: unknown;
+  createdAt: string;
 }
 
 /** Where a browser lands after `/releases/latest` redirects — used for the landing page's "don't
  *  have the app yet" link. Same repo `electron-builder.yml`'s `publish` block points
  *  electron-updater at. */
-const DOWNLOAD_URL = 'https://github.com/vanwheels/GW2-Squaded/releases/latest'
+const DOWNLOAD_URL = 'https://github.com/vanwheels/GW2-Squaded/releases/latest';
 
 function escapeHtml(text: string): string {
-  return text.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch] as string)
+  return text.replace(
+    /[&<>"']/g,
+    (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch] as string,
+  );
 }
 
 interface ShareSummary {
-  title: string
-  subtitle: string
+  title: string;
+  subtitle: string;
 }
 
 /** Reuses the same "likely shape" field extraction `/buildAdd`/`/squadAdd` already validate
@@ -30,11 +33,15 @@ interface ShareSummary {
  *  `POST /shares` endpoint ever accepted). */
 function summarizeShare(share: StoredShare): ShareSummary {
   if (share.kind === 'build') {
-    const fields = asLikelyBuildFields(share.data)
-    return fields ? { title: fields.name, subtitle: fields.profession } : { title: 'GW2-Squaded build', subtitle: '' }
+    const fields = asLikelyBuildFields(share.data);
+    return fields
+      ? { title: fields.name, subtitle: fields.profession }
+      : { title: 'GW2-Squaded build', subtitle: '' };
   }
-  const fields = asLikelySquadCompFields(share.data)
-  return fields ? { title: fields.name, subtitle: 'Squad composition' } : { title: 'GW2-Squaded squad', subtitle: '' }
+  const fields = asLikelySquadCompFields(share.data);
+  return fields
+    ? { title: fields.name, subtitle: 'Squad composition' }
+    : { title: 'GW2-Squaded squad', subtitle: '' };
 }
 
 /** Shared page chrome (theme-aware CSS, card shell) so the found/not-found pages look like one
@@ -178,7 +185,7 @@ ${bodyHtml}
 })()
 </script>
 </body>
-</html>`
+</html>`;
 }
 
 /** The `GET /shares/:id/open` landing page — where a build/squad name's hyperlink on the Discord
@@ -188,10 +195,15 @@ ${bodyHtml}
  *  link (`/shares/:id`) `share-client.ts`'s "Import from link" box already accepts. Board-polish
  *  decision 2026-08-19, see docs/discord-bot.md — "auto-open straight into the app" is a separate,
  *  deferred feature (a custom URL protocol), not built here. */
-export function renderShareLandingPage(shareId: string, share: StoredShare, publicOrigin: string, nonce: string): string {
-  const { title, subtitle } = summarizeShare(share)
-  const shareUrl = `${publicOrigin}/shares/${shareId}`
-  const kindLabel = share.kind === 'build' ? 'Build' : 'Squad'
+export function renderShareLandingPage(
+  shareId: string,
+  share: StoredShare,
+  publicOrigin: string,
+  nonce: string,
+): string {
+  const { title, subtitle } = summarizeShare(share);
+  const shareUrl = `${publicOrigin}/shares/${shareId}`;
+  const kindLabel = share.kind === 'build' ? 'Build' : 'Squad';
 
   const body = `<div class="card">
   <p class="eyebrow">GW2-Squaded ${kindLabel}</p>
@@ -201,9 +213,9 @@ export function renderShareLandingPage(shareId: string, share: StoredShare, publ
   <input id="copy-link" type="text" value="${escapeHtml(shareUrl)}" readonly />
   <p class="hint" id="hint">Paste the copied link into GW2-Squaded's "Import from link" box to open it.</p>
   <p class="download">Don't have GW2-Squaded yet? <a href="${DOWNLOAD_URL}">Download it here</a>.</p>
-</div>`
+</div>`;
 
-  return pageShell(nonce, body)
+  return pageShell(nonce, body);
 }
 
 /** A missing/expired share id (or a malformed one) still gets a real page, not a bare 404 JSON
@@ -214,6 +226,6 @@ export function renderShareNotFoundPage(nonce: string): string {
   <h1>Link not found</h1>
   <p class="subtitle">This share link doesn't exist, or the build/squad it pointed to has since been removed from the board.</p>
   <p class="download">Get GW2-Squaded here: <a href="${DOWNLOAD_URL}">${DOWNLOAD_URL}</a></p>
-</div>`
-  return pageShell(nonce, body)
+</div>`;
+  return pageShell(nonce, body);
 }

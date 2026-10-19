@@ -15,5 +15,5 @@ export const StorageIpcChannel = {
   squadCompsRemove: 'storage:squadComps:remove',
   squadCompsListTombstones: 'storage:squadComps:listTombstones',
   squadCompsClearTombstones: 'storage:squadComps:clearTombstones',
-  squadCompsReplaceAll: 'storage:squadComps:replaceAll'
-} as const
+  squadCompsReplaceAll: 'storage:squadComps:replaceAll',
+} as const;

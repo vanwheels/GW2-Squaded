@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react';
 import type {
   Build,
   EquipmentSlotKey,
@@ -6,50 +6,57 @@ import type {
   SkillSelection,
   StandardSkillSelection,
   TraitLineSelection,
-  TraitLineSlots
-} from '@shared/types'
-import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
-import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
-import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
-import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
-import { getBuildAutoTags } from '@shared/tags/auto-tags'
-import { isBuildStaleSincePatch, withUnderwaterSetting } from '@shared/types/build'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useBuildsStore } from '@renderer/state/builds-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { useDataUpdate } from '@renderer/state/data-update-store'
-import { SharePanel } from '@renderer/components/common/SharePanel'
-import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
-import { CopyBuildTemplateButton } from '@renderer/components/common/CopyBuildTemplateButton'
-import { PasteBuildTemplateButton } from '@renderer/components/common/PasteBuildTemplateButton'
-import { TagInput } from '@renderer/components/common/TagInput'
-import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
-import { BuildScreenshotGrid } from './BuildScreenshotGrid'
-import { GearOptimizerPanel } from './GearOptimizerPanel'
+  TraitLineSlots,
+} from '@shared/types';
+import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar';
+import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic';
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills';
+import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state';
+import { getBuildAutoTags } from '@shared/tags/auto-tags';
+import { isBuildStaleSincePatch, withUnderwaterSetting } from '@shared/types/build';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useBuildsStore } from '@renderer/state/builds-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { useDataUpdate } from '@renderer/state/data-update-store';
+import { SharePanel } from '@renderer/components/common/SharePanel';
+import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton';
+import { CopyBuildTemplateButton } from '@renderer/components/common/CopyBuildTemplateButton';
+import { PasteBuildTemplateButton } from '@renderer/components/common/PasteBuildTemplateButton';
+import { TagInput } from '@renderer/components/common/TagInput';
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch';
+import { BuildScreenshotGrid } from './BuildScreenshotGrid';
+import { GearOptimizerPanel } from './GearOptimizerPanel';
 
 interface Props {
-  build: Build
-  onBack: (build: Build) => Promise<void>
+  build: Build;
+  onBack: (build: Build) => Promise<void>;
 }
 
-const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
+const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = [
+  'weaponA1',
+  'weaponA2',
+  'weaponB1',
+  'weaponB2',
+  'weaponU1',
+  'weaponU2',
+];
 
 function clearedEquipment(equipment: Build['equipment']): Build['equipment'] {
-  const next = { ...equipment }
-  for (const key of WEAPON_SLOT_KEYS) delete next[key]
-  return next
+  const next = { ...equipment };
+  for (const key of WEAPON_SLOT_KEYS) delete next[key];
+  return next;
 }
 
 export function BuildEditorView({ build, onBack }: Props) {
-  const [draft, setDraft] = useState<Build>(build)
-  const [saving, setSaving] = useState(false)
-  const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
-  const [optimizerOpen, setOptimizerOpen] = useState(false)
-  const gameData = useGameData()
-  const { eliteSpecSkills, legends, professions, specializationsById } = gameData
-  const { builds } = useBuildsStore()
-  const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings()
-  const { localGw2Build } = useDataUpdate()
+  const [draft, setDraft] = useState<Build>(build);
+  const [saving, setSaving] = useState(false);
+  const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE);
+  const [optimizerOpen, setOptimizerOpen] = useState(false);
+  const gameData = useGameData();
+  const { eliteSpecSkills, legends, professions, specializationsById } = gameData;
+  const { builds } = useBuildsStore();
+  const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings();
+  const { localGw2Build } = useDataUpdate();
 
   /** Display/calc-only view of `draft` — never passed to `onBack`. See `withUnderwaterSetting`'s
    *  doc comment: forces `environment: 'land'` when the Settings underwater toggle is off, so
@@ -58,36 +65,49 @@ export function BuildEditorView({ build, onBack }: Props) {
    *  regardless of what `draft.environment` actually holds. Edits still flow through the real
    *  `draft` below (`onBuildChange`/`setDraft` close over `draft`, not this), so this is purely a
    *  read-side mask. */
-  const displayBuild = useMemo(() => withUnderwaterSetting(draft, showUnderwater), [draft, showUnderwater])
+  const displayBuild = useMemo(
+    () => withUnderwaterSetting(draft, showUnderwater),
+    [draft, showUnderwater],
+  );
 
   const autoTags = useMemo(
     () => getBuildAutoTags(draft, { professions, specializationsById }),
-    [draft, professions, specializationsById]
-  )
-  const tagSuggestions = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
+    [draft, professions, specializationsById],
+  );
+  const tagSuggestions = useMemo(
+    () => [...new Set(builds.flatMap((b) => b.tags))].sort(),
+    [builds],
+  );
 
   const equippedSpecializationIds = useMemo(
     () =>
       new Set(
-        draft.specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
+        draft.specializations
+          .filter((s): s is TraitLineSelection => s !== null)
+          .map((s) => s.specializationId),
       ),
-    [draft.specializations]
-  )
+    [draft.specializations],
+  );
 
   /** `initialEliteSpecId` lets `ProfessionSpecPicker` land on a different profession's elite spec
    *  in one click (see its doc comment) — seeded directly into the reset specialization slots
    *  rather than as a follow-up `handleSpecializationsChange` call, since two separate `setDraft`
    *  calls in the same handler would have the second one operate on stale `draft`. */
-  function handleProfessionChange(profession: ProfessionId, initialEliteSpecId: number | null = null): void {
+  function handleProfessionChange(
+    profession: ProfessionId,
+    initialEliteSpecId: number | null = null,
+  ): void {
     const skills: SkillSelection =
       profession === 'Revenant'
         ? { kind: 'revenant', legends: [null, null], activeLegendIndex: 0 }
-        : { kind: 'standard', heal: null, utility: [null, null, null], elite: null }
+        : { kind: 'standard', heal: null, utility: [null, null, null], elite: null };
     const specializations: TraitLineSlots = [
       null,
       null,
-      initialEliteSpecId === null ? null : { specializationId: initialEliteSpecId, chosenTraitIds: [null, null, null] }
-    ]
+      initialEliteSpecId === null
+        ? null
+        : { specializationId: initialEliteSpecId, chosenTraitIds: [null, null, null] },
+    ];
     setDraft({
       ...draft,
       profession,
@@ -114,8 +134,8 @@ export function BuildEditorView({ build, onBack }: Props) {
             ? draft.weaverPreviousAttunement
             : null,
       // Stolen Skill is Thief-only, same reasoning as pets/familiar above.
-      thiefStolenSkillId: profession === 'Thief' ? draft.thiefStolenSkillId : null
-    })
+      thiefStolenSkillId: profession === 'Thief' ? draft.thiefStolenSkillId : null,
+    });
   }
 
   /** Equipping/swapping specialization lines can invalidate a previously-chosen elite-spec-
@@ -124,64 +144,80 @@ export function BuildEditorView({ build, onBack }: Props) {
    *  selection that's no longer valid under the new specialization set. */
   function handleSpecializationsChange(specializations: TraitLineSlots): void {
     const nextEquippedIds = new Set(
-      specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
-    )
-    let skills: SkillSelection
+      specializations
+        .filter((s): s is TraitLineSelection => s !== null)
+        .map((s) => s.specializationId),
+    );
+    let skills: SkillSelection;
     if (draft.skills.kind === 'revenant') {
       const legendStillValid = (legendId: string | null): string | null => {
-        if (legendId === null) return null
-        const requiredSpecId = legends.find((l) => l.id === legendId)?.specializationId
-        return requiredSpecId == null || nextEquippedIds.has(requiredSpecId) ? legendId : null
-      }
+        if (legendId === null) return null;
+        const requiredSpecId = legends.find((l) => l.id === legendId)?.specializationId;
+        return requiredSpecId == null || nextEquippedIds.has(requiredSpecId) ? legendId : null;
+      };
       skills = {
         ...draft.skills,
-        legends: draft.skills.legends.map(legendStillValid) as [string | null, string | null]
-      }
+        legends: draft.skills.legends.map(legendStillValid) as [string | null, string | null],
+      };
     } else {
       const stillValid = (skillId: number | null): number | null => {
-        if (skillId === null) return null
-        const requiredSpecId = eliteSpecSkills[skillId]
-        return requiredSpecId === undefined || nextEquippedIds.has(requiredSpecId) ? skillId : null
-      }
+        if (skillId === null) return null;
+        const requiredSpecId = eliteSpecSkills[skillId];
+        return requiredSpecId === undefined || nextEquippedIds.has(requiredSpecId) ? skillId : null;
+      };
       skills = {
         kind: 'standard',
         heal: stillValid(draft.skills.heal),
         utility: draft.skills.utility.map(stillValid) as StandardSkillSelection['utility'],
-        elite: stillValid(draft.skills.elite)
-      }
+        elite: stillValid(draft.skills.elite),
+      };
     }
 
     // Weapon legality no longer depends on which spec line is equipped — "Weaponmaster Training"
     // is always-on (see EquipmentEditor's spec-agnostic `weaponOptions`, COMPLETED.md Session 35),
     // so dropping/switching a trait line must NOT clear an already-equipped elite-spec weapon
     // (e.g. dropping Renegade must not unequip Shortbow).
-    const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null
+    const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null;
     // Weaver's "previous" attunement: cleared when Weaver's dropped, seeded to match
     // `activeAttunement` (current === previous) when it's newly picked up — see
     // `Build.weaverPreviousAttunement`'s doc comment.
     const weaverPreviousAttunement = nextEquippedIds.has(WEAVER_SPEC_ID)
       ? (draft.weaverPreviousAttunement ?? draft.activeAttunement)
-      : null
+      : null;
     // Specter's own F2 "Enter Shadow Shroud" replaces the manually-picked Stolen Skill slot
     // entirely — see `Build.thiefStolenSkillId`'s doc comment.
-    const thiefStolenSkillId = nextEquippedIds.has(SPECTER_SPEC_ID) ? null : draft.thiefStolenSkillId
+    const thiefStolenSkillId = nextEquippedIds.has(SPECTER_SPEC_ID)
+      ? null
+      : draft.thiefStolenSkillId;
 
-    setDraft({ ...draft, specializations, skills, familiarId, weaverPreviousAttunement, thiefStolenSkillId })
+    setDraft({
+      ...draft,
+      specializations,
+      skills,
+      familiarId,
+      weaverPreviousAttunement,
+      thiefStolenSkillId,
+    });
   }
 
   /** `ProfessionSpecPicker`'s single combined onChoose — an elite spec from a different profession
    *  switches profession first (seeding that new profession's reset specialization slots with the
    *  chosen spec directly, see `handleProfessionChange`); same-profession picks just update the
    *  elite trait line via the normal `handleSpecializationsChange` invalidation logic. */
-  function handleEliteSpecChoose(profession: ProfessionId, eliteSpecializationId: number | null): void {
+  function handleEliteSpecChoose(
+    profession: ProfessionId,
+    eliteSpecializationId: number | null,
+  ): void {
     if (profession !== draft.profession) {
-      handleProfessionChange(profession, eliteSpecializationId)
-      return
+      handleProfessionChange(profession, eliteSpecializationId);
+      return;
     }
-    const nextSpecializations = [...draft.specializations] as TraitLineSlots
+    const nextSpecializations = [...draft.specializations] as TraitLineSlots;
     nextSpecializations[2] =
-      eliteSpecializationId === null ? null : { specializationId: eliteSpecializationId, chosenTraitIds: [null, null, null] }
-    handleSpecializationsChange(nextSpecializations)
+      eliteSpecializationId === null
+        ? null
+        : { specializationId: eliteSpecializationId, chosenTraitIds: [null, null, null] };
+    handleSpecializationsChange(nextSpecializations);
   }
 
   /** `PasteBuildTemplateButton`'s `onImport` — applies a decoded chat-link patch (profession/
@@ -192,7 +228,8 @@ export function BuildEditorView({ build, onBack }: Props) {
    *  (non-fatal skill-palette/legend/trait lookups that came back empty) are shown by the button's
    *  own popover, not handled here. */
   function handleImportBuildTemplate(patch: Partial<Build>): void {
-    const professionChanged = patch.profession !== undefined && patch.profession !== draft.profession
+    const professionChanged =
+      patch.profession !== undefined && patch.profession !== draft.profession;
     setDraft({
       ...draft,
       ...(professionChanged
@@ -202,11 +239,11 @@ export function BuildEditorView({ build, onBack }: Props) {
             activePetIndex: 0 as const,
             familiarId: patch.profession === 'Elementalist' ? draft.familiarId : null,
             weaverPreviousAttunement: null,
-            thiefStolenSkillId: patch.profession === 'Thief' ? draft.thiefStolenSkillId : null
+            thiefStolenSkillId: patch.profession === 'Thief' ? draft.thiefStolenSkillId : null,
           }
         : {}),
-      ...patch
-    })
+      ...patch,
+    });
   }
 
   /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
@@ -219,14 +256,16 @@ export function BuildEditorView({ build, onBack }: Props) {
    *  build. `Build` is plain JSON-serializable data (no `Date`/`Set`/`Map` fields), so a
    *  `JSON.stringify` comparison is a safe, dependency-free stand-in for deep-equality here. */
   async function handleBack(): Promise<void> {
-    setSaving(true)
+    setSaving(true);
     try {
-      const edited = JSON.stringify(draft) !== JSON.stringify(build)
+      const edited = JSON.stringify(draft) !== JSON.stringify(build);
       await onBack(
-        edited ? { ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build } : draft
-      )
+        edited
+          ? { ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build }
+          : draft,
+      );
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
@@ -236,7 +275,7 @@ export function BuildEditorView({ build, onBack }: Props) {
    *  `draft` — like every other field here, it's persisted by the normal save-on-`handleBack` flow,
    *  not immediately, so it composes with the diff check above instead of bypassing it. */
   function handleMarkReviewed(): void {
-    setDraft({ ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build })
+    setDraft({ ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build });
   }
 
   return (
@@ -258,12 +297,18 @@ export function BuildEditorView({ build, onBack }: Props) {
           autoTags={autoTags}
         />
         {isBuildStaleSincePatch(draft, localGw2Build) && (
-          <button type="button" onClick={handleMarkReviewed} title="Confirm this build is still good under the current patch">
+          <button
+            type="button"
+            onClick={handleMarkReviewed}
+            title="Confirm this build is still good under the current patch"
+          >
             Mark as up to date
           </button>
         )}
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
-        <ScreenshotButton capture={() => window.gw2Capture.captureBuildScreenshot({ build: draft, combatState })} />
+        <ScreenshotButton
+          capture={() => window.gw2Capture.captureBuildScreenshot({ build: draft, combatState })}
+        />
         <SharePanel kind="build" getData={() => draft} />
         <CopyBuildTemplateButton build={draft} gameData={gameData} />
         <PasteBuildTemplateButton gameData={gameData} onImport={handleImportBuildTemplate} />
@@ -298,5 +343,5 @@ export function BuildEditorView({ build, onBack }: Props) {
         onClose={() => setOptimizerOpen(false)}
       />
     </section>
-  )
+  );
 }

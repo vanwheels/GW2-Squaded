@@ -1,8 +1,8 @@
-import type Database from 'better-sqlite3'
+import type Database from 'better-sqlite3';
 
 export function applySchema(db: Database.Database): void {
-  db.pragma('journal_mode = WAL')
-  db.pragma('foreign_keys = ON')
+  db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS builds (
@@ -26,5 +26,5 @@ export function applySchema(db: Database.Database): void {
       id TEXT PRIMARY KEY,
       deleted_at TEXT NOT NULL
     );
-  `)
+  `);
 }

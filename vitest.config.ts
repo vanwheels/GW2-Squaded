@@ -1,5 +1,5 @@
-import { resolve } from 'node:path'
-import { defineConfig } from 'vitest/config'
+import { resolve } from 'node:path';
+import { defineConfig } from 'vitest/config';
 
 // Separate from electron.vite.config.ts on purpose — that config's 3 build targets
 // (main/preload/renderer) each need Electron-specific plugins/output formats that have nothing to
@@ -8,11 +8,11 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   resolve: {
     alias: {
-      '@shared': resolve('src/shared')
-    }
+      '@shared': resolve('src/shared'),
+    },
   },
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts']
-  }
-})
+    include: ['src/**/*.test.ts'],
+  },
+});

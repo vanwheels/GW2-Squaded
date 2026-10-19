@@ -1,35 +1,48 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import type { Build } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { OPTIMIZER_METRICS, type OptimizerFloor, type OptimizerInput, type OptimizerMetricId, type OptimizerProgress, type OptimizerResult } from '@shared/gear-calc/gear-optimize'
-import { ATTRIBUTE_DISPLAY_NAME, computeGearAttributeTotals } from '@shared/gear-calc/attribute-totals'
-import { formatBoonPercent } from '@shared/boon-calc/format'
-import { useGameData } from '@renderer/state/game-data-store'
-import { Modal } from '@renderer/components/common/Modal'
-import type { GearOptimizerWorkerRequest, GearOptimizerWorkerResponse } from '@renderer/workers/gear-optimizer-protocol'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import type { Build } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import {
+  OPTIMIZER_METRICS,
+  type OptimizerFloor,
+  type OptimizerInput,
+  type OptimizerMetricId,
+  type OptimizerProgress,
+  type OptimizerResult,
+} from '@shared/gear-calc/gear-optimize';
+import {
+  ATTRIBUTE_DISPLAY_NAME,
+  computeGearAttributeTotals,
+} from '@shared/gear-calc/attribute-totals';
+import { formatBoonPercent } from '@shared/boon-calc/format';
+import { useGameData } from '@renderer/state/game-data-store';
+import { Modal } from '@renderer/components/common/Modal';
+import type {
+  GearOptimizerWorkerRequest,
+  GearOptimizerWorkerResponse,
+} from '@renderer/workers/gear-optimizer-protocol';
 
-type FloorState = Partial<Record<OptimizerMetricId, number>>
+type FloorState = Partial<Record<OptimizerMetricId, number>>;
 
-const MAX_TIERS = 3
+const MAX_TIERS = 3;
 
 /** Row order for the "current vs proposed" gear comparison — same 9 core attributes the Stats
  *  panel's left column shows, in the same order, just keyed to `AttributeTotals.points` rather
  *  than `computeCharacterStats`'s richer (base+trait+gear) totals — see this file's own doc
  *  comment on why gear-only is the right comparison here. */
-const COMPARE_ATTRIBUTES = Object.keys(ATTRIBUTE_DISPLAY_NAME)
+const COMPARE_ATTRIBUTES = Object.keys(ATTRIBUTE_DISPLAY_NAME);
 
 /** Floors are a minimum threshold a user types in — "Power ≥ 2500" reads naturally. `EffectivePower`
  *  is a maximize-target-only metric (see its doc comment in gear-optimize.ts): its value is a
  *  Power-equivalent expected-damage number, not something anyone would type in as a floor, so it's
  *  excluded from the floor grid but still offered in every maximize-tier dropdown below. */
-const FLOOR_METRICS = OPTIMIZER_METRICS.filter((m) => m.id !== 'EffectivePower')
+const FLOOR_METRICS = OPTIMIZER_METRICS.filter((m) => m.id !== 'EffectivePower');
 
 function formatMetricValue(value: number, unit: 'points' | 'percent'): string {
-  return unit === 'percent' ? `${formatBoonPercent(value)}%` : `${Math.round(value)}`
+  return unit === 'percent' ? `${formatBoonPercent(value)}%` : `${Math.round(value)}`;
 }
 
 function metricLabel(id: OptimizerMetricId): string {
-  return OPTIMIZER_METRICS.find((m) => m.id === id)?.label ?? id
+  return OPTIMIZER_METRICS.find((m) => m.id === id)?.label ?? id;
 }
 
 /** "Tier 2/3: Critical Chance ≈ 47%" — shown while a search is running in place of a static
@@ -37,17 +50,18 @@ function metricLabel(id: OptimizerMetricId): string {
  *  doc comment in gear-optimize.ts). The value is a live best-so-far, not necessarily final —
  *  hence "≈" rather than "=". */
 function formatProgress(progress: OptimizerProgress): string {
-  const unit = OPTIMIZER_METRICS.find((m) => m.id === progress.targetMetric)?.unit ?? 'points'
-  const tierSuffix = progress.tierCount > 1 ? `Tier ${progress.tierIndex + 1}/${progress.tierCount}: ` : ''
-  return `${tierSuffix}${metricLabel(progress.targetMetric)} ≈ ${formatMetricValue(progress.bestValue, unit)}`
+  const unit = OPTIMIZER_METRICS.find((m) => m.id === progress.targetMetric)?.unit ?? 'points';
+  const tierSuffix =
+    progress.tierCount > 1 ? `Tier ${progress.tierIndex + 1}/${progress.tierCount}: ` : '';
+  return `${tierSuffix}${metricLabel(progress.targetMetric)} ≈ ${formatMetricValue(progress.bestValue, unit)}`;
 }
 
 interface Props {
-  build: Build
-  combatState: CombatState
-  onApply: (patch: Pick<Build, 'equipment' | 'foodId' | 'utilityId'>) => void
-  open: boolean
-  onClose: () => void
+  build: Build;
+  combatState: CombatState;
+  onApply: (patch: Pick<Build, 'equipment' | 'foodId' | 'utilityId'>) => void;
+  open: boolean;
+  onClose: () => void;
 }
 
 /**
@@ -64,104 +78,111 @@ interface Props {
  * state survives being closed and reopened — only the `Modal` wrapper actually unmounts/hides.
  */
 export function GearOptimizerPanel({ build, combatState, onApply, open, onClose }: Props) {
-  const gameData = useGameData()
-  const [floors, setFloors] = useState<FloorState>({})
-  const [targets, setTargets] = useState<OptimizerMetricId[]>(['Power'])
-  const [optimizeFoodUtility, setOptimizeFoodUtility] = useState(false)
-  const [optimizeRunesInfusions, setOptimizeRunesInfusions] = useState(false)
-  const [result, setResult] = useState<OptimizerResult | null>(null)
-  const [running, setRunning] = useState(false)
-  const [progress, setProgress] = useState<OptimizerProgress | null>(null)
-  const [applied, setApplied] = useState(false)
+  const gameData = useGameData();
+  const [floors, setFloors] = useState<FloorState>({});
+  const [targets, setTargets] = useState<OptimizerMetricId[]>(['Power']);
+  const [optimizeFoodUtility, setOptimizeFoodUtility] = useState(false);
+  const [optimizeRunesInfusions, setOptimizeRunesInfusions] = useState(false);
+  const [result, setResult] = useState<OptimizerResult | null>(null);
+  const [running, setRunning] = useState(false);
+  const [progress, setProgress] = useState<OptimizerProgress | null>(null);
+  const [applied, setApplied] = useState(false);
   // Set on a worker startup/runtime failure (e.g. the worker script failing to load) — without
   // this, such a failure left `running` stuck `true` forever with no feedback at all: worker
   // construction failures fire an async 'error' event rather than throwing synchronously, and
   // nothing was listening for it before this.
-  const [workerError, setWorkerError] = useState<string | null>(null)
+  const [workerError, setWorkerError] = useState<string | null>(null);
   // The in-flight search's Web Worker (see gear-optimizer.worker.ts) — one instance per run, not
   // reused across runs, since `terminate()` (the cancel button's mechanism) kills it outright and
   // there's no cooperative-cancellation path into the middle of a synchronous DFS. Terminated on
   // completion, on cancel, and on unmount (below) so a closed-mid-search panel can't leak a worker
   // still burning CPU in the background.
-  const workerRef = useRef<Worker | null>(null)
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
-    return () => workerRef.current?.terminate()
-  }, [])
+    return () => workerRef.current?.terminate();
+  }, []);
 
   // Currently-equipped gear totals, recomputed whenever the draft or game data actually changes —
   // this is the "Current" column of the comparison table below, always live regardless of whether
   // a search has run yet.
-  const currentTotals = useMemo(() => computeGearAttributeTotals(build, gameData), [build, gameData])
+  const currentTotals = useMemo(
+    () => computeGearAttributeTotals(build, gameData),
+    [build, gameData],
+  );
   // The proposed build's own totals — `result.build` is the source build with the result's picks
   // already applied (see `OptimizerResult.build`'s doc comment), so this is exactly what Apply
   // would produce. Only meaningful once a feasible result exists.
   const proposedTotals = useMemo(
     () => (result?.feasible ? computeGearAttributeTotals(result.build, gameData) : null),
-    [result, gameData]
-  )
+    [result, gameData],
+  );
 
   function setFloor(metric: OptimizerMetricId, raw: string): void {
     setFloors((prev) => {
-      const next = { ...prev }
-      const value = raw.trim() === '' ? null : Number(raw)
-      if (value === null || Number.isNaN(value)) delete next[metric]
-      else next[metric] = value
-      return next
-    })
+      const next = { ...prev };
+      const value = raw.trim() === '' ? null : Number(raw);
+      if (value === null || Number.isNaN(value)) delete next[metric];
+      else next[metric] = value;
+      return next;
+    });
   }
 
   function setTier(index: number, metric: OptimizerMetricId): void {
-    setTargets((prev) => prev.map((t, i) => (i === index ? metric : t)))
+    setTargets((prev) => prev.map((t, i) => (i === index ? metric : t)));
   }
 
   function addTier(): void {
-    const unused = OPTIMIZER_METRICS.map((m) => m.id).find((id) => !targets.includes(id))
-    if (unused) setTargets((prev) => [...prev, unused])
+    const unused = OPTIMIZER_METRICS.map((m) => m.id).find((id) => !targets.includes(id));
+    if (unused) setTargets((prev) => [...prev, unused]);
   }
 
   function removeTier(index: number): void {
-    setTargets((prev) => prev.filter((_, i) => i !== index))
+    setTargets((prev) => prev.filter((_, i) => i !== index));
   }
 
   function runOptimize(): void {
     // A previous run's worker should already be gone by the time a new one can start (the button
     // is disabled while `running`), but terminate defensively rather than leak two workers if that
     // ever stops being true.
-    workerRef.current?.terminate()
-    setRunning(true)
-    setApplied(false)
-    setProgress(null)
-    setWorkerError(null)
-    const floorList: OptimizerFloor[] = OPTIMIZER_METRICS.filter((m) => floors[m.id] != null).map((m) => ({
-      metric: m.id,
-      value: floors[m.id] as number
-    }))
-    const worker = new Worker(new URL('../../workers/gear-optimizer.worker.ts', import.meta.url), { type: 'module' })
-    workerRef.current = worker
+    workerRef.current?.terminate();
+    setRunning(true);
+    setApplied(false);
+    setProgress(null);
+    setWorkerError(null);
+    const floorList: OptimizerFloor[] = OPTIMIZER_METRICS.filter((m) => floors[m.id] != null).map(
+      (m) => ({
+        metric: m.id,
+        value: floors[m.id] as number,
+      }),
+    );
+    const worker = new Worker(new URL('../../workers/gear-optimizer.worker.ts', import.meta.url), {
+      type: 'module',
+    });
+    workerRef.current = worker;
     // A failed/crashed worker (e.g. the script 404s, or optimizeGear throws) otherwise leaves
     // `running` stuck true forever with the panel silently doing nothing — surface it instead.
     function onWorkerFailure(detail: string): void {
-      console.error('Gear Optimizer worker failed:', detail)
-      setWorkerError(detail)
-      setRunning(false)
-      setProgress(null)
-      worker.terminate()
-      if (workerRef.current === worker) workerRef.current = null
+      console.error('Gear Optimizer worker failed:', detail);
+      setWorkerError(detail);
+      setRunning(false);
+      setProgress(null);
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
     }
-    worker.onerror = (e) => onWorkerFailure(e.message || 'Worker error')
-    worker.onmessageerror = () => onWorkerFailure('Worker sent an unclonable message')
+    worker.onerror = (e) => onWorkerFailure(e.message || 'Worker error');
+    worker.onmessageerror = () => onWorkerFailure('Worker sent an unclonable message');
     worker.onmessage = (e: MessageEvent<GearOptimizerWorkerResponse>) => {
       if (e.data.type === 'progress') {
-        setProgress(e.data.progress)
-        return
+        setProgress(e.data.progress);
+        return;
       }
-      setResult(e.data.result)
-      setRunning(false)
-      setProgress(null)
-      worker.terminate()
-      if (workerRef.current === worker) workerRef.current = null
-    }
+      setResult(e.data.result);
+      setRunning(false);
+      setProgress(null);
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+    };
     // `useGameData()` returns the full `GameDataStore` — plain `GameData` fields plus several
     // `*ById` Maps and closures (`skillsForProfessionAndSlot` etc., see game-data-store.tsx).
     // `postMessage`'s structured clone can't serialize a function: passing `gameData` through
@@ -180,32 +201,44 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
       food: gameData.food,
       utility: gameData.utility,
       traits: gameData.traits,
-      legends: gameData.legends
-    }
+      legends: gameData.legends,
+    };
     const request: GearOptimizerWorkerRequest = {
-      input: { build, gameData: optimizerGameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }
-    }
+      input: {
+        build,
+        gameData: optimizerGameData,
+        combatState,
+        floors: floorList,
+        targets,
+        optimizeFoodUtility,
+        optimizeRunesInfusions,
+      },
+    };
     try {
-      worker.postMessage(request)
+      worker.postMessage(request);
     } catch (err) {
       // Safety net for any future case shaped like the one above (an unclonable value smuggled
       // into the payload) — without this, the same throw-before-any-handler-fires failure mode
       // would strike again with no visible symptom beyond a stuck spinner.
-      onWorkerFailure(err instanceof Error ? err.message : String(err))
+      onWorkerFailure(err instanceof Error ? err.message : String(err));
     }
   }
 
   function cancelOptimize(): void {
-    workerRef.current?.terminate()
-    workerRef.current = null
-    setRunning(false)
-    setProgress(null)
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    setRunning(false);
+    setProgress(null);
   }
 
   function applyResult(): void {
-    if (!result?.feasible) return
-    onApply({ equipment: result.build.equipment, foodId: result.foodId, utilityId: result.utilityId })
-    setApplied(true)
+    if (!result?.feasible) return;
+    onApply({
+      equipment: result.build.equipment,
+      foodId: result.foodId,
+      utilityId: result.utilityId,
+    });
+    setApplied(true);
   }
 
   return (
@@ -218,8 +251,8 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
       </div>
 
       <p className="muted">
-        Satisfy stat floors, then maximize stats in priority order — weapon type, sigils, and relic stay as you've
-        set them here; Fury/Might/etc. use the Combat context toggles above.
+        Satisfy stat floors, then maximize stats in priority order — weapon type, sigils, and relic
+        stay as you've set them here; Fury/Might/etc. use the Combat context toggles above.
       </p>
 
       <h4>Stat floors</h4>
@@ -267,17 +300,22 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
 
       {targets.includes('EffectivePower') && (
         <p className="muted">
-          Effective Power is a Power-equivalent expected-damage number — Power × (1 + Critical Chance ×
-          (Critical Damage multiplier − 1)) — so it weighs Power against Critical Chance/Damage directly
-          instead of maximizing one of them alone (Power isn't always the better pick over Ferocity — it
-          depends on your Critical Chance). As a priority tier, it never gets traded away for a lower tier:
-          a tier below it can only break ties among gear picks that already match its best Effective Power,
-          never sacrifice any of it for more raw Power or Critical Damage.
+          Effective Power is a Power-equivalent expected-damage number — Power × (1 + Critical
+          Chance × (Critical Damage multiplier − 1)) — so it weighs Power against Critical
+          Chance/Damage directly instead of maximizing one of them alone (Power isn't always the
+          better pick over Ferocity — it depends on your Critical Chance). As a priority tier, it
+          never gets traded away for a lower tier: a tier below it can only break ties among gear
+          picks that already match its best Effective Power, never sacrifice any of it for more raw
+          Power or Critical Damage.
         </p>
       )}
 
       <label className="optimizer-checkbox-row">
-        <input type="checkbox" checked={optimizeFoodUtility} onChange={(e) => setOptimizeFoodUtility(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={optimizeFoodUtility}
+          onChange={(e) => setOptimizeFoodUtility(e.target.checked)}
+        />
         Also optimize food &amp; utility choice
       </label>
 
@@ -317,19 +355,26 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
           ) : (
             <>
               {result.truncated && (
-                <p className="muted">Search was cut off before proving optimality — this is the best found so far.</p>
+                <p className="muted">
+                  Search was cut off before proving optimality — this is the best found so far.
+                </p>
               )}
               <div className="optimizer-metric-grid">
-                {OPTIMIZER_METRICS.filter((m) => result.metricValues[m.id] !== undefined).map((m) => (
-                  <div className="optimizer-metric-row" key={m.id}>
-                    <span>
-                      {m.label}
-                      {targets.includes(m.id) && ` (#${targets.indexOf(m.id) + 1} priority)`}
-                      {floors[m.id] != null && ` (floor ${formatMetricValue(floors[m.id] as number, m.unit)})`}
-                    </span>
-                    <strong>{formatMetricValue(result.metricValues[m.id] as number, m.unit)}</strong>
-                  </div>
-                ))}
+                {OPTIMIZER_METRICS.filter((m) => result.metricValues[m.id] !== undefined).map(
+                  (m) => (
+                    <div className="optimizer-metric-row" key={m.id}>
+                      <span>
+                        {m.label}
+                        {targets.includes(m.id) && ` (#${targets.indexOf(m.id) + 1} priority)`}
+                        {floors[m.id] != null &&
+                          ` (floor ${formatMetricValue(floors[m.id] as number, m.unit)})`}
+                      </span>
+                      <strong>
+                        {formatMetricValue(result.metricValues[m.id] as number, m.unit)}
+                      </strong>
+                    </div>
+                  ),
+                )}
               </div>
 
               {proposedTotals && (
@@ -341,13 +386,15 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
                     <span className="optimizer-compare-head optimizer-compare-num">Proposed</span>
                     <span className="optimizer-compare-head optimizer-compare-num">Δ</span>
                     {COMPARE_ATTRIBUTES.map((attr) => {
-                      const current = Math.round(currentTotals.points[attr] ?? 0)
-                      const proposed = Math.round(proposedTotals.points[attr] ?? 0)
-                      const delta = proposed - current
+                      const current = Math.round(currentTotals.points[attr] ?? 0);
+                      const proposed = Math.round(proposedTotals.points[attr] ?? 0);
+                      const delta = proposed - current;
                       const deltaClass =
-                        delta > 0 ? 'optimizer-compare-num optimizer-compare-delta-up'
-                        : delta < 0 ? 'optimizer-compare-num optimizer-compare-delta-down'
-                        : 'optimizer-compare-num'
+                        delta > 0
+                          ? 'optimizer-compare-num optimizer-compare-delta-up'
+                          : delta < 0
+                            ? 'optimizer-compare-num optimizer-compare-delta-down'
+                            : 'optimizer-compare-num';
                       return (
                         <Fragment key={attr}>
                           <span>{ATTRIBUTE_DISPLAY_NAME[attr]}</span>
@@ -355,7 +402,7 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
                           <span className="optimizer-compare-num">{proposed}</span>
                           <span className={deltaClass}>{delta > 0 ? `+${delta}` : delta}</span>
                         </Fragment>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -385,5 +432,5 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
         </div>
       )}
     </Modal>
-  )
+  );
 }

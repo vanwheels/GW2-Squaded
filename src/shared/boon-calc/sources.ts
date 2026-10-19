@@ -22,15 +22,20 @@ import type {
   TomeChaptersByTomeId,
   Trait,
   WvwFactOverride,
-  WvwFactOverrides
-} from '../types'
-import { isAuraName, isBoonName, isConditionName } from './constants'
-import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent, isActiveWeaponSlot } from '../gear-calc/attribute-totals'
-import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
-import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
-import { branchConditionalFacts } from '../skill-calc/branch-conditional-facts'
-import { withRechargeOverride } from '../skill-calc/recharge-override'
-import { WEAPON_STRENGTH_MIDPOINTS } from '../skill-calc/damage-calc'
+  WvwFactOverrides,
+} from '../types';
+import { isAuraName, isBoonName, isConditionName } from './constants';
+import {
+  boonDurationPercent,
+  computeGearAttributeTotals,
+  conditionDurationPercent,
+  isActiveWeaponSlot,
+} from '../gear-calc/attribute-totals';
+import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills';
+import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills';
+import { branchConditionalFacts } from '../skill-calc/branch-conditional-facts';
+import { withRechargeOverride } from '../skill-calc/recharge-override';
+import { WEAPON_STRENGTH_MIDPOINTS } from '../skill-calc/damage-calc';
 import {
   catalystJadeSphereBar,
   CATALYST_SPEC_ID,
@@ -39,36 +44,36 @@ import {
   engineerToolbeltBar,
   evokerFamiliarBar,
   professionMechanicBar,
-  RANGER_BEASTMODE_SPEC_ID
-} from '../skill-calc/profession-mechanic'
-import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar'
-import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
-import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
-import { resolvedFlipSkillId } from '../skill-calc/flip-skill-overrides'
-import { ADDITIVE_FLIP_PAIRS } from '../skill-calc/additive-flip-pairs'
-import { TURRET_SUB_ABILITY_IDS } from '../skill-calc/turret-sub-abilities'
-import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge'
+  RANGER_BEASTMODE_SPEC_ID,
+} from '../skill-calc/profession-mechanic';
+import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar';
+import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash';
+import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets';
+import { resolvedFlipSkillId } from '../skill-calc/flip-skill-overrides';
+import { ADDITIVE_FLIP_PAIRS } from '../skill-calc/additive-flip-pairs';
+import { TURRET_SUB_ABILITY_IDS } from '../skill-calc/turret-sub-abilities';
+import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge';
 
-export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
+export type BoonConditionCategory = 'boon' | 'condition' | 'aura';
 
 export interface BoonConditionSource {
-  sourceKind: 'skill' | 'trait' | 'relic'
-  sourceId: number
-  sourceName: string
-  sourceIcon: string
-  boonOrConditionName: string
-  isCondition: boolean
+  sourceKind: 'skill' | 'trait' | 'relic';
+  sourceId: number;
+  sourceName: string;
+  sourceIcon: string;
+  boonOrConditionName: string;
+  isCondition: boolean;
   /** 'aura' entries only ever come from `computeAuraSources` — `computeBoonConditionSources` (and
    *  everything built on it: squad views, the in-build skill tooltips) only ever produces
    *  'boon'/'condition', unchanged from before this field existed. */
-  category: BoonConditionCategory
-  baseDurationSeconds: number
+  category: BoonConditionCategory;
+  baseDurationSeconds: number;
   /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration % — 'aura'
    *  entries are never scaled (Concentration/Expertise only affect boons/conditions), so this
    *  always equals `baseDurationSeconds` for those. */
-  scaledDurationSeconds: number
-  applyCount: number
-  requiresTraitId: number | null
+  scaledDurationSeconds: number;
+  applyCount: number;
+  requiresTraitId: number | null;
   /**
    * How many allies this source's facts say it can reach at once — read straight from the GW2
    * API's own `type: "Number", text: "Number of Allied Targets"` fact when the skill/trait carries
@@ -111,7 +116,7 @@ export interface BoonConditionSource {
    * that legend to be the currently-*displayed* one (same "every equipped alternate always
    * contributes" convention as `RevenantSkillSelection.legends`/`activeLegendIndex` itself).
    */
-  targetCount: number | null
+  targetCount: number | null;
   /**
    * The specific legend this boon/condition line is gated on, when the source is a `PrefixedBuff`
    * fact naming one — e.g. Invocation's Spirit Boon: each of its 8 boon lines carries a
@@ -122,8 +127,8 @@ export interface BoonConditionSource {
    * specific id" case `Fact`'s own doc comment says NOT to attempt (ambiguous for skills; the fixed
    * 8-entry legend list has no such ambiguity).
    */
-  legendIcon?: string
-  legendName?: string
+  legendIcon?: string;
+  legendName?: string;
   /**
    * A wiki-sourced qualifier distinguishing this fact from another on the SAME source sharing the
    * SAME `boonOrConditionName` — e.g. Fire Bomb's "Initial Burning" (5s×2) vs "Pulse Burning" (2s),
@@ -139,7 +144,7 @@ export interface BoonConditionSource {
    * `alt=` labels (see `BUFF_INSTANCE_LABELS`'s own doc comment for the key format and current
    * curation coverage).
    */
-  instanceLabel?: string
+  instanceLabel?: string;
   /**
    * A short, wiki-quoted trigger qualifier for a source whose boon/condition only applies on a
    * specific player action rather than unconditionally on cast/equip — "On Dodge"/"On Evade" (TODO.md's
@@ -158,13 +163,13 @@ export interface BoonConditionSource {
    * (Vindicator's Legendary Alliance dodge, Mirage Cloak) and relic dodge-triggers with no skill id
    * at all are a separate, still-open TODO.md problem this field doesn't attempt to solve.
    */
-  triggerNote?: string
+  triggerNote?: string;
 }
 
 /** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
  *  would otherwise return `null`): a number is the confirmed ally count to show instead; `'self'`
  *  documents "confirmed self-only, `null` is correct" so a future sweep doesn't re-research it. */
-export type TargetCountOverride = number | 'self'
+export type TargetCountOverride = number | 'self';
 
 /** A `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS` entry whose reach flips between two
  *  `TargetCountOverride`s depending on whether ANOTHER specific trait is chosen — see
@@ -174,11 +179,11 @@ export type TargetCountOverride = number | 'self'
  *  OTHER trait affects — it broadens all of them at once. `traitName` is display-only, appended to
  *  the emitted source's `sourceName` (as `+ <traitName>`) when `whenActive` is the resolved branch. */
 export interface TraitConditionalTargetCountOverride {
-  gatedBy: 'trait'
-  traitId: number
-  traitName: string
-  whenActive: TargetCountOverride
-  otherwise: TargetCountOverride
+  gatedBy: 'trait';
+  traitId: number;
+  traitName: string;
+  whenActive: TargetCountOverride;
+  otherwise: TargetCountOverride;
 }
 
 /** Same shape as `TraitConditionalTargetCountOverride`, gated on an EQUIPPED Revenant legend
@@ -189,11 +194,11 @@ export interface TraitConditionalTargetCountOverride {
  *  for legends generally — the gating legend doesn't need to be the build's *currently active* one,
  *  only equipped in either slot. */
 export interface LegendConditionalTargetCountOverride {
-  gatedBy: 'legend'
-  legendId: string
-  legendName: string
-  whenEquipped: TargetCountOverride
-  otherwise: TargetCountOverride
+  gatedBy: 'legend';
+  legendId: string;
+  legendName: string;
+  whenEquipped: TargetCountOverride;
+  otherwise: TargetCountOverride;
 }
 
 /**
@@ -213,15 +218,21 @@ export interface LegendConditionalTargetCountOverride {
  *    source's reach flips based on a build-state check outside the fact data itself (an unrelated
  *    trait choice, or an equipped legend) — see each type's own doc comment.
  */
-export type SourceTargetCountOverride = TargetCountOverride | Record<string, TargetCountOverride> | TraitConditionalTargetCountOverride | LegendConditionalTargetCountOverride
+export type SourceTargetCountOverride =
+  | TargetCountOverride
+  | Record<string, TargetCountOverride>
+  | TraitConditionalTargetCountOverride
+  | LegendConditionalTargetCountOverride;
 
 /** Narrows a `SourceTargetCountOverride` to the original flat shape — used by tooling
  *  (`scripts/fetch-target-counts.ts`/`fetch-balance-patch-changes.ts`) that diffs a curated value
  *  against a single wiki-parsed number and has no way to diff a per-buff-line/conditional entry the
  *  same way (there's no single "the" value to compare — see each conditional type's own doc
  *  comment). */
-export function isFlatTargetCountOverride(override: SourceTargetCountOverride): override is TargetCountOverride {
-  return typeof override === 'number' || override === 'self'
+export function isFlatTargetCountOverride(
+  override: SourceTargetCountOverride,
+): override is TargetCountOverride {
+  return typeof override === 'number' || override === 'self';
 }
 
 /**
@@ -508,7 +519,10 @@ export function isFlatTargetCountOverride(override: SourceTargetCountOverride): 
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
 // CURATED_DAMAGE_COEFFICIENTS export for its pilot script.
-export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const TARGET_COUNT_OVERRIDES: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     // Cosmic Wisdom (Revenant/Conduit) — Found Purpose's boons reach 4 allies once it supersedes
     // Numinous Gift's self-only copies on this skill (see `FOUND_PURPOSE_TRAIT_ID`'s doc comment,
@@ -1357,8 +1371,18 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // 1789, Demonic Defiance: "Gain resistance...when you use a Legendary Demon skill" — first-person):
     // self. Resolution (1 fact @5s, no requires_trait, wiki "gaining resolution" — the caster's own
     // condition-absorb bonus, not shared): self, no composite key needed (only 1 Resolution fact).
-    27322: { 'Resistance@3': 5, 'Resistance@1': 'self', 'Resistance@5': 'self', Resolution: 'self' },
-    78505: { 'Resistance@3': 5, 'Resistance@1': 'self', 'Resistance@5': 'self', Resolution: 'self' },
+    27322: {
+      'Resistance@3': 5,
+      'Resistance@1': 'self',
+      'Resistance@5': 'self',
+      Resolution: 'self',
+    },
+    78505: {
+      'Resistance@3': 5,
+      'Resistance@1': 'self',
+      'Resistance@5': 'self',
+      Resolution: 'self',
+    },
 
     // Gladiator's Defense (Revenant/Legendary Entity Stance, "Antique Stance"). Self-only by default
     // (Resolution/Resistance both @3s) — wiki's "Resonance" note: when Legendary Dwarf Stance
@@ -1366,7 +1390,13 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // around you," backed by an explicit `Additional Allies Affected: 4` fact (self + 4 = 5, the
     // standard cap). A whole-source legend-conditional, not per-status — both Resolution and
     // Resistance flip together, so one override covers the entire source.
-    77291: { gatedBy: 'legend', legendId: 'Legend3', legendName: 'Dwarf Stance', whenEquipped: 5, otherwise: 'self' },
+    77291: {
+      gatedBy: 'legend',
+      legendId: 'Legend3',
+      legendName: 'Dwarf Stance',
+      whenEquipped: 5,
+      otherwise: 'self',
+    },
 
     // Overload Earth (Elementalist/Catalyst). Base (untraited) Stability (no requires_trait, wiki
     // "Initial Stability... as a personal effect"): self — also covers a `requires_trait`-gated
@@ -1379,7 +1409,7 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // "applies only to the caster"): self. Fury (requires_trait 2415, Altruistic Aspect: "Meditation
     // skills grant boons to allies" — its own wiki page documents a fixed per-meditation bonus-boon
     // table naming this exact Swiftness->Fury addition): party(5).
-    76583: { Swiftness: 'self', Fury: 5 }
+    76583: { Swiftness: 'self', Fury: 5 },
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1628,7 +1658,13 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // Guardian/Virtues: "Nearby allies gain the passive effect of Virtue skill 2") — when chosen,
     // ALL of Phoenix Protocol's boon lines broaden together (no per-status split in the data itself),
     // so this is a whole-source trait-conditional rather than a per-status map.
-    2195: { gatedBy: 'trait', traitId: 554, traitName: 'Battle Presence', whenActive: 5, otherwise: 'self' },
+    2195: {
+      gatedBy: 'trait',
+      traitId: 554,
+      traitName: 'Battle Presence',
+      whenActive: 5,
+      otherwise: 'self',
+    },
 
     // Dodge-trigger calc-gap fix (2026-08-15, TODO.md): these traits' real Buff fact(s) were copied
     // onto the trait itself via `synthetic-trait-facts.json` (see that file's doc comment in
@@ -1648,18 +1684,18 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // not "dodge," so the original sweep never looked at them at all.
     2257: 5, // Forerunner of Death (Revenant/Vindicator). Proc skill Death Drop (62693) above: party(5)
     // (Vulnerability hits up to 5 foes, not allies — see that entry's own comment).
-    2232: 5 // Vassals of the Empire (Revenant/Vindicator). Proc skill Imperial Impact (62859) above:
+    2232: 5, // Vassals of the Empire (Revenant/Vindicator). Proc skill Imperial Impact (62859) above:
     // party(5). Trait's own `facts` array is entirely empty in the live API; both Might and
     // Protection come from the proc skill via `synthetic-trait-facts.json`.
-  }
-}
+  },
+};
 
 /** A resolved `SourceTargetCountOverride`, plus the display note (see `resolveOverrideValue`'s doc
  *  comment) to append to the emitted source's `sourceName` when a conditional override resolved via
  *  its "active" branch. */
 interface ResolvedTargetCount {
-  value: number | null
-  nameSuffix: string | null
+  value: number | null;
+  nameSuffix: string | null;
 }
 
 /**
@@ -1679,24 +1715,38 @@ function resolveOverrideValue(
   override: SourceTargetCountOverride | undefined,
   fact: Fact,
   activeTraitIdSet: Set<number>,
-  equippedLegendIdSet: Set<string>
+  equippedLegendIdSet: Set<string>,
 ): ResolvedTargetCount {
-  if (override === undefined) return { value: null, nameSuffix: null }
-  if (typeof override === 'number' || override === 'self') return { value: typeof override === 'number' ? override : null, nameSuffix: null }
+  if (override === undefined) return { value: null, nameSuffix: null };
+  if (typeof override === 'number' || override === 'self')
+    return { value: typeof override === 'number' ? override : null, nameSuffix: null };
   if (override.gatedBy === 'trait') {
     return activeTraitIdSet.has(override.traitId)
-      ? { value: typeof override.whenActive === 'number' ? override.whenActive : null, nameSuffix: override.traitName }
-      : { value: typeof override.otherwise === 'number' ? override.otherwise : null, nameSuffix: null }
+      ? {
+          value: typeof override.whenActive === 'number' ? override.whenActive : null,
+          nameSuffix: override.traitName,
+        }
+      : {
+          value: typeof override.otherwise === 'number' ? override.otherwise : null,
+          nameSuffix: null,
+        };
   }
   if (override.gatedBy === 'legend') {
     return equippedLegendIdSet.has(override.legendId)
-      ? { value: typeof override.whenEquipped === 'number' ? override.whenEquipped : null, nameSuffix: override.legendName }
-      : { value: typeof override.otherwise === 'number' ? override.otherwise : null, nameSuffix: null }
+      ? {
+          value: typeof override.whenEquipped === 'number' ? override.whenEquipped : null,
+          nameSuffix: override.legendName,
+        }
+      : {
+          value: typeof override.otherwise === 'number' ? override.otherwise : null,
+          nameSuffix: null,
+        };
   }
   // Per-status(-line) map.
-  const compositeKey = `${fact.status}@${fact.duration}`
-  const resolved = compositeKey in override ? override[compositeKey] : override[String(fact.status)]
-  return { value: typeof resolved === 'number' ? resolved : null, nameSuffix: null }
+  const compositeKey = `${fact.status}@${fact.duration}`;
+  const resolved =
+    compositeKey in override ? override[compositeKey] : override[String(fact.status)];
+  return { value: typeof resolved === 'number' ? resolved : null, nameSuffix: null };
 }
 
 /** The only reliable "this reaches up to N allies" signal in the API's fact data — see
@@ -1710,13 +1760,24 @@ function resolveTargetCountFrom(
   combinedFacts: Fact[],
   sourceKind: 'skill' | 'trait',
   sourceId: number,
-  overrides: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> },
+  overrides: {
+    skill: Record<number, SourceTargetCountOverride>;
+    trait: Record<number, SourceTargetCountOverride>;
+  },
   activeTraitIdSet: Set<number>,
-  equippedLegendIdSet: Set<string>
+  equippedLegendIdSet: Set<string>,
 ): ResolvedTargetCount {
-  const alliedFact = combinedFacts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
-  if (typeof alliedFact?.value === 'number') return { value: alliedFact.value, nameSuffix: null }
-  return resolveOverrideValue(overrides[sourceKind][sourceId], fact, activeTraitIdSet, equippedLegendIdSet)
+  const alliedFact = combinedFacts.find(
+    (f) =>
+      f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number',
+  );
+  if (typeof alliedFact?.value === 'number') return { value: alliedFact.value, nameSuffix: null };
+  return resolveOverrideValue(
+    overrides[sourceKind][sourceId],
+    fact,
+    activeTraitIdSet,
+    equippedLegendIdSet,
+  );
 }
 
 /**
@@ -2016,7 +2077,10 @@ function resolveTargetCountFrom(
  * or explicitly, individually documented as left-open — the whole sweep (TODO.md's "Multiple
  * same-status Buff facts on one skill render as unlabeled duplicate rows" bug) is complete.
  */
-export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
+export const BUFF_INSTANCE_LABELS: {
+  skill: Record<number, Record<string, string>>;
+  trait: Record<number, Record<string, string>>;
+} = {
   skill: {
     // Cry of Frustration (Mesmer core Shatter 2/F2, id 10190). Mirrors Illusionary Defense's (trait
     // 675) own "Base"/"Additional Protection Duration" labels below onto its synthetic-facts.json
@@ -2025,7 +2089,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // gated by a generic `improves mechanic slot = 2` wiki field, not a named `improves skill=`).
     // Both facts already carry their real WvW values (no pvp-duplicate cleanup needed here — see
     // this trait's own `BUFF_INSTANCE_VALUE_OVERRIDES` entry for why the trait side needed that).
-    10190: { 'Protection@4@1': 'Base Protection Duration', 'Protection@2@1': 'Additional Protection Duration' },
+    10190: {
+      'Protection@4@1': 'Base Protection Duration',
+      'Protection@2@1': 'Additional Protection Duration',
+    },
     // Fire Bomb (shared Bomb Kit bundle skill, every profession that can pick one up). Wiki:
     // {{skill fact|burning|alt=Initial Burning|5|stacks=2}}{{skill fact|burning|alt=Pulse Burning|2}}
     5823: { 'Burning@5@2': 'Initial Burning', 'Burning@2@1': 'Pulse Burning' },
@@ -2067,7 +2134,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Reaver's Rage (Revenant/Vindicator utility). Wiki:
     // {{skill fact|stability|alt=Initial Stability|1}}
     // {{skill fact|stability|alt=Base Stability and Stability per Hit|6|game mode=pve wvw}}...
-    62878: { 'Stability@1@1': 'Initial Stability', 'Stability@6@1': 'Base Stability and Stability per Hit' },
+    62878: {
+      'Stability@1@1': 'Initial Stability',
+      'Stability@6@1': 'Base Stability and Stability per Hit',
+    },
     // Abyssal Raze (Revenant spear 5, Weaponmaster). Wiki's base Torment (`{{skill fact|torment|6}}`)
     // is unlabeled; the per-stack bonus carries
     // `{{skill fact|torment|alt=Torment Per Crushing Abyss Count|5|stacks=2|game mode=pve}}`.
@@ -2143,10 +2213,26 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Adrenaline|16 — all 3 labeled (no unlabeled base; the pve and pvp+wvw variant of each level
     // share the identical duration, so only 3 distinct tuples exist locally, matching the 3 wiki
     // concepts 1:1).
-    14375: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
-    14545: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
-    14546: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
-    14547: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
+    14375: {
+      'Fury@8@1': 'Level 1 Adrenaline',
+      'Fury@12@1': 'Level 2 Adrenaline',
+      'Fury@16@1': 'Level 3 Adrenaline',
+    },
+    14545: {
+      'Fury@8@1': 'Level 1 Adrenaline',
+      'Fury@12@1': 'Level 2 Adrenaline',
+      'Fury@16@1': 'Level 3 Adrenaline',
+    },
+    14546: {
+      'Fury@8@1': 'Level 1 Adrenaline',
+      'Fury@12@1': 'Level 2 Adrenaline',
+      'Fury@16@1': 'Level 3 Adrenaline',
+    },
+    14547: {
+      'Fury@8@1': 'Level 1 Adrenaline',
+      'Fury@12@1': 'Level 2 Adrenaline',
+      'Fury@16@1': 'Level 3 Adrenaline',
+    },
     // Stomp (Physical utility, stability + launch). Wiki gives BOTH Stability facts a real `alt=`
     // (`{{skill fact|stability|alt=Initial Stability|6|pve}}...{{skill fact|stability|alt=On-Hit
     // Stability|6|pve}}...`, each also pve/wvw+pvp split at 6/1 and 6/3 respectively) — no
@@ -2181,10 +2267,26 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // shape as Arcing Slice above). Wiki: {{skill fact|bleeding|alt=Level 1 Bleeding|6|stacks=3}},
     // alt=Level 2 Bleeding|6|stacks=6, alt=Level 3 Bleeding|6|stacks=9 — all 3 labeled, no
     // unlabeled base (matches Arcing Slice's shape: 3 adrenaline-scaled tiers, all named).
-    80203: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
-    80221: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
-    80248: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
-    80263: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
+    80203: {
+      'Bleeding@6@3': 'Level 1 Bleeding',
+      'Bleeding@6@6': 'Level 2 Bleeding',
+      'Bleeding@6@9': 'Level 3 Bleeding',
+    },
+    80221: {
+      'Bleeding@6@3': 'Level 1 Bleeding',
+      'Bleeding@6@6': 'Level 2 Bleeding',
+      'Bleeding@6@9': 'Level 3 Bleeding',
+    },
+    80248: {
+      'Bleeding@6@3': 'Level 1 Bleeding',
+      'Bleeding@6@6': 'Level 2 Bleeding',
+      'Bleeding@6@9': 'Level 3 Bleeding',
+    },
+    80263: {
+      'Bleeding@6@3': 'Level 1 Bleeding',
+      'Bleeding@6@6': 'Level 2 Bleeding',
+      'Bleeding@6@9': 'Level 3 Bleeding',
+    },
     // NOTE on this leg's open (uncurated) Warrior sources, nothing here since none reach this
     // table's lookup or none are safely resolvable — see `BUFF_INSTANCE_LABELS`'s own top doc
     // comment for the full writeup: Knot Shot (14467) and Brutal Shot's Immobile pair (34296) are
@@ -2266,7 +2368,12 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // alt=Minimum Burning|6|stacks=2|game mode = pvp wvw}} — all 4 raw facts are unique tuples (the
     // pve 4.5 rounds up to 5, the documented half-second quirk), no unlabeled base, matching Arcing
     // Slice/Bloodthirster's "every mode-variant tuple gets the matching label" shape.
-    5831: { 'Burning@5@3': 'Maximum Burning', 'Burning@12@2': 'Maximum Burning', 'Burning@3@3': 'Minimum Burning', 'Burning@6@2': 'Minimum Burning' },
+    5831: {
+      'Burning@5@3': 'Maximum Burning',
+      'Burning@12@2': 'Maximum Burning',
+      'Burning@3@3': 'Minimum Burning',
+      'Burning@6@2': 'Minimum Burning',
+    },
     // Blunderbuss (shotgun 2, point-blank range scaling). Wiki:
     // {{skill fact|bleeding|alt=Maximum Bleeding|stacks=3|9}}{{skill fact|bleeding|alt=Minimum
     // Bleeding|stacks=3|3}} — both labeled, no unlabeled base, no game-mode split.
@@ -2277,7 +2384,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // locally). A 3rd raw Quickness fact (6@1, gated on Enhanced Capacity Storage Unit/trait 2137 —
     // "Some skills and traits gain additional heat tiers") isn't documented anywhere on this skill's
     // own wiki page at all, so stays unlabeled/uncurated.
-    40160: { 'Quickness@2@1': 'Quickness at or below 50% heat', 'Quickness@4@1': 'Quickness over 50% heat' },
+    40160: {
+      'Quickness@2@1': 'Quickness at or below 50% heat',
+      'Quickness@4@1': 'Quickness over 50% heat',
+    },
     // Essence of Liquid Wrath (short-bow 4 Chain Reaction bonus, WvW siege consumable-style skill).
     // Wiki: base Protection (`{{skill fact|protection|5|game mode = pve pvp}}`) is unlabeled; the
     // Chain Reaction bonus carries `{{skill fact|protection|3|alt=Chain Reaction Protection|game
@@ -2296,7 +2406,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // trait). Wiki: {{skill fact|vulnerability|stacks=2|alt=Focused Target Vulnerability|8|game
     // mode=pve}}{{skill fact|vulnerability|alt=Unfocused Target Vulnerability|8|game mode=pve}} —
     // both labeled, no unlabeled base, identical pve duration but distinguished by stack count.
-    73002: { 'Vulnerability@8@2': 'Focused Target Vulnerability', 'Vulnerability@8@1': 'Unfocused Target Vulnerability' },
+    73002: {
+      'Vulnerability@8@2': 'Focused Target Vulnerability',
+      'Vulnerability@8@1': 'Unfocused Target Vulnerability',
+    },
     // Conduit Surge (spear 4, Lightning Rod's follow-up). Wiki: {{skill fact|burning|alt=Focused
     // Target Burning|7|game mode=pve}}{{skill fact|burning|alt=Unfocused Target Burning|5|game
     // mode=pve}} — both labeled, no unlabeled base.
@@ -2365,7 +2478,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Confusion@10@1': 'Player Confusion',
       'Confusion@3@1': 'Clone Confusion',
       'Bleeding@10@1': 'Player Bleeding',
-      'Bleeding@4@1': 'Clone Bleeding'
+      'Bleeding@4@1': 'Clone Bleeding',
     },
     // Axes of Symmetry (Virtuoso axe-throw, both split ids share one wiki page/fact set). Wiki:
     // `{{skill fact|confusion|6|stacks=5|alt=Player Confusion|game mode=pve}}{{skill fact|
@@ -2379,13 +2492,13 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Confusion@6@5': 'Player Confusion',
       'Confusion@3@3': 'Player Confusion',
       'Confusion@6@1': 'Clone Confusion',
-      'Confusion@3@1': 'Clone Confusion'
+      'Confusion@3@1': 'Clone Confusion',
     },
     69385: {
       'Confusion@6@5': 'Player Confusion',
       'Confusion@3@3': 'Player Confusion',
       'Confusion@6@1': 'Clone Confusion',
-      'Confusion@3@1': 'Clone Confusion'
+      'Confusion@3@1': 'Clone Confusion',
     },
     // Imaginary Axes (Virtuoso axe-throw 2, PvE-cached values only). Wiki:
     // `{{skill fact|torment|alt=Player Torment|3.5|stacks=3|game mode = pve }}` (rounds to 4) and
@@ -2408,13 +2521,13 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Might@8@5#1': 'Bountiful Disillusionment',
       'Might@8@5#2': 'Life of the Party',
       'Might@6@3#1': 'Bountiful Disillusionment',
-      'Might@6@3#2': 'Life of the Party'
+      'Might@6@3#2': 'Life of the Party',
     },
     77306: {
       'Might@8@5#1': 'Life of the Party',
       'Might@8@5#2': 'Bountiful Disillusionment',
       'Might@6@3#1': 'Life of the Party',
-      'Might@6@3#2': 'Bountiful Disillusionment'
+      'Might@6@3#2': 'Bountiful Disillusionment',
     },
     // Several more Mesmer conflicts investigated this leg turned out to be plain WvwFactOverride
     // cases instead (Cry of Frustration, Rewinder, Bladesong Sorrow, Flustering Flute, Deafening
@@ -2439,7 +2552,11 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // unlabeled base this time (same "every tuple gets a label" shape as Inspiring Reinforcement/
     // Spear of Anguish): `{{skill fact|bleeding|10|alt=300-400 Range}}{{skill fact|bleeding|10|
     // stacks=2|alt=200-300 Range}}{{skill fact|bleeding|10|stacks=3|alt=0-200 Range}}`.
-    5658: { 'Bleeding@10@1': '300-400 Range', 'Bleeding@10@2': '200-300 Range', 'Bleeding@10@3': '0-200 Range' },
+    5658: {
+      'Bleeding@10@1': '300-400 Range',
+      'Bleeding@10@2': '200-300 Range',
+      'Bleeding@10@3': '0-200 Range',
+    },
     // Ring of Fire (Fire/Dagger-offhand 4). Wiki: `{{skill fact|burning|4|stacks=2|
     // alt=Initial Burning}}{{skill fact|burning|2|alt=Pass-Through Burning}}` — both labeled.
     5691: { 'Burning@4@2': 'Initial Burning', 'Burning@2@1': 'Pass-Through Burning' },
@@ -2468,7 +2585,12 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Might|10}}...{{skill fact|fury|alt=First Hit Fury|6|25|game mode = pve}}...
     // {{skill fact|fury|alt=Additional Hit Fury|1|25|game mode = pve}}...` — every tuple already
     // unique (Might by stack count, Fury by duration), no occurrence-indexing needed.
-    62910: { 'Might@10@6': 'First Hit Might', 'Might@10@1': 'Additional Hit Might', 'Fury@6@1': 'First Hit Fury', 'Fury@1@1': 'Additional Hit Fury' },
+    62910: {
+      'Might@10@6': 'First Hit Might',
+      'Might@10@1': 'Additional Hit Might',
+      'Fury@6@1': 'First Hit Fury',
+      'Fury@1@1': 'Additional Hit Fury',
+    },
     // Sandstorm Shroud (Necromancer/Scourge, 54870) — a fresh collision introduced by this
     // session's trait-granted-boons-on-skills curation (Necromancer leg): the skill's own genuine
     // unconditional Protection@3@1 fact now shares an exact tuple with Eternal Life's (trait 889)
@@ -2502,13 +2624,13 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Protection@3@1#2': 'Gale Song',
       'Protection@3@1#3': 'Reconstruction Enclosure',
       'Protection@3@1#4': 'Thick Skin',
-      'Regeneration@6@1#2': 'Wellspring'
+      'Regeneration@6@1#2': 'Wellspring',
     },
     12440: {
       'Protection@3@1#2': 'Gale Song',
       'Protection@3@1#3': 'Reconstruction Enclosure',
       'Protection@3@1#4': 'Thick Skin',
-      'Regeneration@6@1#2': 'Wellspring'
+      'Regeneration@6@1#2': 'Wellspring',
     },
     // Glyph of Elemental Harmony (34609): its own unconditional Protection@3@1 (the glyph's base
     // self-effect) is occurrence 1. Inscription's (trait 229, "gain boons upon casting a glyph based
@@ -2547,7 +2669,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // (adding it would have also dropped Healing Signet's own base Resistance in WvW/PvP — same
     // "coexisting genuine application blocks a safe status-wide override" hazard the Ranger leg's
     // Beast-skill mirror first ran into).
-    14389: { 'Resistance@6@1#2': 'Restorative Strength' }
+    14389: { 'Resistance@6@1#2': 'Restorative Strength' },
     // Resilient Counter (2097, Resistance) + Guard Counter (2153, Protection) both mirrored onto
     // Full Counter (44165) alone — its own raw Buff fact is Stability, a different status, so no
     // collision. Bloody Roar (1928, Resistance) + Burst of Aggression (1993, Quickness/pve 3s wvw+pvp
@@ -2598,7 +2720,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // for both concepts), so both the 8@5 and 6@5 tuples need occurrence-indexing — 1st occurrence
     // of each (array order matches wiki template order: base-pve, base-wvw, crit-pve, crit-wvw)
     // stays unlabeled, 2nd occurrence of each gets the label.
-    1316: { 'Vulnerability@8@5#2': 'Critical Vulnerability', 'Vulnerability@6@5#2': 'Critical Vulnerability' },
+    1316: {
+      'Vulnerability@8@5#2': 'Critical Vulnerability',
+      'Vulnerability@6@5#2': 'Critical Vulnerability',
+    },
     // Heat the Soul (Berserker, burst-skill boons). Wiki's base Quickness
     // (`{{skill fact|Quickness|5|pve}}`) is unlabeled; a 2nd, shorter Quickness application is
     // tagged `linked skill=Decapitate` (`{{skill fact|Quickness|2|linked skill=Decapitate|pve}}`)
@@ -2634,7 +2759,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Might@4@2': 'Scepter Might Gain',
       'Might@10@1': 'Non-Scepter Might Gain',
       'Might@6@1': 'Non-Scepter Might Gain',
-      'Might@4@1': 'Non-Scepter Might Gain'
+      'Might@4@1': 'Non-Scepter Might Gain',
     },
     // Phoenix Protocol (Willbender, Flowing Resolve boons). Wiki names 2 distinct concepts, each
     // split by mode into a DIFFERENT status entirely (Alacrity for pve/pvp, Resolution for wvw):
@@ -2650,7 +2775,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Alacrity@5@1': 'Alacrity on Activation',
       'Alacrity@3@1': 'Alacrity on Activation',
       'Resolution@2@1': 'Resolution on Trigger',
-      'Resolution@3@1': 'Resolution on Activation'
+      'Resolution@3@1': 'Resolution on Activation',
     },
     // Several more Guardian trait conflicts investigated this leg turned out to be plain
     // WvwFactOverride cases instead (Permeating Wrath, Unrelenting Criticism, Legendary Lore) — see
@@ -2672,7 +2797,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // "linked skill=-sourced label applied to every mode-variant tuple of one concept" convention as
     // Guardian leg's Zealous Scepter, just sourced from a version-history note instead of a 2nd
     // wiki-fact line.
-    2387: { 'Might@12@5': 'Offensive Protocol: Obliterate', 'Might@6@5': 'Offensive Protocol: Obliterate' },
+    2387: {
+      'Might@12@5': 'Offensive Protocol: Obliterate',
+      'Might@6@5': 'Offensive Protocol: Obliterate',
+    },
     // Hardened Chrome (Amalgam adept, morph/evolve protection). Wiki: base
     // (`{{skill fact|protection|2.5}}`) is unlabeled (the local raw 3 is the documented half-second-
     // rounds-up quirk); the Evolve-triggered bonus carries `{{skill fact|protection|alt=Protection
@@ -2699,7 +2827,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Protection@4@1': 'Base Protection Duration',
       'Protection@2@1#1': 'Base Protection Duration',
       'Protection@2@1#2': 'Additional Protection Duration',
-      'Protection@1@1': 'Additional Protection Duration'
+      'Protection@1@1': 'Additional Protection Duration',
     },
     // Master Fencer (Dueling, on-crit fury). Wiki: base `{{skill fact|fury|4|25|game mode=pve}}`
     // (+pvp/wvw=4, identical, no 2nd tuple) is unlabeled; the self bonus carries
@@ -2714,7 +2842,11 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // `WvwFactOverride` can't safely collapse Personal Quickness's own mode split without also
     // swallowing Phantasm Quickness (same hazard as Radiant Arc, Engineer leg) — labeled instead,
     // reusing "Personal Quickness" across both its mode-variant tuples.
-    729: { 'Quickness@3@1': 'Phantasm Quickness', 'Quickness@2@1': 'Personal Quickness', 'Quickness@1@1': 'Personal Quickness' },
+    729: {
+      'Quickness@3@1': 'Phantasm Quickness',
+      'Quickness@2@1': 'Personal Quickness',
+      'Quickness@1@1': 'Personal Quickness',
+    },
     // Bountiful Disillusionment's Might/Vigor/Fury conflicts turned out to be plain single-concept
     // WvwFactOverride cases instead (see fetch-wvw-splits.ts's own comment block on this leg); its
     // Stability conflict is left open there too (a 2nd, genuinely-additive elite-spec-gated
@@ -2748,7 +2880,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Alacrity@3@1': 'Alacrity on Phantasm Spawn',
       'Alacrity@1@1#2': 'Alacrity on Phantasm Spawn',
       'Might@6@1': 'Might per Clone',
-      'Might@6@2': 'Might on Phantasm Spawn'
+      'Might@6@2': 'Might on Phantasm Spawn',
     },
     // Mental Defense's Resistance conflict, Nomad's Endurance's Vigor conflict, and Renewing
     // Oasis's Regeneration conflict all turned out to be plain single-concept WvwFactOverride cases
@@ -2766,7 +2898,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // outright as non-WvW duplicates, so only occurrence #3 (the real WvW "per Clone" value, 0.5s)
     // ever gets emitted — this label entry is trimmed down to just that surviving occurrence.
     2022: {
-      'Quickness@1@1#3': 'Quickness per Clone'
+      'Quickness@1@1#3': 'Quickness per Clone',
     },
     // Life of the Party (Troubadour, Lively Lute/Crescendo boons). Wiki names 2 `linked skill=`
     // concepts sharing this trait's "Quickness" and "Might" statuses at once (Lively Lute's own
@@ -2784,7 +2916,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Quickness@2@1': 'Crescendo',
       'Might@8@5': 'Lively Lute',
       'Might@6@3': 'Lively Lute',
-      'Might@15@8': 'Crescendo'
+      'Might@15@8': 'Crescendo',
     },
 
     // --- Elementalist leg (9th leg, FINAL leg, 2026-08-14) ---
@@ -2800,7 +2932,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Alacrity@1@1': 'Alacrity per Pulse',
       'Alacrity@5@1': 'Alacrity on Overload',
       'Might@8@1': 'Might per Pulse',
-      'Might@8@3': 'Might on Overload'
+      'Might@8@3': 'Might on Overload',
     },
     // Familiar's Blessing (Evoker, familiar-skill boons). Same "different boon per mode" shape as
     // Lucid Singularity above, but per `linked skill=` too — 4 familiar skills each grant one boon
@@ -2820,10 +2952,10 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Quickness@2@1#1': 'On Ignite',
       'Quickness@2@1#2': 'On Zap',
       'Alacrity@4@1#1': 'On Splash',
-      'Alacrity@4@1#2': 'On Calcify'
-    }
-  }
-}
+      'Alacrity@4@1#2': 'On Calcify',
+    },
+  },
+};
 
 /**
  * `BoonConditionSource.triggerNote`'s source table — see that field's doc comment for scope/intent.
@@ -2928,60 +3060,61 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * of its own. This closes out every candidate both sweeps together could find — see TODO.md for
  * problems 2/3 (whole dodge-replacement mechanics; relic dodge-triggers), still open.
  */
-export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
-  skill: {},
-  trait: {
-    445: 'On Dodge', // Mecha Legs (Engineer/Inventions). Wiki: "Gain resistance when you dodge."
-    564: 'On Dodge', // Vigorous Precision (Guardian/Honor). Wiki: "Gain vigor at the end of your dodge roll."
-    753: 'On Dodge', // Malicious Sorcery (Mesmer/Illusions). Wiki: "When you dodge an attack, inflict
-    // confusion on your attacker" — both curated Confusion facts (PvE/WvW+PvP split) come from this.
-    1090: 'On Dodge', // Companion's Defense (Ranger/Wilderness Survival). Wiki: "You and your pet gain
-    // protection when you dodge roll."
-    1289: 'On Dodge', // Pumping Up (Thief/Acrobatics). Wiki: "Gain might when you dodge."
-    // Upper Hand (Thief/Acrobatics): its tracked Regeneration specifically triggers "when you evade
-    // an attack" per the wiki, not a bare dodge roll (dodging alone only grants untracked Initiative)
-    // — a broader trigger than the other 8 entries here, labeled distinctly rather than folded in.
-    1295: 'On Evade',
-    1379: 'On Dodge', // Resilient Roll (Warrior/Defense). Wiki: "Gain resistance when you dodge."
-    1782: 'On Dodge', // Resolute Evasion (Revenant/Retribution). Wiki: "Gain resolution after you dodge."
-    2066: 'On Dodge', // Thermal Release Valve (Engineer/Holosmith). Wiki: "Dodge rolling vents heat as
-    // an attack against nearby foes and grants vigor."
-    1446: 'On Dodge', // Reckless Dodge (Warrior/Discipline). Wiki: "Damage foes at the end of a dodge
-    // roll. Gain might for each foe struck" — Might fact merged in via `synthetic-trait-facts.json`.
-    //
-    // Saint of zu Heltzer (2238) has NO entry here (as of 2026-08-15, reversing an earlier one): its
-    // only synthetic-merged fact was Alacrity, which is wiki-confirmed PvE-only and now correctly
-    // omitted instead — see `TARGET_COUNT_OVERRIDES.trait`'s own "2238" comment above for the full
-    // reasoning. User-caught 2026-08-15 (a wiki screenshot showing the June 2025 patch note "applies
-    // alacrity...in PvE only," with no WvW-tagged line to have flagged this any other way).
-    //
-    // Found in a follow-up 2026-08-15 pass once the original 28-candidate sweep's "dodge"-substring
-    // gap was discovered (see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment) — both
-    // traits' descriptions say "Dodging," which the sweep's case-insensitive "dodge" search missed.
-    2257: 'On Dodge', // Forerunner of Death (Revenant/Vindicator). Wiki: "Dodging now deals more
-    // damage but affects a smaller area" — Vulnerability fact merged in via `synthetic-trait-facts.json`.
-    2232: 'On Dodge', // Vassals of the Empire (Revenant/Vindicator). Wiki: "Dodging now grants boons to
-    // allies and strikes foes when landing" — Might/Protection facts merged in via `synthetic-trait-facts.json`.
-    //
-    // Found in the "~10 more Dodging-worded traits" follow-up leg, same day:
-    1240: 'On Dodge', // Expeditious Dodger (Thief/Acrobatics). Wiki: "Gain swiftness upon dodging."
-    1887: 'On Dodge', // Weakening Strikes (Thief/Daredevil). Wiki: "Your next attack after dodging
-    // causes weakness to foes struck."
-    2215: 'On Block or Dodge', // Duelist's Reversal (Mesmer/Virtuoso). Wiki: "Blocking or dodging an
-    // attack grants boons" — broader trigger than a bare dodge, same treatment as Upper Hand 1295 above.
-    //
-    // Found in the 2026-08-15 terminology re-sweep (`/mirage cloak|evade|evasion|death drop/i`,
-    // TODO.md Problem 2 scoping) — none of these 4 contain "dodge"/"Dodging" at all.
-    705: 'On Evade', // Mental Gymnastics (Mesmer/Dueling). Wiki: "When you successfully evade an
-    // attack, gain vigor."
-    1067: 'On Evade', // Primal Reflexes (Ranger/Skirmishing). Wiki: identical to Mental Gymnastics above.
-    1960: 'On Evade', // Wandering Mind (Mesmer/Dueling). Wiki: "Remove a nondamaging condition and
-    // gain swiftness whenever you evade an attack."
-    2082: 'On Mirage Cloak' // Renewing Oasis (Mesmer/Mirage). Wiki: "Gain regeneration when you gain
-    // Mirage Cloak." Not folded into 'On Dodge' — Dune Cloak (2169) can also grant Mirage Cloak via
-    // Shatter, not just dodging, so the real trigger is broader than a bare dodge roll.
-  }
-}
+export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } =
+  {
+    skill: {},
+    trait: {
+      445: 'On Dodge', // Mecha Legs (Engineer/Inventions). Wiki: "Gain resistance when you dodge."
+      564: 'On Dodge', // Vigorous Precision (Guardian/Honor). Wiki: "Gain vigor at the end of your dodge roll."
+      753: 'On Dodge', // Malicious Sorcery (Mesmer/Illusions). Wiki: "When you dodge an attack, inflict
+      // confusion on your attacker" — both curated Confusion facts (PvE/WvW+PvP split) come from this.
+      1090: 'On Dodge', // Companion's Defense (Ranger/Wilderness Survival). Wiki: "You and your pet gain
+      // protection when you dodge roll."
+      1289: 'On Dodge', // Pumping Up (Thief/Acrobatics). Wiki: "Gain might when you dodge."
+      // Upper Hand (Thief/Acrobatics): its tracked Regeneration specifically triggers "when you evade
+      // an attack" per the wiki, not a bare dodge roll (dodging alone only grants untracked Initiative)
+      // — a broader trigger than the other 8 entries here, labeled distinctly rather than folded in.
+      1295: 'On Evade',
+      1379: 'On Dodge', // Resilient Roll (Warrior/Defense). Wiki: "Gain resistance when you dodge."
+      1782: 'On Dodge', // Resolute Evasion (Revenant/Retribution). Wiki: "Gain resolution after you dodge."
+      2066: 'On Dodge', // Thermal Release Valve (Engineer/Holosmith). Wiki: "Dodge rolling vents heat as
+      // an attack against nearby foes and grants vigor."
+      1446: 'On Dodge', // Reckless Dodge (Warrior/Discipline). Wiki: "Damage foes at the end of a dodge
+      // roll. Gain might for each foe struck" — Might fact merged in via `synthetic-trait-facts.json`.
+      //
+      // Saint of zu Heltzer (2238) has NO entry here (as of 2026-08-15, reversing an earlier one): its
+      // only synthetic-merged fact was Alacrity, which is wiki-confirmed PvE-only and now correctly
+      // omitted instead — see `TARGET_COUNT_OVERRIDES.trait`'s own "2238" comment above for the full
+      // reasoning. User-caught 2026-08-15 (a wiki screenshot showing the June 2025 patch note "applies
+      // alacrity...in PvE only," with no WvW-tagged line to have flagged this any other way).
+      //
+      // Found in a follow-up 2026-08-15 pass once the original 28-candidate sweep's "dodge"-substring
+      // gap was discovered (see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment) — both
+      // traits' descriptions say "Dodging," which the sweep's case-insensitive "dodge" search missed.
+      2257: 'On Dodge', // Forerunner of Death (Revenant/Vindicator). Wiki: "Dodging now deals more
+      // damage but affects a smaller area" — Vulnerability fact merged in via `synthetic-trait-facts.json`.
+      2232: 'On Dodge', // Vassals of the Empire (Revenant/Vindicator). Wiki: "Dodging now grants boons to
+      // allies and strikes foes when landing" — Might/Protection facts merged in via `synthetic-trait-facts.json`.
+      //
+      // Found in the "~10 more Dodging-worded traits" follow-up leg, same day:
+      1240: 'On Dodge', // Expeditious Dodger (Thief/Acrobatics). Wiki: "Gain swiftness upon dodging."
+      1887: 'On Dodge', // Weakening Strikes (Thief/Daredevil). Wiki: "Your next attack after dodging
+      // causes weakness to foes struck."
+      2215: 'On Block or Dodge', // Duelist's Reversal (Mesmer/Virtuoso). Wiki: "Blocking or dodging an
+      // attack grants boons" — broader trigger than a bare dodge, same treatment as Upper Hand 1295 above.
+      //
+      // Found in the 2026-08-15 terminology re-sweep (`/mirage cloak|evade|evasion|death drop/i`,
+      // TODO.md Problem 2 scoping) — none of these 4 contain "dodge"/"Dodging" at all.
+      705: 'On Evade', // Mental Gymnastics (Mesmer/Dueling). Wiki: "When you successfully evade an
+      // attack, gain vigor."
+      1067: 'On Evade', // Primal Reflexes (Ranger/Skirmishing). Wiki: identical to Mental Gymnastics above.
+      1960: 'On Evade', // Wandering Mind (Mesmer/Dueling). Wiki: "Remove a nondamaging condition and
+      // gain swiftness whenever you evade an attack."
+      2082: 'On Mirage Cloak', // Renewing Oasis (Mesmer/Mirage). Wiki: "Gain regeneration when you gain
+      // Mirage Cloak." Not folded into 'On Dodge' — Dune Cloak (2169) can also grant Mirage Cloak via
+      // Shatter, not just dodging, so the real trigger is broader than a bare dodge roll.
+    },
+  };
 
 /**
  * `BoonConditionSource.triggerNote`'s 2nd curated table — same "opt-in, fails open" convention as
@@ -2998,12 +3131,15 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
  *   unconditional trait-level Regeneration source without a note — user-caught 2026-08-22 ("it says
  *   it makes Warhorn skills grant regeneration, not the trait itself").
  */
-export const WEAPON_SKILL_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
+export const WEAPON_SKILL_TRIGGER_NOTES: {
+  skill: Record<number, string>;
+  trait: Record<number, string>;
+} = {
   skill: {},
   trait: {
-    964: 'On Warhorn Skill Use' // Windborne Notes (Ranger, Beastmastery, Major)
-  }
-}
+    964: 'On Warhorn Skill Use', // Windborne Notes (Ranger, Beastmastery, Major)
+  },
+};
 
 /**
  * A single Buff-fact occurrence's WvW duration, resolved per-instance rather than per-status —
@@ -3015,7 +3151,7 @@ export const WEAPON_SKILL_TRIGGER_NOTES: { skill: Record<number, string>; trait:
  * application) — same semantics as `WvwFactOverride`'s own `'omit'`, just scoped to one occurrence
  * instead of the whole status.
  */
-export type WvwInstanceOverride = number | 'omit'
+export type WvwInstanceOverride = number | 'omit';
 
 /**
  * Occurrence-indexed WvW duration corrections — TODO.md's Seize the Moment follow-up to
@@ -3048,7 +3184,10 @@ export type WvwInstanceOverride = number | 'omit'
  * surviving occurrence) and an unlabeled base Quickness 0.75s, matching the wiki's 2-concept
  * structure instead of the API's accidental 1s/3s bucketing.
  */
-export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<string, WvwInstanceOverride>>; trait: Record<number, Record<string, WvwInstanceOverride>> } = {
+export const BUFF_INSTANCE_VALUE_OVERRIDES: {
+  skill: Record<number, Record<string, WvwInstanceOverride>>;
+  trait: Record<number, Record<string, WvwInstanceOverride>>;
+} = {
   skill: {
     // Steal/Deadeye's Mark/Siphon/Skritt Swipe (13014/43390/63067/77397) — TODO.md "Specter Siphon
     // F1 Effects" follow-up (2026-09-20): `synthetic-facts.json`'s Bountiful Theft (id 1277) copy on
@@ -3071,7 +3210,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
     13014: { 'Might@10@5': 'omit' },
     43390: { 'Might@10@5': 'omit', 'Vulnerability@10@5': 'omit' },
     63067: { 'Might@10@5': 'omit' },
-    77397: { 'Might@10@5': 'omit', 'Vulnerability@10@5': 'omit' }
+    77397: { 'Might@10@5': 'omit', 'Vulnerability@10@5': 'omit' },
   },
   trait: {
     675: {
@@ -3085,7 +3224,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // Additional's pve/wvw value (`Protection@2@1#2`) are already correct and need no entry; only
       // the 2 pvp-only occurrences below need dropping.
       'Protection@2@1#1': 'omit', // Base's pvp value (2) — collides with Additional's real WvW value
-      'Protection@1@1': 'omit' // Additional's pvp value (1) — not a real WvW duration
+      'Protection@1@1': 'omit', // Additional's pvp value (1) — not a real WvW duration
     },
     2022: {
       'Quickness@1@1#1': 'omit', // per-Clone pve (1) — real value, not WvW
@@ -3093,7 +3232,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       'Quickness@1@1#3': 0.5, // per-Clone wvw — the real WvW value this app should show
       'Quickness@3@1': 'omit', // base pve (3)
       'Quickness@1@1#4': 'omit', // base pvp (1) — real value, not WvW
-      'Quickness@1@1#5': 0.75 // base wvw — the real WvW value this app should show
+      'Quickness@1@1#5': 0.75, // base wvw — the real WvW value this app should show
     },
     2352: {
       // Found Purpose (Conduit). Its flat, legend-less Might fact carries an untagged PvE-only
@@ -3106,7 +3245,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // wiki-verifying Found Purpose's own numbers to copy onto Cosmic Wisdom, unrelated to that fix
       // itself. Wiki raw wikitext (`action=raw`) confirms: `{{skill fact|might|stacks=5|10|game
       // mode=pve}}{{skill fact|might|stacks=3|5|game mode=pvp wvw}}`.
-      'Might@10@5': 'omit'
+      'Might@10@5': 'omit',
     },
 
     // Engineer leg (4th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
@@ -3127,7 +3266,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // stacks" instead of the real wvw "8s, 3 stacks". `Might@8@3` (the wvw fact itself) needs no
       // entry, already correct as-is.
       'Might@15@2': 'omit', // pve (15s/2 stacks)
-      'Might@10@2': 'omit' // pvp (10s/2 stacks)
+      'Might@10@2': 'omit', // pvp (10s/2 stacks)
     },
     2052: {
       // Kinetic Accelerators (Scrapper). Wiki (`split = pve, wvw, pvp`): `{{skill fact|might|10|
@@ -3137,7 +3276,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // apply_count of 3, showing "5s, 3 stacks" instead of the real wvw "5s, 2 stacks".
       // `Might@5@2` (the wvw fact itself) needs no entry, already correct as-is.
       'Might@10@3': 'omit', // pve (10s/3 stacks)
-      'Might@8@3': 'omit' // pvp (8s/3 stacks)
+      'Might@8@3': 'omit', // pvp (8s/3 stacks)
     },
     2064: {
       // Photonic Blasting Module (Holosmith). Wiki (`split = pve, wvw, pvp`): `{{skill
@@ -3146,7 +3285,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // fact's (pve, 6/7) duration with 2 but kept its apply_count of 7, showing "2s, 7 stacks"
       // instead of the real wvw+pvp "2s, 2 stacks". `Burning@2@2` (the wvw+pvp fact itself) needs
       // no entry, already correct as-is.
-      'Burning@6@7': 'omit' // pve (6s/7 stacks)
+      'Burning@6@7': 'omit', // pve (6s/7 stacks)
     },
     2387: {
       // New Genes (Amalgam). Wiki (`split = pve, wvw pvp`): `{{skill fact|Might|12|stacks=4|game
@@ -3158,7 +3297,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // rechecking those older "left open" cases with this trick on a future pass — not attempted
       // here, out of this leg's scope. `Might@6@3` (the wvw+pvp fact itself) needs no entry,
       // already correct as-is.
-      'Might@12@4': 'omit' // pve (12s/4 stacks)
+      'Might@12@4': 'omit', // pve (12s/4 stacks)
     },
 
     // Ranger leg (5th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
@@ -3171,7 +3310,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // entry (`{Bleeding: 8}`) replaced the FIRST raw fact's (pve, 4/2) duration with 8 but kept
       // its apply_count of 2, showing "8s, 2 stacks" instead of the real wvw+pvp "8s, 1 stack".
       // `Bleeding@8@1` (the wvw+pvp fact itself) needs no entry, already correct as-is.
-      'Bleeding@4@2': 'omit' // pve (4s/2 stacks)
+      'Bleeding@4@2': 'omit', // pve (4s/2 stacks)
     },
     2055: {
       // Eclipse (Druid). Wiki (`split = pve, wvw pvp`): `{{skill fact|Poison|8|linked skill=Seed of
@@ -3182,7 +3321,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // correct as-is. (Its Immobile/Burning pairs share the same duration split but matching
       // apply_count both modes, 1/1, so those 2 are plain `wvw-fact-overrides.json` entries instead
       // — see that file's own trait-2055 entry.)
-      'Poisoned@8@3': 'omit' // pve (8s/3 stacks)
+      'Poisoned@8@3': 'omit', // pve (8s/3 stacks)
     },
     2271: {
       // Let Loose (Untamed). Wiki (`split = pve, wvw pvp`): `{{skill fact|Might|10|stacks=5|game
@@ -3193,7 +3332,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // correct as-is. (Its sole Quickness fact stays `wvw-fact-overrides.json`'s pre-existing
       // `'omit'` — the wiki only ever documents a pve value for it, no wvw/pvp value exists in the
       // API at all to pick, same "documented but absent" shape as other loose ends in this file.)
-      'Might@10@5': 'omit' // pve (10s/5 stacks)
+      'Might@10@5': 'omit', // pve (10s/5 stacks)
     },
     2425: {
       // Cloudburst (Galeshot). Wiki (`split = pve, wvw pvp`): under its Hawkeye linked-skill prefix,
@@ -3209,7 +3348,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // Ranger-leg intro comment: Bluster's Quickness+Might swap entirely to Swiftness+Fury in
       // wvw+pvp, and Hawkeye's Might swaps entirely to Fury — same shape as Guardian's Phoenix
       // Protocol/Engineer's Mech Frame: Channeling Conduits.
-      'Quickness@8@1': 'omit' // Hawkeye pve (8s)
+      'Quickness@8@1': 'omit', // Hawkeye pve (8s)
     },
 
     // Thief leg (6th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
@@ -3228,7 +3367,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // wvw+pvp "6s, 3 stacks". `Might@6@3` (the wvw+pvp fact itself) needs no entry, already
       // correct as-is. Its Fury pair (unsplit duration, 10 both modes) stays a plain
       // `wvw-fact-overrides.json` entry, unaffected by this fix.
-      'Might@10@5': 'omit' // pve (10s/5 stacks)
+      'Might@10@5': 'omit', // pve (10s/5 stacks)
     },
     1277: {
       // Bountiful Theft (Trickery). Wiki (`split = pve, wvw pvp`): `{{skill fact|might|10|
@@ -3241,7 +3380,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // this one's actually fixable. `Might@10@1` (the wvw+pvp fact itself) needs no entry,
       // already correct as-is. Its separate "Boons Stolen" Number fact (3 pve/2 wvw+pvp) is
       // curated in `NUMERIC_FACT_WVW_OVERRIDES` instead.
-      'Might@10@5': 'omit' // pve (10s/5 stacks)
+      'Might@10@5': 'omit', // pve (10s/5 stacks)
     },
     1279: {
       // Serpent's Touch (Deadly Arts). The 2026-08-14 buff-instance-label sweep already labeled
@@ -3268,7 +3407,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // Steal row (`traitedFacts[0]`, also `Poisoned@10@2`), landing as tuple occurrence 2 of 2,
       // omitted below the same way every other pvp-only duplicate in this table is.
       'Poisoned@10@1': 'omit', // pvp-only (10s/1 stack)
-      'Poisoned@10@2#2': 'omit' // pvp-only, Potent-Poison-boosted (10s/2 stacks)
+      'Poisoned@10@2#2': 'omit', // pvp-only, Potent-Poison-boosted (10s/2 stacks)
     },
     2393: {
       // Possessive Hoarder (Antiquary). The 2026-08-14 buff-instance-label sweep found this
@@ -3297,7 +3436,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // (safe, both occurrences share apply_count 1, no bug risk). `Might@6@8` (the wvw fact
       // itself) needs no entry, already correct as-is.
       'Might@12@10': 'omit', // pve (12s/10 stacks)
-      'Might@6@4': 'omit' // pvp (6s/4 stacks)
+      'Might@6@4': 'omit', // pvp (6s/4 stacks)
     },
 
     // Elementalist leg (7th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
@@ -3311,7 +3450,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // 8s/1 stack) duration with 6 but kept its apply_count of 1, showing "6s, 1 stack" instead of
       // the real wvw+pvp "6s, 8 stacks". `Vulnerability@6@8` (the wvw+pvp fact itself) needs no
       // entry, already correct as-is.
-      'Vulnerability@8@1': 'omit' // pve (8s/1 stack)
+      'Vulnerability@8@1': 'omit', // pve (8s/1 stack)
     },
     325: {
       // Burning Rage (Fire). Wiki (`split = pve, wvw pvp`): `{{skill fact|Burning|4|stacks=2|game
@@ -3321,7 +3460,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // it kept the FIRST occurrence's own apply_count (2, pve) instead of the real wvw+pvp "4s, 1
       // stack" — same underlying shape as Bountiful Theft's Might (Thief leg). `Burning@4@1` (the
       // wvw+pvp fact itself) needs no entry, already correct as-is.
-      'Burning@4@2': 'omit' // pve (4s/2 stacks)
+      'Burning@4@2': 'omit', // pve (4s/2 stacks)
     },
 
     // Necromancer leg (8th and final leg of the "remaining 8 professions" main WvW-duplicate sweep,
@@ -3343,7 +3482,7 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // 5s/3 stacks) duration with 3 but kept its apply_count of 3, showing "3s, 3 stacks" instead of
       // the real wvw+pvp "3s, 1 stack". `Stability@3@1` (the wvw+pvp fact itself) needs no entry,
       // already correct as-is.
-      'Stability@5@3': 'omit' // pve (5s/3 stacks)
+      'Stability@5@3': 'omit', // pve (5s/3 stacks)
     },
     // Doom Approaches (Harbinger, Grandmaster major, id 2203) has 2 wiki-confirmed splits — a
     // "Blight" stack-count-only pair (`stacks=4` pve / `stacks=3` wvw+pvp, 25s both) that hits the
@@ -3369,10 +3508,10 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // (Fury's 2nd numeric wiki param, 25/20, doesn't map to any exposed `Fact` field — an
       // embedded-sub-value gap, out of scope). `Might@8@3` (the wvw+pvp fact itself) needs no entry,
       // already correct as-is.
-      'Might@10@8': 'omit' // pve (10s/8 stacks)
-    }
-  }
-}
+      'Might@10@8': 'omit', // pve (10s/8 stacks)
+    },
+  },
+};
 
 /** Resolves `BUFF_INSTANCE_VALUE_OVERRIDES` for one buff fact — mirrors `resolveInstanceLabel`'s
  *  lookup exactly (bare key when the tuple is unique, `#<occurrence>`-suffixed key otherwise). */
@@ -3383,26 +3522,28 @@ function resolveInstanceValueOverride(
   duration: number,
   applyCount: number,
   tupleOccurrence: number,
-  tupleTotal: number
+  tupleTotal: number,
 ): WvwInstanceOverride | undefined {
-  const table = BUFF_INSTANCE_VALUE_OVERRIDES[sourceKind][sourceId]
-  if (!table) return undefined
-  const baseKey = buffInstanceKey(status, duration, applyCount)
+  const table = BUFF_INSTANCE_VALUE_OVERRIDES[sourceKind][sourceId];
+  if (!table) return undefined;
+  const baseKey = buffInstanceKey(status, duration, applyCount);
   if (tupleTotal > 1) {
-    const suffixedKey = `${baseKey}#${tupleOccurrence}`
-    if (suffixedKey in table) return table[suffixedKey]
+    const suffixedKey = `${baseKey}#${tupleOccurrence}`;
+    if (suffixedKey in table) return table[suffixedKey];
   }
-  return table[baseKey]
+  return table[baseKey];
 }
 
 function resolveTriggerNote(sourceKind: 'skill' | 'trait', sourceId: number): string | undefined {
-  return DODGE_TRIGGER_NOTES[sourceKind][sourceId] ?? WEAPON_SKILL_TRIGGER_NOTES[sourceKind][sourceId]
+  return (
+    DODGE_TRIGGER_NOTES[sourceKind][sourceId] ?? WEAPON_SKILL_TRIGGER_NOTES[sourceKind][sourceId]
+  );
 }
 
 /** `${status}@${duration}@${applyCount}` — see `BUFF_INSTANCE_LABELS`'s doc comment for why this
  *  tuple (not a bare status) is the lookup key, and when the `#<occurrence>` suffix applies. */
 function buffInstanceKey(status: string, duration: number, applyCount: number): string {
-  return `${status}@${duration}@${applyCount}`
+  return `${status}@${duration}@${applyCount}`;
 }
 
 /** Resolves `BoonConditionSource.instanceLabel` for one buff fact via `BUFF_INSTANCE_LABELS`.
@@ -3417,16 +3558,16 @@ function resolveInstanceLabel(
   duration: number,
   applyCount: number,
   tupleOccurrence: number,
-  tupleTotal: number
+  tupleTotal: number,
 ): string | undefined {
-  const table = BUFF_INSTANCE_LABELS[sourceKind][sourceId]
-  if (!table) return undefined
-  const baseKey = buffInstanceKey(status, duration, applyCount)
+  const table = BUFF_INSTANCE_LABELS[sourceKind][sourceId];
+  if (!table) return undefined;
+  const baseKey = buffInstanceKey(status, duration, applyCount);
   if (tupleTotal > 1) {
-    const suffixedKey = `${baseKey}#${tupleOccurrence}`
-    if (suffixedKey in table) return table[suffixedKey]
+    const suffixedKey = `${baseKey}#${tupleOccurrence}`;
+    if (suffixedKey in table) return table[suffixedKey];
   }
-  return table[baseKey]
+  return table[baseKey];
 }
 
 /** `resolveTargetCountFrom` against `TARGET_COUNT_OVERRIDES` specifically — the boon/condition
@@ -3437,9 +3578,17 @@ function resolveTargetCount(
   sourceKind: 'skill' | 'trait',
   sourceId: number,
   activeTraitIdSet: Set<number>,
-  equippedLegendIdSet: Set<string>
+  equippedLegendIdSet: Set<string>,
 ): ResolvedTargetCount {
-  return resolveTargetCountFrom(fact, combinedFacts, sourceKind, sourceId, TARGET_COUNT_OVERRIDES, activeTraitIdSet, equippedLegendIdSet)
+  return resolveTargetCountFrom(
+    fact,
+    combinedFacts,
+    sourceKind,
+    sourceId,
+    TARGET_COUNT_OVERRIDES,
+    activeTraitIdSet,
+    equippedLegendIdSet,
+  );
 }
 
 /**
@@ -3571,7 +3720,10 @@ function resolveTargetCount(
  *    blast finisher" — self for one finisher type, party for another, same one-source-two-reaches
  *    shape as the Virtue of Resolve pair above.
  */
-export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const CONDITION_CLEANSE_TARGETS: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     // --- Self-only, explicit "from Self"/"yourself" wiki wording, no allies mention ---
     5965: 'self', // Fumigate
@@ -3804,7 +3956,7 @@ export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, SourceTargetCoun
     // --- Transfusion (trait 778, Necromancer): the established "one ally per mark trigger"
     // mechanic (see `TARGET_COUNT_OVERRIDES`' own comments on Chillblains/Reaper's Mark/Lesser
     // Chilblains above) — party, but count 1, not the usual default 5. ---
-    19116: 1 // Putrid Mark
+    19116: 1, // Putrid Mark
   },
   trait: {
     // --- Self-only, explicit first-person "yourself"/"you" wiki wording, no allies mention. ---
@@ -3855,10 +4007,10 @@ export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, SourceTargetCoun
     1866: 5, // Restorative Illusions
     2384: 5, // Spirits' Remedy
     2401: 5, // Purging Light
-    1730: 5 // Hardening Persistence (Revenant/Glint). Own description doesn't name a target, but
+    1730: 5, // Hardening Persistence (Revenant/Glint). Own description doesn't name a target, but
     // both skills it gates are already-party-wide Glint shield-support skills — see top doc comment.
-  }
-}
+  },
+};
 
 /**
  * Trait ids currently "active" for a build: every minor trait of an equipped
@@ -3867,20 +4019,22 @@ export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, SourceTargetCoun
  * when a specific other trait is also active.
  */
 export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
-  const equippedLines = build.specializations.filter((line): line is NonNullable<typeof line> => line != null)
-  const equippedSpecIds = new Set(equippedLines.map((line) => line.specializationId))
-  const ids = new Set<number>()
+  const equippedLines = build.specializations.filter(
+    (line): line is NonNullable<typeof line> => line != null,
+  );
+  const equippedSpecIds = new Set(equippedLines.map((line) => line.specializationId));
+  const ids = new Set<number>();
   for (const trait of allTraits) {
     if (trait.slot === 'Minor' && equippedSpecIds.has(trait.specializationId)) {
-      ids.add(trait.id)
+      ids.add(trait.id);
     }
   }
   for (const line of equippedLines) {
     for (const chosenId of line.chosenTraitIds) {
-      if (chosenId !== null) ids.add(chosenId)
+      if (chosenId !== null) ids.add(chosenId);
     }
   }
-  return ids
+  return ids;
 }
 
 /**
@@ -3893,23 +4047,23 @@ export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
  * file.
  */
 export function equippedLegendIds(build: Build): Set<string> {
-  if (build.skills.kind !== 'revenant') return new Set()
-  return new Set(build.skills.legends.filter((id): id is string => id !== null))
+  if (build.skills.kind !== 'revenant') return new Set();
+  return new Set(build.skills.legends.filter((id): id is string => id !== null));
 }
 
 /** Default classifier: real boons/conditions only — every existing caller relies on this exact
  *  behavior (unchanged from before `BoonConditionCategory` existed), so it's the default rather
  *  than something every call site has to pass explicitly. */
 export function classifyBoonCondition(status: string): BoonConditionCategory | null {
-  if (isBoonName(status)) return 'boon'
-  if (isConditionName(status)) return 'condition'
-  return null
+  if (isBoonName(status)) return 'boon';
+  if (isConditionName(status)) return 'condition';
+  return null;
 }
 
 /** `computeAuraSources`' classifier — the 7 auras, see `AURA_NAMES` in constants.ts. */
 function classifyAura(status: string): BoonConditionCategory | null {
-  if (isAuraName(status)) return 'aura'
-  return null
+  if (isAuraName(status)) return 'aura';
+  return null;
 }
 
 /**
@@ -3919,10 +4073,13 @@ function classifyAura(status: string): BoonConditionCategory | null {
  * legend's own `name` exactly EXCEPT "Legendary Alliance" (`prefix.status` instead reads "Legendary
  * Alliance Stance"), so `name + " Stance"` is checked too.
  */
-export function resolveLegendFromPrefix(prefix: Fact['prefix'], legends: Legend[]): Legend | undefined {
-  const status = prefix?.status
-  if (!status) return undefined
-  return legends.find((l) => l.name === status || `${l.name} Stance` === status)
+export function resolveLegendFromPrefix(
+  prefix: Fact['prefix'],
+  legends: Legend[],
+): Legend | undefined {
+  const status = prefix?.status;
+  if (!status) return undefined;
+  return legends.find((l) => l.name === status || `${l.name} Stance` === status);
 }
 
 /** One "this differs per equipped legend" line for a skill/trait tooltip — a per-legend text detail
@@ -3931,8 +4088,8 @@ export function resolveLegendFromPrefix(prefix: Fact['prefix'], legends: Legend[
  *  `legendName` fields (Spirit-Boon-style: a real boon whose PREFIX merely attributes it to a
  *  legend) — here the legend IS the entire content of the row, there's no boon name to show. */
 export interface LegendFormFact {
-  legend: Legend
-  text: string
+  legend: Legend;
+  text: string;
 }
 
 /** Skill ids whose `PrefixedBuff` facts get the `legendFormFactsForSkill` treatment below — an
@@ -3958,7 +4115,7 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
   // (Assassin/Centaur/Demon/Dwarf/Entity) can ever be equipped alongside it anyway — matches this
   // skill's own 5 documented forms with none left over (same reasoning already established for
   // `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`/`LEGEND_ATTRIBUTE_BONUS_DETAILS`).
-  29371 // Facet of Nature (Revenant/Herald, Profession_2) — the OTHER half of TODO.md's "Herald F2
+  29371, // Facet of Nature (Revenant/Herald, Profession_2) — the OTHER half of TODO.md's "Herald F2
   // lacks linked tooltips" item, closed 2026-08-20 alongside `trueNatureBranches`
   // (`skill-calc/branch-conditional-facts.ts`), which covers its Consume effect (True Nature)'s real
   // numbers. This covers Facet of Nature's OWN passive-tick descriptions instead — its raw facts are
@@ -3968,7 +4125,7 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
   // Revenant's legends have a Facet of Nature form at all (Assassin/Centaur/Demon/Dwarf/Dragon,
   // same 5 `trueNatureBranches` covers) — a Herald invoking Kalla/Alliance gets no row here, matching
   // the real game.
-])
+]);
 
 /**
  * Trait ids whose OWN `PrefixedBuff` facts get the same equipped-legend gate as
@@ -3986,7 +4143,7 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
  * that build-specific behavior everywhere the trait's facts surface (its own picker tooltip
  * included, via `boonConditionFactsForTrait`), not just on Cosmic Wisdom's tooltip.
  */
-const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440])
+const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440]);
 
 /**
  * Same-day follow-up (2026-08-20): user flagged 3 more Conduit traits that interact with Cosmic
@@ -4043,8 +4200,8 @@ const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440])
  * flagged again after 2026-08-19's Conduit leg (Found Purpose's per-legend boons WERE fixed then;
  * only this one flat, legend-less Might fact was still an untouched duplicate).
  */
-const FOUND_PURPOSE_TRAIT_ID = 2352
-const COSMIC_WISDOM_SKILL_ID = 77371
+const FOUND_PURPOSE_TRAIT_ID = 2352;
+const COSMIC_WISDOM_SKILL_ID = 77371;
 
 /**
  * A real, current-build-scaled number to append below a `legendFormFactsForSkill` row's own
@@ -4061,7 +4218,7 @@ const COSMIC_WISDOM_SKILL_ID = 77371
  * inconsistent with this row's own equipped-legend filtering.
  */
 interface LegendFormEffectDetail {
-  label: string
+  label: string;
   /** `'damage'`: the ordinary weapon-Damage-fact formula (`weaponStrength * coefficient * power /
    *  targetArmor`, `weapon: 'unequipped'` — non-weapon trait/utility damage, matches the wiki's
    *  plain `{{skill fact|damage|...}}` template both Warrior's and Dervish's pages use).
@@ -4073,11 +4230,11 @@ interface LegendFormEffectDetail {
    *  heal skill's own raw API facts, id 26937, whose already-curated `CURATED_HEALING_COEFFICIENTS`
    *  entry's `Siphon Healing` baseValue (768) matches this page's wiki-quoted number exactly).
    */
-  kind: 'damage' | 'siphonDamage' | 'healing'
-  coefficient: number
+  kind: 'damage' | 'siphonDamage' | 'healing';
+  coefficient: number;
   /** Only for `'siphonDamage'`/`'healing'` — the `AttributeAdjust` fact's own reference value (API
    *  convention: computed at 0 bonus Power/Healing Power), same meaning as `HealingCoefficient.baseValue`. */
-  baseValue?: number
+  baseValue?: number;
 }
 
 /**
@@ -4112,12 +4269,12 @@ const LEGEND_FORM_EFFECT_DETAILS: Record<number, Record<string, LegendFormEffect
   77371: {
     'Legendary Assassin Stance': [
       { label: 'Life Siphon Damage', kind: 'siphonDamage', baseValue: 913, coefficient: 0.0575 },
-      { label: 'Siphon Healing', kind: 'healing', baseValue: 768, coefficient: 0.2 }
+      { label: 'Siphon Healing', kind: 'healing', baseValue: 768, coefficient: 0.2 },
     ],
     'Legendary Dwarf Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.44 }],
-    'Legendary Entity Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.525 }]
-  }
-}
+    'Legendary Entity Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.525 }],
+  },
+};
 
 /** Live build stats `legendFormFactsForSkill` needs to compute `LEGEND_FORM_EFFECT_DETAILS`'
  *  real numbers — the same trio `skillFactLines`/`damageLinesForSkill`/`healingLinesForSkill` are
@@ -4127,17 +4284,22 @@ const LEGEND_FORM_EFFECT_DETAILS: Record<number, Record<string, LegendFormEffect
  *  a `LEGEND_FORM_EFFECT_DETAILS` entry actually need this, and there's currently exactly one such
  *  skill (Cosmic Wisdom). */
 export interface LegendFormAttributeContext {
-  power: number
-  healingPower: number
-  targetArmor: number
+  power: number;
+  healingPower: number;
+  targetArmor: number;
 }
 
-function formatLegendFormEffectDetail(detail: LegendFormEffectDetail, attrs: LegendFormAttributeContext): string {
+function formatLegendFormEffectDetail(
+  detail: LegendFormEffectDetail,
+  attrs: LegendFormAttributeContext,
+): string {
   const value =
     detail.kind === 'damage'
-      ? (WEAPON_STRENGTH_MIDPOINTS.unequipped * detail.coefficient * attrs.power) / attrs.targetArmor
-      : (detail.baseValue ?? 0) + detail.coefficient * (detail.kind === 'healing' ? attrs.healingPower : attrs.power)
-  return `${detail.label}: ${Math.round(value).toLocaleString()}`
+      ? (WEAPON_STRENGTH_MIDPOINTS.unequipped * detail.coefficient * attrs.power) /
+        attrs.targetArmor
+      : (detail.baseValue ?? 0) +
+        detail.coefficient * (detail.kind === 'healing' ? attrs.healingPower : attrs.power);
+  return `${detail.label}: ${Math.round(value).toLocaleString()}`;
 }
 
 /**
@@ -4158,20 +4320,26 @@ export function legendFormFactsForSkill(
   skill: Skill,
   equippedLegendIdSet: Set<string>,
   legends: Legend[],
-  attrs?: LegendFormAttributeContext
+  attrs?: LegendFormAttributeContext,
 ): LegendFormFact[] {
-  if (!LEGEND_FORM_FACT_SKILL_IDS.has(skill.id)) return []
-  const out: LegendFormFact[] = []
+  if (!LEGEND_FORM_FACT_SKILL_IDS.has(skill.id)) return [];
+  const out: LegendFormFact[] = [];
   for (const fact of [...skill.facts, ...skill.traitedFacts]) {
-    if (fact.type !== 'PrefixedBuff' || typeof fact.status !== 'string' || typeof fact.description !== 'string') continue
-    if (classifyBoonCondition(fact.status)) continue
-    const legend = resolveLegendFromPrefix(fact.prefix, legends)
-    if (!legend || !equippedLegendIdSet.has(legend.id)) continue
-    const details = LEGEND_FORM_EFFECT_DETAILS[skill.id]?.[legend.name]
-    const extraLines = details && attrs ? details.map((d) => formatLegendFormEffectDetail(d, attrs)) : []
-    out.push({ legend, text: [fact.description, ...extraLines].join('\n') })
+    if (
+      fact.type !== 'PrefixedBuff' ||
+      typeof fact.status !== 'string' ||
+      typeof fact.description !== 'string'
+    )
+      continue;
+    if (classifyBoonCondition(fact.status)) continue;
+    const legend = resolveLegendFromPrefix(fact.prefix, legends);
+    if (!legend || !equippedLegendIdSet.has(legend.id)) continue;
+    const details = LEGEND_FORM_EFFECT_DETAILS[skill.id]?.[legend.name];
+    const extraLines =
+      details && attrs ? details.map((d) => formatLegendFormEffectDetail(d, attrs)) : [];
+    out.push({ legend, text: [fact.description, ...extraLines].join('\n') });
   }
-  return out
+  return out;
 }
 
 /**
@@ -4190,7 +4358,7 @@ export function legendFormFactsForSkill(
  *   parallel reasoning on why familiar combat effects aren't modeled), so there's nothing this
  *   mechanic could correctly contribute even if it were parsed per-boon.
  */
-const TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES: ReadonlySet<number> = new Set([1056])
+const TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES: ReadonlySet<number> = new Set([1056]);
 
 function extractFromFacts(
   facts: Fact[],
@@ -4204,13 +4372,13 @@ function extractFromFacts(
   durationPercent: { boon: number; condition: number },
   wvwOverrides: Record<string, WvwFactOverride> | undefined,
   classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition,
-  legends: Legend[] = []
+  legends: Legend[] = [],
 ): BoonConditionSource[] {
-  if (sourceKind === 'trait' && TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES.has(sourceId)) return []
+  if (sourceKind === 'trait' && TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES.has(sourceId)) return [];
 
-  const out: BoonConditionSource[] = []
-  const emittedOverriddenStatuses = new Set<string>()
-  const combinedFacts = [...facts, ...traitedFacts]
+  const out: BoonConditionSource[] = [];
+  const emittedOverriddenStatuses = new Set<string>();
+  const combinedFacts = [...facts, ...traitedFacts];
 
   // `Fact.overrides` is the GW2 API's own documented convention: an index into this source's BASE
   // `facts` array naming the entry a (usually `requires_trait`-gated) fact replaces once active —
@@ -4219,11 +4387,11 @@ function extractFromFacts(
   // replacing it (e.g. Serpent's Touch showing both the unboosted and Potent-Poison-boosted Poisoned
   // rows at once, TODO.md 2026-09-20) — this suppresses the base fact's own index whenever an active
   // fact elsewhere in `combinedFacts` claims to override it.
-  const overriddenBaseFactIndices = new Set<number>()
+  const overriddenBaseFactIndices = new Set<number>();
   for (const fact of combinedFacts) {
-    if (typeof fact.overrides !== 'number') continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    overriddenBaseFactIndices.add(fact.overrides)
+    if (typeof fact.overrides !== 'number') continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    overriddenBaseFactIndices.add(fact.overrides);
   }
 
   // Pre-pass for `resolveInstanceLabel`'s `tupleOccurrence`/`tupleTotal` — counts how many facts on
@@ -4231,42 +4399,57 @@ function extractFromFacts(
   // `requires_trait`/WvW-override/`overrides`-suppression activity (the curated `BUFF_INSTANCE_LABELS`
   // keys were derived by eye from the source's raw, unfiltered facts array, so this pre-pass has to
   // match that exactly).
-  const tupleCounts = new Map<string, number>()
+  const tupleCounts = new Map<string, number>();
   for (const fact of combinedFacts) {
-    if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') continue
-    const key = buffInstanceKey(fact.status, fact.duration, fact.apply_count ?? 1)
-    tupleCounts.set(key, (tupleCounts.get(key) ?? 0) + 1)
+    if (
+      (fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') ||
+      typeof fact.status !== 'string' ||
+      typeof fact.duration !== 'number'
+    )
+      continue;
+    const key = buffInstanceKey(fact.status, fact.duration, fact.apply_count ?? 1);
+    tupleCounts.set(key, (tupleCounts.get(key) ?? 0) + 1);
   }
-  const tupleSeen = new Map<string, number>()
+  const tupleSeen = new Map<string, number>();
 
   for (let factIndex = 0; factIndex < combinedFacts.length; factIndex++) {
-    const fact = combinedFacts[factIndex]
+    const fact = combinedFacts[factIndex];
     // `PrefixedBuff` (e.g. Revenant/Salvation's Serene Rejuvenation, "Legendary Centaur skills
     // apply boons in an area") carries the identical status/duration/apply_count/requires_trait
     // shape as `Buff`, just with an extra `prefix` naming the specific effect it rides on — see
     // `Fact`'s doc comment for why `prefix.status` isn't used for source attribution here.
-    if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
-      continue
+    if (
+      (fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') ||
+      typeof fact.status !== 'string' ||
+      typeof fact.duration !== 'number'
+    ) {
+      continue;
     }
-    const applyCount = fact.apply_count ?? 1
-    const tupleKey = buffInstanceKey(fact.status, fact.duration, applyCount)
-    const tupleTotal = tupleCounts.get(tupleKey) ?? 1
-    const tupleOccurrence = (tupleSeen.get(tupleKey) ?? 0) + 1
-    tupleSeen.set(tupleKey, tupleOccurrence)
+    const applyCount = fact.apply_count ?? 1;
+    const tupleKey = buffInstanceKey(fact.status, fact.duration, applyCount);
+    const tupleTotal = tupleCounts.get(tupleKey) ?? 1;
+    const tupleOccurrence = (tupleSeen.get(tupleKey) ?? 0) + 1;
+    tupleSeen.set(tupleKey, tupleOccurrence);
 
     // Only the base `facts` portion of `combinedFacts` can be an `overrides` target (see above).
-    if (factIndex < facts.length && overriddenBaseFactIndices.has(factIndex)) continue
+    if (factIndex < facts.length && overriddenBaseFactIndices.has(factIndex)) continue;
 
-    const category = classify(fact.status)
-    if (category === null) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    const category = classify(fact.status);
+    if (category === null) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
 
     // Found Purpose supersedes Numinous Gift's boons on Cosmic Wisdom once it's ALSO active (both
     // being `requires_trait`-gated onto the same skill isn't enough on its own to prevent both
     // showing at once) — see `FOUND_PURPOSE_TRAIT_ID`'s doc comment (by `LEGEND_GATED_TRAIT_IDS`)
     // for the full writeup. Scoped to this exact skill/trait pair, not a generic "supersedes"
     // mechanism.
-    if (sourceKind === 'skill' && sourceId === COSMIC_WISDOM_SKILL_ID && fact.requires_trait === 2440 && activeIds.has(FOUND_PURPOSE_TRAIT_ID)) continue
+    if (
+      sourceKind === 'skill' &&
+      sourceId === COSMIC_WISDOM_SKILL_ID &&
+      fact.requires_trait === 2440 &&
+      activeIds.has(FOUND_PURPOSE_TRAIT_ID)
+    )
+      continue;
 
     // Real recognized-boon-name `PrefixedBuff` facts (e.g. Numinous Gift's Fury/Resistance/
     // Stability/Protection/Quickness, both on Cosmic Wisdom's synthetic copy AND on Numinous Gift's
@@ -4279,10 +4462,12 @@ function extractFromFacts(
     // Boon (trait 1774) has the identical shape (8 boon-per-legend `PrefixedBuff` facts) but is
     // intentionally NOT gated here — see `legendFormFactsForSkill`'s doc comment for why Spirit
     // Boon's rows show all 8 possibilities unconditionally.
-    const isLegendGatedSource = (sourceKind === 'skill' && LEGEND_FORM_FACT_SKILL_IDS.has(sourceId)) || (sourceKind === 'trait' && LEGEND_GATED_TRAIT_IDS.has(sourceId))
+    const isLegendGatedSource =
+      (sourceKind === 'skill' && LEGEND_FORM_FACT_SKILL_IDS.has(sourceId)) ||
+      (sourceKind === 'trait' && LEGEND_GATED_TRAIT_IDS.has(sourceId));
     if (isLegendGatedSource && fact.type === 'PrefixedBuff') {
-      const legend = resolveLegendFromPrefix(fact.prefix, legends)
-      if (legend && !equippedLegendIdSet.has(legend.id)) continue
+      const legend = resolveLegendFromPrefix(fact.prefix, legends);
+      if (legend && !equippedLegendIdSet.has(legend.id)) continue;
     }
 
     // Per-occurrence override takes priority over the per-status one below — when present, this
@@ -4290,14 +4475,22 @@ function extractFromFacts(
     // duplicate) is already fully decided, so the per-status collapse logic never applies to it (see
     // `BUFF_INSTANCE_VALUE_OVERRIDES`'s doc comment for why a per-status override can't express this
     // shape at all — 2+ genuinely different concepts sharing one status).
-    const instanceOverride = resolveInstanceValueOverride(sourceKind, sourceId, fact.status, fact.duration, applyCount, tupleOccurrence, tupleTotal)
-    if (instanceOverride === 'omit') continue
+    const instanceOverride = resolveInstanceValueOverride(
+      sourceKind,
+      sourceId,
+      fact.status,
+      fact.duration,
+      applyCount,
+      tupleOccurrence,
+      tupleTotal,
+    );
+    if (instanceOverride === 'omit') continue;
 
-    let baseDuration: number
+    let baseDuration: number;
     if (typeof instanceOverride === 'number') {
-      baseDuration = instanceOverride
+      baseDuration = instanceOverride;
     } else {
-      const wvwOverride = wvwOverrides?.[fact.status]
+      const wvwOverride = wvwOverrides?.[fact.status];
       if (wvwOverride !== undefined) {
         // A curated override means the API bakes this status's per-game-mode values into multiple
         // raw facts with no discriminator (see fetch-wvw-splits.ts's "Multiple Buff facts sharing
@@ -4306,18 +4499,39 @@ function extractFromFacts(
         // distinct from the common case of a real multi-hit/multi-pulse skill genuinely applying the
         // same status more than once per cast (no override present there), which must still emit one
         // row per hit.
-        if (emittedOverriddenStatuses.has(fact.status)) continue
-        emittedOverriddenStatuses.add(fact.status)
+        if (emittedOverriddenStatuses.has(fact.status)) continue;
+        emittedOverriddenStatuses.add(fact.status);
       }
-      if (wvwOverride === 'omit') continue
-      baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
+      if (wvwOverride === 'omit') continue;
+      baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration;
     }
 
-    const { value: targetCount, nameSuffix } = resolveTargetCount(fact, combinedFacts, sourceKind, sourceId, activeIds, equippedLegendIdSet)
-    const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
-    const legend = fact.type === 'PrefixedBuff' ? resolveLegendFromPrefix(fact.prefix, legends) : undefined
-    const instanceLabel = resolveInstanceLabel(sourceKind, sourceId, fact.status, fact.duration, applyCount, tupleOccurrence, tupleTotal)
-    const triggerNote = resolveTriggerNote(sourceKind, sourceId)
+    const { value: targetCount, nameSuffix } = resolveTargetCount(
+      fact,
+      combinedFacts,
+      sourceKind,
+      sourceId,
+      activeIds,
+      equippedLegendIdSet,
+    );
+    const percent =
+      category === 'condition'
+        ? durationPercent.condition
+        : category === 'boon'
+          ? durationPercent.boon
+          : 0;
+    const legend =
+      fact.type === 'PrefixedBuff' ? resolveLegendFromPrefix(fact.prefix, legends) : undefined;
+    const instanceLabel = resolveInstanceLabel(
+      sourceKind,
+      sourceId,
+      fact.status,
+      fact.duration,
+      applyCount,
+      tupleOccurrence,
+      tupleTotal,
+    );
+    const triggerNote = resolveTriggerNote(sourceKind, sourceId);
     out.push({
       sourceKind,
       sourceId,
@@ -4334,10 +4548,10 @@ function extractFromFacts(
       legendIcon: legend?.icon,
       legendName: legend?.name,
       instanceLabel,
-      triggerNote
-    })
+      triggerNote,
+    });
   }
-  return out
+  return out;
 }
 
 /**
@@ -4354,7 +4568,7 @@ export function boonConditionFactsForSkill(
   equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
   wvwOverride: Record<string, WvwFactOverride> | undefined,
-  legends: Legend[] = []
+  legends: Legend[] = [],
 ): BoonConditionSource[] {
   return extractFromFacts(
     skill.facts,
@@ -4368,8 +4582,8 @@ export function boonConditionFactsForSkill(
     durationPercent,
     wvwOverride,
     classifyBoonCondition,
-    legends
-  )
+    legends,
+  );
 }
 
 /**
@@ -4387,7 +4601,7 @@ export function boonConditionFactsForTrait(
   equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
   wvwOverride: Record<string, WvwFactOverride> | undefined,
-  legends: Legend[] = []
+  legends: Legend[] = [],
 ): BoonConditionSource[] {
   return extractFromFacts(
     trait.facts,
@@ -4401,11 +4615,11 @@ export function boonConditionFactsForTrait(
     durationPercent,
     wvwOverride,
     classifyBoonCondition,
-    legends
-  )
+    legends,
+  );
 }
 
-const ELEMENTALIST_ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
+const ELEMENTALIST_ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const;
 
 /**
  * Every weapon-derived skill id a build's currently-`environment`-relevant weapon sets grant.
@@ -4448,44 +4662,52 @@ function weaponSkillIdsForBuild(
   build: Build,
   professions: Profession[],
   skillsById: Map<number, Skill>,
-  equippedSpecializationIds: ReadonlySet<number>
+  equippedSpecializationIds: ReadonlySet<number>,
 ): number[] {
-  const profession = professions.find((p) => p.id === build.profession)
-  if (!profession) return []
+  const profession = professions.find((p) => p.id === build.profession);
+  if (!profession) return [];
 
-  const isUntamed = build.specializations.some((line) => line?.specializationId === UNTAMED_SPEC_ID)
-  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID)
+  const isUntamed = build.specializations.some(
+    (line) => line?.specializationId === UNTAMED_SPEC_ID,
+  );
+  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID);
   const attunementPairs: [string | null, string | null][] =
     profession.id === 'Elementalist'
       ? isWeaver
-        ? ELEMENTALIST_ATTUNEMENTS.flatMap((current) => ELEMENTALIST_ATTUNEMENTS.map((previous): [string, string] => [current, previous]))
+        ? ELEMENTALIST_ATTUNEMENTS.flatMap((current) =>
+            ELEMENTALIST_ATTUNEMENTS.map((previous): [string, string] => [current, previous]),
+          )
         : ELEMENTALIST_ATTUNEMENTS.map((a): [string, null] => [a, null])
-      : [[null, null]]
+      : [[null, null]];
 
   const pairs: [EquipmentSlotKey, EquipmentSlotKey | null][] =
     build.environment === 'land'
       ? [
           ['weaponA1', 'weaponA2'],
-          ['weaponB1', 'weaponB2']
+          ['weaponB1', 'weaponB2'],
         ]
       : [
           ['weaponU1', null],
-          ['weaponU2', null]
-        ]
+          ['weaponU2', null],
+        ];
 
-  const ids: number[] = []
+  const ids: number[] = [];
   for (const [mainKey, offKey] of pairs) {
-    const mainType = build.equipment[mainKey]?.weaponType
-    const offType = offKey ? build.equipment[offKey]?.weaponType : undefined
-    const mainWeapon = mainType ? profession.weapons[mainType] : undefined
+    const mainType = build.equipment[mainKey]?.weaponType;
+    const offType = offKey ? build.equipment[offKey]?.weaponType : undefined;
+    const mainWeapon = mainType ? profession.weapons[mainType] : undefined;
     // Mirror main-hand into off-hand only for an actual two-handed weapon, same restriction
     // `WeaponSkillBar.tsx` documents: a one-handed weapon (Sword, Dagger, ...) with no off-hand
     // item equipped must NOT fall back to mainWeapon here, or its own off-hand (4-5) skill
     // variants would wrongly get counted into the aggregate Boon/Condition totals before an
     // off-hand is ever equipped.
-    const mainIsTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false
-    const offWeapon = offType ? profession.weapons[offType] : mainIsTwoHanded ? mainWeapon : undefined
-    if (!mainWeapon && !offWeapon) continue
+    const mainIsTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false;
+    const offWeapon = offType
+      ? profession.weapons[offType]
+      : mainIsTwoHanded
+        ? mainWeapon
+        : undefined;
+    if (!mainWeapon && !offWeapon) continue;
     for (const [current, previous] of attunementPairs) {
       for (const id of weaponSkillIdsForPair(
         mainWeapon,
@@ -4496,17 +4718,17 @@ function weaponSkillIdsForBuild(
         mainType ?? null,
         offType ?? mainType ?? null,
         current,
-        previous
+        previous,
       )) {
-        if (id !== null) ids.push(...withFlipChain(id, skillsById))
+        if (id !== null) ids.push(...withFlipChain(id, skillsById));
       }
     }
     if (isUntamed && mainType && mainWeapon) {
-      const altId = unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById)
-      if (altId !== null) ids.push(altId)
+      const altId = unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById);
+      if (altId !== null) ids.push(altId);
     }
   }
-  return [...new Set(ids)]
+  return [...new Set(ids)];
 }
 
 /** Every id reachable from `startId` by following `Skill.flipSkill` (its own activated/toggled-off
@@ -4523,17 +4745,17 @@ function weaponSkillIdsForBuild(
  *  copies), so folding them into the boon/condition totals here would double-count the source's own
  *  facts under a different id rather than add anything real. */
 function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[] {
-  const ids: number[] = []
-  const seen = new Set<number>()
-  let current: number | null = startId
+  const ids: number[] = [];
+  const seen = new Set<number>();
+  let current: number | null = startId;
   while (current !== null && !seen.has(current)) {
-    seen.add(current)
-    ids.push(current)
-    const currentSkill = skillsById.get(current)
-    const next = currentSkill ? resolvedFlipSkillId(currentSkill) : null
-    current = next !== null && isNonActionableFlipTarget(next) ? null : next
+    seen.add(current);
+    ids.push(current);
+    const currentSkill = skillsById.get(current);
+    const next = currentSkill ? resolvedFlipSkillId(currentSkill) : null;
+    current = next !== null && isNonActionableFlipTarget(next) ? null : next;
   }
-  return ids
+  return ids;
 }
 
 /**
@@ -4568,32 +4790,49 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
  * despite also being a separate resolver (`soulbeastBeastmodeBar`) — `skillIdsForBuild` already
  * covers it directly via `beastmodeSkillIds`.
  */
-function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>, familiars: Familiar[]): number[] {
-  const profession = professions.find((p) => p.id === build.profession)
-  if (!profession) return []
-  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
-  const mainKeys: EquipmentSlotKey[] = build.environment === 'land' ? ['weaponA1', 'weaponB1'] : ['weaponU1', 'weaponU2']
-  const weaponTypes = [...new Set(mainKeys.map((k) => build.equipment[k]?.weaponType ?? null))]
+function mechanicBarIdsForBuild(
+  build: Build,
+  professions: Profession[],
+  skillsById: Map<number, Skill>,
+  familiars: Familiar[],
+): number[] {
+  const profession = professions.find((p) => p.id === build.profession);
+  if (!profession) return [];
+  const equippedSpecIds = new Set(
+    build.specializations
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .map((s) => s.specializationId),
+  );
+  const mainKeys: EquipmentSlotKey[] =
+    build.environment === 'land' ? ['weaponA1', 'weaponB1'] : ['weaponU1', 'weaponU2'];
+  const weaponTypes = [...new Set(mainKeys.map((k) => build.equipment[k]?.weaponType ?? null))];
 
-  const ids = new Set<number>()
+  const ids = new Set<number>();
   for (const weaponType of weaponTypes.length > 0 ? weaponTypes : [null]) {
-    for (const entry of professionMechanicBar(profession, skillsById, equippedSpecIds, build.environment, weaponType)) {
-      for (const id of withFlipChain(entry.skill.id, skillsById)) ids.add(id)
+    for (const entry of professionMechanicBar(
+      profession,
+      skillsById,
+      equippedSpecIds,
+      build.environment,
+      weaponType,
+    )) {
+      for (const id of withFlipChain(entry.skill.id, skillsById)) ids.add(id);
     }
   }
   if (build.profession === 'Engineer') {
-    for (const entry of engineerToolbeltBar(build, skillsById)) ids.add(entry.skill.id)
+    for (const entry of engineerToolbeltBar(build, skillsById)) ids.add(entry.skill.id);
   }
   if (build.profession === 'Revenant' && equippedSpecIds.has(CONDUIT_SPEC_ID)) {
-    for (const entry of conduitReleasePotentialBar(build, skillsById)) ids.add(entry.skill.id)
+    for (const entry of conduitReleasePotentialBar(build, skillsById)) ids.add(entry.skill.id);
   }
   if (build.profession === 'Elementalist' && equippedSpecIds.has(CATALYST_SPEC_ID)) {
-    for (const entry of catalystJadeSphereBar(build, profession, skillsById)) ids.add(entry.skill.id)
+    for (const entry of catalystJadeSphereBar(build, profession, skillsById))
+      ids.add(entry.skill.id);
   }
   if (build.profession === 'Elementalist' && equippedSpecIds.has(EVOKER_SPECIALIZATION_ID)) {
-    for (const entry of evokerFamiliarBar(build, skillsById, familiars)) ids.add(entry.skill.id)
+    for (const entry of evokerFamiliarBar(build, skillsById, familiars)) ids.add(entry.skill.id);
   }
-  return [...ids]
+  return [...ids];
 }
 
 /**
@@ -4646,7 +4885,7 @@ function skillIdsForBuild(
   professions: Profession[],
   skillsById: Map<number, Skill>,
   soulbeastBeastmode: SoulbeastBeastmodeMap,
-  familiars: Familiar[]
+  familiars: Familiar[],
 ): number[] {
   const nonWeaponIds =
     build.skills.kind === 'revenant'
@@ -4663,34 +4902,41 @@ function skillIdsForBuild(
             // `withFlipChain` — see that table's doc comment for why the raw `flipSkill` field alone
             // is unreliable for this family; using both here would double-count whichever sub-ability
             // the raw field happens to already link.
-            const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(id)
-            if (turretSubAbilityIds) return [id, ...turretSubAbilityIds]
+            const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(id);
+            if (turretSubAbilityIds) return [id, ...turretSubAbilityIds];
             // A Firebrand mantra's `flipSkill` chain only ever reaches its regular charge — the
             // enhanced Final Charge sibling is structurally orphaned (see `mantra-final-charge.ts`'s
             // doc comment) and needs appending separately, same extra hop `flipTargetSkills` already
             // adds for the tooltip. Every Final Charge skill carries several `Buff` facts of its own
             // (found 2026-08-16 investigating the turret gap above), so this was silently missing
             // from every Mantra Firebrand build's aggregate Boon/Condition totals until now.
-            const chain = withFlipChain(id, skillsById)
-            const finalChargeId = MANTRA_FINAL_CHARGE_IDS[chain[chain.length - 1]]
-            return finalChargeId !== undefined ? [...chain, finalChargeId] : chain
-          })
+            const chain = withFlipChain(id, skillsById);
+            const finalChargeId = MANTRA_FINAL_CHARGE_IDS[chain[chain.length - 1]];
+            return finalChargeId !== undefined ? [...chain, finalChargeId] : chain;
+          });
 
-  const equippedPetIds = build.profession === 'Ranger' ? build.equippedPetIds.filter((id): id is number => id !== null) : []
+  const equippedPetIds =
+    build.profession === 'Ranger'
+      ? build.equippedPetIds.filter((id): id is number => id !== null)
+      : [];
   const petSkillIds = equippedPetIds
     .map((id) => pets.find((p) => p.id === id))
     .filter((p): p is Pet => p !== undefined)
-    .map((p) => p.skillId)
+    .map((p) => p.skillId);
 
-  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
+  const equippedSpecIds = new Set(
+    build.specializations
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .map((s) => s.specializationId),
+  );
   const beastmodeSkillIds = equippedSpecIds.has(RANGER_BEASTMODE_SPEC_ID)
     ? equippedPetIds
         .map((id) => soulbeastBeastmode[id])
         .filter((bar): bar is NonNullable<typeof bar> => bar !== undefined)
         .flatMap((bar) => [bar.f1SkillId, bar.f2SkillId, bar.f3SkillId])
-    : []
+    : [];
 
-  const stolenSkillIds = build.thiefStolenSkillId !== null ? [build.thiefStolenSkillId] : []
+  const stolenSkillIds = build.thiefStolenSkillId !== null ? [build.thiefStolenSkillId] : [];
 
   return [
     ...nonWeaponIds,
@@ -4698,8 +4944,8 @@ function skillIdsForBuild(
     ...beastmodeSkillIds,
     ...stolenSkillIds,
     ...mechanicBarIdsForBuild(build, professions, skillsById, familiars),
-    ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds)
-  ]
+    ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds),
+  ];
 }
 
 /**
@@ -4713,15 +4959,35 @@ function bundleContributionsForBuild(
   build: Build,
   professions: Profession[],
   skillsById: Map<number, Skill>,
-  tomeChapters: TomeChaptersByTomeId
+  tomeChapters: TomeChaptersByTomeId,
 ): { kitSkillIds: number[]; tomeChapters: TomeChapter[] } {
-  const profession = professions.find((p) => p.id === build.profession)
-  if (!profession) return { kitSkillIds: [], tomeChapters: [] }
+  const profession = professions.find((p) => p.id === build.profession);
+  if (!profession) return { kitSkillIds: [], tomeChapters: [] };
 
-  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
-  const mechanicBarSkillIds = professionMechanicBar(profession, skillsById, equippedSpecIds, build.environment).map((e) => e.skill.id)
-  const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
-  return bundleSkillIdsForBuild(build, bundleCapableIds, skillsById, tomeChapters, build.environment)
+  const equippedSpecIds = new Set(
+    build.specializations
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .map((s) => s.specializationId),
+  );
+  const mechanicBarSkillIds = professionMechanicBar(
+    profession,
+    skillsById,
+    equippedSpecIds,
+    build.environment,
+  ).map((e) => e.skill.id);
+  const bundleCapableIds = bundleCapableSkillIds(
+    build,
+    skillsById,
+    tomeChapters,
+    mechanicBarSkillIds,
+  );
+  return bundleSkillIdsForBuild(
+    build,
+    bundleCapableIds,
+    skillsById,
+    tomeChapters,
+    build.environment,
+  );
 }
 
 /** Curated fallback for `TomeChapter`s whose wiki page carries no "allied targets" fact at all
@@ -4739,8 +5005,8 @@ function bundleContributionsForBuild(
  */
 const TOME_CHAPTER_TARGET_COUNT_OVERRIDES: Record<number, Record<number, number>> = {
   41780: { 3: 5 },
-  42259: { 3: 5 }
-}
+  42259: { 3: 5 },
+};
 
 /** Boon/condition-shaped facts among a Tome chapter's wiki-sourced `RelicFactLine`s (e.g.
  *  "Burning"/"Might") — same extraction intent as `extractFromFacts`, but reading the wiki's
@@ -4754,26 +5020,29 @@ const TOME_CHAPTER_TARGET_COUNT_OVERRIDES: Record<number, Record<number, number>
  *  `wvwFactOverrides` lookup which corrects an API value after the fact — there's nothing to
  *  correct here since the wiki-sourced value already IS the WvW one.
  */
-export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { boon: number; condition: number }): BoonConditionSource[] {
-  const out: BoonConditionSource[] = []
+export function tomeChapterBoonSources(
+  chapter: TomeChapter,
+  durationPercent: { boon: number; condition: number },
+): BoonConditionSource[] {
+  const out: BoonConditionSource[] = [];
   // `targetCount`: the wiki's own "allied targets" fact line, present on 7 of the 15 chapters —
   // absent on the other 8, which is `null`/"unknown" rather than "self-only" for the same reason
   // `BoonConditionSource.targetCount`'s doc comment gives for the API-sourced case, unless
   // `TOME_CHAPTER_TARGET_COUNT_OVERRIDES` above has a curated value for this chapter.
-  const alliedTargetsFact = chapter.facts.find((f) => f.label === 'allied targets')
-  const parsedTargetCount = alliedTargetsFact ? Number(alliedTargetsFact.values[0]) : NaN
+  const alliedTargetsFact = chapter.facts.find((f) => f.label === 'allied targets');
+  const parsedTargetCount = alliedTargetsFact ? Number(alliedTargetsFact.values[0]) : NaN;
   const targetCount = Number.isFinite(parsedTargetCount)
     ? parsedTargetCount
-    : (TOME_CHAPTER_TARGET_COUNT_OVERRIDES[chapter.tomeSkillId]?.[chapter.slotIndex] ?? null)
+    : (TOME_CHAPTER_TARGET_COUNT_OVERRIDES[chapter.tomeSkillId]?.[chapter.slotIndex] ?? null);
   for (const fact of chapter.facts) {
-    const status = fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
-    const isBoon = isBoonName(status)
-    const isCondition = isConditionName(status)
-    if (!isBoon && !isCondition) continue
-    const duration = Number(fact.values[0])
-    if (!Number.isFinite(duration)) continue
+    const status = fact.label.charAt(0).toUpperCase() + fact.label.slice(1);
+    const isBoon = isBoonName(status);
+    const isCondition = isConditionName(status);
+    if (!isBoon && !isCondition) continue;
+    const duration = Number(fact.values[0]);
+    if (!Number.isFinite(duration)) continue;
 
-    const percent = isCondition ? durationPercent.condition : durationPercent.boon
+    const percent = isCondition ? durationPercent.condition : durationPercent.boon;
     out.push({
       sourceKind: 'skill',
       sourceId: chapter.tomeSkillId,
@@ -4786,10 +5055,10 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
       scaledDurationSeconds: duration * (1 + percent / 100),
       applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
       requiresTraitId: null,
-      targetCount
-    })
+      targetCount,
+    });
   }
-  return out
+  return out;
 }
 
 /**
@@ -4814,12 +5083,25 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
  * (A 13th "Search and Rescue!" id, 30123, has an empty `professions` array — stale/legacy, excluded
  * same as other orphan ids `RELIC_TRIGGER_GATES`'s sibling tables have hit before.)
  */
-type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'; categories: string[]; skillIds?: number[] }
+type RelicTriggerGate =
+  | { kind: 'elite' }
+  | { kind: 'heal' }
+  | { kind: 'ability'; categories: string[]; skillIds?: number[] };
 
 const TYRIAN_HERO_COMMAND_SKILL_IDS = [
-  12632, 12631, 12633, 34309, 12516, 31914, // Ranger: Guard!, Protect Me!, Sic 'Em!, Search and Rescue!, Strength of the Pack!, We Heal As One!
-  76934, 77040, 76769, 77114, 76755, 76562 // Warrior Paragon: Brace Yourselves!, Find Their Weakness!, Never Surrender!, On Your Knees!, We Shall Return!, We Will Never Yield!
-]
+  12632,
+  12631,
+  12633,
+  34309,
+  12516,
+  31914, // Ranger: Guard!, Protect Me!, Sic 'Em!, Search and Rescue!, Strength of the Pack!, We Heal As One!
+  76934,
+  77040,
+  76769,
+  77114,
+  76755,
+  76562, // Warrior Paragon: Brace Yourselves!, Find Their Weakness!, Never Surrender!, On Your Knees!, We Shall Return!, We Will Never Yield!
+];
 
 /**
  * Leg 2 of TODO.md's "Relic proc integration sweep": the curated subset of
@@ -4928,15 +5210,15 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   // Astral Ward wired after all, Firebrand permanently excluded (never added here).
   100388: { kind: 'ability', categories: ['Signet'] }, // Relic of the Astral Ward — Resistance (Cleanse in RELIC_NAMED_FACT_SOURCES)
   // Leg 1 of "New Relic Coefficient Curation" (2026-09-16, Sep 15 2026 patch's 6 new relics).
-  109998: { kind: 'ability', categories: ['Shout'], skillIds: TYRIAN_HERO_COMMAND_SKILL_IDS } // Relic of the Tyrian Hero — Might + Swiftness (Superspeed in RELIC_NAMED_FACT_SOURCES)
-}
+  109998: { kind: 'ability', categories: ['Shout'], skillIds: TYRIAN_HERO_COMMAND_SKILL_IDS }, // Relic of the Tyrian Hero — Might + Swiftness (Superspeed in RELIC_NAMED_FACT_SOURCES)
+};
 
-const ZEPHYRITE_RELIC_ID = 100893
-const TWIN_GENERALS_RELIC_ID = 101767
-const CITADEL_RELIC_ID = 100448
+const ZEPHYRITE_RELIC_ID = 100893;
+const TWIN_GENERALS_RELIC_ID = 101767;
+const CITADEL_RELIC_ID = 100448;
 
-const CITADEL_STUN_MIN_RECHARGE_SECONDS = 60
-const CITADEL_STUN_MAX_RECHARGE_SECONDS = 180
+const CITADEL_STUN_MIN_RECHARGE_SECONDS = 60;
+const CITADEL_STUN_MAX_RECHARGE_SECONDS = 180;
 
 /**
  * Relic of the Citadel's (100448) actual Stun duration for one elite skill's own recharge in
@@ -4949,12 +5231,14 @@ const CITADEL_STUN_MAX_RECHARGE_SECONDS = 180
  * continuous linear formula here instead of a stepped table (how the wiki documents this one).
  */
 function citadelStunDurationSeconds(eliteRechargeSeconds: number): number {
-  if (eliteRechargeSeconds <= CITADEL_STUN_MIN_RECHARGE_SECONDS) return 1
-  if (eliteRechargeSeconds >= CITADEL_STUN_MAX_RECHARGE_SECONDS) return 3
+  if (eliteRechargeSeconds <= CITADEL_STUN_MIN_RECHARGE_SECONDS) return 1;
+  if (eliteRechargeSeconds >= CITADEL_STUN_MAX_RECHARGE_SECONDS) return 3;
   return (
     1 +
-    ((eliteRechargeSeconds - CITADEL_STUN_MIN_RECHARGE_SECONDS) / (CITADEL_STUN_MAX_RECHARGE_SECONDS - CITADEL_STUN_MIN_RECHARGE_SECONDS)) * 2
-  )
+    ((eliteRechargeSeconds - CITADEL_STUN_MIN_RECHARGE_SECONDS) /
+      (CITADEL_STUN_MAX_RECHARGE_SECONDS - CITADEL_STUN_MIN_RECHARGE_SECONDS)) *
+      2
+  );
 }
 
 /**
@@ -4970,14 +5254,20 @@ function citadelBuildStunDurationSeconds(
   build: Build,
   legends: Legend[],
   skillsById: Map<number, Skill>,
-  rechargeWvwOverrides: RechargeWvwOverrides
+  rechargeWvwOverrides: RechargeWvwOverrides,
 ): number {
   const recharges = equippedEliteSkillIds(build, legends)
     .map((id) => skillsById.get(id))
-    .map((skill) => (skill ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find((f) => f.type === 'Recharge') : undefined))
+    .map((skill) =>
+      skill
+        ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find(
+            (f) => f.type === 'Recharge',
+          )
+        : undefined,
+    )
     .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
-    .filter((v): v is number => v !== null)
-  return citadelStunDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
+    .filter((v): v is number => v !== null);
+  return citadelStunDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0);
 }
 
 /**
@@ -4992,13 +5282,14 @@ const ZEPHYRITE_CRYSTAL_DURATION_TIERS: Array<{ maxRecharge: number; durationSec
   { maxRecharge: 20, durationSeconds: 5 },
   { maxRecharge: 40, durationSeconds: 6 },
   { maxRecharge: 60, durationSeconds: 7 },
-  { maxRecharge: Infinity, durationSeconds: 8 }
-]
+  { maxRecharge: Infinity, durationSeconds: 8 },
+];
 
 /** `ZEPHYRITE_CRYSTAL_DURATION_TIERS`, applied to one elite skill's recharge in seconds. */
 function zephyriteCrystalDurationSeconds(eliteRechargeSeconds: number): number {
-  const tier = ZEPHYRITE_CRYSTAL_DURATION_TIERS.find((t) => eliteRechargeSeconds <= t.maxRecharge)
-  return (tier ?? ZEPHYRITE_CRYSTAL_DURATION_TIERS[ZEPHYRITE_CRYSTAL_DURATION_TIERS.length - 1]).durationSeconds
+  const tier = ZEPHYRITE_CRYSTAL_DURATION_TIERS.find((t) => eliteRechargeSeconds <= t.maxRecharge);
+  return (tier ?? ZEPHYRITE_CRYSTAL_DURATION_TIERS[ZEPHYRITE_CRYSTAL_DURATION_TIERS.length - 1])
+    .durationSeconds;
 }
 
 /**
@@ -5014,9 +5305,9 @@ function equippedEliteSkillIds(build: Build, legends: Legend[]): number[] {
     return build.skills.legends
       .filter((id): id is string => id !== null)
       .map((id) => legends.find((l) => l.id === id)?.elite)
-      .filter((id): id is number => id !== undefined)
+      .filter((id): id is number => id !== undefined);
   }
-  return build.skills.elite !== null ? [build.skills.elite] : []
+  return build.skills.elite !== null ? [build.skills.elite] : [];
 }
 
 /**
@@ -5038,14 +5329,20 @@ function zephyriteBuildCrystalDurationSeconds(
   build: Build,
   legends: Legend[],
   skillsById: Map<number, Skill>,
-  rechargeWvwOverrides: RechargeWvwOverrides
+  rechargeWvwOverrides: RechargeWvwOverrides,
 ): number {
   const recharges = equippedEliteSkillIds(build, legends)
     .map((id) => skillsById.get(id))
-    .map((skill) => (skill ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find((f) => f.type === 'Recharge') : undefined))
+    .map((skill) =>
+      skill
+        ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find(
+            (f) => f.type === 'Recharge',
+          )
+        : undefined,
+    )
     .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
-    .filter((v): v is number => v !== null)
-  return zephyriteCrystalDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
+    .filter((v): v is number => v !== null);
+  return zephyriteCrystalDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0);
 }
 
 /**
@@ -5061,9 +5358,11 @@ function healUtilityEliteSkillIds(build: Build, legends: Legend[]): number[] {
       .filter((id): id is string => id !== null)
       .map((id) => legends.find((l) => l.id === id))
       .filter((l): l is Legend => l !== undefined)
-      .flatMap((l) => [l.heal, l.elite, ...l.utilities])
+      .flatMap((l) => [l.heal, l.elite, ...l.utilities]);
   }
-  return [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
+  return [build.skills.heal, ...build.skills.utility, build.skills.elite].filter(
+    (id): id is number => id !== null,
+  );
 }
 
 /**
@@ -5072,16 +5371,24 @@ function healUtilityEliteSkillIds(build: Build, legends: Legend[]): number[] {
  * `RevenantSkillSelection`'s doc comment), unlike a standard profession where either slot can still
  * be `null` mid-edit.
  */
-function relicTriggerSatisfied(gate: RelicTriggerGate, build: Build, legends: Legend[], skillsById: Map<number, Skill>): boolean {
+function relicTriggerSatisfied(
+  gate: RelicTriggerGate,
+  build: Build,
+  legends: Legend[],
+  skillsById: Map<number, Skill>,
+): boolean {
   if (build.skills.kind === 'revenant') {
-    if (gate.kind === 'elite' || gate.kind === 'heal') return build.skills.legends.some((id) => id !== null)
+    if (gate.kind === 'elite' || gate.kind === 'heal')
+      return build.skills.legends.some((id) => id !== null);
   } else {
-    if (gate.kind === 'elite') return build.skills.elite !== null
-    if (gate.kind === 'heal') return build.skills.heal !== null
+    if (gate.kind === 'elite') return build.skills.elite !== null;
+    if (gate.kind === 'heal') return build.skills.heal !== null;
   }
   return healUtilityEliteSkillIds(build, legends).some(
-    (id) => skillsById.get(id)?.categories.some((c) => gate.categories.includes(c)) || (gate.skillIds?.includes(id) ?? false)
-  )
+    (id) =>
+      skillsById.get(id)?.categories.some((c) => gate.categories.includes(c)) ||
+      (gate.skillIds?.includes(id) ?? false),
+  );
 }
 
 /**
@@ -5109,16 +5416,23 @@ function extractFromRelicFacts(
   sourceName: string,
   sourceIcon: string,
   targetCount: number | null,
-  classify: (status: string) => BoonConditionCategory | null
+  classify: (status: string) => BoonConditionCategory | null,
 ): BoonConditionSource[] {
-  const out: BoonConditionSource[] = []
+  const out: BoonConditionSource[] = [];
   for (const fact of facts) {
-    const isEffect = fact.label.toLowerCase() === 'effect'
-    const status = isEffect ? (fact.values[0]?.replace(/\s*\(effect\)$/, '') ?? '') : fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
-    const duration = Number(isEffect ? fact.values[1] : fact.values[0])
-    const category = classify(status)
-    if (!category || !Number.isFinite(duration)) continue
-    const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
+    const isEffect = fact.label.toLowerCase() === 'effect';
+    const status = isEffect
+      ? (fact.values[0]?.replace(/\s*\(effect\)$/, '') ?? '')
+      : fact.label.charAt(0).toUpperCase() + fact.label.slice(1);
+    const duration = Number(isEffect ? fact.values[1] : fact.values[0]);
+    const category = classify(status);
+    if (!category || !Number.isFinite(duration)) continue;
+    const percent =
+      category === 'condition'
+        ? durationPercent.condition
+        : category === 'boon'
+          ? durationPercent.boon
+          : 0;
     out.push({
       sourceKind: 'relic',
       sourceId,
@@ -5131,10 +5445,10 @@ function extractFromRelicFacts(
       scaledDurationSeconds: duration * (1 + percent / 100),
       applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
       requiresTraitId: null,
-      targetCount
-    })
+      targetCount,
+    });
   }
-  return out
+  return out;
 }
 
 /**
@@ -5148,26 +5462,36 @@ function extractFromRelicFacts(
  */
 function relicSources(
   build: Build,
-  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[]; rechargeWvwOverrides: RechargeWvwOverrides },
+  gameData: {
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+    skills: Skill[];
+    legends: Legend[];
+    rechargeWvwOverrides: RechargeWvwOverrides;
+  },
   durationPercent: { boon: number; condition: number },
-  classify: (status: string) => BoonConditionCategory | null
+  classify: (status: string) => BoonConditionCategory | null,
 ): BoonConditionSource[] {
-  if (build.relicId === null) return []
-  const gate = RELIC_TRIGGER_GATES[build.relicId]
-  if (!gate) return []
-  const relic = gameData.relics.find((r) => r.id === build.relicId)
-  const effect = gameData.relicEffects[build.relicId]
-  if (!relic || !effect) return []
-  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
-  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
-  const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
-  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  if (build.relicId === null) return [];
+  const gate = RELIC_TRIGGER_GATES[build.relicId];
+  if (!gate) return [];
+  const relic = gameData.relics.find((r) => r.id === build.relicId);
+  const effect = gameData.relicEffects[build.relicId];
+  if (!relic || !effect) return [];
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]));
+  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return [];
+  const targetsFact = effect.facts.find(
+    (f) => f.label === 'targets' || f.label === 'allied targets',
+  );
+  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null;
   // Twin Generals carries 2 same-status Might facts — a flat "6 stacks" grant and a separate
   // "Might per Hit" that scales with how many enemies the triggering hit struck. Only the flat one
   // is a fixed grant this app can safely report; the per-hit fact is filtered out here (rather than
   // wired) so `extractFromRelicFacts` never sees it, see `RELIC_TRIGGER_GATES`'s own doc comment.
   const factsToParse =
-    relic.id === TWIN_GENERALS_RELIC_ID ? effect.facts.filter((f) => f.params.alt !== 'Might per Hit') : effect.facts
+    relic.id === TWIN_GENERALS_RELIC_ID
+      ? effect.facts.filter((f) => f.params.alt !== 'Might per Hit')
+      : effect.facts;
   const parsed = extractFromRelicFacts(
     factsToParse,
     durationPercent,
@@ -5175,17 +5499,27 @@ function relicSources(
     relic.name,
     relic.icon,
     Number.isFinite(targetCount) ? targetCount : null,
-    classify
-  )
-  if (relic.id !== ZEPHYRITE_RELIC_ID) return parsed
+    classify,
+  );
+  if (relic.id !== ZEPHYRITE_RELIC_ID) return parsed;
   // Zephyrite's own `protection`/`resolution` facts carry the crystal's 1s per-pulse tick, not its
   // total lifetime — see `zephyriteBuildCrystalDurationSeconds`'s doc comment for why the real
   // duration is computed instead of read off `relic-effects.json` directly.
-  const duration = zephyriteBuildCrystalDurationSeconds(build, gameData.legends, skillsById, gameData.rechargeWvwOverrides)
+  const duration = zephyriteBuildCrystalDurationSeconds(
+    build,
+    gameData.legends,
+    skillsById,
+    gameData.rechargeWvwOverrides,
+  );
   return parsed.map((source) => {
-    const percent = source.category === 'condition' ? durationPercent.condition : durationPercent.boon
-    return { ...source, baseDurationSeconds: duration, scaledDurationSeconds: duration * (1 + percent / 100) }
-  })
+    const percent =
+      source.category === 'condition' ? durationPercent.condition : durationPercent.boon;
+    return {
+      ...source,
+      baseDurationSeconds: duration,
+      scaledDurationSeconds: duration * (1 + percent / 100),
+    };
+  });
 }
 
 /**
@@ -5224,20 +5558,30 @@ function relicSources(
  *  construction. Duplicated here (not imported from the renderer) since this shared module can't
  *  depend on `src/renderer`. */
 function additiveFlipContentKey(f: BoonConditionSource): string {
-  return [f.category, f.boonOrConditionName, f.isCondition, f.scaledDurationSeconds, f.applyCount, f.requiresTraitId, f.targetCount, f.instanceLabel ?? '', f.legendName ?? ''].join('|')
+  return [
+    f.category,
+    f.boonOrConditionName,
+    f.isCondition,
+    f.scaledDurationSeconds,
+    f.applyCount,
+    f.requiresTraitId,
+    f.targetCount,
+    f.instanceLabel ?? '',
+    f.legendName ?? '',
+  ].join('|');
 }
 
 /** Same shape, for `NamedFactSource` (Control/Miscellaneous/Strip-Corrupt-Cleanse) — mirrors
  *  `SkillsEditor.tsx`'s `namedFactContentKey`. */
 function additiveFlipNamedFactContentKey(f: NamedFactSource): string {
-  return [f.name, f.detail ?? '', f.targetCount].join('|')
+  return [f.name, f.detail ?? '', f.targetCount].join('|');
 }
 
 /** `sourceId -> targetId` reversed once, rather than re-deriving it per id inside the hot loop
  *  below — `ADDITIVE_FLIP_PAIRS` never changes at runtime. */
 const ADDITIVE_FLIP_PAIR_SOURCE_BY_TARGET_ID: ReadonlyMap<number, number> = new Map(
-  Array.from(ADDITIVE_FLIP_PAIRS.entries(), ([sourceId, pair]) => [pair.targetId, sourceId])
-)
+  Array.from(ADDITIVE_FLIP_PAIRS.entries(), ([sourceId, pair]) => [pair.targetId, sourceId]),
+);
 
 /**
  * Walks `skillIds`, extracting each skill's facts via `extractFn`, EXCEPT: when the current id is
@@ -5257,69 +5601,82 @@ function extractSkillSourcesWithAdditiveDedup<T>(
   skillIds: number[],
   skillsById: Map<number, Skill>,
   extractFn: (skill: Skill) => T[],
-  contentKey: (item: T) => string
+  contentKey: (item: T) => string,
 ): T[] {
-  const out: T[] = []
-  const emittedBySourceId = new Map<number, Set<string>>()
+  const out: T[] = [];
+  const emittedBySourceId = new Map<number, Set<string>>();
   for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    let extracted = extractFn(skill)
-    const additiveSourceId = ADDITIVE_FLIP_PAIR_SOURCE_BY_TARGET_ID.get(id)
+    const skill = skillsById.get(id);
+    if (!skill) continue;
+    let extracted = extractFn(skill);
+    const additiveSourceId = ADDITIVE_FLIP_PAIR_SOURCE_BY_TARGET_ID.get(id);
     if (additiveSourceId !== undefined) {
-      const alreadyEmitted = emittedBySourceId.get(additiveSourceId) ?? new Set<string>()
-      extracted = extracted.filter((item) => !alreadyEmitted.has(contentKey(item)))
+      const alreadyEmitted = emittedBySourceId.get(additiveSourceId) ?? new Set<string>();
+      extracted = extracted.filter((item) => !alreadyEmitted.has(contentKey(item)));
     }
     if (ADDITIVE_FLIP_PAIRS.has(id)) {
-      emittedBySourceId.set(id, new Set(extracted.map(contentKey)))
+      emittedBySourceId.set(id, new Set(extracted.map(contentKey)));
     }
-    out.push(...extracted)
+    out.push(...extracted);
   }
-  return out
+  return out;
 }
 
 export function computeBoonConditionSources(
   build: Build,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    itemStats: ItemStat[]
-    itemStatLegalIds: ItemStatLegalIds
-    infusions: Infusion[]
-    runes: Rune[]
-    sigils: Sigil[]
-    food: Consumable[]
-    utility: Consumable[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
-  }
+    skills: Skill[];
+    traits: Trait[];
+    itemStats: ItemStat[];
+    itemStatLegalIds: ItemStatLegalIds;
+    infusions: Infusion[];
+    runes: Rune[];
+    sigils: Sigil[];
+    food: Consumable[];
+    utility: Consumable[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+  },
 ): BoonConditionSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const legendIds = equippedLegendIds(build)
-  const out: BoonConditionSource[] = []
-  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+  const activeIds = activeTraitIds(build, gameData.traits);
+  const legendIds = equippedLegendIds(build);
+  const out: BoonConditionSource[] = [];
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]));
 
-  const gearTotals = computeGearAttributeTotals(build, gameData)
+  const gearTotals = computeGearAttributeTotals(build, gameData);
   const durationPercent = {
     boon: boonDurationPercent(gearTotals),
-    condition: conditionDurationPercent(gearTotals)
-  }
+    condition: conditionDurationPercent(gearTotals),
+  };
 
-  out.push(...relicSources(build, gameData, durationPercent, classifyBoonCondition))
+  out.push(...relicSources(build, gameData, durationPercent, classifyBoonCondition));
 
-  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  const bundleContributions = bundleContributionsForBuild(
+    build,
+    gameData.professions,
+    skillsById,
+    gameData.tomeChapters,
+  );
   const skillIds = [
-    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode, gameData.familiars),
-    ...bundleContributions.kitSkillIds
-  ]
+    ...skillIdsForBuild(
+      build,
+      gameData.legends,
+      gameData.pets,
+      gameData.professions,
+      skillsById,
+      gameData.soulbeastBeastmode,
+      gameData.familiars,
+    ),
+    ...bundleContributions.kitSkillIds,
+  ];
   out.push(
     ...extractSkillSourcesWithAdditiveDedup(
       skillIds,
@@ -5337,11 +5694,11 @@ export function computeBoonConditionSources(
           durationPercent,
           gameData.wvwFactOverrides.skill[skill.id],
           classifyBoonCondition,
-          gameData.legends
+          gameData.legends,
         ),
-      additiveFlipContentKey
-    )
-  )
+      additiveFlipContentKey,
+    ),
+  );
   // `branchConditionalFacts`' own `countsTowardTotals`-flagged branch(es), if any — see
   // `ConditionalBranch.countsTowardTotals`'s doc comment for which branches get this and why.
   // `healingPower` is passed as `0` rather than threaded through from gear: every branch flagged
@@ -5361,23 +5718,30 @@ export function computeBoonConditionSources(
   // instead of surfacing it, which is why the two views disagreed). See `computeAuraSources` below
   // for the matching loop that now actually surfaces these aura facts where they belong.
   for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    for (const branch of branchConditionalFacts(skill, durationPercent, 0, activeIds, legendIds, gameData.legends) ?? []) {
-      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category !== 'aura'))
+    const skill = skillsById.get(id);
+    if (!skill) continue;
+    for (const branch of branchConditionalFacts(
+      skill,
+      durationPercent,
+      0,
+      activeIds,
+      legendIds,
+      gameData.legends,
+    ) ?? []) {
+      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category !== 'aura'));
     }
   }
   for (const chapter of bundleContributions.tomeChapters) {
-    out.push(...tomeChapterBoonSources(chapter, durationPercent))
+    out.push(...tomeChapterBoonSources(chapter, durationPercent));
   }
 
   for (const line of build.specializations) {
-    if (line == null) continue
+    if (line == null) continue;
     for (const trait of gameData.traits) {
-      if (trait.specializationId !== line.specializationId) continue
-      const isMinor = trait.slot === 'Minor'
-      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
-      if (!isMinor && !isChosenMajor) continue
+      if (trait.specializationId !== line.specializationId) continue;
+      const isMinor = trait.slot === 'Minor';
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id);
+      if (!isMinor && !isChosenMajor) continue;
       out.push(
         ...extractFromFacts(
           trait.facts,
@@ -5391,13 +5755,13 @@ export function computeBoonConditionSources(
           durationPercent,
           gameData.wvwFactOverrides.trait[trait.id],
           classifyBoonCondition,
-          gameData.legends
-        )
-      )
+          gameData.legends,
+        ),
+      );
     }
   }
 
-  return out
+  return out;
 }
 
 /** Shared by `computeAuraSources`/`computeComboSources`/`computeNamedFactSources`: every equipped
@@ -5407,22 +5771,35 @@ export function computeBoonConditionSources(
 function equippedSkillsById(
   build: Build,
   gameData: {
-    skills: Skill[]
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-  }
+    skills: Skill[];
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+  },
 ): { skillsById: Map<number, Skill>; skillIds: number[] } {
-  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
-  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]));
+  const bundleContributions = bundleContributionsForBuild(
+    build,
+    gameData.professions,
+    skillsById,
+    gameData.tomeChapters,
+  );
   const skillIds = [
-    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode, gameData.familiars),
-    ...bundleContributions.kitSkillIds
-  ]
-  return { skillsById, skillIds }
+    ...skillIdsForBuild(
+      build,
+      gameData.legends,
+      gameData.pets,
+      gameData.professions,
+      skillsById,
+      gameData.soulbeastBeastmode,
+      gameData.familiars,
+    ),
+    ...bundleContributions.kitSkillIds,
+  ];
+  return { skillsById, skillIds };
 }
 
 /**
@@ -5448,27 +5825,27 @@ function equippedSkillsById(
 export function computeAuraSources(
   build: Build,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
-  }
+    skills: Skill[];
+    traits: Trait[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+  },
 ): BoonConditionSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const legendIds = equippedLegendIds(build)
-  const out: BoonConditionSource[] = []
-  const unscaled = { boon: 0, condition: 0 }
-  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+  const activeIds = activeTraitIds(build, gameData.traits);
+  const legendIds = equippedLegendIds(build);
+  const out: BoonConditionSource[] = [];
+  const unscaled = { boon: 0, condition: 0 };
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData);
 
-  out.push(...relicSources(build, gameData, unscaled, classifyAura))
+  out.push(...relicSources(build, gameData, unscaled, classifyAura));
 
   out.push(
     ...extractSkillSourcesWithAdditiveDedup(
@@ -5486,19 +5863,19 @@ export function computeAuraSources(
           skill.icon,
           unscaled,
           gameData.wvwFactOverrides.skill[skill.id],
-          classifyAura
+          classifyAura,
         ),
-      additiveFlipContentKey
-    )
-  )
+      additiveFlipContentKey,
+    ),
+  );
 
   for (const line of build.specializations) {
-    if (line == null) continue
+    if (line == null) continue;
     for (const trait of gameData.traits) {
-      if (trait.specializationId !== line.specializationId) continue
-      const isMinor = trait.slot === 'Minor'
-      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
-      if (!isMinor && !isChosenMajor) continue
+      if (trait.specializationId !== line.specializationId) continue;
+      const isMinor = trait.slot === 'Minor';
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id);
+      if (!isMinor && !isChosenMajor) continue;
       out.push(
         ...extractFromFacts(
           trait.facts,
@@ -5511,9 +5888,9 @@ export function computeAuraSources(
           trait.icon,
           unscaled,
           gameData.wvwFactOverrides.trait[trait.id],
-          classifyAura
-        )
-      )
+          classifyAura,
+        ),
+      );
     }
   }
 
@@ -5528,14 +5905,21 @@ export function computeAuraSources(
   // `scaledDurationSeconds` from whatever `durationPercent.boon` it's given, so passing 0 here is what
   // makes that come out equal to `baseDurationSeconds`, per contract.
   for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    for (const branch of branchConditionalFacts(skill, { boon: 0, condition: 0 }, 0, activeIds, legendIds, gameData.legends) ?? []) {
-      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category === 'aura'))
+    const skill = skillsById.get(id);
+    if (!skill) continue;
+    for (const branch of branchConditionalFacts(
+      skill,
+      { boon: 0, condition: 0 },
+      0,
+      activeIds,
+      legendIds,
+      gameData.legends,
+    ) ?? []) {
+      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category === 'aura'));
     }
   }
 
-  return out
+  return out;
 }
 
 /**
@@ -5551,7 +5935,7 @@ export function auraFactsForSkill(
   skill: Skill,
   activeIds: Set<number>,
   equippedLegendIdSet: Set<string>,
-  wvwOverride: Record<string, WvwFactOverride> | undefined
+  wvwOverride: Record<string, WvwFactOverride> | undefined,
 ): BoonConditionSource[] {
   return extractFromFacts(
     skill.facts,
@@ -5564,31 +5948,31 @@ export function auraFactsForSkill(
     skill.icon,
     { boon: 0, condition: 0 },
     wvwOverride,
-    classifyAura
-  )
+    classifyAura,
+  );
 }
 
 export interface NamedFactSource {
-  sourceKind: 'skill' | 'trait' | 'sigil' | 'relic'
-  sourceId: number
-  sourceName: string
-  sourceIcon: string
-  name: string
+  sourceKind: 'skill' | 'trait' | 'sigil' | 'relic';
+  sourceId: number;
+  sourceName: string;
+  sourceIcon: string;
+  name: string;
   /** Human-readable magnitude when the underlying fact carries one (duration in seconds, a
    *  distance, or a plain count) — `null` for presence-only facts (e.g. Breaks Stun). */
-  detail: string | null
+  detail: string | null;
   /** Same "up to N allies" resolution `BoonConditionSource.targetCount` does (own "Number of
    *  Allied Targets" fact, else a curated override table), only actually populated for matcher
    *  names present in `NAMED_FACT_TARGET_COUNT_TABLES` (currently just `Cleanse`) — `null` for
    *  every other name (Control/Miscellaneous/Strip/Corrupt), which have no such table. */
-  targetCount: number | null
+  targetCount: number | null;
 }
 
 function namedFactDetail(fact: Fact): string | null {
-  if (typeof fact.duration === 'number') return `${fact.duration}s`
-  if (typeof fact.distance === 'number') return `${fact.distance}`
-  if (typeof fact.value === 'number') return `${fact.value}`
-  return null
+  if (typeof fact.duration === 'number') return `${fact.duration}s`;
+  if (typeof fact.distance === 'number') return `${fact.distance}`;
+  if (typeof fact.value === 'number') return `${fact.value}`;
+  return null;
 }
 
 /** At most one entry per matcher name per source (a skill/trait with 2 facts both matching e.g.
@@ -5617,21 +6001,30 @@ function namedFactsFrom(
   sourceIcon: string,
   wvwOverrides: Record<string, WvwFactOverride> | undefined,
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
-): NamedFactSource[] {
-  const out: NamedFactSource[] = []
-  const matchedNames = new Set<string>()
-  const emittedOverriddenStatuses = new Set<string>()
-  const combinedFacts = [...facts, ...traitedFacts]
-  for (const fact of combinedFacts) {
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-
-    const wvwOverride = fact.type === 'Buff' && typeof fact.status === 'string' ? wvwOverrides?.[fact.status] : undefined
-    if (wvwOverride !== undefined) {
-      if (emittedOverriddenStatuses.has(fact.status as string)) continue
-      emittedOverriddenStatuses.add(fact.status as string)
+  targetCountTables?: Record<
+    string,
+    {
+      skill: Record<number, SourceTargetCountOverride>;
+      trait: Record<number, SourceTargetCountOverride>;
     }
-    if (wvwOverride === 'omit') continue
+  >,
+): NamedFactSource[] {
+  const out: NamedFactSource[] = [];
+  const matchedNames = new Set<string>();
+  const emittedOverriddenStatuses = new Set<string>();
+  const combinedFacts = [...facts, ...traitedFacts];
+  for (const fact of combinedFacts) {
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+
+    const wvwOverride =
+      fact.type === 'Buff' && typeof fact.status === 'string'
+        ? wvwOverrides?.[fact.status]
+        : undefined;
+    if (wvwOverride !== undefined) {
+      if (emittedOverriddenStatuses.has(fact.status as string)) continue;
+      emittedOverriddenStatuses.add(fact.status as string);
+    }
+    if (wvwOverride === 'omit') continue;
 
     // Cleansing Ire (trait 1649, Warrior): every one of this trait's raw `Conditions Removed`
     // facts is either missing on the id this app's build actually equips, or stale by one full
@@ -5639,18 +6032,33 @@ function namedFactsFrom(
     // `CLEANSING_IRE_CLEANSE_FACTS`'s doc comment. Wholesale-excluded here and replaced by that
     // curated table (via `cleansingIreCleanseSource`, called alongside this function) rather than
     // trusted piecemeal.
-    if (fact.requires_trait === 1649 && fact.type === 'Number' && fact.text === 'Conditions Removed') continue
+    if (
+      fact.requires_trait === 1649 &&
+      fact.type === 'Number' &&
+      fact.text === 'Conditions Removed'
+    )
+      continue;
 
     for (const [name, match] of Object.entries(matchers)) {
-      if (matchedNames.has(name) || !match(fact)) continue
-      const table = targetCountTables?.[name]
-      const targetCount = table ? resolveTargetCountFrom(fact, combinedFacts, sourceKind, sourceId, table, activeIds, equippedLegendIdSet).value : null
-      const detail = typeof wvwOverride === 'number' ? `${wvwOverride}s` : namedFactDetail(fact)
-      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail, targetCount })
-      matchedNames.add(name)
+      if (matchedNames.has(name) || !match(fact)) continue;
+      const table = targetCountTables?.[name];
+      const targetCount = table
+        ? resolveTargetCountFrom(
+            fact,
+            combinedFacts,
+            sourceKind,
+            sourceId,
+            table,
+            activeIds,
+            equippedLegendIdSet,
+          ).value
+        : null;
+      const detail = typeof wvwOverride === 'number' ? `${wvwOverride}s` : namedFactDetail(fact);
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail, targetCount });
+      matchedNames.add(name);
     }
   }
-  return out
+  return out;
 }
 
 /**
@@ -5664,13 +6072,15 @@ function namedFactsFrom(
  * Object key order is this row's display order (`Object.keys` preserves insertion order).
  */
 export const CONTROL_MATCHERS: Record<string, (fact: Fact) => boolean> = {
-  Stun: (f) => (f.type === 'Time' && f.text === 'Stun') || (f.type === 'Buff' && f.status === 'Stun'),
-  Daze: (f) => (f.type === 'Time' && f.text === 'Daze') || (f.type === 'Buff' && f.status === 'Daze'),
+  Stun: (f) =>
+    (f.type === 'Time' && f.text === 'Stun') || (f.type === 'Buff' && f.status === 'Stun'),
+  Daze: (f) =>
+    (f.type === 'Time' && f.text === 'Daze') || (f.type === 'Buff' && f.status === 'Daze'),
   Knockdown: (f) => f.type === 'Time' && f.text === 'Knockdown',
   Knockback: (f) => f.type === 'Distance' && f.text === 'Knockback',
   Launch: (f) => f.type === 'Distance' && f.text === 'Launch',
-  Pull: (f) => f.type === 'Number' && f.text === 'Pull'
-}
+  Pull: (f) => f.type === 'Number' && f.text === 'Pull',
+};
 
 /**
  * Miscellaneous matchers for `computeNamedFactSources`. "Barrier" is the one exception to "exact
@@ -5687,8 +6097,9 @@ export const MISCELLANEOUS_MATCHERS: Record<string, (fact: Fact) => boolean> = {
   Superspeed: (f) => f.type === 'Buff' && f.status === 'Superspeed',
   Evade: (f) => f.type === 'Time' && f.text === 'Evade',
   'Breaks Stun': (f) => f.type === 'StunBreak' || (f.type === 'NoData' && f.text === 'Breaks Stun'),
-  Barrier: (f) => f.type === 'AttributeAdjust' && typeof f.text === 'string' && /barrier/i.test(f.text)
-}
+  Barrier: (f) =>
+    f.type === 'AttributeAdjust' && typeof f.text === 'string' && /barrier/i.test(f.text),
+};
 
 /**
  * Boon Strip/Corrupt/Cleanse — not part of gw2skills' own reference bar, added on request (strip =
@@ -5701,10 +6112,15 @@ export const MISCELLANEOUS_MATCHERS: Record<string, (fact: Fact) => boolean> = {
  * (Cleanse, see `CONDITION_CLEANSE_TARGETS` above).
  */
 export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean> = {
-  Strip: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? (removed|stolen)/i.test(f.text),
-  Corrupt: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? converted/i.test(f.text),
-  Cleanse: (f) => f.type === 'Number' && typeof f.text === 'string' && /condition.*remov|remov.*condition/i.test(f.text)
-}
+  Strip: (f) =>
+    f.type === 'Number' && typeof f.text === 'string' && /boons? (removed|stolen)/i.test(f.text),
+  Corrupt: (f) =>
+    f.type === 'Number' && typeof f.text === 'string' && /boons? converted/i.test(f.text),
+  Cleanse: (f) =>
+    f.type === 'Number' &&
+    typeof f.text === 'string' &&
+    /condition.*remov|remov.*condition/i.test(f.text),
+};
 
 /**
  * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Breaks Stun" row (TODO.md's "party-wide-only
@@ -5733,7 +6149,10 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
  * before ever consulting this table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics,
  * "Never Surrender!".
  */
-export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const BREAKS_STUN_PARTY_WIDE: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     14372: 5, // "Shake It Off!" — "breaks stuns for affected allies"
     30047: 5, // "Eye of the Storm!" — "breaking stun for nearby allies"
@@ -5747,7 +6166,7 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
     77155: 5, // Chant of Freedom — "Breaks stun from allies in an area around you"
     77178: 5, // Tale of the Valiant Marshal — "Break their stuns" (nearby allies called to action)
     77321: 5, // Stalwart Stance — "Break stun for nearby allies"
-    10192: 5 // Distortion, via Mental Defense's mirrored `synthetic-facts.json` entry (`requires_trait:
+    10192: 5, // Distortion, via Mental Defense's mirrored `synthetic-facts.json` entry (`requires_trait:
     // 2005`) — same skill-side echo of a `trait:` entry below that every other trait-granted-boon
     // mirror onto this skill already gets through `TARGET_COUNT_OVERRIDES`' own `10192: 5` (Restorative
     // Illusions) default; this table has no such blanket default, so it needs its own explicit entry.
@@ -5755,9 +6174,9 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
   trait: {
     612: 5, // Indomitable Courage — "breaks stun and grants stability to nearby allies" (one
     // compound predicate scoped to "nearby allies")
-    2005: 5 // Mental Defense — "breaks allies out of stuns"
-  }
-}
+    2005: 5, // Mental Defense — "breaks allies out of stuns"
+  },
+};
 
 /**
  * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Stealth" row — second sweep leg after Breaks
@@ -5800,7 +6219,10 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
  * had this manual pass; ~120 Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc
  * comment). Superspeed got its own leg next — see `SUPERSPEED_PARTY_WIDE` below; Barrier is still open.
  */
-export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const STEALTH_PARTY_WIDE: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     5972: 5, // Toss Elixir S — own "Number of Targets: 5" fact, no foe-facing component
     6090: 5, // Toss Elixir S (underwater variant) — same
@@ -5809,11 +6231,11 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
     10245: 10, // Mass Invisibility — own "Number of Targets: 10" fact, no foe-facing component
     13117: 5, // Shadow Refuge — own "Number of Targets: 5" fact, no foe-facing component
     30815: 5, // Sneak Gyro — wiki "missing facts" targets|5, no foe-facing component
-    13044: 5 // Blinding Powder — user-confirmed: StunBreak is personal, so "Number of Targets: 5"
+    13044: 5, // Blinding Powder — user-confirmed: StunBreak is personal, so "Number of Targets: 5"
     // describes the Stealth grant, not the foe-facing Blind
   },
-  trait: {}
-}
+  trait: {},
+};
 
 /**
  * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Superspeed" row — third sweep leg (TODO.md's
@@ -5892,7 +6314,10 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
  * sources remain the only open piece of this whole sweep (see `BREAKS_STUN_PARTY_WIDE`'s own doc
  * comment).
  */
-export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const SUPERSPEED_PARTY_WIDE: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     5682: 5, // Windborne Speed — wiki-confirmed "you and nearby allies," own Number(5)/Radius(300)
     5970: 5, // Toss Elixir U — own desc "granting them superspeed" (allies), own Number(5)
@@ -5900,23 +6325,35 @@ export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOve
     6088: 5, // Detonate Elixir U — own desc "grant allies superspeed," own Number(5), HGH-gated
     9143: 5, // Symbol of Swiftness — own desc "Allies in the area gain a burst of speed," Number(5)
     10325: 5, // Slipstream — own desc "grants superspeed to allies passing through it," default-5
-    10311: { gatedBy: 'trait', traitId: 1980, traitName: 'Temporal Enchanter', whenActive: 5, otherwise: 'self' }, // Time Warp
-    10377: { gatedBy: 'trait', traitId: 1980, traitName: 'Temporal Enchanter', whenActive: 5, otherwise: 'self' }, // Time Warp (duplicate id)
+    10311: {
+      gatedBy: 'trait',
+      traitId: 1980,
+      traitName: 'Temporal Enchanter',
+      whenActive: 5,
+      otherwise: 'self',
+    }, // Time Warp
+    10377: {
+      gatedBy: 'trait',
+      traitId: 1980,
+      traitName: 'Temporal Enchanter',
+      whenActive: 5,
+      otherwise: 'self',
+    }, // Time Warp (duplicate id)
     28075: 5, // Chaotic Release — own desc "granting superspeed to allies," own Number(5)
     30047: 5, // "Eye of the Storm!" — own desc "for nearby allies," own Number(5)
     30814: 5, // Well of Action — own desc "granting boons to allies," own Number(5)
     71888: 5, // Essence of Borrowed Time — own desc "applying superspeed to allies," own Number(5)
     74314: 5, // Rallying Roar — own desc "granting superspeed to nearby allies," own Number(5)
-    76562: 5 // "We Will Never Yield!" — own desc "Grant superspeed to nearby allies," own Number(5)
+    76562: 5, // "We Will Never Yield!" — own desc "Grant superspeed to nearby allies," own Number(5)
   },
   trait: {
     1980: 5, // Temporal Enchanter — own desc "allies...gain resistance and superspeed," Number(5)
     2014: 5, // Speed of Synergy — own desc's "using a heal skill" (party) case; the "associated
     // tool-belt skill" case is self-only per the same sentence, see this table's doc comment
-    2357: 5 // Liberating Liaise — own desc "grants superspeed to affected allies," wiki-verified
+    2357: 5, // Liberating Liaise — own desc "grants superspeed to affected allies," wiki-verified
     // 2026-08-15 as part of the MISCELLANEOUS_MATCHERS WvW-override fix
-  }
-}
+  },
+};
 
 /**
  * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Barrier" row — fourth and last sweep leg
@@ -6004,7 +6441,10 @@ export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOve
  * Superspeed/Breaks-Stun(partial)/Barrier have all now had their leg; only the ~120 leftover
  * Breaks-Stun sources remain open (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
  */
-export const BARRIER_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+export const BARRIER_PARTY_WIDE: {
+  skill: Record<number, SourceTargetCountOverride>;
+  trait: Record<number, SourceTargetCountOverride>;
+} = {
   skill: {
     14394: 5, // Call of Valor — "Affected targets also gain barrier," own Number(5)
     30101: 5, // Bulwark Gyro — "grant barrier to allies in the area," own Number(5)
@@ -6023,7 +6463,7 @@ export const BARRIER_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
     76562: 5, // "We Will Never Yield!" — "allies' health...grant barrier proportionate," own Number(5)
     76813: 5, // Effulgent Stance — "barrier and light aura to nearby allies," default-5 (no Number fact)
     76816: 5, // Chak Shield — "granting barrier to allies within it," own Number(5)
-    76934: 5 // "Brace Yourselves!" — "barrier to yourself and allies around you," own Number(5)
+    76934: 5, // "Brace Yourselves!" — "barrier to yourself and allies around you," own Number(5)
   },
   trait: {
     1060: 5, // Allies' Aid — "Moa pets grant barrier to nearby allies," own Number(5)
@@ -6034,10 +6474,10 @@ export const BARRIER_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
     2253: 5, // Unshakable Mountain — "Grant barrier to nearby allies," own Number(5)
     2280: 5, // Panaku's Ambition — "you also grant them barrier," explicit "Stealth Barrier" fact split
     // from "Stealth Attack Barrier," default-5 (no Number fact)
-    2281: 5 // Mech Core: Barrier Engine — "grant a small barrier each interval to nearby allies," own
+    2281: 5, // Mech Core: Barrier Engine — "grant a small barrier each interval to nearby allies," own
     // Number(5)
-  }
-}
+  },
+};
 
 /** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS`/`MISCELLANEOUS_MATCHERS` (or any other matcher
  *  table) that resolve `NamedFactSource.targetCount` — passed to `computeNamedFactSources` alongside
@@ -6048,14 +6488,17 @@ export const BARRIER_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
  *  entirely, not just uncurated within it. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   string,
-  { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }
+  {
+    skill: Record<number, SourceTargetCountOverride>;
+    trait: Record<number, SourceTargetCountOverride>;
+  }
 > = {
   Cleanse: CONDITION_CLEANSE_TARGETS,
   Stealth: STEALTH_PARTY_WIDE,
   Superspeed: SUPERSPEED_PARTY_WIDE,
   'Breaks Stun': BREAKS_STUN_PARTY_WIDE,
-  Barrier: BARRIER_PARTY_WIDE
-}
+  Barrier: BARRIER_PARTY_WIDE,
+};
 
 /**
  * Sigil-derived Control/Miscellaneous/Strip/Corrupt/Cleanse sources. Sigils carry no `Fact[]`
@@ -6077,8 +6520,8 @@ export const SIGIL_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
   24572: { name: 'Strip', detail: 'On flank/defiant hit (5s CD)' }, // Superior Sigil of Nullification
   38294: { name: 'Cleanse', detail: 'On crit, transfers to foe (6s CD)' }, // Superior Sigil of Generosity
   67340: { name: 'Cleanse', detail: '×3 on weapon swap (9s CD)' }, // Superior Sigil of Cleansing
-  72872: { name: 'Strip', detail: '×3 on interrupt (10s CD)' } // Superior Sigil of Absorption
-}
+  72872: { name: 'Strip', detail: '×3 on interrupt (10s CD)' }, // Superior Sigil of Absorption
+};
 
 /** `SIGIL_NAMED_FACT_SOURCES` entries for every sigil equipped on the build's currently-active
  *  weapon set(s) — same `isActiveWeaponSlot` gating `computeGearAttributeTotals` uses for a
@@ -6086,21 +6529,33 @@ export const SIGIL_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
  *  confirmed for stat bonuses — see that function's own comment). Filtered to `matchers`' own keys
  *  so a single call only contributes to whichever of Control/Miscellaneous/Strip-Corrupt-Cleanse
  *  the caller is currently rendering. */
-function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
-  const sigilsById = new Map(sigils.map((s) => [s.id, s]))
-  const out: NamedFactSource[] = []
+function computeSigilNamedFactSources(
+  build: Build,
+  sigils: Sigil[],
+  matchers: Record<string, (fact: Fact) => boolean>,
+): NamedFactSource[] {
+  const sigilsById = new Map(sigils.map((s) => [s.id, s]));
+  const out: NamedFactSource[] = [];
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue
+    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue;
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId == null) continue
-      const entry = SIGIL_NAMED_FACT_SOURCES[sigilId]
-      if (!entry || !(entry.name in matchers)) continue
-      const sigil = sigilsById.get(sigilId)
-      if (!sigil) continue
-      out.push({ sourceKind: 'sigil', sourceId: sigilId, sourceName: sigil.name, sourceIcon: sigil.icon, name: entry.name, detail: entry.detail, targetCount: null })
+      if (sigilId == null) continue;
+      const entry = SIGIL_NAMED_FACT_SOURCES[sigilId];
+      if (!entry || !(entry.name in matchers)) continue;
+      const sigil = sigilsById.get(sigilId);
+      if (!sigil) continue;
+      out.push({
+        sourceKind: 'sigil',
+        sourceId: sigilId,
+        sourceName: sigil.name,
+        sourceIcon: sigil.icon,
+        name: entry.name,
+        detail: entry.detail,
+        targetCount: null,
+      });
     }
   }
-  return out
+  return out;
 }
 
 /**
@@ -6162,12 +6617,15 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
   100448: { name: 'Stun', detail: '1s–3s (on Elite skill use, 30s CD)' }, // Relic of the Citadel
   // Leg 7 (2026-08-16) — see this table's own doc comment for why Astral Ward moved out of the
   // deferred pile; Resistance (its other half) is wired via RELIC_TRIGGER_GATES instead.
-  100388: { name: 'Cleanse', detail: '2 conditions (on every 2nd Signet cast — spawns then consumes, no fixed CD)' }, // Relic of the Astral Ward
+  100388: {
+    name: 'Cleanse',
+    detail: '2 conditions (on every 2nd Signet cast — spawns then consumes, no fixed CD)',
+  }, // Relic of the Astral Ward
   // Leg 1 of "New Relic Coefficient Curation" (2026-09-16) — Might + Swiftness (its other 2 facts)
   // wired via RELIC_TRIGGER_GATES instead; relic-effects.json lists no rechargeSeconds, same "no CD
   // listed" convention as Relic of the Trooper/Bava Nisos above.
-  109998: { name: 'Superspeed', detail: '2.5s (on Shout or Command skill use)' } // Relic of the Tyrian Hero
-}
+  109998: { name: 'Superspeed', detail: '2.5s (on Shout or Command skill use)' }, // Relic of the Tyrian Hero
+};
 
 /** `RELIC_NAMED_FACT_SOURCES`' entry for the build's equipped relic, or `[]` when no relic is
  *  equipped, it isn't one of the curated candidates, its name isn't a key of the caller's
@@ -6181,25 +6639,33 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
  *  Zephyrite. */
 function computeRelicNamedFactSources(
   build: Build,
-  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[]; rechargeWvwOverrides: RechargeWvwOverrides },
-  matchers: Record<string, (fact: Fact) => boolean>
+  gameData: {
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
+    skills: Skill[];
+    legends: Legend[];
+    rechargeWvwOverrides: RechargeWvwOverrides;
+  },
+  matchers: Record<string, (fact: Fact) => boolean>,
 ): NamedFactSource[] {
-  if (build.relicId === null) return []
-  const entry = RELIC_NAMED_FACT_SOURCES[build.relicId]
-  if (!entry || !(entry.name in matchers)) return []
-  const gate = RELIC_TRIGGER_GATES[build.relicId]
-  if (!gate) return []
-  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
-  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
-  const relic = gameData.relics.find((r) => r.id === build.relicId)
-  const effect = gameData.relicEffects[build.relicId]
-  if (!relic || !effect) return []
-  const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
-  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  if (build.relicId === null) return [];
+  const entry = RELIC_NAMED_FACT_SOURCES[build.relicId];
+  if (!entry || !(entry.name in matchers)) return [];
+  const gate = RELIC_TRIGGER_GATES[build.relicId];
+  if (!gate) return [];
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]));
+  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return [];
+  const relic = gameData.relics.find((r) => r.id === build.relicId);
+  const effect = gameData.relicEffects[build.relicId];
+  if (!relic || !effect) return [];
+  const targetsFact = effect.facts.find(
+    (f) => f.label === 'targets' || f.label === 'allied targets',
+  );
+  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null;
   const detail =
     relic.id === CITADEL_RELIC_ID
       ? `${citadelBuildStunDurationSeconds(build, gameData.legends, skillsById, gameData.rechargeWvwOverrides).toFixed(1)}s (on Elite skill use, 30s CD)`
-      : entry.detail
+      : entry.detail;
   return [
     {
       sourceKind: 'relic',
@@ -6208,9 +6674,9 @@ function computeRelicNamedFactSources(
       sourceIcon: relic.icon,
       name: entry.name,
       detail,
-      targetCount: Number.isFinite(targetCount) ? targetCount : null
-    }
-  ]
+      targetCount: Number.isFinite(targetCount) ? targetCount : null,
+    },
+  ];
 }
 
 /**
@@ -6247,19 +6713,25 @@ function computeRelicNamedFactSources(
  * Every other chapter was checked and carries nothing else Control/Miscellaneous/Strip/Corrupt/
  * Cleanse-shaped.
  */
-const TOME_CHAPTER_NAMED_FACT_SOURCES: Record<number, Record<number, { name: string; detail: string | null; targetCount: number | null }>> = {
+const TOME_CHAPTER_NAMED_FACT_SOURCES: Record<
+  number,
+  Record<number, { name: string; detail: string | null; targetCount: number | null }>
+> = {
   42259: { 3: { name: 'Breaks Stun', detail: null, targetCount: null } },
   41780: { 4: { name: 'Cleanse', detail: '5 conditions', targetCount: 5 } },
-  44364: { 2: { name: 'Pull', detail: '240', targetCount: null } }
-}
+  44364: { 2: { name: 'Pull', detail: '240', targetCount: null } },
+};
 
 /** `TOME_CHAPTER_NAMED_FACT_SOURCES`' entry for one equipped Tome chapter, or `[]` when this
  *  chapter isn't one of the curated candidates or its name isn't a key of the caller's `matchers`
  *  table (same gating `computeRelicNamedFactSources` applies) — called once per chapter the build
  *  actually has equipped, same as `tomeChapterBoonSources`. */
-export function tomeChapterNamedFactSources(chapter: TomeChapter, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
-  const entry = TOME_CHAPTER_NAMED_FACT_SOURCES[chapter.tomeSkillId]?.[chapter.slotIndex]
-  if (!entry || !(entry.name in matchers)) return []
+export function tomeChapterNamedFactSources(
+  chapter: TomeChapter,
+  matchers: Record<string, (fact: Fact) => boolean>,
+): NamedFactSource[] {
+  const entry = TOME_CHAPTER_NAMED_FACT_SOURCES[chapter.tomeSkillId]?.[chapter.slotIndex];
+  if (!entry || !(entry.name in matchers)) return [];
   return [
     {
       sourceKind: 'skill',
@@ -6268,9 +6740,9 @@ export function tomeChapterNamedFactSources(chapter: TomeChapter, matchers: Reco
       sourceIcon: chapter.icon,
       name: entry.name,
       detail: entry.detail,
-      targetCount: entry.targetCount
-    }
-  ]
+      targetCount: entry.targetCount,
+    },
+  ];
 }
 
 /**
@@ -6330,18 +6802,31 @@ export function tomeChapterNamedFactSources(chapter: TomeChapter, matchers: Reco
  */
 export const CORRUPT_MISSING_FACT_SKILLS: Record<number, { detail: string }> = {
   10671: { detail: '6' }, // Well of Corruption
-  68132: { detail: '1' } // Elixir of Bliss (Harbinger Heal) — Blight-threshold bonus (2) out of scope, see above
-}
+  68132: { detail: '1' }, // Elixir of Bliss (Harbinger Heal) — Blight-threshold bonus (2) out of scope, see above
+};
 
 /** `CORRUPT_MISSING_FACT_SKILLS`' entry for one skill, or `[]` when this skill isn't one of the
  *  curated candidates or `'Corrupt'` isn't a key of the caller's `matchers` table (same "only
  *  contribute to the row currently being computed" gating `computeRelicNamedFactSources`/
  *  `tomeChapterNamedFactSources` apply) — called alongside the normal `namedFactsFrom` walk so a
  *  skill whose real `Fact[]` is missing this one fact still shows up on the Corrupt row. */
-function missingCorruptFactSource(skill: Skill, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
-  const entry = CORRUPT_MISSING_FACT_SKILLS[skill.id]
-  if (!entry || !('Corrupt' in matchers)) return []
-  return [{ sourceKind: 'skill', sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, name: 'Corrupt', detail: entry.detail, targetCount: null }]
+function missingCorruptFactSource(
+  skill: Skill,
+  matchers: Record<string, (fact: Fact) => boolean>,
+): NamedFactSource[] {
+  const entry = CORRUPT_MISSING_FACT_SKILLS[skill.id];
+  if (!entry || !('Corrupt' in matchers)) return [];
+  return [
+    {
+      sourceKind: 'skill',
+      sourceId: skill.id,
+      sourceName: skill.name,
+      sourceIcon: skill.icon,
+      name: 'Corrupt',
+      detail: entry.detail,
+      targetCount: null,
+    },
+  ];
 }
 
 /**
@@ -6437,18 +6922,32 @@ export const CLEANSING_IRE_CLEANSE_FACTS: Record<number, { detail: string }> = {
   41330: { detail: '2' }, // Forceful Shot (Speargun)
   72089: { detail: '2' }, // Path to Victory (Staff)
   80252: { detail: '2' }, // Bloodthirster (Sword)
-  44165: { detail: '2' } // Full Counter (Profession_2, weapon-independent)
-}
+  44165: { detail: '2' }, // Full Counter (Profession_2, weapon-independent)
+};
 
 /** `CLEANSING_IRE_CLEANSE_FACTS`'s entry for one skill, gated on the trait actually being equipped
  *  (unlike `missingCorruptFactSource`, which has no such gate — Cleansing Ire's bonus, unlike Well
  *  of Corruption/Elixir of Bliss, only exists at all when the granting trait is chosen). Same "only
  *  contribute to the row currently being computed" pattern as that function and
  *  `computeRelicNamedFactSources`. */
-function cleansingIreCleanseSource(skill: Skill, activeIds: Set<number>, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
-  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id]
-  if (!entry || !('Cleanse' in matchers) || !activeIds.has(1649)) return []
-  return [{ sourceKind: 'skill', sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, name: 'Cleanse', detail: entry.detail, targetCount: null }]
+function cleansingIreCleanseSource(
+  skill: Skill,
+  activeIds: Set<number>,
+  matchers: Record<string, (fact: Fact) => boolean>,
+): NamedFactSource[] {
+  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id];
+  if (!entry || !('Cleanse' in matchers) || !activeIds.has(1649)) return [];
+  return [
+    {
+      sourceKind: 'skill',
+      sourceId: skill.id,
+      sourceName: skill.name,
+      sourceIcon: skill.icon,
+      name: 'Cleanse',
+      detail: entry.detail,
+      targetCount: null,
+    },
+  ];
 }
 
 /**
@@ -6468,30 +6967,44 @@ function cleansingIreCleanseSource(skill: Skill, activeIds: Set<number>, matcher
 export function computeNamedFactSources(
   build: Build,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    sigils: Sigil[]
-    wvwFactOverrides: WvwFactOverrides
-    rechargeWvwOverrides: RechargeWvwOverrides
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-    relics: Relic[]
-    relicEffects: RelicEffectsById
+    skills: Skill[];
+    traits: Trait[];
+    sigils: Sigil[];
+    wvwFactOverrides: WvwFactOverrides;
+    rechargeWvwOverrides: RechargeWvwOverrides;
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+    relics: Relic[];
+    relicEffects: RelicEffectsById;
   },
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
+  targetCountTables?: Record<
+    string,
+    {
+      skill: Record<number, SourceTargetCountOverride>;
+      trait: Record<number, SourceTargetCountOverride>;
+    }
+  >,
 ): NamedFactSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const legendIds = equippedLegendIds(build)
-  const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers), ...computeRelicNamedFactSources(build, gameData, matchers)]
-  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
-  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  const activeIds = activeTraitIds(build, gameData.traits);
+  const legendIds = equippedLegendIds(build);
+  const out: NamedFactSource[] = [
+    ...computeSigilNamedFactSources(build, gameData.sigils, matchers),
+    ...computeRelicNamedFactSources(build, gameData, matchers),
+  ];
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData);
+  const bundleContributions = bundleContributionsForBuild(
+    build,
+    gameData.professions,
+    skillsById,
+    gameData.tomeChapters,
+  );
   for (const chapter of bundleContributions.tomeChapters) {
-    out.push(...tomeChapterNamedFactSources(chapter, matchers))
+    out.push(...tomeChapterNamedFactSources(chapter, matchers));
   }
 
   out.push(
@@ -6510,22 +7023,22 @@ export function computeNamedFactSources(
           skill.icon,
           gameData.wvwFactOverrides.skill[skill.id],
           matchers,
-          targetCountTables
+          targetCountTables,
         ),
         ...missingCorruptFactSource(skill, matchers),
-        ...cleansingIreCleanseSource(skill, activeIds, matchers)
+        ...cleansingIreCleanseSource(skill, activeIds, matchers),
       ],
-      additiveFlipNamedFactContentKey
-    )
-  )
+      additiveFlipNamedFactContentKey,
+    ),
+  );
 
   for (const line of build.specializations) {
-    if (line == null) continue
+    if (line == null) continue;
     for (const trait of gameData.traits) {
-      if (trait.specializationId !== line.specializationId) continue
-      const isMinor = trait.slot === 'Minor'
-      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
-      if (!isMinor && !isChosenMajor) continue
+      if (trait.specializationId !== line.specializationId) continue;
+      const isMinor = trait.slot === 'Minor';
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id);
+      if (!isMinor && !isChosenMajor) continue;
       out.push(
         ...namedFactsFrom(
           trait.facts,
@@ -6538,13 +7051,13 @@ export function computeNamedFactSources(
           trait.icon,
           gameData.wvwFactOverrides.trait[trait.id],
           matchers,
-          targetCountTables
-        )
-      )
+          targetCountTables,
+        ),
+      );
     }
   }
 
-  return out
+  return out;
 }
 
 /**
@@ -6562,7 +7075,13 @@ export function namedFactsForSkill(
   equippedLegendIdSet: Set<string>,
   wvwOverride: Record<string, WvwFactOverride> | undefined,
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
+  targetCountTables?: Record<
+    string,
+    {
+      skill: Record<number, SourceTargetCountOverride>;
+      trait: Record<number, SourceTargetCountOverride>;
+    }
+  >,
 ): NamedFactSource[] {
   return [
     ...namedFactsFrom(
@@ -6576,41 +7095,41 @@ export function namedFactsForSkill(
       skill.icon,
       wvwOverride,
       matchers,
-      targetCountTables
+      targetCountTables,
     ),
     ...missingCorruptFactSource(skill, matchers),
-    ...cleansingIreCleanseSource(skill, activeIds, matchers)
-  ]
+    ...cleansingIreCleanseSource(skill, activeIds, matchers),
+  ];
 }
 
 export interface NamedFactGroup {
-  name: string
-  sources: NamedFactSource[]
+  name: string;
+  sources: NamedFactSource[];
 }
 
 export function groupNamedFactSources(sources: NamedFactSource[]): NamedFactGroup[] {
-  const map = new Map<string, NamedFactGroup>()
+  const map = new Map<string, NamedFactGroup>();
   for (const source of sources) {
-    let group = map.get(source.name)
+    let group = map.get(source.name);
     if (!group) {
-      group = { name: source.name, sources: [] }
-      map.set(source.name, group)
+      group = { name: source.name, sources: [] };
+      map.set(source.name, group);
     }
-    group.sources.push(source)
+    group.sources.push(source);
   }
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export interface ComboSource {
-  sourceKind: 'skill' | 'trait'
-  sourceId: number
-  sourceName: string
-  sourceIcon: string
-  kind: 'field' | 'finisher'
+  sourceKind: 'skill' | 'trait';
+  sourceId: number;
+  sourceName: string;
+  sourceIcon: string;
+  kind: 'field' | 'finisher';
   /** GW2's 11 field types (e.g. "Fire", "Water", "Ethereal") — set when `kind === 'field'`. */
-  fieldType: string | null
+  fieldType: string | null;
   /** GW2's 4 finisher types ("Blast"/"Leap"/"Projectile"/"Whirl") — set when `kind === 'finisher'`. */
-  finisherType: string | null
+  finisherType: string | null;
 }
 
 function comboFactsFrom(
@@ -6620,18 +7139,34 @@ function comboFactsFrom(
   sourceKind: 'skill' | 'trait',
   sourceId: number,
   sourceName: string,
-  sourceIcon: string
+  sourceIcon: string,
 ): ComboSource[] {
-  const out: ComboSource[] = []
+  const out: ComboSource[] = [];
   for (const fact of [...facts, ...traitedFacts]) {
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
     if (fact.type === 'ComboField' && typeof fact.field_type === 'string') {
-      out.push({ sourceKind, sourceId, sourceName, sourceIcon, kind: 'field', fieldType: fact.field_type, finisherType: null })
+      out.push({
+        sourceKind,
+        sourceId,
+        sourceName,
+        sourceIcon,
+        kind: 'field',
+        fieldType: fact.field_type,
+        finisherType: null,
+      });
     } else if (fact.type === 'ComboFinisher' && typeof fact.finisher_type === 'string') {
-      out.push({ sourceKind, sourceId, sourceName, sourceIcon, kind: 'finisher', fieldType: null, finisherType: fact.finisher_type })
+      out.push({
+        sourceKind,
+        sourceId,
+        sourceName,
+        sourceIcon,
+        kind: 'finisher',
+        fieldType: null,
+        finisherType: fact.finisher_type,
+      });
     }
   }
-  return out
+  return out;
 }
 
 /**
@@ -6647,41 +7182,60 @@ function comboFactsFrom(
 export function computeComboSources(
   build: Build,
   gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-    familiars: Familiar[]
-  }
+    skills: Skill[];
+    traits: Trait[];
+    legends: Legend[];
+    pets: Pet[];
+    professions: Profession[];
+    tomeChapters: TomeChaptersByTomeId;
+    soulbeastBeastmode: SoulbeastBeastmodeMap;
+    familiars: Familiar[];
+  },
 ): ComboSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const out: ComboSource[] = []
-  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+  const activeIds = activeTraitIds(build, gameData.traits);
+  const out: ComboSource[] = [];
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData);
 
   out.push(
     ...extractSkillSourcesWithAdditiveDedup(
       skillIds,
       skillsById,
-      (skill) => comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon),
-      (f) => [f.kind, f.fieldType, f.finisherType].join('|')
-    )
-  )
+      (skill) =>
+        comboFactsFrom(
+          skill.facts,
+          skill.traitedFacts,
+          activeIds,
+          'skill',
+          skill.id,
+          skill.name,
+          skill.icon,
+        ),
+      (f) => [f.kind, f.fieldType, f.finisherType].join('|'),
+    ),
+  );
 
   for (const line of build.specializations) {
-    if (line == null) continue
+    if (line == null) continue;
     for (const trait of gameData.traits) {
-      if (trait.specializationId !== line.specializationId) continue
-      const isMinor = trait.slot === 'Minor'
-      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
-      if (!isMinor && !isChosenMajor) continue
-      out.push(...comboFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon))
+      if (trait.specializationId !== line.specializationId) continue;
+      const isMinor = trait.slot === 'Minor';
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id);
+      if (!isMinor && !isChosenMajor) continue;
+      out.push(
+        ...comboFactsFrom(
+          trait.facts,
+          trait.traitedFacts,
+          activeIds,
+          'trait',
+          trait.id,
+          trait.name,
+          trait.icon,
+        ),
+      );
     }
   }
 
-  return out
+  return out;
 }
 
 /**
@@ -6690,26 +7244,34 @@ export function computeComboSources(
  * `boonConditionFactsForSkill`/`auraFactsForSkill`/`namedFactsForSkill`.
  */
 export function comboFactsForSkill(skill: Skill, activeIds: Set<number>): ComboSource[] {
-  return comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon)
+  return comboFactsFrom(
+    skill.facts,
+    skill.traitedFacts,
+    activeIds,
+    'skill',
+    skill.id,
+    skill.name,
+    skill.icon,
+  );
 }
 
 export interface BoonConditionGroup {
-  name: string
-  isCondition: boolean
-  sources: BoonConditionSource[]
+  name: string;
+  isCondition: boolean;
+  sources: BoonConditionSource[];
 }
 
 export function groupBoonConditionSources(sources: BoonConditionSource[]): BoonConditionGroup[] {
-  const map = new Map<string, BoonConditionGroup>()
+  const map = new Map<string, BoonConditionGroup>();
   for (const source of sources) {
-    let group = map.get(source.boonOrConditionName)
+    let group = map.get(source.boonOrConditionName);
     if (!group) {
-      group = { name: source.boonOrConditionName, isCondition: source.isCondition, sources: [] }
-      map.set(source.boonOrConditionName, group)
+      group = { name: source.boonOrConditionName, isCondition: source.isCondition, sources: [] };
+      map.set(source.boonOrConditionName, group);
     }
-    group.sources.push(source)
+    group.sources.push(source);
   }
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
@@ -6720,10 +7282,10 @@ export function groupBoonConditionSources(sources: BoonConditionSource[]): BoonC
  * uncurated reach — see `BoonConditionSource.targetCount`'s doc comment) is deliberately excluded
  * too, conservative by design: don't claim party-wide for a source this app hasn't actually curated.
  */
-export const PARTY_WIDE_TARGET_COUNT = 5
+export const PARTY_WIDE_TARGET_COUNT = 5;
 
 export function isPartyWideTargetCount(targetCount: number | null): boolean {
-  return targetCount !== null && targetCount >= PARTY_WIDE_TARGET_COUNT
+  return targetCount !== null && targetCount >= PARTY_WIDE_TARGET_COUNT;
 }
 
 /**
@@ -6735,17 +7297,19 @@ export function isPartyWideTargetCount(targetCount: number | null): boolean {
  * per the item's scoping) and for using `filterPartyWideNamedFactGroups` instead of this for the
  * combined "Strips / Corrupts / Cleanses" row, where only the Cleanse line is ally-facing.
  */
-export function filterPartyWideGroups<G extends { sources: { targetCount: number | null }[] }>(groups: G[]): G[] {
+export function filterPartyWideGroups<G extends { sources: { targetCount: number | null }[] }>(
+  groups: G[],
+): G[] {
   return groups
     .map((g) => ({ ...g, sources: g.sources.filter((s) => isPartyWideTargetCount(s.targetCount)) }))
-    .filter((g) => g.sources.length > 0)
+    .filter((g) => g.sources.length > 0);
 }
 
 /** The one ally-facing name within `BOON_STRIP_CORRUPT_MATCHERS`' combined row — shared by every
  *  caller of `filterPartyWideNamedFactGroups`/`filterPartyWideNamedFactEntries` for the "Strips /
  *  Corrupts / Cleanses" row, so the set only needs to be extended in one place if that row ever
  *  gains a second ally-facing matcher name. */
-export const CLEANSE_ONLY_NAMES: ReadonlySet<string> = new Set(['Cleanse'])
+export const CLEANSE_ONLY_NAMES: ReadonlySet<string> = new Set(['Cleanse']);
 
 /**
  * Same idea as `filterPartyWideGroups`, but only filters groups whose `name` is in `namesToFilter` —
@@ -6753,8 +7317,15 @@ export const CLEANSE_ONLY_NAMES: ReadonlySet<string> = new Set(['Cleanse'])
  * Cleanses" row (`BOON_STRIP_CORRUPT_MATCHERS`), where Strip/Corrupt are enemy-facing (don't filter)
  * and only Cleanse is ally-facing (`namesToFilter: CLEANSE_ONLY_NAMES`).
  */
-export function filterPartyWideNamedFactGroups(groups: NamedFactGroup[], namesToFilter: ReadonlySet<string>): NamedFactGroup[] {
+export function filterPartyWideNamedFactGroups(
+  groups: NamedFactGroup[],
+  namesToFilter: ReadonlySet<string>,
+): NamedFactGroup[] {
   return groups
-    .map((g) => (namesToFilter.has(g.name) ? { ...g, sources: g.sources.filter((s) => isPartyWideTargetCount(s.targetCount)) } : g))
-    .filter((g) => g.sources.length > 0)
+    .map((g) =>
+      namesToFilter.has(g.name)
+        ? { ...g, sources: g.sources.filter((s) => isPartyWideTargetCount(s.targetCount)) }
+        : g,
+    )
+    .filter((g) => g.sources.length > 0);
 }

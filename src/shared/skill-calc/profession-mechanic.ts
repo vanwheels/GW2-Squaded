@@ -1,14 +1,21 @@
-import type { Build, Environment, Familiar, Profession, Skill, SoulbeastBeastmodeMap } from '../types'
-import { EVOKER_SPECIALIZATION_ID } from './familiar'
+import type {
+  Build,
+  Environment,
+  Familiar,
+  Profession,
+  Skill,
+  SoulbeastBeastmodeMap,
+} from '../types';
+import { EVOKER_SPECIALIZATION_ID } from './familiar';
 
 /** Same land/underwater disambiguation signal as `weapon-calc/weapon-skills.ts`'s `LAND_ONLY_FLAG`
  *  — Warrior's Burst Skill needs it too now that Spear (Janthir Wilds) is a dual land/underwater
  *  weapon type with separate skill ids per environment for every slot, Profession_1 included. */
-const LAND_ONLY_FLAG = 'NoUnderwater'
+const LAND_ONLY_FLAG = 'NoUnderwater';
 
 export interface ProfessionMechanicBarEntry {
-  slot: string
-  skill: Skill
+  slot: string;
+  skill: Skill;
 }
 
 /**
@@ -84,7 +91,8 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // Outburst"/"Rending Vines"/"Enveloping Haze" — is NOT excluded and resolves normally through this
   // generic resolver whenever Untamed is equipped; see docs/game-data.md's "Untamed's Unleash
   // mechanic, resolved" section for the full writeup, including why it's unconditional.)
-  63147, 63344,
+  63147,
+  63344,
   // Elementalist Evoker (spec 80) Profession_5 "Familiar": "Ignite" (76643) is a same-slot,
   // same-spec, no-flip, blank-description orphan sharing an icon file id adjacent to the real
   // Fire familiar skill "Conflagration" (76585) — live-verified 2026-08-01 while wiring up
@@ -104,7 +112,8 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // (76702/76601 "Exalted Hammer", 76633/76550 "Forged Surfer Dash", 45094/1110 "Throw Gunk") are
   // same-named orphan duplicates within this set, same class as Warrior Spellbreaker's above — both
   // ids of each pair excluded here; the manual picker dedupes to the lower id itself.
-  76702, 76601, 76633, 76550, 76800, 76900, 77288, 76895, 1131, 1118, 1162, 1167, 1115, 45094, 1110, 1139, 1125, 1148, 1129, 1123, 1141, 31438,
+  76702, 76601, 76633, 76550, 76800, 76900, 77288, 76895, 1131, 1118, 1162, 1167, 1115, 45094, 1110,
+  1139, 1125, 1148, 1129, 1123, 1141, 31438,
   // Thief's only raw `Profession_3` candidates at all: 78309 and 79285, both named "Zephyrite Sun
   // Crystal" with an identical description — live-verified 2026-09-20 while investigating a
   // user-reported bug (a steal-flavored skill showing in Specter's F3, which doesn't exist as a
@@ -124,8 +133,8 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // flip-chain dedup step can't tell them apart on its own. Excluded explicitly so only the entry
   // id ever surfaces as Specter's F2 mechanic-bar button, same as every other Shroud variant's
   // entry-only F-bar icon.
-  63251
-])
+  63251,
+]);
 
 /**
  * Specter (specialization id 71): live-verified 2026-08-01 against `/v2/skills` — like Guardian
@@ -139,11 +148,11 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
  * shows core Thief's unthemed "Steal" for F1 and drops F2 entirely (its only candidates would be
  * the excluded stolen-skill ids above).
  */
-export const SPECTER_SPEC_ID = 71
+export const SPECTER_SPEC_ID = 71;
 const SPECTER_MECHANIC_SKILLS: { id: number; slot: string }[] = [
   { id: 63067, slot: 'Profession_1' }, // Siphon
-  { id: 63155, slot: 'Profession_2' } // Enter Shadow Shroud
-]
+  { id: 63155, slot: 'Profession_2' }, // Enter Shadow Shroud
+];
 
 /**
  * Vindicator (specialization id 69): live-verified 2026-08-04 against `/v2/skills` — "Alliance
@@ -157,8 +166,10 @@ const SPECTER_MECHANIC_SKILLS: { id: number; slot: string }[] = [
  * treating it as read-only, the same "clickable, not disabled" treatment as a Kit/Tome/Celestial
  * Avatar's `activeBundleSkillId` toggle.
  */
-export const ALLIANCE_TACTICS_SKILL_ID = 62729
-const VINDICATOR_MECHANIC_SKILLS: { id: number; slot: string }[] = [{ id: ALLIANCE_TACTICS_SKILL_ID, slot: 'Profession_3' }]
+export const ALLIANCE_TACTICS_SKILL_ID = 62729;
+const VINDICATOR_MECHANIC_SKILLS: { id: number; slot: string }[] = [
+  { id: ALLIANCE_TACTICS_SKILL_ID, slot: 'Profession_3' },
+];
 
 /**
  * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_3`
@@ -178,8 +189,8 @@ const VINDICATOR_MECHANIC_SKILLS: { id: number; slot: string }[] = [{ id: ALLIAN
  * step 5 (chosen.specializationId 55 not in equippedSpecializationIds -> slot dropped). No per-pet
  * data needed, unlike `Profession_1`-`_3`.
  */
-export const RANGER_BEASTMODE_SPEC_ID = 55
-const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3'])
+export const RANGER_BEASTMODE_SPEC_ID = 55;
+const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3']);
 
 /**
  * Revenant Conduit (specialization id 79): live-verified against the wiki 2026-07-31 — Conduit's
@@ -209,15 +220,15 @@ const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2',
  * all — see `EXCLUDED_MECHANIC_SKILL_IDS`'s comment above) — 78895 is the real one; every other
  * variant has exactly one raw id.
  */
-export const CONDUIT_SPEC_ID = 79
-const CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS = new Set(['Profession_2'])
+export const CONDUIT_SPEC_ID = 79;
+const CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS = new Set(['Profession_2']);
 const CONDUIT_RELEASE_POTENTIAL_BY_LEGEND: Record<string, number> = {
   Legend2: 78845,
   Legend3: 78895,
   Legend4: 78615,
   Legend6: 78501,
-  Legend8: 78661
-}
+  Legend8: 78661,
+};
 
 /**
  * Guardian Dragonhunter (specialization id 27): live-verified 2026-07-31 a real gap in the
@@ -235,8 +246,8 @@ const DRAGONHUNTER_VIRTUE_SKILLS: { id: number; slot: string }[] = [
   { id: 30783, slot: 'Profession_2' }, // Wings of Resolve (entry point)
   { id: 30225, slot: 'Profession_2' }, // Wings of Resolve (flip target)
   { id: 30029, slot: 'Profession_3' }, // Shield of Courage (entry point)
-  { id: 30039, slot: 'Profession_3' } // Shield of Courage (flip target)
-]
+  { id: 30039, slot: 'Profession_3' }, // Shield of Courage (flip target)
+];
 
 /**
  * Necromancer's Shroud-enter skills — core Death Shroud (10574), Reaper's Shroud (30792),
@@ -253,8 +264,8 @@ const DRAGONHUNTER_VIRTUE_SKILLS: { id: number; slot: string }[] = [
 const NECRO_SHROUD_SPEC_OVERRIDE: Record<number, number> = {
   30792: 34, // Reaper's Shroud -> Reaper
   62567: 64, // Harbinger Shroud -> Harbinger
-  77238: 76 // Ritualist's Shroud -> Ritualist
-}
+  77238: 76, // Ritualist's Shroud -> Ritualist
+};
 
 /**
  * Elementalist Tempest (specialization id 48): live-verified 2026-08-01 Tempest doesn't rework the
@@ -266,7 +277,7 @@ const NECRO_SHROUD_SPEC_OVERRIDE: Record<number, number> = {
  * generic per-slot resolver picks the base Attunement id, swap it for its flip target's skill
  * whenever Tempest is equipped, for icon/tooltip purposes only.
  */
-export const TEMPEST_SPEC_ID = 48
+export const TEMPEST_SPEC_ID = 48;
 
 /**
  * Maps the profession-mechanic bar's fixed F1-F4 slots to the Attunement each one swaps to, true
@@ -282,8 +293,8 @@ export const ELEMENTALIST_ATTUNEMENT_SLOTS: Record<string, 'Fire' | 'Water' | 'A
   Profession_1: 'Fire',
   Profession_2: 'Water',
   Profession_3: 'Air',
-  Profession_4: 'Earth'
-}
+  Profession_4: 'Earth',
+};
 
 /**
  * Elementalist Catalyst (specialization id 67): live-verified 2026-08-01 Catalyst's Profession_5
@@ -305,8 +316,8 @@ export const ELEMENTALIST_ATTUNEMENT_SLOTS: Record<string, 'Fire' | 'Water' | 'A
  * prepended like Conduit's F2 — F5 is the last slot, and prepending would visually place it before
  * F1-F4).
  */
-export const CATALYST_SPEC_ID = 67
-const CATALYST_JADE_SPHERE_EXCLUDED_SLOTS = new Set(['Profession_5'])
+export const CATALYST_SPEC_ID = 67;
+const CATALYST_JADE_SPHERE_EXCLUDED_SLOTS = new Set(['Profession_5']);
 
 /**
  * Elementalist Evoker's Profession_5 "Familiar" (specialization id 80, `EVOKER_SPECIALIZATION_ID`
@@ -321,13 +332,13 @@ const CATALYST_JADE_SPHERE_EXCLUDED_SLOTS = new Set(['Profession_5'])
  * Catalyst above (5 same-spec candidates would otherwise resolve arbitrarily via the lowest-id
  * fallback, never actually reflecting the chosen familiar).
  */
-const EVOKER_FAMILIAR_EXCLUDED_SLOTS = new Set(['Profession_5'])
+const EVOKER_FAMILIAR_EXCLUDED_SLOTS = new Set(['Profession_5']);
 const EVOKER_FAMILIAR_SKILL_BY_ELEMENT: Record<string, number> = {
   Fire: 76585, // Conflagration (fox)
   Water: 76811, // Buoyant Deluge (otter)
   Air: 77089, // Lightning Blitz (hare)
-  Earth: 76707 // Seismic Impact (toad)
-}
+  Earth: 76707, // Seismic Impact (toad)
+};
 
 /**
  * Resolves a profession's mechanic ("F-skill") bar — Guardian's Virtue of Justice/Resolve/Courage
@@ -376,64 +387,68 @@ export function professionMechanicBar(
   skillsById: Map<number, Skill>,
   equippedSpecializationIds: ReadonlySet<number>,
   environment: Environment = 'land',
-  mainHandWeaponType?: string | null
+  mainHandWeaponType?: string | null,
 ): ProfessionMechanicBarEntry[] {
-  const slotOrder: string[] = []
-  const bySlot = new Map<string, Skill[]>()
-  const rawSkillRefs: { id: number; slot: string }[] = [...profession.professionSkills]
-  if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS)
-  if (profession.id === 'Thief') rawSkillRefs.push(...SPECTER_MECHANIC_SKILLS)
-  if (profession.id === 'Revenant') rawSkillRefs.push(...VINDICATOR_MECHANIC_SKILLS)
+  const slotOrder: string[] = [];
+  const bySlot = new Map<string, Skill[]>();
+  const rawSkillRefs: { id: number; slot: string }[] = [...profession.professionSkills];
+  if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS);
+  if (profession.id === 'Thief') rawSkillRefs.push(...SPECTER_MECHANIC_SKILLS);
+  if (profession.id === 'Revenant') rawSkillRefs.push(...VINDICATOR_MECHANIC_SKILLS);
   for (const { id, slot } of rawSkillRefs) {
-    if (!slot.startsWith('Profession_') || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
-    let skill = skillsById.get(id)
-    if (!skill) continue
-    const necroShroudSpec = profession.id === 'Necromancer' ? NECRO_SHROUD_SPEC_OVERRIDE[id] : undefined
-    if (necroShroudSpec !== undefined) skill = { ...skill, specializationId: necroShroudSpec }
+    if (!slot.startsWith('Profession_') || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue;
+    let skill = skillsById.get(id);
+    if (!skill) continue;
+    const necroShroudSpec =
+      profession.id === 'Necromancer' ? NECRO_SHROUD_SPEC_OVERRIDE[id] : undefined;
+    if (necroShroudSpec !== undefined) skill = { ...skill, specializationId: necroShroudSpec };
     if (
       profession.id === 'Ranger' &&
       RANGER_BEASTMODE_EXCLUDED_SLOTS.has(slot) &&
       skill.specializationId === RANGER_BEASTMODE_SPEC_ID
     ) {
-      continue
+      continue;
     }
     if (
       profession.id === 'Revenant' &&
       CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS.has(slot) &&
       equippedSpecializationIds.has(CONDUIT_SPEC_ID)
     ) {
-      continue
+      continue;
     }
     if (
       profession.id === 'Elementalist' &&
       CATALYST_JADE_SPHERE_EXCLUDED_SLOTS.has(slot) &&
       equippedSpecializationIds.has(CATALYST_SPEC_ID)
     ) {
-      continue
+      continue;
     }
     if (
       profession.id === 'Elementalist' &&
       EVOKER_FAMILIAR_EXCLUDED_SLOTS.has(slot) &&
       equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID)
     ) {
-      continue
+      continue;
     }
     if (!bySlot.has(slot)) {
-      bySlot.set(slot, [])
-      slotOrder.push(slot)
+      bySlot.set(slot, []);
+      slotOrder.push(slot);
     }
-    bySlot.get(slot)!.push(skill)
+    bySlot.get(slot)!.push(skill);
   }
 
-  const out: ProfessionMechanicBarEntry[] = []
+  const out: ProfessionMechanicBarEntry[] = [];
   for (const slot of slotOrder.sort()) {
-    let candidates = bySlot.get(slot)!
+    let candidates = bySlot.get(slot)!;
     if (profession.id === 'Warrior' && slot === 'Profession_1') {
       // Burst Skill candidates carry a real weaponType and vary by equipped main-hand weapon;
       // Bladesworn's Gunsaber toggle ("Unsheathe Gunsaber", weaponType "None") doesn't — it's an
       // innate, weapon-independent button, so it must survive this filter regardless of what's
       // equipped (or if nothing is), unlike every other Profession_1 candidate here.
-      candidates = candidates.filter((s) => s.weaponType === null || s.weaponType === 'None' || s.weaponType === mainHandWeaponType)
+      candidates = candidates.filter(
+        (s) =>
+          s.weaponType === null || s.weaponType === 'None' || s.weaponType === mainHandWeaponType,
+      );
       // Spear (Janthir Wilds) is the one weaponType with both a land and an underwater Burst Skill
       // id, same `NoUnderwater`-flag land/underwater split `weapon-skills.ts` uses for the weapon
       // bar itself — but unlike a normal weapon slot, Warrior's Profession_1 has a SEPARATE
@@ -445,55 +460,74 @@ export function professionMechanicBar(
       // "Harrier's Toss" ids (same shape as this file's other known-duplicate-id cases) — sorting
       // by id and taking the lowest collapses that before pairing, so it doesn't stop the pairing
       // from being clean 1-vs-1.
-      const weaponMatched = candidates.filter((s) => s.weaponType === mainHandWeaponType)
-      const bySpec = new Map<number | null, Skill[]>()
+      const weaponMatched = candidates.filter((s) => s.weaponType === mainHandWeaponType);
+      const bySpec = new Map<number | null, Skill[]>();
       for (const s of weaponMatched) {
-        if (!bySpec.has(s.specializationId)) bySpec.set(s.specializationId, [])
-        bySpec.get(s.specializationId)!.push(s)
+        if (!bySpec.has(s.specializationId)) bySpec.set(s.specializationId, []);
+        bySpec.get(s.specializationId)!.push(s);
       }
-      const resolvedWeaponMatched: Skill[] = []
+      const resolvedWeaponMatched: Skill[] = [];
       for (const group of bySpec.values()) {
-        const landOnly = group.filter((s) => s.flags.includes(LAND_ONLY_FLAG)).sort((a, b) => a.id - b.id)
-        const notLandOnly = group.filter((s) => !s.flags.includes(LAND_ONLY_FLAG)).sort((a, b) => a.id - b.id)
+        const landOnly = group
+          .filter((s) => s.flags.includes(LAND_ONLY_FLAG))
+          .sort((a, b) => a.id - b.id);
+        const notLandOnly = group
+          .filter((s) => !s.flags.includes(LAND_ONLY_FLAG))
+          .sort((a, b) => a.id - b.id);
         if (landOnly.length > 0 && notLandOnly.length > 0) {
-          resolvedWeaponMatched.push(environment === 'land' ? landOnly[0] : notLandOnly[0])
+          resolvedWeaponMatched.push(environment === 'land' ? landOnly[0] : notLandOnly[0]);
         } else {
-          resolvedWeaponMatched.push(...group)
+          resolvedWeaponMatched.push(...group);
         }
       }
-      candidates = candidates.filter((s) => s.weaponType !== mainHandWeaponType).concat(resolvedWeaponMatched)
+      candidates = candidates
+        .filter((s) => s.weaponType !== mainHandWeaponType)
+        .concat(resolvedWeaponMatched);
     }
-    let chosen = resolveMechanicSlot(candidates, equippedSpecializationIds)
-    if (!chosen) continue
-    if (chosen.specializationId !== null && !equippedSpecializationIds.has(chosen.specializationId)) continue
-    if (profession.id === 'Elementalist' && equippedSpecializationIds.has(TEMPEST_SPEC_ID) && chosen.flipSkill !== null) {
-      const overload = skillsById.get(chosen.flipSkill)
-      if (overload) chosen = overload
+    let chosen = resolveMechanicSlot(candidates, equippedSpecializationIds);
+    if (!chosen) continue;
+    if (chosen.specializationId !== null && !equippedSpecializationIds.has(chosen.specializationId))
+      continue;
+    if (
+      profession.id === 'Elementalist' &&
+      equippedSpecializationIds.has(TEMPEST_SPEC_ID) &&
+      chosen.flipSkill !== null
+    ) {
+      const overload = skillsById.get(chosen.flipSkill);
+      if (overload) chosen = overload;
     }
-    out.push({ slot, skill: chosen })
+    out.push({ slot, skill: chosen });
   }
-  return out
+  return out;
 }
 
-function resolveMechanicSlot(candidates: Skill[], equippedSpecializationIds: ReadonlySet<number>): Skill | undefined {
-  if (candidates.length === 0) return undefined
-  if (candidates.length === 1) return candidates[0]
+function resolveMechanicSlot(
+  candidates: Skill[],
+  equippedSpecializationIds: ReadonlySet<number>,
+): Skill | undefined {
+  if (candidates.length === 0) return undefined;
+  if (candidates.length === 1) return candidates[0];
 
-  const specMatched = candidates.filter((s) => s.specializationId !== null && equippedSpecializationIds.has(s.specializationId))
-  let remaining = specMatched.length > 0 ? specMatched : candidates.filter((s) => s.specializationId === null)
-  if (remaining.length === 0) remaining = candidates
-  if (remaining.length === 1) return remaining[0]
+  const specMatched = candidates.filter(
+    (s) => s.specializationId !== null && equippedSpecializationIds.has(s.specializationId),
+  );
+  let remaining =
+    specMatched.length > 0 ? specMatched : candidates.filter((s) => s.specializationId === null);
+  if (remaining.length === 0) remaining = candidates;
+  if (remaining.length === 1) return remaining[0];
 
-  const targetIds = new Set(remaining.map((s) => s.flipSkill).filter((id): id is number => id !== null))
-  const notAFlipTarget = remaining.filter((s) => !targetIds.has(s.id))
-  if (notAFlipTarget.length === 1) return notAFlipTarget[0]
-  remaining = notAFlipTarget.length > 0 ? notAFlipTarget : remaining
+  const targetIds = new Set(
+    remaining.map((s) => s.flipSkill).filter((id): id is number => id !== null),
+  );
+  const notAFlipTarget = remaining.filter((s) => !targetIds.has(s.id));
+  if (notAFlipTarget.length === 1) return notAFlipTarget[0];
+  remaining = notAFlipTarget.length > 0 ? notAFlipTarget : remaining;
 
-  const entryPoints = remaining.filter((s) => s.flipSkill !== null)
-  if (entryPoints.length === 1) return entryPoints[0]
-  remaining = entryPoints.length > 0 ? entryPoints : remaining
+  const entryPoints = remaining.filter((s) => s.flipSkill !== null);
+  if (entryPoints.length === 1) return entryPoints[0];
+  remaining = entryPoints.length > 0 ? entryPoints : remaining;
 
-  return [...remaining].sort((a, b) => a.id - b.id)[0]
+  return [...remaining].sort((a, b) => a.id - b.id)[0];
 }
 
 /**
@@ -506,25 +540,28 @@ function resolveMechanicSlot(candidates: Skill[], equippedSpecializationIds: Rea
  * have no toolbelt counterpart (confirmed live), so this only covers F1 (heal) + F2-F4 (the 3
  * utilities).
  */
-export function engineerToolbeltBar(build: Build, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
-  if (build.skills.kind !== 'standard') return []
-  const out: ProfessionMechanicBarEntry[] = []
+export function engineerToolbeltBar(
+  build: Build,
+  skillsById: Map<number, Skill>,
+): ProfessionMechanicBarEntry[] {
+  if (build.skills.kind !== 'standard') return [];
+  const out: ProfessionMechanicBarEntry[] = [];
 
-  const heal = build.skills.heal !== null ? skillsById.get(build.skills.heal) : undefined
+  const heal = build.skills.heal !== null ? skillsById.get(build.skills.heal) : undefined;
   if (heal?.toolbeltSkill != null) {
-    const toolbelt = skillsById.get(heal.toolbeltSkill)
-    if (toolbelt) out.push({ slot: 'Profession_1', skill: toolbelt })
+    const toolbelt = skillsById.get(heal.toolbeltSkill);
+    if (toolbelt) out.push({ slot: 'Profession_1', skill: toolbelt });
   }
 
   build.skills.utility.forEach((utilityId, i) => {
-    const utility = utilityId !== null ? skillsById.get(utilityId) : undefined
+    const utility = utilityId !== null ? skillsById.get(utilityId) : undefined;
     if (utility?.toolbeltSkill != null) {
-      const toolbelt = skillsById.get(utility.toolbeltSkill)
-      if (toolbelt) out.push({ slot: `Profession_${i + 2}`, skill: toolbelt })
+      const toolbelt = skillsById.get(utility.toolbeltSkill);
+      if (toolbelt) out.push({ slot: `Profession_${i + 2}`, skill: toolbelt });
     }
-  })
+  });
 
-  return out
+  return out;
 }
 
 /**
@@ -540,20 +577,24 @@ export function engineerToolbeltBar(build: Build, skillsById: Map<number, Skill>
  * this app, so the wiki-sourced fetch script resolves family/archetype down to a flat per-pet
  * skill triplet once, rather than this function needing to know about families at all.
  */
-export function soulbeastBeastmodeBar(build: Build, skillsById: Map<number, Skill>, soulbeastBeastmode: SoulbeastBeastmodeMap): ProfessionMechanicBarEntry[] {
-  const activePetId = build.equippedPetIds[build.activePetIndex]
-  if (activePetId === null) return []
-  const bar = soulbeastBeastmode[activePetId]
-  if (!bar) return []
+export function soulbeastBeastmodeBar(
+  build: Build,
+  skillsById: Map<number, Skill>,
+  soulbeastBeastmode: SoulbeastBeastmodeMap,
+): ProfessionMechanicBarEntry[] {
+  const activePetId = build.equippedPetIds[build.activePetIndex];
+  if (activePetId === null) return [];
+  const bar = soulbeastBeastmode[activePetId];
+  if (!bar) return [];
 
-  const out: ProfessionMechanicBarEntry[] = []
-  const f1 = skillsById.get(bar.f1SkillId)
-  if (f1) out.push({ slot: 'Profession_1', skill: f1 })
-  const f2 = skillsById.get(bar.f2SkillId)
-  if (f2) out.push({ slot: 'Profession_2', skill: f2 })
-  const f3 = skillsById.get(bar.f3SkillId)
-  if (f3) out.push({ slot: 'Profession_3', skill: f3 })
-  return out
+  const out: ProfessionMechanicBarEntry[] = [];
+  const f1 = skillsById.get(bar.f1SkillId);
+  if (f1) out.push({ slot: 'Profession_1', skill: f1 });
+  const f2 = skillsById.get(bar.f2SkillId);
+  if (f2) out.push({ slot: 'Profession_2', skill: f2 });
+  const f3 = skillsById.get(bar.f3SkillId);
+  if (f3) out.push({ slot: 'Profession_3', skill: f3 });
+  return out;
 }
 
 /**
@@ -566,15 +607,18 @@ export function soulbeastBeastmodeBar(build: Build, skillsById: Map<number, Skil
  * display — display-only, same as that bar (see `RevenantSkillSelection.activeLegendIndex`'s own
  * doc comment for why this doesn't feed boon/condition totals).
  */
-export function conduitReleasePotentialBar(build: Build, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
-  if (build.skills.kind !== 'revenant') return []
-  const activeLegendId = build.skills.legends[build.skills.activeLegendIndex]
-  if (activeLegendId === null) return []
-  const skillId = CONDUIT_RELEASE_POTENTIAL_BY_LEGEND[activeLegendId]
-  if (skillId === undefined) return []
-  const skill = skillsById.get(skillId)
-  if (!skill) return []
-  return [{ slot: 'Profession_2', skill }]
+export function conduitReleasePotentialBar(
+  build: Build,
+  skillsById: Map<number, Skill>,
+): ProfessionMechanicBarEntry[] {
+  if (build.skills.kind !== 'revenant') return [];
+  const activeLegendId = build.skills.legends[build.skills.activeLegendIndex];
+  if (activeLegendId === null) return [];
+  const skillId = CONDUIT_RELEASE_POTENTIAL_BY_LEGEND[activeLegendId];
+  if (skillId === undefined) return [];
+  const skill = skillsById.get(skillId);
+  if (!skill) return [];
+  return [{ slot: 'Profession_2', skill }];
 }
 
 /**
@@ -584,7 +628,11 @@ export function conduitReleasePotentialBar(build: Build, skillsById: Map<number,
  * `soulbeastBeastmodeBar`/`conduitReleasePotentialBar`, which read a build-state field or a
  * side-table) since there's no simpler signal than the raw candidate list to filter down.
  */
-export function catalystJadeSphereBar(build: Build, profession: Profession, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
+export function catalystJadeSphereBar(
+  build: Build,
+  profession: Profession,
+  skillsById: Map<number, Skill>,
+): ProfessionMechanicBarEntry[] {
   const candidates = profession.professionSkills
     .filter((r) => r.slot === 'Profession_5')
     .map((r) => skillsById.get(r.id))
@@ -594,11 +642,11 @@ export function catalystJadeSphereBar(build: Build, profession: Profession, skil
         s.specializationId === CATALYST_SPEC_ID &&
         s.attunement === build.activeAttunement &&
         s.flags.includes('GroundTargeted') &&
-        s.flags.includes('NoUnderwater')
-    )
-  if (candidates.length === 0) return []
-  const chosen = candidates.reduce((a, b) => (b.id > a.id ? b : a))
-  return [{ slot: 'Profession_5', skill: chosen }]
+        s.flags.includes('NoUnderwater'),
+    );
+  if (candidates.length === 0) return [];
+  const chosen = candidates.reduce((a, b) => (b.id > a.id ? b : a));
+  return [{ slot: 'Profession_5', skill: chosen }];
 }
 
 /**
@@ -609,13 +657,17 @@ export function catalystJadeSphereBar(build: Build, profession: Profession, skil
  * placeholder button in that gap instead (see that component's doc comment) so there's still
  * something to click to make the first pick, same as Thief's Stolen Skill placeholder.
  */
-export function evokerFamiliarBar(build: Build, skillsById: Map<number, Skill>, familiars: Familiar[]): ProfessionMechanicBarEntry[] {
-  if (build.familiarId === null) return []
-  const familiar = familiars.find((f) => f.id === build.familiarId)
-  if (!familiar) return []
-  const skillId = EVOKER_FAMILIAR_SKILL_BY_ELEMENT[familiar.element]
-  if (skillId === undefined) return []
-  const skill = skillsById.get(skillId)
-  if (!skill) return []
-  return [{ slot: 'Profession_5', skill }]
+export function evokerFamiliarBar(
+  build: Build,
+  skillsById: Map<number, Skill>,
+  familiars: Familiar[],
+): ProfessionMechanicBarEntry[] {
+  if (build.familiarId === null) return [];
+  const familiar = familiars.find((f) => f.id === build.familiarId);
+  if (!familiar) return [];
+  const skillId = EVOKER_FAMILIAR_SKILL_BY_ELEMENT[familiar.element];
+  if (skillId === undefined) return [];
+  const skill = skillsById.get(skillId);
+  if (!skill) return [];
+  return [{ slot: 'Profession_5', skill }];
 }

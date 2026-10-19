@@ -1,4 +1,4 @@
-import type { ProfessionId, Skill } from '../types'
+import type { ProfessionId, Skill } from '../types';
 
 /**
  * Racial skills (Human/Charr/Asura/Norn/Sylvari Heal/Utility/Elite skills, e.g. "Avatar of
@@ -24,13 +24,13 @@ const RACIAL_SKILL_PROFESSIONS: readonly ProfessionId[] = [
   'Necromancer',
   'Ranger',
   'Thief',
-  'Warrior'
-]
+  'Warrior',
+];
 
 export function isRacialSkill(skill: Skill): boolean {
   return (
     skill.specializationId === null &&
     skill.professions.length === RACIAL_SKILL_PROFESSIONS.length &&
     RACIAL_SKILL_PROFESSIONS.every((p) => skill.professions.includes(p))
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { CURRENT_SCHEMA_VERSION } from './schema-version'
+import { CURRENT_SCHEMA_VERSION } from './schema-version';
 
 /**
  * The load-time schema check `normalizeBuild`/`normalizeSquadComp` (renderer/state) run on every
@@ -10,5 +10,5 @@ import { CURRENT_SCHEMA_VERSION } from './schema-version'
  * replacement for one.
  */
 export function withCurrentSchemaVersion<T extends { schemaVersion: number }>(record: T): T {
-  return { ...record, schemaVersion: record.schemaVersion ?? CURRENT_SCHEMA_VERSION }
+  return { ...record, schemaVersion: record.schemaVersion ?? CURRENT_SCHEMA_VERSION };
 }

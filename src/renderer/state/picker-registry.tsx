@@ -1,11 +1,19 @@
-import { createContext, useContext, useId, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react'
+import {
+  createContext,
+  useContext,
+  useId,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from 'react';
 
 interface PickerRegistryValue {
-  openId: string | null
-  setOpenId: Dispatch<SetStateAction<string | null>>
+  openId: string | null;
+  setOpenId: Dispatch<SetStateAction<string | null>>;
 }
 
-const PickerRegistryContext = createContext<PickerRegistryValue | null>(null)
+const PickerRegistryContext = createContext<PickerRegistryValue | null>(null);
 
 /**
  * Wraps the build editor so every click-to-open picker popover in it — trait specialization,
@@ -15,8 +23,12 @@ const PickerRegistryContext = createContext<PickerRegistryValue | null>(null)
  * visual clutter, so opening any picker must close whichever other one was open.
  */
 export function PickerRegistryProvider({ children }: { children: ReactNode }) {
-  const [openId, setOpenId] = useState<string | null>(null)
-  return <PickerRegistryContext.Provider value={{ openId, setOpenId }}>{children}</PickerRegistryContext.Provider>
+  const [openId, setOpenId] = useState<string | null>(null);
+  return (
+    <PickerRegistryContext.Provider value={{ openId, setOpenId }}>
+      {children}
+    </PickerRegistryContext.Provider>
+  );
 }
 
 /**
@@ -26,14 +38,14 @@ export function PickerRegistryProvider({ children }: { children: ReactNode }) {
  * a different picker) can't accidentally clobber the new owner.
  */
 export function usePickerOpen(): { open: boolean; openThis: () => void; close: () => void } {
-  const id = useId()
-  const ctx = useContext(PickerRegistryContext)
-  if (!ctx) throw new Error('usePickerOpen must be used within a PickerRegistryProvider')
-  const { openId, setOpenId } = ctx
-  const open = openId === id
+  const id = useId();
+  const ctx = useContext(PickerRegistryContext);
+  if (!ctx) throw new Error('usePickerOpen must be used within a PickerRegistryProvider');
+  const { openId, setOpenId } = ctx;
+  const open = openId === id;
   return {
     open,
     openThis: () => setOpenId(id),
-    close: () => setOpenId((current) => (current === id ? null : current))
-  }
+    close: () => setOpenId((current) => (current === id ? null : current)),
+  };
 }

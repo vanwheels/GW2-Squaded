@@ -1,21 +1,33 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Fact, Skill, Trait } from '../types'
-import { TARGET_ARMOR_VALUES } from '../gear-calc/combat-state'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Fact, Skill, Trait } from '../types';
+import { TARGET_ARMOR_VALUES } from '../gear-calc/combat-state';
 import {
   CURATED_HEALING_COEFFICIENTS,
   healingLinesForSkill,
   CURATED_TRAIT_HEALING_COEFFICIENTS,
   healingLinesForTrait,
-  type HealingLine
-} from './healing-calc'
-import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc'
-import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } from './barrier-calc'
-import { CURATED_SIPHON_DAMAGE_COEFFICIENTS, siphonDamageLinesForSkill, type SiphonDamageLine } from './siphon-damage-calc'
-import { GUNSABER_SKILLS } from './gunsaber-skills'
-import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, DRAGON_SLASH_SKILLS } from './dragon-slash-skills'
+  type HealingLine,
+} from './healing-calc';
+import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc';
+import {
+  CURATED_BARRIER_COEFFICIENTS,
+  barrierLinesForSkill,
+  type BarrierLine,
+} from './barrier-calc';
+import {
+  CURATED_SIPHON_DAMAGE_COEFFICIENTS,
+  siphonDamageLinesForSkill,
+  type SiphonDamageLine,
+} from './siphon-damage-calc';
+import { GUNSABER_SKILLS } from './gunsaber-skills';
+import {
+  DRAGON_SLASH_RIVERS_FLOW_SKILLS,
+  DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS,
+  DRAGON_SLASH_SKILLS,
+} from './dragon-slash-skills';
 
 /**
  * Tier 2 golden snapshot fixtures — TODO.md's "Automated testing strategy" (agreed 2026-08-12): pay
@@ -54,58 +66,71 @@ import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS,
  * 0.69) render into the same snapshot in one pass instead of needing a run per trait.
  */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = resolve(__dirname, '../../../data/game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = resolve(__dirname, '../../../data/game-data');
 
 interface SkillDataFile {
-  id: number
-  facts: Fact[]
-  traitedFacts: Fact[]
+  id: number;
+  facts: Fact[];
+  traitedFacts: Fact[];
 }
 
-const rawSkills: SkillDataFile[] = JSON.parse(readFileSync(resolve(DATA_DIR, 'skills.json'), 'utf-8'))
-const syntheticFacts: Record<string, Fact[]> = JSON.parse(readFileSync(resolve(DATA_DIR, 'synthetic-facts.json'), 'utf-8'))
+const rawSkills: SkillDataFile[] = JSON.parse(
+  readFileSync(resolve(DATA_DIR, 'skills.json'), 'utf-8'),
+);
+const syntheticFacts: Record<string, Fact[]> = JSON.parse(
+  readFileSync(resolve(DATA_DIR, 'synthetic-facts.json'), 'utf-8'),
+);
 
 const skillsById = new Map<number, Skill>(
   rawSkills.map((skill) => {
-    const extra = syntheticFacts[String(skill.id)]
-    const merged = extra ? { ...skill, facts: [...skill.facts, ...extra] } : skill
-    return [skill.id, merged as unknown as Skill]
-  })
-)
+    const extra = syntheticFacts[String(skill.id)];
+    const merged = extra ? { ...skill, facts: [...skill.facts, ...extra] } : skill;
+    return [skill.id, merged as unknown as Skill];
+  }),
+);
 // Hand-authored ids absent from `skills.json` entirely (see each file's own doc comment) — the 3
 // `DRAGON_SLASH_*` arrays all have `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`
 // entries, but `GUNSABER_SKILLS` is merged in too for consistency/future-proofing, same set
 // `game-data-store.tsx` merges for real.
-for (const skill of [...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS, ...DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, ...DRAGON_SLASH_RIVERS_FLOW_SKILLS]) {
-  skillsById.set(skill.id, skill)
+for (const skill of [
+  ...GUNSABER_SKILLS,
+  ...DRAGON_SLASH_SKILLS,
+  ...DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS,
+  ...DRAGON_SLASH_RIVERS_FLOW_SKILLS,
+]) {
+  skillsById.set(skill.id, skill);
 }
 
 interface TraitDataFile {
-  id: number
-  facts: Fact[]
-  traitedFacts: Fact[]
+  id: number;
+  facts: Fact[];
+  traitedFacts: Fact[];
 }
 
-const rawTraits: TraitDataFile[] = JSON.parse(readFileSync(resolve(DATA_DIR, 'traits.json'), 'utf-8'))
-const traitsById = new Map<number, Trait>(rawTraits.map((trait) => [trait.id, trait as unknown as Trait]))
+const rawTraits: TraitDataFile[] = JSON.parse(
+  readFileSync(resolve(DATA_DIR, 'traits.json'), 'utf-8'),
+);
+const traitsById = new Map<number, Trait>(
+  rawTraits.map((trait) => [trait.id, trait as unknown as Trait]),
+);
 
-const REFERENCE_POWER = 2500
-const REFERENCE_HEALING_POWER = 1500
-const REFERENCE_TARGET_ARMOR = TARGET_ARMOR_VALUES.Medium
+const REFERENCE_POWER = 2500;
+const REFERENCE_HEALING_POWER = 1500;
+const REFERENCE_TARGET_ARMOR = TARGET_ARMOR_VALUES.Medium;
 
 function traitIdsIn(table: Record<number, { requiresTrait?: number }[]>): number[] {
   return Object.values(table)
     .flatMap((entries) => entries.map((entry) => entry.requiresTrait))
-    .filter((id): id is number => id != null)
+    .filter((id): id is number => id != null);
 }
 
 const ALL_REFERENCE_TRAIT_IDS = new Set<number>([
   ...traitIdsIn(CURATED_HEALING_COEFFICIENTS),
   ...traitIdsIn(CURATED_DAMAGE_COEFFICIENTS),
   ...traitIdsIn(CURATED_BARRIER_COEFFICIENTS),
-  ...traitIdsIn(CURATED_SIPHON_DAMAGE_COEFFICIENTS)
-])
+  ...traitIdsIn(CURATED_SIPHON_DAMAGE_COEFFICIENTS),
+]);
 
 /** Looks up every curated id against `entitiesById`, failing loudly (not silently skipping) if one
  *  is missing — a curated id that no longer resolves to a real skill/trait is itself a regression a
@@ -116,53 +141,82 @@ function snapshotFor<TEntity, TLine>(
   entitiesById: Map<number, TEntity>,
   entityLabel: string,
   dataFile: string,
-  computeLines: (entity: TEntity) => TLine[]
+  computeLines: (entity: TEntity) => TLine[],
 ): Record<number, TLine[]> {
-  const result: Record<number, TLine[]> = {}
+  const result: Record<number, TLine[]> = {};
   const ids = Object.keys(table)
     .map(Number)
-    .sort((a, b) => a - b)
+    .sort((a, b) => a - b);
   for (const id of ids) {
-    const entity = entitiesById.get(id)
-    if (!entity) throw new Error(`Curated coefficient id ${id} has no matching ${entityLabel} in ${dataFile} — stale id?`)
-    result[id] = computeLines(entity)
+    const entity = entitiesById.get(id);
+    if (!entity)
+      throw new Error(
+        `Curated coefficient id ${id} has no matching ${entityLabel} in ${dataFile} — stale id?`,
+      );
+    result[id] = computeLines(entity);
   }
-  return result
+  return result;
 }
 
 describe('golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2)', () => {
   it('CURATED_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<Skill, HealingLine>(CURATED_HEALING_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
-      healingLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
-    )
-    expect(snapshot).toMatchSnapshot()
-  })
+    const snapshot = snapshotFor<Skill, HealingLine>(
+      CURATED_HEALING_COEFFICIENTS,
+      skillsById,
+      'skill',
+      'skills.json',
+      (skill) => healingLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
 
   it('CURATED_DAMAGE_COEFFICIENTS produces stable damage lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<Skill, DamageLine>(CURATED_DAMAGE_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
-      damageLinesForSkill(skill, REFERENCE_POWER, REFERENCE_TARGET_ARMOR, ALL_REFERENCE_TRAIT_IDS)
-    )
-    expect(snapshot).toMatchSnapshot()
-  })
+    const snapshot = snapshotFor<Skill, DamageLine>(
+      CURATED_DAMAGE_COEFFICIENTS,
+      skillsById,
+      'skill',
+      'skills.json',
+      (skill) =>
+        damageLinesForSkill(
+          skill,
+          REFERENCE_POWER,
+          REFERENCE_TARGET_ARMOR,
+          ALL_REFERENCE_TRAIT_IDS,
+        ),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
 
   it('CURATED_BARRIER_COEFFICIENTS produces stable Barrier lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<Skill, BarrierLine>(CURATED_BARRIER_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
-      barrierLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
-    )
-    expect(snapshot).toMatchSnapshot()
-  })
+    const snapshot = snapshotFor<Skill, BarrierLine>(
+      CURATED_BARRIER_COEFFICIENTS,
+      skillsById,
+      'skill',
+      'skills.json',
+      (skill) => barrierLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
 
   it('CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<Skill, SiphonDamageLine>(CURATED_SIPHON_DAMAGE_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
-      siphonDamageLinesForSkill(skill, REFERENCE_POWER, ALL_REFERENCE_TRAIT_IDS)
-    )
-    expect(snapshot).toMatchSnapshot()
-  })
+    const snapshot = snapshotFor<Skill, SiphonDamageLine>(
+      CURATED_SIPHON_DAMAGE_COEFFICIENTS,
+      skillsById,
+      'skill',
+      'skills.json',
+      (skill) => siphonDamageLinesForSkill(skill, REFERENCE_POWER, ALL_REFERENCE_TRAIT_IDS),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
 
   it('CURATED_TRAIT_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<Trait, HealingLine>(CURATED_TRAIT_HEALING_COEFFICIENTS, traitsById, 'trait', 'traits.json', (trait) =>
-      healingLinesForTrait(trait, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
-    )
-    expect(snapshot).toMatchSnapshot()
-  })
-})
+    const snapshot = snapshotFor<Trait, HealingLine>(
+      CURATED_TRAIT_HEALING_COEFFICIENTS,
+      traitsById,
+      'trait',
+      'traits.json',
+      (trait) => healingLinesForTrait(trait, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
+});

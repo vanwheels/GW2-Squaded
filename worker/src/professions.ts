@@ -14,16 +14,16 @@ export const PROFESSIONS = [
   'Elementalist',
   'Mesmer',
   'Necromancer',
-  'Revenant'
-] as const
+  'Revenant',
+] as const;
 
-export type Profession = (typeof PROFESSIONS)[number]
+export type Profession = (typeof PROFESSIONS)[number];
 
 export function isProfession(value: string): value is Profession {
-  return (PROFESSIONS as readonly string[]).includes(value)
+  return (PROFESSIONS as readonly string[]).includes(value);
 }
 
 /** `board_messages.category` for the single squad-board message — squads have no natural fixed
  *  taxonomy the way professions do (see docs/discord-bot.md), so there's exactly one category
  *  rather than one per profession. Not a real profession name, just a stable D1 key. */
-export const SQUAD_BOARD_CATEGORY = 'squads'
+export const SQUAD_BOARD_CATEGORY = 'squads';

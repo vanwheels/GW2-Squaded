@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Build } from '../types'
-import { computeBoonConditionSources } from './sources'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Build } from '../types';
+import { computeBoonConditionSources } from './sources';
 
 /**
  * Regression test for the 2026-08-16 fix: `skillIdsForBuild`'s standard-profession (non-Revenant)
@@ -19,9 +19,11 @@ import { computeBoonConditionSources } from './sources'
  *    walk never ran for standard professions.
  */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 function loadGameData<T>(name: string): T {
-  return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8')) as T
+  return JSON.parse(
+    readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'),
+  ) as T;
 }
 
 const gameData = {
@@ -43,8 +45,8 @@ const gameData = {
   soulbeastBeastmode: loadGameData('soulbeast-beastmode.json'),
   familiars: loadGameData('familiars.json'),
   relics: loadGameData('relics.json'),
-  relicEffects: loadGameData('relic-effects.json')
-} as Parameters<typeof computeBoonConditionSources>[1]
+  relicEffects: loadGameData('relic-effects.json'),
+} as Parameters<typeof computeBoonConditionSources>[1];
 
 function baseBuild(overrides: Partial<Build>): Build {
   return {
@@ -77,34 +79,34 @@ function baseBuild(overrides: Partial<Build>): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 describe('Engineer Rifle Turret (5818) — raw flipSkill is null on the equipped id', () => {
   const build = baseBuild({
     profession: 'Engineer',
-    skills: { kind: 'standard', heal: null, utility: [5818, null, null], elite: null }
-  })
+    skills: { kind: 'standard', heal: null, utility: [5818, null, null], elite: null },
+  });
 
   // Detonate Rifle Turret (5957) carries no Buff fact of its own (Damage/ComboFinisher only), so
   // it's correctly absent from `computeBoonConditionSources`' output — not a 2nd gap left open.
   it("contributes Automatic Fire's Buff fact to the aggregate Boon/Condition totals", () => {
-    const sources = computeBoonConditionSources(build, gameData)
-    expect(sources.some((s) => s.sourceId === 5874)).toBe(true) // Automatic Fire (Overcharge)
-  })
-})
+    const sources = computeBoonConditionSources(build, gameData);
+    expect(sources.some((s) => s.sourceId === 5874)).toBe(true); // Automatic Fire (Overcharge)
+  });
+});
 
 describe('Guardian Firebrand Mantra of Solace (41714)', () => {
   const build = baseBuild({
     profession: 'Guardian',
     specializations: [null, null, { specializationId: 62, chosenTraitIds: [null, null, null] }], // Firebrand
-    skills: { kind: 'standard', heal: 41714, utility: [null, null, null], elite: null }
-  })
+    skills: { kind: 'standard', heal: 41714, utility: [null, null, null], elite: null },
+  });
 
   it('contributes both the regular-charge (Restoring Reprieve) and Final Charge (Rejuvenating Respite) facts', () => {
-    const sources = computeBoonConditionSources(build, gameData)
-    expect(sources.some((s) => s.sourceId === 41475)).toBe(true) // Restoring Reprieve (regular charge)
-    expect(sources.some((s) => s.sourceId === 42960)).toBe(true) // Rejuvenating Respite (Final Charge)
-  })
-})
+    const sources = computeBoonConditionSources(build, gameData);
+    expect(sources.some((s) => s.sourceId === 41475)).toBe(true); // Restoring Reprieve (regular charge)
+    expect(sources.some((s) => s.sourceId === 42960)).toBe(true); // Rejuvenating Respite (Final Charge)
+  });
+});

@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react'
-import type { UpdateStatus } from '@shared/updater/updater-provider'
-import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { useDataUpdate } from '@renderer/state/data-update-store'
-import { useUpdater } from '@renderer/state/updater-store'
-import { useReleaseNotes } from '@renderer/state/release-notes-store'
-import { useSyncStore } from '@renderer/state/sync-store'
-import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
-import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
-import { SyncSection } from '@renderer/components/common/SyncSection'
+import { useEffect, useState } from 'react';
+import type { UpdateStatus } from '@shared/updater/updater-provider';
+import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { useDataUpdate } from '@renderer/state/data-update-store';
+import { useUpdater } from '@renderer/state/updater-store';
+import { useReleaseNotes } from '@renderer/state/release-notes-store';
+import { useSyncStore } from '@renderer/state/sync-store';
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch';
+import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle';
+import { SyncSection } from '@renderer/components/common/SyncSection';
 
 // Application ID is public (it's embedded in every invite link), so hardcoding it here is fine.
 // Permissions bit is the sum of View Channel, Add Reactions, Send Messages, Embed Links, Attach
 // Files, Read Message History, and Use Application Commands — everything the bot's slash commands
 // need to post/edit squad boards and build displays (see worker/src/discord/api.ts).
 const DISCORD_BOT_INVITE_URL =
-  'https://discord.com/api/oauth2/authorize?client_id=1539526394634305609&scope=bot+applications.commands&permissions=2147601472'
+  'https://discord.com/api/oauth2/authorize?client_id=1539526394634305609&scope=bot+applications.commands&permissions=2147601472';
 
 export function SettingsView() {
   const {
@@ -24,20 +24,20 @@ export function SettingsView() {
     showRacialSkills,
     setShowRacialSkills,
     themeMode,
-    setThemeMode
-  } = useAppSettings()
-  const dataUpdate = useDataUpdate()
-  const updater = useUpdater()
-  const { openReleaseNotes } = useReleaseNotes()
-  const syncState = useSyncStore()
-  const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
+    setThemeMode,
+  } = useAppSettings();
+  const dataUpdate = useDataUpdate();
+  const updater = useUpdater();
+  const { openReleaseNotes } = useReleaseNotes();
+  const syncState = useSyncStore();
+  const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null);
 
   // Re-reads local meta on every status change (not just once) since a completed download
   // updates the on-disk copy `getLocalMeta` reads from immediately, even though the loaded game
   // data itself stays the old copy in memory until a restart.
   useEffect(() => {
-    void window.gw2DataUpdate.getLocalMeta().then(setLocalMeta)
-  }, [dataUpdate.status.state])
+    void window.gw2DataUpdate.getLocalMeta().then(setLocalMeta);
+  }, [dataUpdate.status.state]);
 
   return (
     <section>
@@ -57,7 +57,11 @@ export function SettingsView() {
             onChange={setShowUnderwater}
             label="Show underwater equipment & skills"
           />
-          <ToggleSwitch checked={showRacialSkills} onChange={setShowRacialSkills} label="Show racial skills" />
+          <ToggleSwitch
+            checked={showRacialSkills}
+            onChange={setShowRacialSkills}
+            label="Show racial skills"
+          />
         </div>
 
         <div className="settings-panel">
@@ -107,7 +111,11 @@ export function SettingsView() {
           </p>
           <p>
             Profession and elite-specialization icons are the{' '}
-            <a href="https://wiki.guildwars2.com/wiki/Guild_Wars_2_Wiki:Profession_icons" target="_blank" rel="noreferrer">
+            <a
+              href="https://wiki.guildwars2.com/wiki/Guild_Wars_2_Wiki:Profession_icons"
+              target="_blank"
+              rel="noreferrer"
+            >
               Guild Wars 2 Wiki's "Tango icon"
             </a>{' '}
             set, licensed under the{' '}
@@ -117,8 +125,8 @@ export function SettingsView() {
             .
           </p>
           <p>
-            Reference data and imagery also draw on the{' '}
-            <strong>Guild Wars 2 Wiki</strong> community.
+            Reference data and imagery also draw on the <strong>Guild Wars 2 Wiki</strong>{' '}
+            community.
           </p>
           <p className="muted">
             This application is not affiliated with or endorsed by ArenaNet or NCSOFT. Guild Wars 2
@@ -135,27 +143,27 @@ export function SettingsView() {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 interface DataUpdateControlsProps {
-  status: DataUpdateStatus
-  controls: { checkForUpdate: () => void; downloadUpdate: () => void; restartAndApply: () => void }
+  status: DataUpdateStatus;
+  controls: { checkForUpdate: () => void; downloadUpdate: () => void; restartAndApply: () => void };
 }
 
 function DataUpdateControls({ status, controls }: DataUpdateControlsProps) {
   switch (status.state) {
     case 'idle':
-      return <button onClick={controls.checkForUpdate}>Check for game data updates</button>
+      return <button onClick={controls.checkForUpdate}>Check for game data updates</button>;
     case 'checking':
-      return <p className="muted">Checking for game data updates…</p>
+      return <p className="muted">Checking for game data updates…</p>;
     case 'not-available':
       return (
         <div className="settings-update-row">
           <p>Game data is up to date.</p>
           <button onClick={controls.checkForUpdate}>Check again</button>
         </div>
-      )
+      );
     case 'available':
       return (
         <div className="settings-update-row">
@@ -165,7 +173,7 @@ function DataUpdateControls({ status, controls }: DataUpdateControlsProps) {
           </p>
           <button onClick={controls.downloadUpdate}>Download update</button>
         </div>
-      )
+      );
     case 'downloading':
       return (
         <div className="settings-update-row">
@@ -174,49 +182,49 @@ function DataUpdateControls({ status, controls }: DataUpdateControlsProps) {
             <div className="progress-bar-fill" style={{ width: `${status.percent}%` }} />
           </div>
         </div>
-      )
+      );
     case 'downloaded':
       return (
         <div className="settings-update-row">
           <p>Game data downloaded and ready — restart to apply.</p>
           <button onClick={controls.restartAndApply}>Restart now</button>
         </div>
-      )
+      );
     case 'error':
       return (
         <div className="settings-update-row">
           <p className="error-text">Game data check failed: {status.message}</p>
           <button onClick={controls.checkForUpdate}>Try again</button>
         </div>
-      )
+      );
   }
 }
 
 interface UpdateControlsProps {
-  status: UpdateStatus
-  controls: { checkForUpdates: () => void; downloadUpdate: () => void; quitAndInstall: () => void }
+  status: UpdateStatus;
+  controls: { checkForUpdates: () => void; downloadUpdate: () => void; quitAndInstall: () => void };
 }
 
 function UpdateControls({ status, controls }: UpdateControlsProps) {
   switch (status.state) {
     case 'idle':
-      return <button onClick={controls.checkForUpdates}>Check for updates</button>
+      return <button onClick={controls.checkForUpdates}>Check for updates</button>;
     case 'checking':
-      return <p className="muted">Checking for updates…</p>
+      return <p className="muted">Checking for updates…</p>;
     case 'not-available':
       return (
         <div className="settings-update-row">
           <p>You're on the latest version.</p>
           <button onClick={controls.checkForUpdates}>Check again</button>
         </div>
-      )
+      );
     case 'available':
       return (
         <div className="settings-update-row">
           <p>Update {status.version} is available.</p>
           <button onClick={controls.downloadUpdate}>Download update</button>
         </div>
-      )
+      );
     case 'downloading':
       return (
         <div className="settings-update-row">
@@ -225,20 +233,20 @@ function UpdateControls({ status, controls }: UpdateControlsProps) {
             <div className="progress-bar-fill" style={{ width: `${status.percent}%` }} />
           </div>
         </div>
-      )
+      );
     case 'downloaded':
       return (
         <div className="settings-update-row">
           <p>Update {status.version} downloaded and ready to install.</p>
           <button onClick={controls.quitAndInstall}>Restart and install</button>
         </div>
-      )
+      );
     case 'error':
       return (
         <div className="settings-update-row">
           <p className="error-text">Update check failed: {status.message}</p>
           <button onClick={controls.checkForUpdates}>Try again</button>
         </div>
-      )
+      );
   }
 }

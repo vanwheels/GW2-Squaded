@@ -1,20 +1,20 @@
-import { useRef } from 'react'
-import type { ProfessionId, TraitLineSlots } from '@shared/types'
-import { useGameData } from '@renderer/state/game-data-store'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { usePickerOpen } from '@renderer/state/picker-registry'
+import { useRef } from 'react';
+import type { ProfessionId, TraitLineSlots } from '@shared/types';
+import { useGameData } from '@renderer/state/game-data-store';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { usePickerOpen } from '@renderer/state/picker-registry';
 
 interface Props {
-  profession: ProfessionId
-  specializations: TraitLineSlots
+  profession: ProfessionId;
+  specializations: TraitLineSlots;
   /** `eliteSpecializationId: null` when a profession-row icon is clicked (switch to that
    *  profession at Core) or when the elite line is explicitly cleared. */
-  onChoose: (profession: ProfessionId, eliteSpecializationId: number | null) => void
+  onChoose: (profession: ProfessionId, eliteSpecializationId: number | null) => void;
 }
 
 /** The elite spec line is always the 3rd trait line, by GW2 convention. */
-const ELITE_LINE_INDEX = 2
+const ELITE_LINE_INDEX = 2;
 
 /**
  * Collapsed-by-default profession + elite-specialization picker (2026-08-19): the row of
@@ -36,33 +36,43 @@ const ELITE_LINE_INDEX = 2
  * clicking a profession portrait switches to that profession at Core.
  */
 export function ProfessionSpecPicker({ profession, specializations, onChoose }: Props) {
-  const { professions, specializations: allSpecializations } = useGameData()
-  const { open, openThis, close } = usePickerOpen()
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const currentEliteSpecId = specializations[ELITE_LINE_INDEX]?.specializationId ?? null
+  const { professions, specializations: allSpecializations } = useGameData();
+  const { open, openThis, close } = usePickerOpen();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const currentEliteSpecId = specializations[ELITE_LINE_INDEX]?.specializationId ?? null;
 
-  const eliteSpecsByProfession = new Map<ProfessionId, typeof allSpecializations>()
+  const eliteSpecsByProfession = new Map<ProfessionId, typeof allSpecializations>();
   for (const s of allSpecializations) {
-    if (!s.elite) continue
-    const list = eliteSpecsByProfession.get(s.profession) ?? []
-    list.push(s)
-    eliteSpecsByProfession.set(s.profession, list)
+    if (!s.elite) continue;
+    const list = eliteSpecsByProfession.get(s.profession) ?? [];
+    list.push(s);
+    eliteSpecsByProfession.set(s.profession, list);
   }
-  for (const list of eliteSpecsByProfession.values()) list.sort((a, b) => a.id - b.id)
+  for (const list of eliteSpecsByProfession.values()) list.sort((a, b) => a.id - b.id);
 
-  const currentSpec = currentEliteSpecId !== null ? allSpecializations.find((s) => s.id === currentEliteSpecId) : undefined
-  const currentProfession = professions.find((p) => p.id === profession)
-  const triggerIcon = currentSpec?.tangoIcon ?? currentProfession?.tangoIcon
-  const triggerName = currentSpec?.name ?? currentProfession?.name ?? 'Profession'
+  const currentSpec =
+    currentEliteSpecId !== null
+      ? allSpecializations.find((s) => s.id === currentEliteSpecId)
+      : undefined;
+  const currentProfession = professions.find((p) => p.id === profession);
+  const triggerIcon = currentSpec?.tangoIcon ?? currentProfession?.tangoIcon;
+  const triggerName = currentSpec?.name ?? currentProfession?.name ?? 'Profession';
 
   function choose(chosenProfession: ProfessionId, eliteSpecializationId: number | null): void {
-    onChoose(chosenProfession, eliteSpecializationId)
-    close()
+    onChoose(chosenProfession, eliteSpecializationId);
+    close();
   }
 
   return (
     <div className="profession-picker-root">
-      <Tooltip content={<TooltipBody title={triggerName} description="Click to change profession or elite specialization" />}>
+      <Tooltip
+        content={
+          <TooltipBody
+            title={triggerName}
+            description="Click to change profession or elite specialization"
+          />
+        }
+      >
         <button
           ref={buttonRef}
           type="button"
@@ -75,17 +85,27 @@ export function ProfessionSpecPicker({ profession, specializations, onChoose }: 
         <div className="skill-picker-header">Profession</div>
         <div className="profession-picker-row">
           {professions.map((p) => (
-            <Tooltip key={p.id} content={<TooltipBody title={p.name} description="Core (no elite specialization)" />}>
+            <Tooltip
+              key={p.id}
+              content={<TooltipBody title={p.name} description="Core (no elite specialization)" />}
+            >
               <button
                 type="button"
-                className={p.id === profession && currentEliteSpecId === null ? 'spec-icon-button chosen' : 'spec-icon-button'}
+                className={
+                  p.id === profession && currentEliteSpecId === null
+                    ? 'spec-icon-button chosen'
+                    : 'spec-icon-button'
+                }
                 style={{ backgroundImage: `url(${p.tangoIcon})` }}
                 onClick={() => choose(p.id, null)}
               />
             </Tooltip>
           ))}
         </div>
-        <div className="elite-spec-picker-grid" style={{ gridTemplateColumns: `repeat(${professions.length}, 36px)` }}>
+        <div
+          className="elite-spec-picker-grid"
+          style={{ gridTemplateColumns: `repeat(${professions.length}, 36px)` }}
+        >
           {professions.flatMap((p, colIndex) =>
             (eliteSpecsByProfession.get(p.id) ?? []).map((s, rowIndex) => (
               <Tooltip
@@ -95,15 +115,17 @@ export function ProfessionSpecPicker({ profession, specializations, onChoose }: 
               >
                 <button
                   type="button"
-                  className={s.id === currentEliteSpecId ? 'spec-icon-button chosen' : 'spec-icon-button'}
+                  className={
+                    s.id === currentEliteSpecId ? 'spec-icon-button chosen' : 'spec-icon-button'
+                  }
                   style={{ backgroundImage: `url(${s.tangoIcon})` }}
                   onClick={() => choose(s.profession, s.id)}
                 />
               </Tooltip>
-            ))
+            )),
           )}
         </div>
       </FloatingPanel>
     </div>
-  )
+  );
 }

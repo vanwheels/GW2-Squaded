@@ -1,16 +1,16 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { UpdateStatus } from '@shared/updater/updater-provider'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import type { UpdateStatus } from '@shared/updater/updater-provider';
 
 interface UpdaterValue {
-  status: UpdateStatus
-  version: string
-  supported: boolean
-  checkForUpdates: () => void
-  downloadUpdate: () => void
-  quitAndInstall: () => void
+  status: UpdateStatus;
+  version: string;
+  supported: boolean;
+  checkForUpdates: () => void;
+  downloadUpdate: () => void;
+  quitAndInstall: () => void;
 }
 
-const UpdaterContext = createContext<UpdaterValue | null>(null)
+const UpdaterContext = createContext<UpdaterValue | null>(null);
 
 /**
  * Wraps `window.gw2Updater`'s IPC status push in one context so both `NavBar` (a small "update
@@ -18,16 +18,16 @@ const UpdaterContext = createContext<UpdaterValue | null>(null)
  * status rather than each subscribing independently — mirrors `DataUpdateStoreProvider`'s shape.
  */
 export function UpdaterStoreProvider({ children }: { children: ReactNode }) {
-  const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
-  const [version, setVersion] = useState('')
-  const [supported, setSupported] = useState(false)
+  const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' });
+  const [version, setVersion] = useState('');
+  const [supported, setSupported] = useState(false);
 
-  useEffect(() => window.gw2Updater.onStatus(setStatus), [])
+  useEffect(() => window.gw2Updater.onStatus(setStatus), []);
 
   useEffect(() => {
-    void window.gw2Updater.getAppVersion().then(setVersion)
-    void window.gw2Updater.isSupported().then(setSupported)
-  }, [])
+    void window.gw2Updater.getAppVersion().then(setVersion);
+    void window.gw2Updater.isSupported().then(setSupported);
+  }, []);
 
   const value: UpdaterValue = {
     status,
@@ -35,14 +35,14 @@ export function UpdaterStoreProvider({ children }: { children: ReactNode }) {
     supported,
     checkForUpdates: () => void window.gw2Updater.checkForUpdates(),
     downloadUpdate: () => void window.gw2Updater.downloadUpdate(),
-    quitAndInstall: () => void window.gw2Updater.quitAndInstall()
-  }
+    quitAndInstall: () => void window.gw2Updater.quitAndInstall(),
+  };
 
-  return <UpdaterContext.Provider value={value}>{children}</UpdaterContext.Provider>
+  return <UpdaterContext.Provider value={value}>{children}</UpdaterContext.Provider>;
 }
 
 export function useUpdater(): UpdaterValue {
-  const ctx = useContext(UpdaterContext)
-  if (!ctx) throw new Error('useUpdater must be used within an UpdaterStoreProvider')
-  return ctx
+  const ctx = useContext(UpdaterContext);
+  if (!ctx) throw new Error('useUpdater must be used within an UpdaterStoreProvider');
+  return ctx;
 }

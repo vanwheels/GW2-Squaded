@@ -56,20 +56,21 @@
 export interface ConditionDamageFormula {
   /** Flat per-stack-per-second (or, for Confusion's on-activation half, per-stack-per-activation)
    *  damage at 0 Condition Damage, level 80. */
-  base: number
+  base: number;
   /** Condition Damage attribute coefficient. */
-  coefficient: number
+  coefficient: number;
 }
 
-export type DamagingCondition = 'Bleeding' | 'Burning' | 'Poisoned' | 'Torment (Moving)' | 'Torment (Stationary)'
+export type DamagingCondition =
+  'Bleeding' | 'Burning' | 'Poisoned' | 'Torment (Moving)' | 'Torment (Stationary)';
 
 export const CONDITION_DAMAGE_FORMULAS: Record<DamagingCondition, ConditionDamageFormula> = {
   Bleeding: { base: 22, coefficient: 0.06 },
   Burning: { base: 131, coefficient: 0.155 },
   Poisoned: { base: 33.5, coefficient: 0.06 },
   'Torment (Moving)': { base: 19.8, coefficient: 0.054 },
-  'Torment (Stationary)': { base: 26, coefficient: 0.07 }
-}
+  'Torment (Stationary)': { base: 26, coefficient: 0.07 },
+};
 
 /** Confusion's 2 independent damage components — see this file's own top comment for why it can't
  *  share `CONDITION_DAMAGE_FORMULAS`'s single-rate shape. Both halves are WvW+PvP values. */
@@ -77,13 +78,16 @@ export const CONFUSION_DAMAGE_FORMULA = {
   /** Per stack, per second — ticks continuously regardless of what the target does. */
   dot: { base: 10, coefficient: 0 } satisfies ConditionDamageFormula,
   /** Per stack, per skill activation by the afflicted target — NOT a per-second rate. */
-  onActivation: { base: 49.5, coefficient: 0.0975 } satisfies ConditionDamageFormula
-}
+  onActivation: { base: 49.5, coefficient: 0.0975 } satisfies ConditionDamageFormula,
+};
 
 /** `formula.base + formula.coefficient * conditionDamage`, rounded to match every other calc
  *  module's `Math.round` convention (`damageLinesForSkill`, `healingLinesForSkill`, ...). */
-export function conditionDamageValue(formula: ConditionDamageFormula, conditionDamage: number): number {
-  return Math.round(formula.base + formula.coefficient * conditionDamage)
+export function conditionDamageValue(
+  formula: ConditionDamageFormula,
+  conditionDamage: number,
+): number {
+  return Math.round(formula.base + formula.coefficient * conditionDamage);
 }
 
 /** `BoonConditionSource.boonOrConditionName` -> the formula this app displays a tooltip line for —
@@ -95,8 +99,8 @@ const DISPLAYED_CONDITION_FORMULAS: Partial<Record<string, ConditionDamageFormul
   Burning: CONDITION_DAMAGE_FORMULAS.Burning,
   Poisoned: CONDITION_DAMAGE_FORMULAS.Poisoned,
   Torment: CONDITION_DAMAGE_FORMULAS['Torment (Stationary)'],
-  Confusion: CONFUSION_DAMAGE_FORMULA.dot
-}
+  Confusion: CONFUSION_DAMAGE_FORMULA.dot,
+};
 
 /**
  * Expected damage per stack per second for a `BoonConditionSource.boonOrConditionName`, at the
@@ -105,7 +109,10 @@ const DISPLAYED_CONDITION_FORMULAS: Partial<Record<string, ConditionDamageFormul
  * own `applyCount` (stack count) for the total per-second rate one application puts on the target —
  * done by the caller, not here, since this function has no `BoonConditionSource` to read that from.
  */
-export function conditionDamagePerStack(boonOrConditionName: string, conditionDamage: number): number | null {
-  const formula = DISPLAYED_CONDITION_FORMULAS[boonOrConditionName]
-  return formula ? conditionDamageValue(formula, conditionDamage) : null
+export function conditionDamagePerStack(
+  boonOrConditionName: string,
+  conditionDamage: number,
+): number | null {
+  const formula = DISPLAYED_CONDITION_FORMULAS[boonOrConditionName];
+  return formula ? conditionDamageValue(formula, conditionDamage) : null;
 }

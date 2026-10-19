@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-export type SkillBarIconKind = 'cycle' | 'land' | 'water' | 'applyAll' | 'clearAll'
+export type SkillBarIconKind = 'cycle' | 'land' | 'water' | 'applyAll' | 'clearAll';
 
 const PATHS: Record<SkillBarIconKind, ReactNode> = {
   cycle: (
@@ -29,11 +29,11 @@ const PATHS: Record<SkillBarIconKind, ReactNode> = {
       <line x1="18" y1="6" x2="6" y2="18" />
       <line x1="6" y1="6" x2="18" y2="18" />
     </>
-  )
-}
+  ),
+};
 
 interface Props {
-  kind: SkillBarIconKind
+  kind: SkillBarIconKind;
 }
 
 /**
@@ -63,5 +63,5 @@ export function SkillBarIcon({ kind }: Props) {
     >
       {PATHS[kind]}
     </svg>
-  )
+  );
 }

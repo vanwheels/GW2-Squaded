@@ -1,33 +1,33 @@
-import type { Legend, Skill, Trait } from '../types'
-import type { BoonConditionSource } from '../boon-calc/sources'
-import { BOON_CONDITION_ICONS, MISCELLANEOUS_ICONS } from '../boon-calc/icons'
-import type { FactLine } from './fact-numbers'
+import type { Legend, Skill, Trait } from '../types';
+import type { BoonConditionSource } from '../boon-calc/sources';
+import { BOON_CONDITION_ICONS, MISCELLANEOUS_ICONS } from '../boon-calc/icons';
+import type { FactLine } from './fact-numbers';
 
-const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199
-const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281
-const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246
+const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199;
+const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281;
+const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246;
 
-const CHANT_OF_ACTION_ID = 77342
-const CHANT_OF_RECUPERATION_ID = 76782
-const CHANT_OF_FREEDOM_ID = 77155
-const STRENGTHENING_STANZAS_ID = 2385
-const DRACONIC_ECHO_ID = 1772
-const FACET_OF_NATURE_ID = 29371
-const SIPHON_ID = 63067
-const MEASURED_SHOT_ID = 63267
-const ENDLESS_NIGHT_ID = 63128
-const SHADOW_BOLT_ID = 63066
-const DOUBLE_BOLT_ID = 63182
-const TRIPLE_BOLT_ID = 63134
-const TRIPLE_THREAT_ID = 63154
-const TWILIGHT_COMBO_ID = 63254
+const CHANT_OF_ACTION_ID = 77342;
+const CHANT_OF_RECUPERATION_ID = 76782;
+const CHANT_OF_FREEDOM_ID = 77155;
+const STRENGTHENING_STANZAS_ID = 2385;
+const DRACONIC_ECHO_ID = 1772;
+const FACET_OF_NATURE_ID = 29371;
+const SIPHON_ID = 63067;
+const MEASURED_SHOT_ID = 63267;
+const ENDLESS_NIGHT_ID = 63128;
+const SHADOW_BOLT_ID = 63066;
+const DOUBLE_BOLT_ID = 63182;
+const TRIPLE_BOLT_ID = 63134;
+const TRIPLE_THREAT_ID = 63154;
+const TWILIGHT_COMBO_ID = 63254;
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
 // same ones `profession-mechanic.ts`'s generic resolver already picks (no hand-injection needed).
-const RADIANT_JUSTICE_ID = 78837
-const RADIANT_RESOLVE_ID = 78604
-const RADIANT_COURAGE_ID = 78358
+const RADIANT_JUSTICE_ID = 78837;
+const RADIANT_RESOLVE_ID = 78604;
+const RADIANT_COURAGE_ID = 78358;
 
 /**
  * One labeled alternative-outcome section of a skill's tooltip — a divider ("Enemy Target" / "Ally
@@ -38,16 +38,16 @@ const RADIANT_COURAGE_ID = 78358
  * instead of a "When Enhanced" trigger name.
  */
 export interface ConditionalBranch {
-  label: string
+  label: string;
   /** The wiki's own phase-by-phase narrative for this branch (e.g. "0-2 Seconds: ... / 2-4 Seconds:
    *  Additionally ... / 4-6 Seconds: ..."), rendered the same `.tooltip-description` way
    *  `TooltipBody` renders a skill's own description — without this, a flat bullet list of every
    *  status the branch ever grants reads as "all of these apply from the moment of cast," which
    *  misrepresents a skill built entirely around escalating over time. Optional since not every
    *  future branch necessarily has (or needs) wiki prose to quote. */
-  description?: string
-  numericLines: FactLine[]
-  facts: BoonConditionSource[]
+  description?: string;
+  numericLines: FactLine[];
+  facts: BoonConditionSource[];
   /** `true` when this branch's `facts` should ALSO count toward the aggregate Boon/Condition panel
    *  (`computeBoonConditionSources`), not just this skill's own tooltip — see that function's
    *  `mechanicBarIdsForBuild`/branch-consulting doc comments in `boon-calc/sources.ts` for the full
@@ -59,26 +59,34 @@ export interface ConditionalBranch {
    *  already an idealized, not live-simulated, figure). At most ONE branch per skill should be
    *  flagged for any given mutually-exclusive GROUP (e.g. a Motivation tier) — an "Initial Cast"
    *  addable ADDITIONALLY alongside one tier is fine, since it's not exclusive with the tiers. */
-  countsTowardTotals?: boolean
+  countsTowardTotals?: boolean;
 }
 
-const RANGE_ICON = 'https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png'
-const RADIUS_ICON = 'https://render.guildwars2.com/file/B0CD8077991E4FB1622D2930337ED7F9B54211D5/156665.png'
-const ALLIED_TARGETS_ICON = 'https://render.guildwars2.com/file/BBE8191A494B0352259C10EADFDACCE177E6DA5B/1770208.png'
+const RANGE_ICON =
+  'https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png';
+const RADIUS_ICON =
+  'https://render.guildwars2.com/file/B0CD8077991E4FB1622D2930337ED7F9B54211D5/156665.png';
+const ALLIED_TARGETS_ICON =
+  'https://render.guildwars2.com/file/BBE8191A494B0352259C10EADFDACCE177E6DA5B/1770208.png';
 // "Duration" and "Fuse Time" facts share this same clock icon across every skill that carries either
 // (confirmed against Blossoming Aura's own Fuse Time fact, id 71816) — reused here since Otherworldly
 // Bond's own "Duration: 7 seconds" line has no live API fact to pull an icon from at all.
-const DURATION_ICON = 'https://render.guildwars2.com/file/7B2193ACCF77E56C13E608191B082D68AA0FAA71/156659.png'
-const INTERVAL_ICON = 'https://render.guildwars2.com/file/B75E91EB22E0DFCC1D08030204055946506D56F6/1770206.png'
+const DURATION_ICON =
+  'https://render.guildwars2.com/file/7B2193ACCF77E56C13E608191B082D68AA0FAA71/156659.png';
+const INTERVAL_ICON =
+  'https://render.guildwars2.com/file/B75E91EB22E0DFCC1D08030204055946506D56F6/1770206.png';
 // The exact icon a live `AttributeAdjust`/`target: 'Healing'`/`text: 'Healing'` fact carries
 // elsewhere in data/game-data/skills.json (e.g. skill 1125 "Eat Egg") — reused here since Chant of
 // Recuperation's own Healing facts don't exist in the live API at all (see
 // `chantOfRecuperationSections`'s doc comment).
-const HEALING_ICON = 'https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png'
+const HEALING_ICON =
+  'https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png';
 // True Nature's own "Recharge"/"Damage" fact icons (skills.json ids 51667/51675/51696/51713/51714,
 // live-verified 2026-08-20) — reused for `trueNatureBranches` below rather than inventing new ones.
-const RECHARGE_ICON = 'https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png'
-const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png'
+const RECHARGE_ICON =
+  'https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png';
+const DAMAGE_ICON =
+  'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png';
 
 /**
  * Otherworldly Bond (Revenant scepter 3, id 71952): a tether the player casts at EITHER an ally or
@@ -118,8 +126,14 @@ const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B68
  * Target, a support/might build only Ally Target. Counting either unconditionally would silently
  * inflate one archetype's totals with a boon/condition it may never actually apply.
  */
-function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
-  const conditionRow = (name: 'Vulnerability' | 'Crippled' | 'Slow', baseDurationSeconds: number): BoonConditionSource => ({
+function otherworldlyBondBranches(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+): ConditionalBranch[] {
+  const conditionRow = (
+    name: 'Vulnerability' | 'Crippled' | 'Slow',
+    baseDurationSeconds: number,
+  ): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
     sourceName: skill.name,
@@ -132,8 +146,8 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
     applyCount: 1,
     requiresTraitId: null,
     // Single-target tether — only the linked enemy, never an area effect.
-    targetCount: 1
-  })
+    targetCount: 1,
+  });
 
   return [
     {
@@ -146,9 +160,13 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
         '4-6 Seconds: Additionally inflicts slow. Gain access to Otherworldly Attraction.',
       numericLines: [
         { icon: DURATION_ICON, text: 'Duration: 7 seconds' },
-        { icon: INTERVAL_ICON, text: 'Interval: 1 second' }
+        { icon: INTERVAL_ICON, text: 'Interval: 1 second' },
       ],
-      facts: [conditionRow('Vulnerability', 8), conditionRow('Crippled', 1), conditionRow('Slow', 1)]
+      facts: [
+        conditionRow('Vulnerability', 8),
+        conditionRow('Crippled', 1),
+        conditionRow('Slow', 1),
+      ],
     },
     {
       label: 'Ally Target',
@@ -164,12 +182,15 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
         // could represent without inventing numbers the wiki doesn't actually give a duration-% split
         // for. Left unscaled by `durationPercent` for the same reason — the wiki gives no basis to
         // scale it correctly, so showing the flat base is honest where guessing wouldn't be.
-        { icon: BOON_CONDITION_ICONS.Might, text: 'Might Stacks per Level (4s): 30 Condition Damage, 30 Power' },
+        {
+          icon: BOON_CONDITION_ICONS.Might,
+          text: 'Might Stacks per Level (4s): 30 Condition Damage, 30 Power',
+        },
         { icon: ALLIED_TARGETS_ICON, text: 'Number of Allied Targets: 3' },
         { icon: DURATION_ICON, text: 'Duration: 7 seconds' },
         { icon: INTERVAL_ICON, text: 'Interval: 1 second' },
         { icon: RADIUS_ICON, text: 'Radius: 360' },
-        { icon: RANGE_ICON, text: 'Range: 900' }
+        { icon: RANGE_ICON, text: 'Range: 900' },
       ],
       facts: [
         {
@@ -186,11 +207,11 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
           requiresTraitId: null,
           // Reaches the linked ally and nearby allies alike, same reach as the Might ticks above it
           // (see "Number of Allied Targets: 3" in this branch's own numeric lines).
-          targetCount: 3
-        }
-      ]
-    }
-  ]
+          targetCount: 3,
+        },
+      ],
+    },
+  ];
 }
 
 /**
@@ -209,7 +230,7 @@ function dragonSlashSharpAsTheWindBranches(
   skill: Skill,
   durationPercent: { boon: number; condition: number },
   maxDurationSeconds: number,
-  minDurationSeconds: number
+  minDurationSeconds: number,
 ): ConditionalBranch[] {
   const burningRow = (baseDurationSeconds: number, applyCount: number): BoonConditionSource => ({
     sourceKind: 'skill',
@@ -224,8 +245,8 @@ function dragonSlashSharpAsTheWindBranches(
     applyCount,
     requiresTraitId: null,
     // "Number of Targets: 5" on the base facts block — a cleaving burst finisher, not single-target.
-    targetCount: 5
-  })
+    targetCount: 5,
+  });
 
   return [
     { label: 'Minimum Charge', numericLines: [], facts: [burningRow(minDurationSeconds, 1)] },
@@ -235,8 +256,13 @@ function dragonSlashSharpAsTheWindBranches(
     // well-played Bladesworn charges to max before releasing for the strongest Burning, the same
     // "idealized best-case, not live-simulated" assumption every other boon/condition source in
     // this app already makes — Minimum Charge stays a tooltip-only alternative.
-    { label: 'Maximum Charge', numericLines: [], facts: [burningRow(maxDurationSeconds, 4)], countsTowardTotals: true }
-  ]
+    {
+      label: 'Maximum Charge',
+      numericLines: [],
+      facts: [burningRow(maxDurationSeconds, 4)],
+      countsTowardTotals: true,
+    },
+  ];
 }
 
 /**
@@ -288,7 +314,10 @@ function dragonSlashSharpAsTheWindBranches(
  * `branchConditionalTraitFacts` (not `branchConditionalFacts` itself, which is `Skill`-shaped) that
  * `TraitsEditor.tsx` now calls the same way `SkillsEditor.tsx` calls this one.
  */
-function chantOfActionSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+function chantOfActionSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+): ConditionalBranch[] {
   const might = (applyCount: number): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -301,8 +330,8 @@ function chantOfActionSections(skill: Skill, durationPercent: { boon: number; co
     scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
     applyCount,
     requiresTraitId: null,
-    targetCount: 5
-  })
+    targetCount: 5,
+  });
   const fury: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -315,9 +344,12 @@ function chantOfActionSections(skill: Skill, durationPercent: { boon: number; co
     scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
-  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+    targetCount: 5,
+  };
+  const costLine = (n: number): FactLine => ({
+    icon: null,
+    text: `Motivation Cost per Interval: ${n}`,
+  });
 
   return [
     // Initial Cast + 7-10 Motivation are this skill's `countsTowardTotals` steady-state pick (see
@@ -328,11 +360,20 @@ function chantOfActionSections(skill: Skill, durationPercent: { boon: number; co
     { label: 'Initial Cast', numericLines: [], facts: [might(2), fury], countsTowardTotals: true },
     { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [might(1)] },
     { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [might(2), fury] },
-    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [might(3), fury], countsTowardTotals: true }
-  ]
+    {
+      label: '7-10 Motivation',
+      numericLines: [costLine(3)],
+      facts: [might(3), fury],
+      countsTowardTotals: true,
+    },
+  ];
 }
 
-function chantOfRecuperationSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+function chantOfRecuperationSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
   const vigor: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -345,8 +386,8 @@ function chantOfRecuperationSections(skill: Skill, durationPercent: { boon: numb
     scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const regeneration: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -359,31 +400,50 @@ function chantOfRecuperationSections(skill: Skill, durationPercent: { boon: numb
     scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   // Barrier/Healing formula (baseValue + coefficient * healingPower) is quoted straight off the
   // wiki's own WvW+PvP facts, same math `barrierLinesForSkill`/`healingLinesForSkill` apply — just
   // computed inline instead of through either curated table, since both match against a live
   // `AttributeAdjust` fact by `factText` and this skill's API facts have no Barrier/Healing entry at
   // all to match against (confirmed via a full dump of skill 76782's own `facts` array).
-  const barrierLine = (): FactLine => ({ icon: MISCELLANEOUS_ICONS.Barrier, text: `Barrier: ${Math.round(1615 + 0.5 * healingPower).toLocaleString()}` })
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(1615 + 0.5 * healingPower).toLocaleString()}`,
+  });
   const healLine = (baseValue: number, coefficient: number): FactLine => ({
     icon: HEALING_ICON,
-    text: `Healing: ${Math.round(baseValue + coefficient * healingPower).toLocaleString()}`
-  })
-  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+    text: `Healing: ${Math.round(baseValue + coefficient * healingPower).toLocaleString()}`,
+  });
+  const costLine = (n: number): FactLine => ({
+    icon: null,
+    text: `Motivation Cost per Interval: ${n}`,
+  });
 
   return [
     // Same `countsTowardTotals` steady-state pick as `chantOfActionSections` — Initial Cast's Vigor
     // recurs every cast, 7-10 Motivation's Regeneration is the best-maintained band.
-    { label: 'Initial Cast', numericLines: [barrierLine()], facts: [vigor], countsTowardTotals: true },
+    {
+      label: 'Initial Cast',
+      numericLines: [barrierLine()],
+      facts: [vigor],
+      countsTowardTotals: true,
+    },
     { label: '1-3 Motivation', numericLines: [healLine(330, 0.1), costLine(2)], facts: [] },
     { label: '4-6 Motivation', numericLines: [healLine(431, 0.15), costLine(2)], facts: [] },
-    { label: '7-10 Motivation', numericLines: [healLine(532, 0.2), costLine(3)], facts: [regeneration], countsTowardTotals: true }
-  ]
+    {
+      label: '7-10 Motivation',
+      numericLines: [healLine(532, 0.2), costLine(3)],
+      facts: [regeneration],
+      countsTowardTotals: true,
+    },
+  ];
 }
 
-function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+function chantOfFreedomSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+): ConditionalBranch[] {
   const stability: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -396,8 +456,8 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
     applyCount: 2,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const swiftness: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -410,8 +470,8 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const resolution: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -424,8 +484,8 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const protection: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -438,9 +498,12 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
-  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+    targetCount: 5,
+  };
+  const costLine = (n: number): FactLine => ({
+    icon: null,
+    text: `Motivation Cost per Interval: ${n}`,
+  });
 
   return [
     // "Breaks Stun" is already a real live API fact on this skill (StunBreak type) — only Stability
@@ -448,14 +511,20 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
     { label: 'Initial Cast', numericLines: [], facts: [stability], countsTowardTotals: true },
     { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [swiftness] },
     { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [swiftness, resolution] },
-    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [swiftness, resolution, protection], countsTowardTotals: true }
-  ]
+    {
+      label: '7-10 Motivation',
+      numericLines: [costLine(3)],
+      facts: [swiftness, resolution, protection],
+      countsTowardTotals: true,
+    },
+  ];
 }
 
 // Same generic "Number"-type fact icon core Virtue of Justice's own live API fact uses for its
 // "Number of Attacks to Trigger" line (skill 9115) — reused here since Radiant Justice's own copy
 // of that same fact doesn't exist in the live API at all (see `radiantJusticeSections` below).
-const NUMBER_FACT_ICON = 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png'
+const NUMBER_FACT_ICON =
+  'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png';
 
 /**
  * Guardian Luminary (specialization id 81, released 2025-10-28)'s 3 reworked Virtues — TODO.md bug
@@ -504,7 +573,10 @@ const NUMBER_FACT_ICON = 'https://render.guildwars2.com/file/9352ED3244417304995
  * concept of a control-break flag, same as every other skill's own live `StunBreak` fact type,
  * which is handled by a completely separate numeric-fact code path, not this one).
  */
-function radiantJusticeSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+function radiantJusticeSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+): ConditionalBranch[] {
   const burning: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -519,8 +591,8 @@ function radiantJusticeSections(skill: Skill, durationPercent: { boon: number; c
     requiresTraitId: null,
     // Procs off the player's own attack landing — no AoE/allied-target fact on the wiki page,
     // unlike Resolve/Courage's party-wide bursts below.
-    targetCount: 1
-  }
+    targetCount: 1,
+  };
   const quickness: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -535,8 +607,8 @@ function radiantJusticeSections(skill: Skill, durationPercent: { boon: number; c
     requiresTraitId: null,
     // Description reads "Activate: Gain quickness" — no "you and your allies" (contra core Virtue
     // of Justice's own wording) and no targets/radius fact on the wiki page — self-only.
-    targetCount: 1
-  }
+    targetCount: 1,
+  };
   const empoweredHammerVulnerability: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -549,26 +621,30 @@ function radiantJusticeSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 8 * (1 + durationPercent.condition / 100),
     applyCount: 4, // WvW+PvP stack count (PvE 8 stacks)
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
 
   return [
     {
       label: 'Virtue (Passive)',
       numericLines: [{ icon: NUMBER_FACT_ICON, text: 'Number of Attacks to Trigger: 5' }],
       facts: [burning],
-      countsTowardTotals: true
+      countsTowardTotals: true,
     },
     { label: 'Activate', numericLines: [], facts: [quickness], countsTowardTotals: true },
     {
       label: 'Empowered Hammer (next Dazzling Hammer use)',
       numericLines: [{ icon: null, text: 'Damage Coefficient: 1.05 (delayed secondary impact)' }], // PvE 1.5
-      facts: [empoweredHammerVulnerability]
-    }
-  ]
+      facts: [empoweredHammerVulnerability],
+    },
+  ];
 }
 
-function radiantResolveSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+function radiantResolveSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
   const lightAura: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -581,8 +657,8 @@ function radiantResolveSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const empoweredStaffRegeneration: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -595,37 +671,45 @@ function radiantResolveSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   // WvW+PvP base 985, coefficient 1.0 (PvE base 1,625, coefficient 1.4) — same shared formula for
   // both the base Activate heal and the Empowered Staff bonus (the wiki repeats the identical
   // {{skill fact|healing}} pair under both blocks).
   const activateHealLine = (): FactLine => ({
     icon: HEALING_ICON,
-    text: `Healing: ${Math.round(985 + 1.0 * healingPower).toLocaleString()}`
-  })
+    text: `Healing: ${Math.round(985 + 1.0 * healingPower).toLocaleString()}`,
+  });
 
   return [
     {
       label: 'Virtue (Passive)',
-      numericLines: [{ icon: null, text: `Radiant Resolve (self effect): ${Math.round(84 + 0.06 * healingPower).toLocaleString()} Heal` }],
-      facts: []
+      numericLines: [
+        {
+          icon: null,
+          text: `Radiant Resolve (self effect): ${Math.round(84 + 0.06 * healingPower).toLocaleString()} Heal`,
+        },
+      ],
+      facts: [],
     },
     {
       label: 'Activate',
       numericLines: [activateHealLine(), { icon: null, text: 'Self Condition Removal: 2' }],
       facts: [lightAura],
-      countsTowardTotals: true
+      countsTowardTotals: true,
     },
     {
       label: 'Empowered Staff (next Luminous Staff use)',
       numericLines: [activateHealLine()],
-      facts: [empoweredStaffRegeneration]
-    }
-  ]
+      facts: [empoweredStaffRegeneration],
+    },
+  ];
 }
 
-function radiantCourageSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+function radiantCourageSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+): ConditionalBranch[] {
   const aegis: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -638,8 +722,8 @@ function radiantCourageSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 20 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const resistance: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -652,8 +736,8 @@ function radiantCourageSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const empoweredSwordImmobile: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -666,41 +750,45 @@ function radiantCourageSections(skill: Skill, durationPercent: { boon: number; c
     scaledDurationSeconds: 2 * (1 + durationPercent.condition / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 1
-  }
+    targetCount: 1,
+  };
 
   return [
-    { label: 'Virtue (Passive)', numericLines: [{ icon: INTERVAL_ICON, text: 'Aegis Refresh: 40 seconds' }], facts: [] },
+    {
+      label: 'Virtue (Passive)',
+      numericLines: [{ icon: INTERVAL_ICON, text: 'Aegis Refresh: 40 seconds' }],
+      facts: [],
+    },
     {
       label: 'Activate',
       numericLines: [
         {
           icon: null,
-          text: "Luminary's Blessing (6s PvE / 3s WvW+PvP): Reduced incoming strike damage; heals when it expires"
-        }
+          text: "Luminary's Blessing (6s PvE / 3s WvW+PvP): Reduced incoming strike damage; heals when it expires",
+        },
       ],
       facts: [aegis, resistance],
-      countsTowardTotals: true
+      countsTowardTotals: true,
     },
     {
       label: 'Empowered Sword (next Gleaming Blade use)',
       numericLines: [{ icon: null, text: 'Damage Increase: 50%' }],
-      facts: [empoweredSwordImmobile]
+      facts: [empoweredSwordImmobile],
     },
     {
       label: 'Empowered Shield (next Radiant Bulwark use)',
       numericLines: [
         { icon: MISCELLANEOUS_ICONS.Barrier, text: 'Barrier: 2,265' }, // PvE 3,225 base + 1.0 coefficient x Healing Power
-        { icon: MISCELLANEOUS_ICONS['Breaks Stun'], text: 'Breaks Stun' }
+        { icon: MISCELLANEOUS_ICONS['Breaks Stun'], text: 'Breaks Stun' },
       ],
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 // Core Value (Revenant/Herald Grandmaster major, id 1806): "Facet of Nature's consume skill has
 // improved effectiveness." See `trueNatureBranches`'s own doc comment for how its boost is applied.
-const CORE_VALUE_TRAIT_ID = 1806
+const CORE_VALUE_TRAIT_ID = 1806;
 
 /**
  * Legend.name -> True Nature's real per-legend skill id (skills.json, live-verified 2026-08-20).
@@ -724,8 +812,8 @@ const TRUE_NATURE_SKILL_ID_BY_LEGEND_NAME: Record<string, number> = {
   'Legendary Dwarf Stance': 51675,
   'Legendary Dragon Stance': 51696,
   'Legendary Centaur Stance': 51713,
-  'Legendary Demon Stance': 51714
-}
+  'Legendary Demon Stance': 51714,
+};
 
 /**
  * Facet of Nature (Herald F2, id 29371)'s own Consume effect, True Nature — TODO.md's "Herald F2
@@ -771,10 +859,14 @@ function trueNatureBranches(
   equippedLegendIdSet: ReadonlySet<string>,
   legends: Legend[],
   activeTraitIds: ReadonlySet<number>,
-  durationPercent: { boon: number; condition: number }
+  durationPercent: { boon: number; condition: number },
 ): ConditionalBranch[] {
-  const coreValueActive = activeTraitIds.has(CORE_VALUE_TRAIT_ID)
-  const boonRow = (name: 'Stability' | 'Might', baseDurationSeconds: number, applyCount: number): BoonConditionSource => ({
+  const coreValueActive = activeTraitIds.has(CORE_VALUE_TRAIT_ID);
+  const boonRow = (
+    name: 'Stability' | 'Might',
+    baseDurationSeconds: number,
+    applyCount: number,
+  ): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
     sourceName: skill.name,
@@ -787,11 +879,11 @@ function trueNatureBranches(
     applyCount,
     requiresTraitId: null,
     // "Number of Targets: 5" on every variant's own numericLines below.
-    targetCount: 5
-  })
+    targetCount: 5,
+  });
 
   const branchFor = (legend: Legend): ConditionalBranch | null => {
-    const label = `True Nature (${legend.name})`
+    const label = `True Nature (${legend.name})`;
     switch (legend.name) {
       case 'Legendary Assassin Stance':
         return {
@@ -803,10 +895,10 @@ function trueNatureBranches(
             { icon: DAMAGE_ICON, text: 'Damage: 1 hit' },
             { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
             { icon: NUMBER_FACT_ICON, text: `Boons Removed: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
-            { icon: RADIUS_ICON, text: 'Radius: 360' }
+            { icon: RADIUS_ICON, text: 'Radius: 360' },
           ],
-          facts: []
-        }
+          facts: [],
+        };
       case 'Legendary Dwarf Stance':
         return {
           label,
@@ -814,11 +906,11 @@ function trueNatureBranches(
           numericLines: [
             { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
             { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
-            { icon: RADIUS_ICON, text: 'Radius: 600' }
+            { icon: RADIUS_ICON, text: 'Radius: 600' },
           ],
           facts: [boonRow('Stability', 4, coreValueActive ? 3 : 2)], // Core Value: 2 -> 3 stacks
-          countsTowardTotals: true
-        }
+          countsTowardTotals: true,
+        };
       case 'Legendary Dragon Stance':
         return {
           label,
@@ -828,10 +920,10 @@ function trueNatureBranches(
             { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
             { icon: DURATION_ICON, text: `Duration Increase: ${coreValueActive ? 3 : 2}s` }, // Core Value: 2s -> 3s
             { icon: NUMBER_FACT_ICON, text: 'Conditions Removed: 3' },
-            { icon: RADIUS_ICON, text: 'Radius: 600' }
+            { icon: RADIUS_ICON, text: 'Radius: 600' },
           ],
-          facts: []
-        }
+          facts: [],
+        };
       case 'Legendary Centaur Stance':
         return {
           label,
@@ -841,33 +933,34 @@ function trueNatureBranches(
             { icon: HEALING_ICON, text: 'Heal per Condition Removed: 323' }, // WvW+PvP value (PvE 970)
             { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
             { icon: NUMBER_FACT_ICON, text: `Conditions Removed: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
-            { icon: RADIUS_ICON, text: 'Radius: 600' }
+            { icon: RADIUS_ICON, text: 'Radius: 600' },
           ],
-          facts: []
-        }
+          facts: [],
+        };
       case 'Legendary Demon Stance':
         return {
           label,
-          description: 'Transfer conditions to nearby enemies. Gain might for each condition transferred.',
+          description:
+            'Transfer conditions to nearby enemies. Gain might for each condition transferred.',
           numericLines: [
             { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
             { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
             { icon: NUMBER_FACT_ICON, text: `Conditions Transferred: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
             { icon: RADIUS_ICON, text: 'Radius: 600' },
-            { icon: NUMBER_FACT_ICON, text: 'Unblockable' }
+            { icon: NUMBER_FACT_ICON, text: 'Unblockable' },
           ],
           facts: [boonRow('Might', 10, 5)],
-          countsTowardTotals: true
-        }
+          countsTowardTotals: true,
+        };
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return legends
     .filter((l) => equippedLegendIdSet.has(l.id) && l.name in TRUE_NATURE_SKILL_ID_BY_LEGEND_NAME)
     .map(branchFor)
-    .filter((b): b is ConditionalBranch => b !== null)
+    .filter((b): b is ConditionalBranch => b !== null);
 }
 
 /**
@@ -926,9 +1019,9 @@ function siphonSections(
   skill: Skill,
   durationPercent: { boon: number; condition: number },
   healingPower: number,
-  activeTraitIds: ReadonlySet<number>
+  activeTraitIds: ReadonlySet<number>,
 ): ConditionalBranch[] {
-  const SLEIGHT_OF_HAND_TRAIT_ID = 1158
+  const SLEIGHT_OF_HAND_TRAIT_ID = 1158;
   const slow: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -942,38 +1035,42 @@ function siphonSections(
     applyCount: 1,
     requiresTraitId: null,
     // Steal-style single-enemy target, unchanged from core Thief's own Steal.
-    targetCount: 1
-  }
+    targetCount: 1,
+  };
   const barrierLine = (): FactLine => ({
     icon: MISCELLANEOUS_ICONS.Barrier,
-    text: `Barrier: ${Math.round(1428 + 0.5 * healingPower).toLocaleString()}`
-  })
+    text: `Barrier: ${Math.round(1428 + 0.5 * healingPower).toLocaleString()}`,
+  });
 
   return [
     {
       label: 'Enemy Target',
-      description: "Steal your foe's shadow, slowing them for a period of time while gaining shadow force.",
+      description:
+        "Steal your foe's shadow, slowing them for a period of time while gaining shadow force.",
       numericLines: [
         // Shadow Force isn't a tracked boon/condition in this app — display-only, same treatment
         // `chantOfActionSections`'s own "Motivation Cost per Interval" lines get.
         { icon: null, text: 'Shadow Force Gain: 25%' }, // WvW+PvE value (PvP 15%)
         // Sleight of Hand (1158): Daze has no generic Buff-fact render path — see this function's
         // own doc comment.
-        ...(activeTraitIds.has(SLEIGHT_OF_HAND_TRAIT_ID) ? [{ icon: null, text: 'Daze: 1s (Sleight of Hand)' }] : [])
+        ...(activeTraitIds.has(SLEIGHT_OF_HAND_TRAIT_ID)
+          ? [{ icon: null, text: 'Daze: 1s (Sleight of Hand)' }]
+          : []),
       ],
-      facts: [slow]
+      facts: [slow],
     },
     {
       label: 'Ally Target',
-      description: 'Grant your target barrier and reduce the cooldown of Siphon. If you are in shroud, transfer your tether to the target.',
+      description:
+        'Grant your target barrier and reduce the cooldown of Siphon. If you are in shroud, transfer your tether to the target.',
       numericLines: [
         barrierLine(),
         { icon: null, text: 'Shrouded Ally: transfers tether to target' },
-        { icon: RECHARGE_ICON, text: 'Ally Target Recharge Reduction: 50%' }
+        { icon: RECHARGE_ICON, text: 'Ally Target Recharge Reduction: 50%' },
       ],
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 /**
@@ -1002,7 +1099,11 @@ function siphonSections(
  * `chantOfRecuperationSections`'s own Healing lines use for the identical "no matching live
  * Healing/AttributeAdjust fact to attach a coefficient to" reason.
  */
-function measuredShotSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+function measuredShotSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
   const immobile: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -1016,12 +1117,12 @@ function measuredShotSections(skill: Skill, durationPercent: { boon: number; con
     applyCount: 1,
     requiresTraitId: null,
     // Wiki Notes: "Pierces up to 4 targets" — no structured target-count fact given.
-    targetCount: 4
-  }
+    targetCount: 4,
+  };
   const healLine = (): FactLine => ({
     icon: HEALING_ICON,
-    text: `Healing: ${Math.round(1441 + 0.444 * healingPower).toLocaleString()}` // WvW+PvP base (PvE 2151)
-  })
+    text: `Healing: ${Math.round(1441 + 0.444 * healingPower).toLocaleString()}`, // WvW+PvP base (PvE 2151)
+  });
 
   return [
     {
@@ -1029,24 +1130,25 @@ function measuredShotSections(skill: Skill, durationPercent: { boon: number; con
       description: 'Shadowstep away from your target and launch a shot that immobilizes enemies.',
       numericLines: [
         { icon: null, text: 'Damage Coefficient: 0.33 (scepter)' },
-        { icon: null, text: 'Maximum Distance from Target: 900' }
+        { icon: null, text: 'Maximum Distance from Target: 900' },
       ],
-      facts: [immobile]
+      facts: [immobile],
     },
     {
       label: 'Ally Target',
-      description: 'Shadowstep toward your target and launch a healing shot. Effectiveness is reduced for allies that are not the primary target.',
+      description:
+        'Shadowstep toward your target and launch a healing shot. Effectiveness is reduced for allies that are not the primary target.',
       numericLines: [
         healLine(),
         { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
         { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
         { icon: RADIUS_ICON, text: 'Radius: 240' },
         { icon: null, text: 'Maximum Distance from Ally: 80' },
-        { icon: null, text: 'Unblockable' }
+        { icon: null, text: 'Unblockable' },
       ],
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 /**
@@ -1066,8 +1168,15 @@ function measuredShotSections(skill: Skill, durationPercent: { boon: number; con
  * — stale for the Ally Target branch's real 5-target reach, left untouched on the base facts block
  * since `NUMERIC_FACT_WVW_OVERRIDES`-style per-mode correction is out of this fix's scope (TODO.md).
  */
-function endlessNightSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
-  const enemyRow = (name: 'Slow' | 'Torment', baseDurationSeconds: number): BoonConditionSource => ({
+function endlessNightSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
+  const enemyRow = (
+    name: 'Slow' | 'Torment',
+    baseDurationSeconds: number,
+  ): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
     sourceName: skill.name,
@@ -1079,9 +1188,12 @@ function endlessNightSections(skill: Skill, durationPercent: { boon: number; con
     scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.condition / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 3 // wiki Mechanics: "up to 3 enemy targets"
-  })
-  const allyRow = (name: 'Regeneration' | 'Vigor', baseDurationSeconds: number): BoonConditionSource => ({
+    targetCount: 3, // wiki Mechanics: "up to 3 enemy targets"
+  });
+  const allyRow = (
+    name: 'Regeneration' | 'Vigor',
+    baseDurationSeconds: number,
+  ): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
     sourceName: skill.name,
@@ -1093,12 +1205,12 @@ function endlessNightSections(skill: Skill, durationPercent: { boon: number; con
     scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5 // "Allied Targets: 5" numeric line below
-  })
+    targetCount: 5, // "Allied Targets: 5" numeric line below
+  });
   const barrierLine = (): FactLine => ({
     icon: MISCELLANEOUS_ICONS.Barrier,
-    text: `Barrier: ${Math.round(645 + 0.22 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
-  })
+    text: `Barrier: ${Math.round(645 + 0.22 * healingPower).toLocaleString()}`, // no PvE/WvW/PvP split
+  });
 
   return [
     {
@@ -1106,29 +1218,30 @@ function endlessNightSections(skill: Skill, durationPercent: { boon: number; con
       description: 'Deal damage and inflict conditions.',
       numericLines: [
         { icon: null, text: 'Damage Coefficient: 0.33 (scepter)' },
-        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 7' }
+        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 7' },
       ],
       facts: [
         enemyRow('Slow', 0.5), // WvW value (PvE 1.5s, PvP 0.25s)
-        enemyRow('Torment', 6) // WvW value, grouped with PvE (PvP 5s)
-      ]
+        enemyRow('Torment', 6), // WvW value, grouped with PvE (PvP 5s)
+      ],
     },
     {
       label: 'Ally Target',
-      description: 'Grant your target barrier and boons. Effectiveness is reduced for allies that are not the primary target.',
+      description:
+        'Grant your target barrier and boons. Effectiveness is reduced for allies that are not the primary target.',
       numericLines: [
         barrierLine(),
         { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
         { icon: NUMBER_FACT_ICON, text: 'Number of Impacts: 7' },
         { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
-        { icon: RADIUS_ICON, text: 'Radius: 240' }
+        { icon: RADIUS_ICON, text: 'Radius: 240' },
       ],
       facts: [
         allyRow('Regeneration', 1), // WvW+PvP value (PvE 3s)
-        allyRow('Vigor', 0.5) // WvW value (PvE 1s; PvP grants Quickness 0.5s instead — see doc comment)
-      ]
-    }
-  ]
+        allyRow('Vigor', 0.5), // WvW value (PvE 1s; PvP grants Quickness 0.5s instead — see doc comment)
+      ],
+    },
+  ];
 }
 
 /**
@@ -1162,20 +1275,25 @@ function scepterAutoBoltSections(
   skill: Skill,
   durationPercent: { boon: number; condition: number },
   healingPower: number,
-  numberOfImpacts: number | null
+  numberOfImpacts: number | null,
 ): ConditionalBranch[] {
   const barrierLine = (): FactLine => ({
     icon: MISCELLANEOUS_ICONS.Barrier,
-    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}` // WvW+PvP value (PvE 522 base, 0.1 coefficient)
-  })
+    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}`, // WvW+PvP value (PvE 522 base, 0.1 coefficient)
+  });
   const impactsLine = (label: string): FactLine[] =>
-    numberOfImpacts === null ? [] : [{ icon: NUMBER_FACT_ICON, text: `${label}: ${numberOfImpacts}` }]
+    numberOfImpacts === null
+      ? []
+      : [{ icon: NUMBER_FACT_ICON, text: `${label}: ${numberOfImpacts}` }];
 
   return [
     {
       label: 'Enemy Target',
       description: 'Fire a projectile that hinders foes and helps allies.',
-      numericLines: [{ icon: null, text: 'Damage Coefficient: 0.33 (scepter)' }, ...impactsLine('Number of Hits')],
+      numericLines: [
+        { icon: null, text: 'Damage Coefficient: 0.33 (scepter)' },
+        ...impactsLine('Number of Hits'),
+      ],
       facts: [
         {
           sourceKind: 'skill',
@@ -1189,24 +1307,25 @@ function scepterAutoBoltSections(
           scaledDurationSeconds: 2 * (1 + durationPercent.condition / 100),
           applyCount: 1,
           requiresTraitId: null,
-          targetCount: 1
-        }
-      ]
+          targetCount: 1,
+        },
+      ],
     },
     {
       label: 'Ally Target',
-      description: 'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
+      description:
+        'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
       numericLines: [
         barrierLine(),
         { icon: null, text: 'Effectiveness Decreased (secondary targets): 50%' },
         ...impactsLine('Number of Impacts'),
         { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
         { icon: RADIUS_ICON, text: 'Radius: 240' },
-        { icon: null, text: 'Unblockable' }
+        { icon: null, text: 'Unblockable' },
       ],
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 /**
@@ -1226,11 +1345,15 @@ function scepterAutoBoltSections(
  * WvW/PvP values each (not the "WvW+PvP grouped" shape), so the WvW-specific value is picked for
  * each rather than a shared WvW+PvP number.
  */
-function tripleThreatSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+function tripleThreatSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
   const barrierLine = (): FactLine => ({
     icon: MISCELLANEOUS_ICONS.Barrier,
-    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}` // WvW+PvP value (PvE 522 base, 0.1 coefficient)
-  })
+    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}`, // WvW+PvP value (PvE 522 base, 0.1 coefficient)
+  });
 
   return [
     {
@@ -1238,7 +1361,7 @@ function tripleThreatSections(skill: Skill, durationPercent: { boon: number; con
       description: 'Torment foes.',
       numericLines: [
         { icon: null, text: 'Damage Coefficient: 0.45 (scepter)' },
-        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 3' }
+        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 3' },
       ],
       facts: [
         {
@@ -1253,24 +1376,25 @@ function tripleThreatSections(skill: Skill, durationPercent: { boon: number; con
           scaledDurationSeconds: 4 * (1 + durationPercent.condition / 100),
           applyCount: 1,
           requiresTraitId: null,
-          targetCount: 1
-        }
-      ]
+          targetCount: 1,
+        },
+      ],
     },
     {
       label: 'Ally Target',
-      description: 'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
+      description:
+        'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
       numericLines: [
         barrierLine(),
         { icon: null, text: 'Effectiveness Decreased (secondary targets): 50%' }, // no PvE/WvW/PvP split
         { icon: NUMBER_FACT_ICON, text: 'Number of Impacts: 3' },
         { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
         { icon: RADIUS_ICON, text: 'Radius: 240' },
-        { icon: null, text: 'Unblockable' }
+        { icon: null, text: 'Unblockable' },
       ],
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 /**
@@ -1283,8 +1407,16 @@ function tripleThreatSections(skill: Skill, durationPercent: { boon: number; con
  * skill's wiki page (unlike Triple Threat/`scepterAutoBoltSections`'s ally branches) — deliberately
  * left off rather than assumed.
  */
-function twilightComboSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
-  const enemyRow = (name: 'Chilled' | 'Poisoned' | 'Torment', baseDurationSeconds: number, applyCount = 1): BoonConditionSource => ({
+function twilightComboSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+): ConditionalBranch[] {
+  const enemyRow = (
+    name: 'Chilled' | 'Poisoned' | 'Torment',
+    baseDurationSeconds: number,
+    applyCount = 1,
+  ): BoonConditionSource => ({
     sourceKind: 'skill',
     sourceId: skill.id,
     sourceName: skill.name,
@@ -1296,8 +1428,8 @@ function twilightComboSections(skill: Skill, durationPercent: { boon: number; co
     scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.condition / 100),
     applyCount,
     requiresTraitId: null,
-    targetCount: 1
-  })
+    targetCount: 1,
+  });
   const swiftness: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -1310,16 +1442,16 @@ function twilightComboSections(skill: Skill, durationPercent: { boon: number; co
     scaledDurationSeconds: 5 * (1 + durationPercent.boon / 100),
     applyCount: 1,
     requiresTraitId: null,
-    targetCount: 5
-  }
+    targetCount: 5,
+  };
   const barrierLine = (): FactLine => ({
     icon: MISCELLANEOUS_ICONS.Barrier,
-    text: `Barrier: ${Math.round(2576 + 0.5 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
-  })
+    text: `Barrier: ${Math.round(2576 + 0.5 * healingPower).toLocaleString()}`, // no PvE/WvW/PvP split
+  });
   const healLine = (): FactLine => ({
     icon: HEALING_ICON,
-    text: `Second Missile Healing: ${Math.round(714 + 0.2 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
-  })
+    text: `Second Missile Healing: ${Math.round(714 + 0.2 * healingPower).toLocaleString()}`, // no PvE/WvW/PvP split
+  });
 
   return [
     {
@@ -1327,27 +1459,28 @@ function twilightComboSections(skill: Skill, durationPercent: { boon: number; co
       description: 'Chills and poisons foes. Then, fire a quick tormenting shot.',
       numericLines: [
         { icon: null, text: 'Initial Attack Damage Coefficient: 1.5 (scepter)' }, // WvW value (PvE 1.0, PvP 1.3)
-        { icon: null, text: 'Secondary Attack Damage Coefficient: 0.5 (scepter)' } // no PvE/WvW/PvP split
+        { icon: null, text: 'Secondary Attack Damage Coefficient: 0.5 (scepter)' }, // no PvE/WvW/PvP split
       ],
       facts: [
         enemyRow('Chilled', 3), // WvW value, grouped with PvE (PvP 2s)
         enemyRow('Poisoned', 8), // WvW value (PvE 5s, PvP 6s)
-        enemyRow('Torment', 8, 3) // WvW value (PvE 5s, PvP 6s), stacks=3
-      ]
+        enemyRow('Torment', 8, 3), // WvW value (PvE 5s, PvP 6s), stacks=3
+      ],
     },
     {
       label: 'Ally Target',
-      description: 'Grant swiftness and barrier. Then, fire a quick healing bolt. Effectiveness is reduced for allies that are not the primary target.',
+      description:
+        'Grant swiftness and barrier. Then, fire a quick healing bolt. Effectiveness is reduced for allies that are not the primary target.',
       numericLines: [
         barrierLine(),
         healLine(),
         { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
         { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
-        { icon: RADIUS_ICON, text: 'Radius: 240' }
+        { icon: RADIUS_ICON, text: 'Radius: 240' },
       ],
-      facts: [swiftness]
-    }
-  ]
+      facts: [swiftness],
+    },
+  ];
 }
 
 /**
@@ -1369,30 +1502,44 @@ export function branchConditionalFacts(
   healingPower: number,
   activeTraitIds: ReadonlySet<number> = new Set(),
   equippedLegendIds: ReadonlySet<string> = new Set(),
-  legends: Legend[] = []
+  legends: Legend[] = [],
 ): ConditionalBranch[] | null {
-  if (skill.id === 71952) return otherworldlyBondBranches(skill, durationPercent)
+  if (skill.id === 71952) return otherworldlyBondBranches(skill, durationPercent);
   // Sharp as the Wind's Force/Boost/Reach — Minimum Burning Duration has no PvE/WvW+PvP split on
   // the wiki (used as-is); Maximum is each skill's own WvW+PvP value (PvE noted in the comment).
-  if (skill.id === DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 7, 2) // PvE max: 4s@20 stacks
-  if (skill.id === DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 5.5, 1.5) // PvE max: 3.25s@20 stacks
-  if (skill.id === DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 3.5, 1) // PvE max: 2s@20 stacks
-  if (skill.id === CHANT_OF_ACTION_ID) return chantOfActionSections(skill, durationPercent)
-  if (skill.id === CHANT_OF_RECUPERATION_ID) return chantOfRecuperationSections(skill, durationPercent, healingPower)
-  if (skill.id === CHANT_OF_FREEDOM_ID) return chantOfFreedomSections(skill, durationPercent)
-  if (skill.id === RADIANT_JUSTICE_ID) return radiantJusticeSections(skill, durationPercent)
-  if (skill.id === RADIANT_RESOLVE_ID) return radiantResolveSections(skill, durationPercent, healingPower)
-  if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
-  if (skill.id === FACET_OF_NATURE_ID) return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent)
-  if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower, activeTraitIds)
-  if (skill.id === MEASURED_SHOT_ID) return measuredShotSections(skill, durationPercent, healingPower)
-  if (skill.id === ENDLESS_NIGHT_ID) return endlessNightSections(skill, durationPercent, healingPower)
-  if (skill.id === SHADOW_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, null)
-  if (skill.id === DOUBLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 2)
-  if (skill.id === TRIPLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 3)
-  if (skill.id === TRIPLE_THREAT_ID) return tripleThreatSections(skill, durationPercent, healingPower)
-  if (skill.id === TWILIGHT_COMBO_ID) return twilightComboSections(skill, durationPercent, healingPower)
-  return null
+  if (skill.id === DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID)
+    return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 7, 2); // PvE max: 4s@20 stacks
+  if (skill.id === DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID)
+    return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 5.5, 1.5); // PvE max: 3.25s@20 stacks
+  if (skill.id === DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID)
+    return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 3.5, 1); // PvE max: 2s@20 stacks
+  if (skill.id === CHANT_OF_ACTION_ID) return chantOfActionSections(skill, durationPercent);
+  if (skill.id === CHANT_OF_RECUPERATION_ID)
+    return chantOfRecuperationSections(skill, durationPercent, healingPower);
+  if (skill.id === CHANT_OF_FREEDOM_ID) return chantOfFreedomSections(skill, durationPercent);
+  if (skill.id === RADIANT_JUSTICE_ID) return radiantJusticeSections(skill, durationPercent);
+  if (skill.id === RADIANT_RESOLVE_ID)
+    return radiantResolveSections(skill, durationPercent, healingPower);
+  if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent);
+  if (skill.id === FACET_OF_NATURE_ID)
+    return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent);
+  if (skill.id === SIPHON_ID)
+    return siphonSections(skill, durationPercent, healingPower, activeTraitIds);
+  if (skill.id === MEASURED_SHOT_ID)
+    return measuredShotSections(skill, durationPercent, healingPower);
+  if (skill.id === ENDLESS_NIGHT_ID)
+    return endlessNightSections(skill, durationPercent, healingPower);
+  if (skill.id === SHADOW_BOLT_ID)
+    return scepterAutoBoltSections(skill, durationPercent, healingPower, null);
+  if (skill.id === DOUBLE_BOLT_ID)
+    return scepterAutoBoltSections(skill, durationPercent, healingPower, 2);
+  if (skill.id === TRIPLE_BOLT_ID)
+    return scepterAutoBoltSections(skill, durationPercent, healingPower, 3);
+  if (skill.id === TRIPLE_THREAT_ID)
+    return tripleThreatSections(skill, durationPercent, healingPower);
+  if (skill.id === TWILIGHT_COMBO_ID)
+    return twilightComboSections(skill, durationPercent, healingPower);
+  return null;
 }
 
 /**
@@ -1418,19 +1565,19 @@ function strengtheningStanzasBranches(): ConditionalBranch[] {
       // PvE 15% Damage/10% Condition Damage (2026-04-14 patch dropped Condition Damage from 15%);
       // PvP 7%/7% (2026-02-03 patch dropped Damage from 10%).
       numericLines: [{ icon: null, text: '+10% Damage, +10% Condition Damage' }],
-      facts: []
+      facts: [],
     },
     {
       label: 'While Chant of Recuperation Active',
       numericLines: [{ icon: null, text: '-7% Incoming Damage, -7% Incoming Condition Damage' }], // PvE -15%/-15%
-      facts: []
+      facts: [],
     },
     {
       label: 'While Chant of Freedom Active',
       numericLines: [{ icon: null, text: '+50% Movement Speed' }], // no PvE/WvW/PvP split
-      facts: []
-    }
-  ]
+      facts: [],
+    },
+  ];
 }
 
 /**
@@ -1457,16 +1604,16 @@ function draconicEchoSections(): ConditionalBranch[] {
   const facet = (name: string, text: string): ConditionalBranch => ({
     label: `Facet of ${name}`,
     numericLines: [{ icon: null, text: `${text} (WvW+PvP; PvE 10%/-10%)` }],
-    facts: []
-  })
+    facts: [],
+  });
   return [
     facet('Light', '+5% Healing Increase to Others'),
     facet('Darkness', '+5% Critical Chance'),
     facet('Elements', '+5% Condition Damage'),
     facet('Strength', '+5% Damage'),
     facet('Chaos', '-5% Incoming Damage, -5% Incoming Condition Damage'),
-    facet('Nature', '+5% Boon Duration')
-  ]
+    facet('Nature', '+5% Boon Duration'),
+  ];
 }
 
 /**
@@ -1476,7 +1623,7 @@ function draconicEchoSections(): ConditionalBranch[] {
  * the skill version. `null` for every trait without one.
  */
 export function branchConditionalTraitFacts(trait: Trait): ConditionalBranch[] | null {
-  if (trait.id === STRENGTHENING_STANZAS_ID) return strengtheningStanzasBranches()
-  if (trait.id === DRACONIC_ECHO_ID) return draconicEchoSections()
-  return null
+  if (trait.id === STRENGTHENING_STANZAS_ID) return strengtheningStanzasBranches();
+  if (trait.id === DRACONIC_ECHO_ID) return draconicEchoSections();
+  return null;
 }

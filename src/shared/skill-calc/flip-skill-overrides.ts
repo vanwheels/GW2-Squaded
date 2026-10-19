@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { Skill } from '../types';
 
 /**
  * Hand-verified `flipSkill` corrections for the live API — most entries here fill in a link the API
@@ -36,11 +36,11 @@ import type { Skill } from '../types'
  */
 export const FLIP_SKILL_OVERRIDES: ReadonlyMap<number, number> = new Map([
   [27014, 51698], // Facet of Elements -> Elemental Blast
-  [63066, 63182] // Shadow Bolt -> Double Bolt (real chain step; API wrongly links to Shadowsquall)
-])
+  [63066, 63182], // Shadow Bolt -> Double Bolt (real chain step; API wrongly links to Shadowsquall)
+]);
 
 /** `FLIP_SKILL_OVERRIDES` first (an explicit override always wins, even over a present-but-wrong
  *  `skill.flipSkill` — see Shadow Bolt above), falling back to `skill.flipSkill` for every other id. */
 export function resolvedFlipSkillId(skill: Skill): number | null {
-  return FLIP_SKILL_OVERRIDES.get(skill.id) ?? skill.flipSkill ?? null
+  return FLIP_SKILL_OVERRIDES.get(skill.id) ?? skill.flipSkill ?? null;
 }

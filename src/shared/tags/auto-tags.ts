@@ -1,4 +1,4 @@
-import type { Build, Profession, Specialization } from '../types'
+import type { Build, Profession, Specialization } from '../types';
 
 /**
  * Profession + (if chosen) elite-specialization name for a build, e.g. `["Mesmer",
@@ -10,14 +10,16 @@ import type { Build, Profession, Specialization } from '../types'
  */
 export function getBuildAutoTags(
   build: Build,
-  gameData: { professions: Profession[]; specializationsById: Map<number, Specialization> }
+  gameData: { professions: Profession[]; specializationsById: Map<number, Specialization> },
 ): string[] {
-  const profession = gameData.professions.find((p) => p.id === build.profession)
-  const tags = [profession?.name ?? build.profession]
+  const profession = gameData.professions.find((p) => p.id === build.profession);
+  const tags = [profession?.name ?? build.profession];
   /** The elite spec line is always the 3rd trait line, by GW2 convention (same constant as
    *  `ProfessionSpecPicker`'s `ELITE_LINE_INDEX`). */
-  const eliteLine = build.specializations[2]
-  const eliteSpec = eliteLine ? gameData.specializationsById.get(eliteLine.specializationId) : undefined
-  if (eliteSpec?.elite) tags.push(eliteSpec.name)
-  return tags
+  const eliteLine = build.specializations[2];
+  const eliteSpec = eliteLine
+    ? gameData.specializationsById.get(eliteLine.specializationId)
+    : undefined;
+  if (eliteSpec?.elite) tags.push(eliteSpec.name);
+  return tags;
 }

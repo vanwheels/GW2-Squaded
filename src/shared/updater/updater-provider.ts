@@ -9,7 +9,7 @@ export type UpdateStatus =
   | { state: 'not-available' }
   | { state: 'downloading'; percent: number }
   | { state: 'downloaded'; version: string }
-  | { state: 'error'; message: string }
+  | { state: 'error'; message: string };
 
 /**
  * The renderer's only way to drive in-app updates — reached via the preload-exposed
@@ -19,11 +19,11 @@ export type UpdateStatus =
  * check `isSupported()` before showing update controls.
  */
 export interface UpdaterProvider {
-  getAppVersion(): Promise<string>
-  isSupported(): Promise<boolean>
-  checkForUpdates(): Promise<void>
-  downloadUpdate(): Promise<void>
-  quitAndInstall(): Promise<void>
+  getAppVersion(): Promise<string>;
+  isSupported(): Promise<boolean>;
+  checkForUpdates(): Promise<void>;
+  downloadUpdate(): Promise<void>;
+  quitAndInstall(): Promise<void>;
   /** Subscribes to status pushes from the main process; returns an unsubscribe function. */
-  onStatus(listener: (status: UpdateStatus) => void): () => void
+  onStatus(listener: (status: UpdateStatus) => void): () => void;
 }

@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { usePickerOpen } from '@renderer/state/picker-registry'
-import { middleClickToggle, sortFavoritesFirst } from '@renderer/lib/favorites'
-import { readGearDragData, setGearDragData } from './gear-drag-payload'
+import { useRef, useState } from 'react';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { usePickerOpen } from '@renderer/state/picker-registry';
+import { middleClickToggle, sortFavoritesFirst } from '@renderer/lib/favorites';
+import { readGearDragData, setGearDragData } from './gear-drag-payload';
 
 /** GW2 item-rarity tiers this app renders a border/tooltip-title color for. `'basic'` is
  *  deliberately excluded from the CSS class set below — GW2 itself doesn't highlight Basic-rarity
  *  items, so an option/prop resolving to `'basic'` falls back to the same unstyled default as no
  *  rarity at all, matching the live game. */
-export type UpgradeRarity = 'basic' | 'fine' | 'masterwork' | 'rare' | 'exotic' | 'ascended'
+export type UpgradeRarity = 'basic' | 'fine' | 'masterwork' | 'rare' | 'exotic' | 'ascended';
 
 /** Maps a raw GW2 API rarity string (`Consumable.rarity`, e.g. "Masterwork") onto the lowercase
  *  `UpgradeRarity` this component renders. Returns `undefined` for anything outside the tiers
@@ -17,27 +17,27 @@ export type UpgradeRarity = 'basic' | 'fine' | 'masterwork' | 'rare' | 'exotic' 
 export function toUpgradeRarity(raw: string): UpgradeRarity | undefined {
   switch (raw) {
     case 'Basic':
-      return 'basic'
+      return 'basic';
     case 'Fine':
-      return 'fine'
+      return 'fine';
     case 'Masterwork':
-      return 'masterwork'
+      return 'masterwork';
     case 'Rare':
-      return 'rare'
+      return 'rare';
     case 'Exotic':
-      return 'exotic'
+      return 'exotic';
     case 'Ascended':
-      return 'ascended'
+      return 'ascended';
     default:
-      return undefined
+      return undefined;
   }
 }
 
 export interface UpgradeOption<T extends number | string = number> {
-  id: T
-  name: string
-  icon: string
-  description?: string
+  id: T;
+  name: string;
+  icon: string;
+  description?: string;
   /**
    * Stats-panel display names (e.g. "Power", "Ferocity", "Concentration" — see
    * `ATTRIBUTE_DISPLAY_NAME` in `attribute-totals.ts`) this option affects, searched by the
@@ -45,33 +45,33 @@ export interface UpgradeOption<T extends number | string = number> {
    * for categories with no attribute data at all (relics) — a "#" search on those just matches
    * nothing, which is correct since relic effects are procs, not stat levers.
    */
-  statKeywords?: string[]
+  statKeywords?: string[];
   /** Per-option rarity override, for categories whose real GW2 rarity varies per item (Food,
    *  Utility) rather than being one fixed tier for the whole category. Takes priority over the
    *  picker-level `rarity` prop when both are present (they're mutually exclusive in practice —
    *  no category sets both). */
-  rarity?: UpgradeRarity
+  rarity?: UpgradeRarity;
 }
 
 interface Props<T extends number | string = number> {
-  label: string
-  options: UpgradeOption<T>[]
-  chosenId: T | null
-  onChoose: (id: T | null) => void
+  label: string;
+  options: UpgradeOption<T>[];
+  chosenId: T | null;
+  onChoose: (id: T | null) => void;
   /** `badge` is a small circular button for a per-item upgrade slot (rune/sigil/infusion),
    *  reusing the equipment paperdoll's visual density. `slot` is the larger square skill-bar-
    *  style button used for the build-level relic/food/utility picks. */
-  variant?: 'badge' | 'slot'
+  variant?: 'badge' | 'slot';
   /** `badge`-variant size — runes/sigils read as the more important upgrade (`lg`), infusions a
    *  step down (`md`), everything else unchanged (`sm`, the default). No effect on `slot` variant,
    *  which is always the fixed 48px skill-bar size. */
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg';
   /** GW2 item-rarity border/tooltip-title color for the chosen item, when this category has a
    *  single fixed rarity: every gear stat-prefix combo is Ascended, every relic/rune/sigil is
    *  Exotic, every WvW infusion is Fine (confirmed live 2026-08-11 — see TODO.md's
    *  item-rarity-color-coding scoping notes). Omit for categories whose rarity instead varies per
    *  item (food/utility) — those set `rarity` on each `UpgradeOption` instead. */
-  rarity?: UpgradeRarity
+  rarity?: UpgradeRarity;
   /**
    * Opts this picker into the copy/paste feature (2026-07-30): when set, a chosen value can be
    * dragged out of this button, and the button accepts drops from any other picker sharing the
@@ -81,14 +81,14 @@ interface Props<T extends number | string = number> {
    * `number` when this is set — every gear-upgrade category's id type, unlike the squad editor's
    * `string` build ids which never set this prop.
    */
-  dragCategory?: string
+  dragCategory?: string;
   /** Small icon overlaid in the button's top-left corner — the gw2skills-style equipment-slot or
    *  weapon-type glyph identifying which slot this stat-prefix picker belongs to, since the big
    *  stat-prefix art itself (`option.icon`) doesn't otherwise say "this one's for the Helm". */
-  cornerIcon?: string
+  cornerIcon?: string;
   /** Art shown in place of the "?" empty-slot glyph when nothing is chosen yet — used for weapon
    *  stat-prefix slots to preview the selected weapon type's silhouette before a stat is picked. */
-  emptyIcon?: string
+  emptyIcon?: string;
   /**
    * Opts this picker's popover grid into the Favorites feature (2026-08-06): when both are set, a
    * favorited option sorts ahead of every non-favorited one and shows a gold star badge, and
@@ -98,8 +98,8 @@ interface Props<T extends number | string = number> {
    * `Build.favorite` — the same field the Builds card grid toggles, since a build's favorite status
    * is build data already, not install-specific). Not wired up for runes/sigils/infusions/relics.
    */
-  isFavorite?: (id: T) => boolean
-  onToggleFavorite?: (id: T) => void
+  isFavorite?: (id: T) => boolean;
+  onToggleFavorite?: (id: T) => void;
 }
 
 /**
@@ -140,67 +140,86 @@ export function UpgradePicker<T extends number | string = number>({
   cornerIcon,
   emptyIcon,
   isFavorite,
-  onToggleFavorite
+  onToggleFavorite,
 }: Props<T>) {
-  const { open, openThis, close } = usePickerOpen()
-  const [search, setSearch] = useState('')
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
-  const query = search.trim().toLowerCase()
-  const statQuery = query.startsWith('#') ? query.slice(1).trim() : null
+  const { open, openThis, close } = usePickerOpen();
+  const [search, setSearch] = useState('');
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined;
+  const query = search.trim().toLowerCase();
+  const statQuery = query.startsWith('#') ? query.slice(1).trim() : null;
   const statQueries =
     statQuery !== null
-      ? Array.from(new Set(query.split(/\s+/).filter((t) => t.startsWith('#')).map((t) => t.slice(1)).filter(Boolean)))
-      : []
+      ? Array.from(
+          new Set(
+            query
+              .split(/\s+/)
+              .filter((t) => t.startsWith('#'))
+              .map((t) => t.slice(1))
+              .filter(Boolean),
+          ),
+        )
+      : [];
   const filtered =
     statQuery !== null
       ? statQueries.length === 0
         ? options
-        : options.filter((o) => statQueries.every((sq) => o.statKeywords?.some((k) => k.toLowerCase().startsWith(sq))))
+        : options.filter((o) =>
+            statQueries.every((sq) => o.statKeywords?.some((k) => k.toLowerCase().startsWith(sq))),
+          )
       : query
-        ? options.filter((o) => o.name.toLowerCase().includes(query) || o.description?.toLowerCase().includes(query))
-        : options
-  const ordered = isFavorite ? sortFavoritesFirst(filtered, (o) => isFavorite(o.id)) : filtered
+        ? options.filter(
+            (o) =>
+              o.name.toLowerCase().includes(query) || o.description?.toLowerCase().includes(query),
+          )
+        : options;
+  const ordered = isFavorite ? sortFavoritesFirst(filtered, (o) => isFavorite(o.id)) : filtered;
 
   function choose(id: T | null): void {
-    onChoose(id)
-    close()
-    setSearch('')
+    onChoose(id);
+    close();
+    setSearch('');
   }
 
   function handleDragStart(e: React.DragEvent): void {
-    if (!dragCategory || chosenId === null) return
-    setGearDragData(e, { category: dragCategory, id: chosenId as number, name: chosen?.name })
+    if (!dragCategory || chosenId === null) return;
+    setGearDragData(e, { category: dragCategory, id: chosenId as number, name: chosen?.name });
   }
 
   function handleDrop(e: React.DragEvent): void {
-    if (!dragCategory) return
-    const payload = readGearDragData(e)
+    if (!dragCategory) return;
+    const payload = readGearDragData(e);
     if (payload && payload.category === dragCategory) {
-      e.preventDefault()
+      e.preventDefault();
       // Prefer resolving by name against this picker's own (already category-scoped) options —
       // the dragged id alone can be wrong for this slot if the two pickers use different id spaces
       // for the same combo name (e.g. an armor/weapon "stat" id dropped onto a trinket slot). Falls
       // back to the raw id when no name match exists here, same as before `name` existed.
-      const matched = payload.name ? options.find((o) => o.name === payload.name) : undefined
-      onChoose((matched ? matched.id : payload.id) as T)
+      const matched = payload.name ? options.find((o) => o.name === payload.name) : undefined;
+      onChoose((matched ? matched.id : payload.id) as T);
     }
   }
 
   // `chosen.rarity` (per-item, food/utility) wins over the picker-level `rarity` prop (single
   // fixed tier, every other category) — see `UpgradeOption.rarity`'s doc comment.
-  const chosenRarity = chosen?.rarity ?? rarity
-  const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'
-  const sizeClass = variant === 'badge' && size !== 'sm' ? ` upgrade-badge-${size}` : ''
-  const rarityClass = chosen && chosenRarity && chosenRarity !== 'basic' ? ` rarity-${chosenRarity}` : ''
-  const buttonClass = `${baseClass}${sizeClass}${rarityClass}`
+  const chosenRarity = chosen?.rarity ?? rarity;
+  const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button';
+  const sizeClass = variant === 'badge' && size !== 'sm' ? ` upgrade-badge-${size}` : '';
+  const rarityClass =
+    chosen && chosenRarity && chosenRarity !== 'basic' ? ` rarity-${chosenRarity}` : '';
+  const buttonClass = `${baseClass}${sizeClass}${rarityClass}`;
 
   return (
     <div className="upgrade-slot">
       <Tooltip
         content={
           chosen ? (
-            <TooltipBody title={chosen.name} description={chosen.description} icon={chosen.icon} rarity={chosenRarity} />
+            <TooltipBody
+              title={chosen.name}
+              description={chosen.description}
+              icon={chosen.icon}
+              rarity={chosenRarity}
+            />
           ) : (
             <TooltipBody title={label} />
           )
@@ -225,11 +244,15 @@ export function UpgradePicker<T extends number | string = number>({
           ) : emptyIcon ? (
             <img className="upgrade-badge-placeholder" src={emptyIcon} alt="" />
           ) : (
-            <span className={variant === 'badge' ? 'upgrade-badge-empty' : 'skill-slot-placeholder'}>
+            <span
+              className={variant === 'badge' ? 'upgrade-badge-empty' : 'skill-slot-placeholder'}
+            >
               {variant === 'slot' ? label : ''}
             </span>
           )}
-          {cornerIcon && (chosen || !emptyIcon) && <img className="upgrade-badge-corner" src={cornerIcon} alt="" />}
+          {cornerIcon && (chosen || !emptyIcon) && (
+            <img className="upgrade-badge-corner" src={cornerIcon} alt="" />
+          )}
         </button>
       </Tooltip>
       <FloatingPanel open={open} anchorRef={buttonRef} onClose={close} className="skill-picker">
@@ -254,31 +277,50 @@ export function UpgradePicker<T extends number | string = number>({
             <span className="skill-option-name">None</span>
           </button>
           {ordered.map((o) => {
-            const favorited = isFavorite?.(o.id) ?? false
+            const favorited = isFavorite?.(o.id) ?? false;
             return (
               <Tooltip
                 key={o.id}
-                content={<TooltipBody title={o.name} description={o.description} icon={o.icon} rarity={o.rarity ?? rarity} />}
+                content={
+                  <TooltipBody
+                    title={o.name}
+                    description={o.description}
+                    icon={o.icon}
+                    rarity={o.rarity ?? rarity}
+                  />
+                }
               >
                 <button
                   type="button"
-                  className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                  className={
+                    chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'
+                  }
                   onClick={() => choose(o.id)}
-                  {...(onToggleFavorite ? middleClickToggle(() => onToggleFavorite(o.id)) : undefined)}
+                  {...(onToggleFavorite
+                    ? middleClickToggle(() => onToggleFavorite(o.id))
+                    : undefined)}
                 >
                   {onToggleFavorite && (
-                    <span className={favorited ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
+                    <span
+                      className={
+                        favorited ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'
+                      }
+                    >
                       {favorited ? '★' : '☆'}
                     </span>
                   )}
-                  {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
+                  {o.icon ? (
+                    <img src={o.icon} alt={o.name} />
+                  ) : (
+                    <span className="skill-option-none">?</span>
+                  )}
                   <span className="skill-option-name">{o.name}</span>
                 </button>
               </Tooltip>
-            )
+            );
           })}
         </div>
       </FloatingPanel>
     </div>
-  )
+  );
 }

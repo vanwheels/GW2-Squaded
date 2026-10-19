@@ -1,23 +1,23 @@
-import { randomUUID } from 'node:crypto'
-import { join } from 'node:path'
-import { BrowserWindow } from 'electron'
-import type { NativeImage } from 'electron'
-import type { Build, SquadComp } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import type { CapturePayload } from '@shared/capture/capture-provider'
-import { loadRenderer } from '../renderer-url'
+import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
+import { BrowserWindow } from 'electron';
+import type { NativeImage } from 'electron';
+import type { Build, SquadComp } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import type { CapturePayload } from '@shared/capture/capture-provider';
+import { loadRenderer } from '../renderer-url';
 
 /** Fixed capture width (2026-08-28) — the widest `.build-editor-grid`/`.party-rows` reflow tier
  *  (see `global.css`), so a screenshot always comes out at the same standardized layout regardless
  *  of the real editor window's current size. Height is NOT fixed — see `runCapture` below, it's
  *  measured from the actual rendered content and the offscreen window resized to match, so nothing
  *  ever gets cropped the way the old on-screen capture's viewport-bound fast path could. */
-const CAPTURE_WIDTH = 1920
+const CAPTURE_WIDTH = 1920;
 
 /** How long a `CaptureHost` render gets to call `signalReady` before this gives up — a render bug
  *  with no error boundary (same failure mode the Discord bot's `build-screenshot.ts` doc comment
  *  describes on its own Worker side) shouldn't hang "Copy screenshot" forever. */
-const READY_TIMEOUT_MS = 15_000
+const READY_TIMEOUT_MS = 15_000;
 
 /** Selector `CaptureHost` renders at its own root for each kind — matches
  *  `worker/src/render/build-screenshot.ts`'s `GRID_SELECTOR`/the equivalent squad selector, so
@@ -25,39 +25,39 @@ const READY_TIMEOUT_MS = 15_000
  *  Electron's own offscreen `BrowserWindow` instead of a remote Puppeteer session. */
 const CAPTURE_SELECTOR: Record<CapturePayload['kind'], string> = {
   build: '.build-editor-grid',
-  squad: '.party-rows'
-}
+  squad: '.party-rows',
+};
 
 /** Payloads stashed by `captureBuildScreenshot`/`captureSquadScreenshot` below, keyed by the token
  *  each spawned `CaptureHost` window was navigated with — read once via `getPendingPayload` (the
  *  `capture:get-payload` IPC handler) and cleared when that capture finishes either way. */
-const pendingPayloads = new Map<string, CapturePayload>()
-const pendingReadyResolvers = new Map<string, () => void>()
+const pendingPayloads = new Map<string, CapturePayload>();
+const pendingReadyResolvers = new Map<string, () => void>();
 
 /** `capture:get-payload` IPC handler body — see `CaptureIpcChannel.getPayload`'s doc comment. */
 export function getPendingPayload(token: string): CapturePayload | null {
-  return pendingPayloads.get(token) ?? null
+  return pendingPayloads.get(token) ?? null;
 }
 
 /** `capture:signal-ready` IPC handler body — resolves the matching `waitForReady` below, if one is
  *  still pending (a repeat call, e.g. from React StrictMode's double-invoked effects in dev, is
  *  harmless: the resolver's already been removed by the first call). */
 export function signalReady(token: string): void {
-  pendingReadyResolvers.get(token)?.()
+  pendingReadyResolvers.get(token)?.();
 }
 
 function waitForReady(token: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      pendingReadyResolvers.delete(token)
-      reject(new Error(`Capture route for token ${token} never signaled ready`))
-    }, READY_TIMEOUT_MS)
+      pendingReadyResolvers.delete(token);
+      reject(new Error(`Capture route for token ${token} never signaled ready`));
+    }, READY_TIMEOUT_MS);
     pendingReadyResolvers.set(token, () => {
-      clearTimeout(timer)
-      pendingReadyResolvers.delete(token)
-      resolve()
-    })
-  })
+      clearTimeout(timer);
+      pendingReadyResolvers.delete(token);
+      resolve();
+    });
+  });
 }
 
 /**
@@ -74,22 +74,26 @@ function waitForReady(token: string): Promise<void> {
  * before Chromium's finished relaying out at the new one. `invalidate()` forces a fresh paint to
  * be queued immediately rather than waiting for OSR's own next scheduled frame (up to ~16ms at the
  * default 60fps cap — cheap insurance, not required for correctness on its own). */
-function waitForPaintAtSize(win: BrowserWindow, width: number, height: number): Promise<NativeImage> {
+function waitForPaintAtSize(
+  win: BrowserWindow,
+  width: number,
+  height: number,
+): Promise<NativeImage> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      win.webContents.removeListener('paint', onPaint)
-      reject(new Error(`Timed out waiting for a ${width}x${height} offscreen paint`))
-    }, READY_TIMEOUT_MS)
+      win.webContents.removeListener('paint', onPaint);
+      reject(new Error(`Timed out waiting for a ${width}x${height} offscreen paint`));
+    }, READY_TIMEOUT_MS);
     function onPaint(_event: unknown, _dirtyRect: unknown, image: NativeImage): void {
-      const size = image.getSize()
-      if (size.width !== width || size.height !== height) return
-      clearTimeout(timer)
-      win.webContents.removeListener('paint', onPaint)
-      resolve(image)
+      const size = image.getSize();
+      if (size.width !== width || size.height !== height) return;
+      clearTimeout(timer);
+      win.webContents.removeListener('paint', onPaint);
+      resolve(image);
     }
-    win.webContents.on('paint', onPaint)
-    win.webContents.invalidate()
-  })
+    win.webContents.on('paint', onPaint);
+    win.webContents.invalidate();
+  });
 }
 
 /**
@@ -117,8 +121,8 @@ function waitForPaintAtSize(win: BrowserWindow, width: number, height: number): 
  * `'paint'` event rather than `capturePage()`.
  */
 async function runCapture(payload: CapturePayload): Promise<Buffer> {
-  const token = randomUUID()
-  pendingPayloads.set(token, payload)
+  const token = randomUUID();
+  pendingPayloads.set(token, payload);
 
   const win = new BrowserWindow({
     show: false,
@@ -128,36 +132,36 @@ async function runCapture(payload: CapturePayload): Promise<Buffer> {
       offscreen: true,
       backgroundThrottling: false,
       preload: join(__dirname, '../preload/index.cjs'),
-      sandbox: false
-    }
-  })
+      sandbox: false,
+    },
+  });
 
   try {
-    await loadRenderer(win, { capture: payload.kind, token })
-    await waitForReady(token)
+    await loadRenderer(win, { capture: payload.kind, token });
+    await waitForReady(token);
 
-    const selector = CAPTURE_SELECTOR[payload.kind]
+    const selector = CAPTURE_SELECTOR[payload.kind];
     const height = Math.max(
       1,
       Math.ceil(
         (await win.webContents.executeJavaScript(
-          `document.querySelector(${JSON.stringify(selector)})?.getBoundingClientRect().height ?? 0`
-        )) as number
-      )
-    )
-    win.setContentSize(CAPTURE_WIDTH, height)
-    const image = await waitForPaintAtSize(win, CAPTURE_WIDTH, height)
-    return image.toPNG()
+          `document.querySelector(${JSON.stringify(selector)})?.getBoundingClientRect().height ?? 0`,
+        )) as number,
+      ),
+    );
+    win.setContentSize(CAPTURE_WIDTH, height);
+    const image = await waitForPaintAtSize(win, CAPTURE_WIDTH, height);
+    return image.toPNG();
   } finally {
-    pendingPayloads.delete(token)
-    win.destroy()
+    pendingPayloads.delete(token);
+    win.destroy();
   }
 }
 
 export function captureBuildScreenshot(build: Build, combatState: CombatState): Promise<Buffer> {
-  return runCapture({ kind: 'build', payload: { build, combatState } })
+  return runCapture({ kind: 'build', payload: { build, combatState } });
 }
 
 export function captureSquadScreenshot(squadComp: SquadComp): Promise<Buffer> {
-  return runCapture({ kind: 'squad', payload: { squadComp } })
+  return runCapture({ kind: 'squad', payload: { squadComp } });
 }

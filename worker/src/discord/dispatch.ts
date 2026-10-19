@@ -1,9 +1,9 @@
-import { getBuildById, getPendingRequest, getSquadById, type BoardType } from '../db'
-import type { Env } from '../env'
-import { renderBuildScreenshot } from '../render/build-screenshot'
-import { renderSquadScreenshot } from '../render/squad-screenshot'
-import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
-import { decideApprovalRequest, type PendingRequestHandlers } from './approvals'
+import { getBuildById, getPendingRequest, getSquadById, type BoardType } from '../db';
+import type { Env } from '../env';
+import { renderBuildScreenshot } from '../render/build-screenshot';
+import { renderSquadScreenshot } from '../render/squad-screenshot';
+import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api';
+import { decideApprovalRequest, type PendingRequestHandlers } from './approvals';
 import {
   buildBoardConfigApprovalMode,
   buildBoardConfigApprovalsChannel,
@@ -12,8 +12,8 @@ import {
   buildBoardRebuild,
   buildBoardSetup,
   squadBoardRebuild,
-  squadBoardSetup
-} from './commands/board-admin'
+  squadBoardSetup,
+} from './commands/board-admin';
 import {
   applyPendingBuildRequest,
   buildAdd,
@@ -21,22 +21,22 @@ import {
   buildMove,
   buildRemove,
   describePendingBuildRequest,
-  resolvePendingBuildPreviewShareId
-} from './commands/builds'
-import { buildDisplay, squadDisplay } from './commands/display'
-import { help } from './commands/help'
+  resolvePendingBuildPreviewShareId,
+} from './commands/builds';
+import { buildDisplay, squadDisplay } from './commands/display';
+import { help } from './commands/help';
 import {
   applyPendingSquadRequest,
   squadAdd,
   squadEdit,
   squadRemove,
   describePendingSquadRequest,
-  resolvePendingSquadPreviewShareId
-} from './commands/squads'
-import type { CommandContext } from './commands/context'
-import { UserError } from './errors'
-import type { DiscordInteraction, InteractionOption } from './interaction-types'
-import { subcommand } from './interaction-types'
+  resolvePendingSquadPreviewShareId,
+} from './commands/squads';
+import type { CommandContext } from './commands/context';
+import { UserError } from './errors';
+import type { DiscordInteraction, InteractionOption } from './interaction-types';
+import { subcommand } from './interaction-types';
 
 /** Supplies `approvals.ts`'s `decideApprovalRequest` with each board type's describe/apply pair —
  *  kept here (not in `approvals.ts` itself) to avoid a module import cycle, since `commands/
@@ -44,17 +44,17 @@ import { subcommand } from './interaction-types'
  *  `PendingRequestHandlers` doc comment. */
 const BOARD_REQUEST_HANDLERS: Record<BoardType, PendingRequestHandlers> = {
   build: { describe: describePendingBuildRequest, apply: applyPendingBuildRequest },
-  squad: { describe: describePendingSquadRequest, apply: applyPendingSquadRequest }
-}
+  squad: { describe: describePendingSquadRequest, apply: applyPendingSquadRequest },
+};
 
-type CommandHandler = (ctx: CommandContext) => Promise<DiscordMessagePayload>
+type CommandHandler = (ctx: CommandContext) => Promise<DiscordMessagePayload>;
 
 /** `/ping`'s handler — trivial enough it doesn't need its own `commands/*.ts` file. Was registered
  *  in `command-catalog.ts` (née `register-commands.ts`) since Phase 1 but had never actually been
  *  wired into `COMMANDS` below, so it silently fell through to "Unknown command." — a pre-existing
  *  gap noticed while adding `/help` below it; fixed here since it's a one-line handler. */
 async function ping(_ctx: CommandContext): Promise<DiscordMessagePayload> {
-  return { content: 'pong' }
+  return { content: 'pong' };
 }
 
 /** Every flat (no-subcommand) command this bot handles, keyed by its registered name — Discord
@@ -76,8 +76,8 @@ const COMMANDS: Record<string, CommandHandler | undefined> = {
   buildboardsetup: buildBoardSetup,
   buildboardrebuild: buildBoardRebuild,
   squadboardsetup: squadBoardSetup,
-  squadboardrebuild: squadBoardRebuild
-}
+  squadboardrebuild: squadBoardRebuild,
+};
 
 /** Resolves a command name (+ its raw top-level options) to the handler that should run and the
  *  option list *that handler* should see. Only `buildboardconfig` has a subcommand layer today
@@ -86,18 +86,22 @@ const COMMANDS: Record<string, CommandHandler | undefined> = {
  *  whether its command has subcommands. Returns `null` for an unknown command/subcommand. */
 export function resolveHandler(
   commandName: string,
-  topLevelOptions: InteractionOption[] | undefined
+  topLevelOptions: InteractionOption[] | undefined,
 ): { handler: CommandHandler; options: InteractionOption[] } | null {
   if (commandName === 'buildboardconfig') {
-    const sub = subcommand(topLevelOptions)
-    if (sub?.name === 'setpermission') return { handler: buildBoardConfigSetPermission, options: sub.options ?? [] }
-    if (sub?.name === 'approvalmode') return { handler: buildBoardConfigApprovalMode, options: sub.options ?? [] }
-    if (sub?.name === 'setapproverrole') return { handler: buildBoardConfigSetApproverRole, options: sub.options ?? [] }
-    if (sub?.name === 'approvalschannel') return { handler: buildBoardConfigApprovalsChannel, options: sub.options ?? [] }
-    return null
+    const sub = subcommand(topLevelOptions);
+    if (sub?.name === 'setpermission')
+      return { handler: buildBoardConfigSetPermission, options: sub.options ?? [] };
+    if (sub?.name === 'approvalmode')
+      return { handler: buildBoardConfigApprovalMode, options: sub.options ?? [] };
+    if (sub?.name === 'setapproverrole')
+      return { handler: buildBoardConfigSetApproverRole, options: sub.options ?? [] };
+    if (sub?.name === 'approvalschannel')
+      return { handler: buildBoardConfigApprovalsChannel, options: sub.options ?? [] };
+    return null;
   }
-  const handler = COMMANDS[commandName]
-  return handler ? { handler, options: topLevelOptions ?? [] } : null
+  const handler = COMMANDS[commandName];
+  return handler ? { handler, options: topLevelOptions ?? [] } : null;
 }
 
 /** Runs a command's handler and PATCHes the deferred placeholder response with the real result —
@@ -116,28 +120,31 @@ export async function runCommand(
   env: Env,
   interaction: DiscordInteraction,
   handler: CommandHandler,
-  options: InteractionOption[]
+  options: InteractionOption[],
 ): Promise<void> {
-  let payload: DiscordMessagePayload
+  let payload: DiscordMessagePayload;
   try {
     const ctx: CommandContext = {
       env,
       guildId: interaction.guild_id!,
       channelId: interaction.channel_id!,
       member: interaction.member!,
-      options
-    }
-    payload = await handler(ctx)
+      options,
+    };
+    payload = await handler(ctx);
   } catch (err) {
     if (err instanceof UserError) {
-      payload = { content: err.message }
+      payload = { content: err.message };
     } else {
-      console.error(`Command /${interaction.data?.name} failed:`, err)
-      payload = { content: 'Something went wrong running that command. Try again, or check with an admin if it keeps happening.' }
+      console.error(`Command /${interaction.data?.name} failed:`, err);
+      payload = {
+        content:
+          'Something went wrong running that command. Try again, or check with an admin if it keeps happening.',
+      };
     }
   }
 
-  await deliverInteractionResult(interaction, payload)
+  await deliverInteractionResult(interaction, payload);
 }
 
 /** Runs the Approve/Reject decision behind a Phase 3 button click and delivers the result — the
@@ -151,17 +158,23 @@ export async function runApprovalDecision(
   env: Env,
   interaction: DiscordInteraction,
   requestId: number,
-  decision: 'approved' | 'rejected'
+  decision: 'approved' | 'rejected',
 ): Promise<void> {
-  let payload: DiscordMessagePayload
+  let payload: DiscordMessagePayload;
   try {
-    payload = await decideApprovalRequest(env, requestId, decision, interaction.member!.user.id, BOARD_REQUEST_HANDLERS)
+    payload = await decideApprovalRequest(
+      env,
+      requestId,
+      decision,
+      interaction.member!.user.id,
+      BOARD_REQUEST_HANDLERS,
+    );
   } catch (err) {
-    console.error(`Deciding approval request ${requestId} failed:`, err)
-    payload = { content: 'Something went wrong deciding this request.' }
+    console.error(`Deciding approval request ${requestId} failed:`, err);
+    payload = { content: 'Something went wrong deciding this request.' };
   }
 
-  await deliverInteractionResult(interaction, payload)
+  await deliverInteractionResult(interaction, payload);
 }
 
 /** Renders and delivers a Preview button click's screenshot — the `MESSAGE_COMPONENT` counterpart
@@ -171,31 +184,35 @@ export async function runApprovalDecision(
  *  resolves to that new ephemeral message and the approval card underneath is never touched. Wired
  *  for both request kinds (`decisionButtons` in `approvals.ts` puts the button on both) — branches
  *  on `board_type` to pick the matching share-id resolver + screenshot renderer. */
-export async function runApprovalPreview(env: Env, interaction: DiscordInteraction, requestId: number): Promise<void> {
-  let payload: DiscordMessagePayload
+export async function runApprovalPreview(
+  env: Env,
+  interaction: DiscordInteraction,
+  requestId: number,
+): Promise<void> {
+  let payload: DiscordMessagePayload;
   try {
-    const request = await getPendingRequest(env, requestId)
+    const request = await getPendingRequest(env, requestId);
     if (!request) {
-      payload = { content: 'This approval request no longer exists.' }
+      payload = { content: 'This approval request no longer exists.' };
     } else if (request.board_type === 'build') {
-      const shareId = await resolvePendingBuildPreviewShareId(env, request)
-      const png = await renderBuildScreenshot(env, shareId)
-      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+      const shareId = await resolvePendingBuildPreviewShareId(env, request);
+      const png = await renderBuildScreenshot(env, shareId);
+      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } };
     } else {
-      const shareId = await resolvePendingSquadPreviewShareId(env, request)
-      const png = await renderSquadScreenshot(env, shareId)
-      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } }
+      const shareId = await resolvePendingSquadPreviewShareId(env, request);
+      const png = await renderSquadScreenshot(env, shareId);
+      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } };
     }
   } catch (err) {
     if (err instanceof UserError) {
-      payload = { content: err.message }
+      payload = { content: err.message };
     } else {
-      console.error(`Previewing pending request ${requestId} failed:`, err)
-      payload = { content: 'Something went wrong rendering that preview.' }
+      console.error(`Previewing pending request ${requestId} failed:`, err);
+      payload = { content: 'Something went wrong rendering that preview.' };
     }
   }
 
-  await deliverInteractionResult(interaction, payload)
+  await deliverInteractionResult(interaction, payload);
 }
 
 /** Renders and delivers a board section's "Preview a build…" select menu pick — the
@@ -204,70 +221,91 @@ export async function runApprovalPreview(env: Env, interaction: DiscordInteracti
  *  `buildPreviewSelectRow` uses `builds.id` as each option's value) instead of going through a
  *  `pending_requests` row. Same ack shape as a slash command (`DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`,
  *  a new ephemeral message) — the board message itself is never touched by a Preview selection. */
-export async function runBoardBuildPreview(env: Env, interaction: DiscordInteraction, buildId: number): Promise<void> {
-  let payload: DiscordMessagePayload
+export async function runBoardBuildPreview(
+  env: Env,
+  interaction: DiscordInteraction,
+  buildId: number,
+): Promise<void> {
+  let payload: DiscordMessagePayload;
   try {
-    const build = await getBuildById(env, buildId)
+    const build = await getBuildById(env, buildId);
     if (!build) {
-      payload = { content: 'That build is no longer on the board — try picking again, the list may be stale.' }
+      payload = {
+        content: 'That build is no longer on the board — try picking again, the list may be stale.',
+      };
     } else {
-      const png = await renderBuildScreenshot(env, build.share_id)
-      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+      const png = await renderBuildScreenshot(env, build.share_id);
+      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } };
     }
   } catch (err) {
     if (err instanceof UserError) {
-      payload = { content: err.message }
+      payload = { content: err.message };
     } else {
-      console.error(`Previewing board build ${buildId} failed:`, err)
-      payload = { content: 'Something went wrong rendering that preview.' }
+      console.error(`Previewing board build ${buildId} failed:`, err);
+      payload = { content: 'Something went wrong rendering that preview.' };
     }
   }
 
-  await deliverInteractionResult(interaction, payload)
+  await deliverInteractionResult(interaction, payload);
 }
 
 /** Squad-board equivalent of `runBoardBuildPreview` above — looks a squad up directly by id
  *  (`render/board.ts`'s `squadPreviewSelectRow` uses `squads.id` as each option's value) and
  *  reuses `render/squad-screenshot.ts`'s `renderSquadScreenshot`, the same pipeline `/squaddisplay`
  *  and the approval card's Preview button both already use. */
-export async function runBoardSquadPreview(env: Env, interaction: DiscordInteraction, squadId: number): Promise<void> {
-  let payload: DiscordMessagePayload
+export async function runBoardSquadPreview(
+  env: Env,
+  interaction: DiscordInteraction,
+  squadId: number,
+): Promise<void> {
+  let payload: DiscordMessagePayload;
   try {
-    const squad = await getSquadById(env, squadId)
+    const squad = await getSquadById(env, squadId);
     if (!squad) {
-      payload = { content: 'That squad is no longer on the board — try picking again, the list may be stale.' }
+      payload = {
+        content: 'That squad is no longer on the board — try picking again, the list may be stale.',
+      };
     } else {
-      const png = await renderSquadScreenshot(env, squad.share_id)
-      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } }
+      const png = await renderSquadScreenshot(env, squad.share_id);
+      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } };
     }
   } catch (err) {
     if (err instanceof UserError) {
-      payload = { content: err.message }
+      payload = { content: err.message };
     } else {
-      console.error(`Previewing board squad ${squadId} failed:`, err)
-      payload = { content: 'Something went wrong rendering that preview.' }
+      console.error(`Previewing board squad ${squadId} failed:`, err);
+      payload = { content: 'Something went wrong rendering that preview.' };
     }
   }
 
-  await deliverInteractionResult(interaction, payload)
+  await deliverInteractionResult(interaction, payload);
 }
 
 /** Shared tail of both `runCommand` and `runApprovalDecision` — PATCHes the interaction's
  *  `@original` response with one retry, per the doc comment above on why a lost followup here
  *  reads to the user as "nothing happened" even when the underlying D1 write/apply already
  *  succeeded. */
-async function deliverInteractionResult(interaction: DiscordInteraction, payload: DiscordMessagePayload): Promise<void> {
+async function deliverInteractionResult(
+  interaction: DiscordInteraction,
+  payload: DiscordMessagePayload,
+): Promise<void> {
   try {
-    await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
+    await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload);
   } catch (err) {
-    console.error(`Delivering the result of interaction ${interaction.id} failed, retrying once:`, err)
+    console.error(
+      `Delivering the result of interaction ${interaction.id} failed, retrying once:`,
+      err,
+    );
     try {
-      await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
+      await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload);
     } catch (retryErr) {
       // Nothing left to do — Discord's own client-side "the application did not respond"-style
       // messaging is the honest outcome here. Logged so `wrangler tail`/the dashboard surfaces it
       // rather than it vanishing as a silent unhandled rejection.
-      console.error(`Delivering the result of interaction ${interaction.id} failed twice, giving up:`, retryErr)
+      console.error(
+        `Delivering the result of interaction ${interaction.id} failed twice, giving up:`,
+        retryErr,
+      );
     }
   }
 }

@@ -1,6 +1,6 @@
-import { resolve } from 'node:path'
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { resolve } from 'node:path';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 /**
  * Standalone (plain Vite, not `electron-vite`) build for the Discord bot's `/builddisplay` and
@@ -27,8 +27,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@renderer': resolve(__dirname, 'src/renderer'),
-      '@shared': resolve(__dirname, 'src/shared')
-    }
+      '@shared': resolve(__dirname, 'src/shared'),
+    },
   },
   build: {
     outDir: resolve(__dirname, 'worker/public'),
@@ -36,9 +36,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         'build-preview': resolve(__dirname, 'src/web-preview/build-preview.html'),
-        'squad-preview': resolve(__dirname, 'src/web-preview/squad-preview.html')
-      }
-    }
+        'squad-preview': resolve(__dirname, 'src/web-preview/squad-preview.html'),
+      },
+    },
   },
-  plugins: [react()]
-})
+  plugins: [react()],
+});

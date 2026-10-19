@@ -1,16 +1,16 @@
-import { useState } from 'react'
-import type { ShareKind } from '@shared/share/types'
-import { createShare, isShareConfigured } from '@renderer/share/share-client'
+import { useState } from 'react';
+import type { ShareKind } from '@shared/share/types';
+import { createShare, isShareConfigured } from '@renderer/share/share-client';
 
 interface Props {
-  kind: ShareKind
+  kind: ShareKind;
   /** Computed lazily, only once the user actually clicks Share — building a squad comp's payload
    *  means bundling every referenced build's full data (see `SquadCompSharePayload`), not just
    *  reading `draft` directly. */
-  getData: () => unknown
+  getData: () => unknown;
 }
 
-type Status = 'idle' | 'busy' | 'done' | 'error'
+type Status = 'idle' | 'busy' | 'done' | 'error';
 
 /**
  * "Share Link" button shared by `BuildEditorView` and `SquadCompEditorView` — creates an immutable
@@ -25,26 +25,32 @@ type Status = 'idle' | 'busy' | 'done' | 'error'
  * build before deploy.
  */
 export function SharePanel({ kind, getData }: Props) {
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<Status>('idle');
 
-  if (!isShareConfigured()) return null
+  if (!isShareConfigured()) return null;
 
   async function handleShare(): Promise<void> {
-    setStatus('busy')
+    setStatus('busy');
     try {
-      const url = await createShare(kind, getData())
-      await navigator.clipboard.writeText(url)
-      setStatus('done')
-      setTimeout(() => setStatus('idle'), 1500)
+      const url = await createShare(kind, getData());
+      await navigator.clipboard.writeText(url);
+      setStatus('done');
+      setTimeout(() => setStatus('idle'), 1500);
     } catch {
-      setStatus('error')
-      setTimeout(() => setStatus('idle'), 2500)
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 2500);
     }
   }
 
   return (
     <button type="button" onClick={() => void handleShare()} disabled={status === 'busy'}>
-      {status === 'busy' ? 'Creating link…' : status === 'done' ? 'Link copied to clipboard!' : status === 'error' ? 'Failed — try again' : 'Share Link'}
+      {status === 'busy'
+        ? 'Creating link…'
+        : status === 'done'
+          ? 'Link copied to clipboard!'
+          : status === 'error'
+            ? 'Failed — try again'
+            : 'Share Link'}
     </button>
-  )
+  );
 }

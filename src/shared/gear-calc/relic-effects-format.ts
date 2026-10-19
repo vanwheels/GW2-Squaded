@@ -1,7 +1,7 @@
-import type { Relic, RelicEffect, RelicFactLine } from '@shared/types'
+import type { Relic, RelicEffect, RelicFactLine } from '@shared/types';
 
 function titleCase(label: string): string {
-  return label.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1))
+  return label.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1));
 }
 
 /**
@@ -13,8 +13,8 @@ function titleCase(label: string): string {
  * `titleCase`, which would wrongly capitalize "of"/"the" inside a multi-word relic name.
  */
 function effectNameFromValue(value: string): string {
-  const stripped = value.replace(/\s*\(effect\)$/i, '')
-  return stripped ? stripped[0].toUpperCase() + stripped.slice(1) : stripped
+  const stripped = value.replace(/\s*\(effect\)$/i, '');
+  return stripped ? stripped[0].toUpperCase() + stripped.slice(1) : stripped;
 }
 
 /**
@@ -25,21 +25,22 @@ function effectNameFromValue(value: string): string {
  * fact that's actually inflicted on an enemy as a decrease, `alt=Movement Speed Decrease`).
  */
 export function formatFactLine(fact: RelicFactLine): string {
-  const label = fact.params.alt ?? fact.label
+  const label = fact.params.alt ?? fact.label;
   if (fact.label.toLowerCase() === 'effect') {
     // No `alt=`/`desc=` means the wiki's `{{skill fact|effect|...}}` line carries the actual effect
     // name only as its first positional value — falling back to `label` here just shows the literal
     // template keyword "effect" instead.
-    const detail = fact.params.desc ?? (fact.values[0] ? effectNameFromValue(fact.values[0]) : label)
-    const duration = fact.values.find((v) => /^\d+(\.\d+)?$/.test(v))
-    return duration ? `${detail} (${duration}s)` : detail
+    const detail =
+      fact.params.desc ?? (fact.values[0] ? effectNameFromValue(fact.values[0]) : label);
+    const duration = fact.values.find((v) => /^\d+(\.\d+)?$/.test(v));
+    return duration ? `${detail} (${duration}s)` : detail;
   }
-  const primary = fact.values.find((v) => /^[\d.]+%?$/.test(v))
-  const extras: string[] = []
-  if (fact.params.stacks) extras.push(`${fact.params.stacks} stacks`)
-  if (!primary && fact.params.coefficient) extras.push(`coefficient ${fact.params.coefficient}`)
-  const suffix = extras.length > 0 ? ` (${extras.join(', ')})` : ''
-  return primary ? `${titleCase(label)}: ${primary}${suffix}` : `${titleCase(label)}${suffix}`
+  const primary = fact.values.find((v) => /^[\d.]+%?$/.test(v));
+  const extras: string[] = [];
+  if (fact.params.stacks) extras.push(`${fact.params.stacks} stacks`);
+  if (!primary && fact.params.coefficient) extras.push(`coefficient ${fact.params.coefficient}`);
+  const suffix = extras.length > 0 ? ` (${extras.join(', ')})` : '';
+  return primary ? `${titleCase(label)}: ${primary}${suffix}` : `${titleCase(label)}${suffix}`;
 }
 
 /**
@@ -60,17 +61,29 @@ const CURATED_RELIC_FACT_OVERRIDES: Record<number, (facts: RelicFactLine[]) => R
     // duration from this same table for the aggregate calculator — these facts are display-only.
     ...facts.filter((f) => f.label !== 'duration'),
     { label: 'duration', values: ['4'], params: { alt: 'Crystal Duration (0s Elite Recharge)' } },
-    { label: 'duration', values: ['5'], params: { alt: 'Crystal Duration (1–20s Elite Recharge)' } },
-    { label: 'duration', values: ['6'], params: { alt: 'Crystal Duration (21–40s Elite Recharge)' } },
-    { label: 'duration', values: ['7'], params: { alt: 'Crystal Duration (41–60s Elite Recharge)' } },
-    { label: 'duration', values: ['8'], params: { alt: 'Crystal Duration (61s+ Elite Recharge)' } }
-  ]
-}
+    {
+      label: 'duration',
+      values: ['5'],
+      params: { alt: 'Crystal Duration (1–20s Elite Recharge)' },
+    },
+    {
+      label: 'duration',
+      values: ['6'],
+      params: { alt: 'Crystal Duration (21–40s Elite Recharge)' },
+    },
+    {
+      label: 'duration',
+      values: ['7'],
+      params: { alt: 'Crystal Duration (41–60s Elite Recharge)' },
+    },
+    { label: 'duration', values: ['8'], params: { alt: 'Crystal Duration (61s+ Elite Recharge)' } },
+  ],
+};
 
 /** Applies `CURATED_RELIC_FACT_OVERRIDES` for `relicId`, else returns `facts` unchanged (the
  *  overwhelming majority of relics — no entry above). */
 function applyCuratedRelicFacts(relicId: number, facts: RelicFactLine[]): RelicFactLine[] {
-  return CURATED_RELIC_FACT_OVERRIDES[relicId]?.(facts) ?? facts
+  return CURATED_RELIC_FACT_OVERRIDES[relicId]?.(facts) ?? facts;
 }
 
 /**
@@ -82,10 +95,10 @@ function applyCuratedRelicFacts(relicId: number, facts: RelicFactLine[]): RelicF
  * see the type's doc comment).
  */
 export function formatRelicDescription(relic: Relic, effect: RelicEffect | undefined): string {
-  const lines = [relic.description]
+  const lines = [relic.description];
   if (effect) {
-    lines.push(...applyCuratedRelicFacts(relic.id, effect.facts).map(formatFactLine))
-    if (effect.rechargeSeconds !== null) lines.push(`Recharge: ${effect.rechargeSeconds}s`)
+    lines.push(...applyCuratedRelicFacts(relic.id, effect.facts).map(formatFactLine));
+    if (effect.rechargeSeconds !== null) lines.push(`Recharge: ${effect.rechargeSeconds}s`);
   }
-  return lines.join('\n')
+  return lines.join('\n');
 }

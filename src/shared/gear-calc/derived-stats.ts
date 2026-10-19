@@ -1,4 +1,4 @@
-import type { Build, EquipmentSlotKey, GameData, ProfessionId } from '../types'
+import type { Build, EquipmentSlotKey, GameData, ProfessionId } from '../types';
 import {
   activeConsumableConversions,
   addPoints,
@@ -7,9 +7,9 @@ import {
   computeGearAttributeTotals,
   conditionDurationPercent,
   emptyTotals,
-  magicFindPercent
-} from './attribute-totals'
-import { RUNE_SLOT_KEYS } from './upgrade-slots'
+  magicFindPercent,
+} from './attribute-totals';
+import { RUNE_SLOT_KEYS } from './upgrade-slots';
 import {
   combatStatePoints,
   curatedRelicCritChanceBonus,
@@ -28,9 +28,9 @@ import {
   resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
   resolveRelicDurationPercentBonus,
-  type CombatState
-} from './combat-state'
-import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
+  type CombatState,
+} from './combat-state';
+import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes';
 
 /** A level-80 character's base attributes before any gear/upgrade contribution. Precision/
  *  Toughness/Vitality/Power all start at 1000 (confirmed via wiki.guildwars2.com/wiki/Ferocity,
@@ -45,22 +45,22 @@ export const BASE_ATTRIBUTES: Record<string, number> = {
   Healing: 0,
   ConditionDamage: 0,
   BoonDuration: 0,
-  ConditionDuration: 0
-}
+  ConditionDuration: 0,
+};
 
 // wiki.guildwars2.com/wiki/Precision: "Critical Chance (%) = 5 + [ (Precision - 1000) / 21 ]"
-export const BASE_CRITICAL_CHANCE_PERCENT = 5
-export const PRECISION_PER_CRITICAL_CHANCE_PERCENT = 21
+export const BASE_CRITICAL_CHANCE_PERCENT = 5;
+export const PRECISION_PER_CRITICAL_CHANCE_PERCENT = 21;
 
 // wiki.guildwars2.com/wiki/Ferocity: "every 15 points of ferocity adds 1% to critical damage",
 // base critical damage (0 bonus Ferocity) is 150% per wiki.guildwars2.com/wiki/Critical_hit.
-export const BASE_CRITICAL_DAMAGE_PERCENT = 150
-export const FEROCITY_PER_CRITICAL_DAMAGE_PERCENT = 15
+export const BASE_CRITICAL_DAMAGE_PERCENT = 150;
+export const FEROCITY_PER_CRITICAL_DAMAGE_PERCENT = 15;
 
 // wiki.guildwars2.com/wiki/Health: base health at level 80 (before Vitality), by profession
 // tier — confirmed live against this app's own Revenant example (5,922 + 1000*10 = 15,922,
 // matching a reference screenshot's baseline Health value, see TODO.md).
-export const HEALTH_PER_VITALITY = 10
+export const HEALTH_PER_VITALITY = 10;
 export const BASE_HEALTH_BY_PROFESSION: Record<ProfessionId, number> = {
   Warrior: 9212,
   Necromancer: 9212,
@@ -70,10 +70,10 @@ export const BASE_HEALTH_BY_PROFESSION: Record<ProfessionId, number> = {
   Mesmer: 5922,
   Guardian: 1645,
   Thief: 1645,
-  Elementalist: 1645
-}
+  Elementalist: 1645,
+};
 
-export type ArmorWeightClass = 'Light' | 'Medium' | 'Heavy'
+export type ArmorWeightClass = 'Light' | 'Medium' | 'Heavy';
 
 // wiki.guildwars2.com/wiki/Profession: "scholars wear light armor, adventurers wear medium
 // armor, and soldiers wear heavy armor" (Scholars: Elementalist/Mesmer/Necromancer; Adventurers:
@@ -88,8 +88,8 @@ export const WEIGHT_CLASS_BY_PROFESSION: Record<ProfessionId, ArmorWeightClass> 
   Thief: 'Medium',
   Elementalist: 'Light',
   Mesmer: 'Light',
-  Necromancer: 'Light'
-}
+  Necromancer: 'Light',
+};
 
 /**
  * Per-armor-piece Defense rating at level 80 Ascended (matches this app's existing Ascended-only
@@ -104,16 +104,16 @@ export const WEIGHT_CLASS_BY_PROFESSION: Record<ProfessionId, ArmorWeightClass> 
 const ARMOR_PIECE_DEFENSE: Record<ArmorWeightClass, Partial<Record<EquipmentSlotKey, number>>> = {
   Heavy: { helm: 127, shoulders: 127, chest: 381, gloves: 191, leggings: 254, boots: 191 },
   Medium: { helm: 102, shoulders: 102, chest: 355, gloves: 165, leggings: 229, boots: 165 },
-  Light: { helm: 77, shoulders: 77, chest: 330, gloves: 140, leggings: 203, boots: 140 }
-}
+  Light: { helm: 77, shoulders: 77, chest: 330, gloves: 140, leggings: 203, boots: 140 },
+};
 
 function armorDefenseTotal(build: Build, weightClass: ArmorWeightClass): number {
-  const perPiece = ARMOR_PIECE_DEFENSE[weightClass]
-  let total = 0
+  const perPiece = ARMOR_PIECE_DEFENSE[weightClass];
+  let total = 0;
   for (const slotKey of RUNE_SLOT_KEYS) {
-    if (build.equipment[slotKey]?.itemStatId != null) total += perPiece[slotKey] ?? 0
+    if (build.equipment[slotKey]?.itemStatId != null) total += perPiece[slotKey] ?? 0;
   }
-  return total
+  return total;
 }
 
 /** Every armor slot's Defense rating summed unconditionally (not gated on `itemStatId !== null`
@@ -121,79 +121,90 @@ function armorDefenseTotal(build: Build, weightClass: ArmorWeightClass): number 
  *  assigns every one of the 6 armor slots a stat combo by construction, so by the time a result
  *  exists Defense is already at this fixed total regardless of which specific combos were chosen. */
 export function fullArmorDefense(weightClass: ArmorWeightClass): number {
-  const perPiece = ARMOR_PIECE_DEFENSE[weightClass]
-  return RUNE_SLOT_KEYS.reduce((sum, slotKey) => sum + (perPiece[slotKey] ?? 0), 0)
+  const perPiece = ARMOR_PIECE_DEFENSE[weightClass];
+  return RUNE_SLOT_KEYS.reduce((sum, slotKey) => sum + (perPiece[slotKey] ?? 0), 0);
 }
 
 /** Raw (non-percentage) attribute totals for the stats panel's left column — base character
  *  value plus every gear/rune/food/utility contribution. */
 export interface CharacterAttributes {
-  power: number
-  toughness: number
-  vitality: number
-  precision: number
-  ferocity: number
-  healingPower: number
-  conditionDamage: number
-  expertise: number
-  concentration: number
+  power: number;
+  toughness: number;
+  vitality: number;
+  precision: number;
+  ferocity: number;
+  healingPower: number;
+  conditionDamage: number;
+  expertise: number;
+  concentration: number;
 }
 
 /** Derived/converted stats for the stats panel's right column. */
 export interface DerivedStats {
-  armor: number
-  health: number
-  criticalChance: number
-  criticalDamage: number
-  boonDuration: number
-  conditionDuration: number
-  magicFind: number
+  armor: number;
+  health: number;
+  criticalChance: number;
+  criticalDamage: number;
+  boonDuration: number;
+  conditionDuration: number;
+  magicFind: number;
   /** Outgoing strike-damage-% bonus — plain additive stacking, see `combat-state.ts`'s
    *  `resolveOutgoingDamagePercent` for the full list of curated relic/sigil/Kalla's-Fervor/trait
    *  sources (2026-08-22 "Outgoing Damage % full pass": 14 curated relics + Sigil of Force/
    *  Slaying-family baseline/Sigil of the Night; Traits leg started same day with Guardian's
    *  Furious Focus/Retribution/Inspired Virtue, more professions to follow). */
-  outgoingDamagePercent: number
+  outgoingDamagePercent: number;
   /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total,
    *  sibling to `outgoingDamagePercent` above, see `resolveOutgoingConditionDamagePercent` for its
    *  curated sources (Kalla's Fervor, Relic of Nourys, Sigil of Bursting). */
-  outgoingConditionDamagePercent: number
+  outgoingConditionDamagePercent: number;
   /** Life-steal-%, first field for this stat anywhere in the app — Kalla's Fervor's per-stack
    *  life-steal share (see `outgoingDamagePercent`'s doc comment for the Lasting Legacy upgrade)
    *  plus Relic of Atrocity, see `resolveLifeStealPercent`'s curated `CURATED_RELIC_LIFE_STEAL_
    *  BONUSES`. */
-  lifeStealPercent: number
+  lifeStealPercent: number;
   /** Movement-speed-%, first/only field for this stat anywhere in the app. Unlike every other
    *  derived %-stat here, its curated sources don't simply sum — see `combat-state.ts`'s
    *  `resolveMovementSpeedPercent` (the "highest value wins, plus Rising Momentum's own additive
    *  upkeep-scaling contribution" formula) for the real combination rule and the full list of
    *  curated runes/traits/relic. 0 for every build with none of those active. */
-  movementSpeedPercent: number
+  movementSpeedPercent: number;
   /** Outgoing-healing-%-to-other-allies bonus — plain additive stacking (wiki-confirmed, see
    *  `combat-state.ts`'s `resolveOutgoingHealingPercent` doc comment), unlike `movementSpeedPercent`'s
    *  "highest wins" rule. 0 for every build with none of its curated trait/relic/sigil/food/utility
    *  sources active. */
-  outgoingHealingPercent: number
+  outgoingHealingPercent: number;
   /** Incoming-healing-%-to-self bonus — sibling to `outgoingHealingPercent`, same additive-stacking
    *  rule, currently sourced only from flat trait bonuses (see `resolveIncomingHealingPercent`). */
-  incomingHealingPercent: number
+  incomingHealingPercent: number;
 }
 
 export interface CharacterStats {
-  attributes: CharacterAttributes
-  derived: DerivedStats
+  attributes: CharacterAttributes;
+  derived: DerivedStats;
 }
 
 export function computeCharacterStats(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'>,
-  combatState: CombatState = DEFAULT_COMBAT_STATE
+  gameData: Pick<
+    GameData,
+    | 'itemStats'
+    | 'itemStatLegalIds'
+    | 'infusions'
+    | 'runes'
+    | 'sigils'
+    | 'food'
+    | 'utility'
+    | 'traits'
+    | 'legends'
+  >,
+  combatState: CombatState = DEFAULT_COMBAT_STATE,
 ): CharacterStats {
-  const gearTotals = computeGearAttributeTotals(build, gameData)
-  const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
-  const foodById = new Map(gameData.food.map((f) => [f.id, f]))
-  const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
-  const combatPoints = combatStatePoints(build, combatState, traitsById, gameData.legends)
+  const gearTotals = computeGearAttributeTotals(build, gameData);
+  const traitsById = new Map(gameData.traits.map((t) => [t.id, t]));
+  const foodById = new Map(gameData.food.map((f) => [f.id, f]));
+  const utilityById = new Map(gameData.utility.map((u) => [u.id, u]));
+  const combatPoints = combatStatePoints(build, combatState, traitsById, gameData.legends);
 
   // Single unified totals: base + gear/rune/food/utility + combat state, then every active
   // trait's flat AttributeAdjust bonus and BuffConversion (e.g. Revenant/Salvation's "Life
@@ -201,26 +212,29 @@ export function computeCharacterStats(
   // traits weren't factored into attribute totals anywhere before this, confirmed missing via a
   // user cross-check against gw2skills.net. Conversions need the *final* source-attribute value
   // (after gear etc.), so `applyTraitBonuses` must run last. See `trait-attributes.ts`.
-  const totals = emptyTotals()
-  for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(totals, k, v)
-  for (const [k, v] of Object.entries(gearTotals.points)) addPoints(totals, k, v)
-  for (const [k, v] of Object.entries(combatPoints)) addPoints(totals, k, v)
-  totals.bonusPercent = { ...gearTotals.bonusPercent }
+  const totals = emptyTotals();
+  for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(totals, k, v);
+  for (const [k, v] of Object.entries(gearTotals.points)) addPoints(totals, k, v);
+  for (const [k, v] of Object.entries(combatPoints)) addPoints(totals, k, v);
+  totals.bonusPercent = { ...gearTotals.bonusPercent };
   // Relic of the Herald/Thorns' flat attribute-point bonuses are folded into `combatPoints` above
   // (same points pipeline as gear); Relic of the Scourge/Aristocracy/Firebrand's own Boon/Condition
   // Duration bonuses are already expressed as a direct percent, so they add onto `bonusPercent`
   // here instead, same as a rune/food/utility duration bonus line — see `resolveRelicDurationPercentBonus`.
-  const relicDurationBonus = resolveRelicDurationPercentBonus(build, combatState)
-  totals.bonusPercent.boonDuration += relicDurationBonus.boonDuration
-  totals.bonusPercent.conditionDuration += relicDurationBonus.conditionDuration
+  const relicDurationBonus = resolveRelicDurationPercentBonus(build, combatState);
+  totals.bonusPercent.boonDuration += relicDurationBonus.boonDuration;
+  totals.bonusPercent.conditionDuration += relicDurationBonus.conditionDuration;
   // Food/utility "Gain X Equal to N% of Your Y" conversions (Superior Sharpening Stone, Tuning
   // Crystals — the dominant WvW Utility-consumable shape, see `AttributeBonusText`'s doc comment)
   // resolve against this same base+gear+combat snapshot, before trait bonuses stack on top —
   // `addBonus` intentionally no-ops on these during `computeGearAttributeTotals` since a
   // single-pass point add can't see the source attribute's final value yet.
-  applyConversions(totals, activeConsumableConversions(build, foodById, utilityById))
-  for (const [k, v] of Object.entries(healthThresholdConsumableBonus(build, combatState.healthTier, foodById, utilityById))) addPoints(totals, k, v)
-  applyTraitBonuses(totals, build, traitsById, gameData.legends)
+  applyConversions(totals, activeConsumableConversions(build, foodById, utilityById));
+  for (const [k, v] of Object.entries(
+    healthThresholdConsumableBonus(build, combatState.healthTier, foodById, utilityById),
+  ))
+    addPoints(totals, k, v);
+  applyTraitBonuses(totals, build, traitsById, gameData.legends);
 
   const attributes: CharacterAttributes = {
     power: totals.points.Power ?? 0,
@@ -231,14 +245,14 @@ export function computeCharacterStats(
     healingPower: totals.points.Healing ?? 0,
     conditionDamage: totals.points.ConditionDamage ?? 0,
     expertise: totals.points.ConditionDuration ?? 0,
-    concentration: totals.points.BoonDuration ?? 0
-  }
+    concentration: totals.points.BoonDuration ?? 0,
+  };
 
-  const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
-  const defense = weightClass ? armorDefenseTotal(build, weightClass) : 0
-  const baseHealth = BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0
+  const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession];
+  const defense = weightClass ? armorDefenseTotal(build, weightClass) : 0;
+  const baseHealth = BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0;
 
-  const maxHealthPercent = maxHealthPercentTraitBonus(build, traitsById)
+  const maxHealthPercent = maxHealthPercentTraitBonus(build, traitsById);
 
   const derived: DerivedStats = {
     armor: attributes.toughness + defense,
@@ -254,21 +268,31 @@ export function computeCharacterStats(
       highHealthCritChanceTraitBonus(build, combatState.healthTier, traitsById) +
       (combatState.mechanicActive ? mechanicActiveCritChanceTraitBonus(build, traitsById) : 0) +
       curatedRelicCritChanceBonus(build, combatState),
-    criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
+    criticalDamage:
+      BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(totals),
     conditionDuration: conditionDurationPercent(totals),
     magicFind: magicFindPercent(totals),
     outgoingDamagePercent: resolveOutgoingDamagePercent(build, combatState, traitsById),
-    outgoingConditionDamagePercent: resolveOutgoingConditionDamagePercent(build, combatState, traitsById),
+    outgoingConditionDamagePercent: resolveOutgoingConditionDamagePercent(
+      build,
+      combatState,
+      traitsById,
+    ),
     lifeStealPercent: resolveLifeStealPercent(build, combatState, traitsById),
-    movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById),
+    movementSpeedPercent: resolveMovementSpeedPercent(
+      build,
+      combatState,
+      totals.bonusPercent.movementSpeed,
+      traitsById,
+    ),
     outgoingHealingPercent: resolveOutgoingHealingPercent(build, combatState, traitsById, {
       healingPower: attributes.healingPower,
       concentration: attributes.concentration,
-      vitality: attributes.vitality
+      vitality: attributes.vitality,
     }),
-    incomingHealingPercent: resolveIncomingHealingPercent(build, traitsById)
-  }
+    incomingHealingPercent: resolveIncomingHealingPercent(build, traitsById),
+  };
 
-  return { attributes, derived }
+  return { attributes, derived };
 }

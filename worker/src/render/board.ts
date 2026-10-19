@@ -1,14 +1,14 @@
-import type { DiscordActionRow, DiscordMessagePayload } from '../discord/api'
-import type { BuildRow, SquadRow } from '../db'
-import emojiMapData from '../discord/emoji-map.json'
+import type { DiscordActionRow, DiscordMessagePayload } from '../discord/api';
+import type { BuildRow, SquadRow } from '../db';
+import emojiMapData from '../discord/emoji-map.json';
 
 /** Same blue used for both board section kinds — this bot only ever posts board-section messages
  *  and command followups, no branding need for more than one accent color yet. */
-const BOARD_EMBED_COLOR = 0x3ea6ff
+const BOARD_EMBED_COLOR = 0x3ea6ff;
 
 interface EmojiRef {
-  name: string
-  id: string
+  name: string;
+  id: string;
 }
 
 /** Bot-owned Discord "application emojis" (usable in any guild the bot is in, don't consume a
@@ -18,13 +18,18 @@ interface EmojiRef {
  *  new elite spec ships); this file starts out as the empty `{"professions":{},"specializations":{}}`
  *  placeholder committed alongside this code so the build doesn't depend on that script having run
  *  yet. A profession/spec missing from the map (not yet uploaded) just renders with no emoji. */
-const EMOJI_MAP = emojiMapData as { professions: Record<string, EmojiRef>; specializations: Record<string, EmojiRef> }
+const EMOJI_MAP = emojiMapData as {
+  professions: Record<string, EmojiRef>;
+  specializations: Record<string, EmojiRef>;
+};
 
 /** `<:name:id>` for a build's elite spec if it has one and it's in the map, else the plain
  *  profession's, else no emoji at all — trailing space included so callers can just concatenate. */
 function buildEmojiPrefix(profession: string, specializationId: number | null): string {
-  const ref = (specializationId !== null ? EMOJI_MAP.specializations[String(specializationId)] : undefined) ?? EMOJI_MAP.professions[profession]
-  return ref ? `<:${ref.name}:${ref.id}> ` : ''
+  const ref =
+    (specializationId !== null ? EMOJI_MAP.specializations[String(specializationId)] : undefined) ??
+    EMOJI_MAP.professions[profession];
+  return ref ? `<:${ref.name}:${ref.id}> ` : '';
 }
 
 /** The board-list hyperlink target for a share: a worker-hosted landing page (see
@@ -32,14 +37,14 @@ function buildEmojiPrefix(profession: string, specializationId: number | null): 
  *  raw `/shares/:id` JSON endpoint — clicking a build/squad name in Discord should show a human a
  *  page, not a blob of JSON. Board-polish decision 2026-08-19, see docs/discord-bot.md. */
 function shareLandingUrl(publicOrigin: string, shareId: string): string {
-  return `${publicOrigin}/shares/${shareId}/open`
+  return `${publicOrigin}/shares/${shareId}/open`;
 }
 
 /** `**[name](url)**` — a bold masked link. `name` must already be markdown-escaped
  *  (`escapeMarkdown`, which also escapes `[`/`]` for exactly this use) so an unescaped `]` in a
  *  user-supplied name can't prematurely close the link label. */
 function buildNameLink(name: string, url: string): string {
-  return `**[${name}](${url})**`
+  return `**[${name}](${url})**`;
 }
 
 /** `custom_id` of every "Preview a build…" select menu a board section posts — the same literal
@@ -47,17 +52,17 @@ function buildNameLink(name: string, url: string): string {
  *  identifies the build unambiguously; nothing about which section a click came from needs to
  *  round-trip through the id. `discord/interactions.ts` checks a `MESSAGE_COMPONENT`'s custom_id
  *  against this before treating `interaction.data.values[0]` as a build id. */
-export const BOARD_BUILD_PREVIEW_CUSTOM_ID = 'boardpreview:build'
+export const BOARD_BUILD_PREVIEW_CUSTOM_ID = 'boardpreview:build';
 
 /** Squad-board equivalent of `BOARD_BUILD_PREVIEW_CUSTOM_ID` above — squads have one section, not
  *  one per profession, but the same "one literal custom_id, the option value carries the id"
  *  reasoning applies. */
-export const BOARD_SQUAD_PREVIEW_CUSTOM_ID = 'boardpreview:squad'
+export const BOARD_SQUAD_PREVIEW_CUSTOM_ID = 'boardpreview:squad';
 
 /** Discord caps a select option's `label`/`value` at 100 characters — build names are free text
  *  (no length limit enforced at add time), so this is a real, if rare, possibility. */
 function truncateForSelectOption(text: string, maxLength = 100): string {
-  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
 /** A "Preview a build…" select menu row for a profession section, one option per build (screenshot
@@ -76,10 +81,12 @@ function buildPreviewSelectRow(builds: BuildRow[]): DiscordActionRow {
         type: 3,
         custom_id: BOARD_BUILD_PREVIEW_CUSTOM_ID,
         placeholder: 'Preview a build…',
-        options: builds.slice(0, 25).map((b) => ({ label: truncateForSelectOption(b.name), value: String(b.id) }))
-      }
-    ]
-  }
+        options: builds
+          .slice(0, 25)
+          .map((b) => ({ label: truncateForSelectOption(b.name), value: String(b.id) })),
+      },
+    ],
+  };
 }
 
 /** Squad-board equivalent of `buildPreviewSelectRow` above (render reuses `render/squad-screenshot.
@@ -93,49 +100,63 @@ function squadPreviewSelectRow(squads: SquadRow[]): DiscordActionRow {
         type: 3,
         custom_id: BOARD_SQUAD_PREVIEW_CUSTOM_ID,
         placeholder: 'Preview a squad…',
-        options: squads.slice(0, 25).map((s) => ({ label: truncateForSelectOption(s.name), value: String(s.id) }))
-      }
-    ]
-  }
+        options: squads
+          .slice(0, 25)
+          .map((s) => ({ label: truncateForSelectOption(s.name), value: String(s.id) })),
+      },
+    ],
+  };
 }
 
 /** Renders one profession's board section — the message `/buildBoardSetup`/`/buildBoardRebuild`
  *  create and every `/buildAdd`/`/buildEdit`/`/buildRemove`/`/buildMove` re-PATCHes in place.
  *  Builds are numbered by their `sort_order` position so `/buildMove [Build Name] [position]`'s
  *  numeric argument reads directly off what's displayed. */
-export function renderBuildSection(profession: string, builds: BuildRow[], publicOrigin: string): DiscordMessagePayload {
+export function renderBuildSection(
+  profession: string,
+  builds: BuildRow[],
+  publicOrigin: string,
+): DiscordMessagePayload {
   const description =
     builds.length === 0
       ? '*(no builds yet — add one with `/buildAdd`)*'
       : builds
           .map(
             (b, i) =>
-              `${i + 1}. ${buildEmojiPrefix(b.profession, b.specialization_id)}${buildNameLink(escapeMarkdown(b.name), shareLandingUrl(publicOrigin, b.share_id))}`
+              `${i + 1}. ${buildEmojiPrefix(b.profession, b.specialization_id)}${buildNameLink(escapeMarkdown(b.name), shareLandingUrl(publicOrigin, b.share_id))}`,
           )
-          .join('\n')
+          .join('\n');
 
   return {
     embeds: [{ title: profession, description, color: BOARD_EMBED_COLOR }],
     // An empty array (not just omitting the field) is what clears a stale select menu on a
     // `/buildRemove` that empties out a section — same reasoning as `DiscordMessagePayload.components`'s
     // own doc comment (a PATCH only touches fields present in the body).
-    components: builds.length === 0 ? [] : [buildPreviewSelectRow(builds)]
-  }
+    components: builds.length === 0 ? [] : [buildPreviewSelectRow(builds)],
+  };
 }
 
 /** Renders the single squad-board message — squads have no per-category sections (see
  *  `SQUAD_BOARD_CATEGORY`'s doc comment), just one add-ordered list. */
-export function renderSquadSection(squads: SquadRow[], publicOrigin: string): DiscordMessagePayload {
+export function renderSquadSection(
+  squads: SquadRow[],
+  publicOrigin: string,
+): DiscordMessagePayload {
   const description =
     squads.length === 0
       ? '*(no squads yet — add one with `/squadAdd`)*'
-      : squads.map((s, i) => `${i + 1}. ${buildNameLink(escapeMarkdown(s.name), shareLandingUrl(publicOrigin, s.share_id))}`).join('\n')
+      : squads
+          .map(
+            (s, i) =>
+              `${i + 1}. ${buildNameLink(escapeMarkdown(s.name), shareLandingUrl(publicOrigin, s.share_id))}`,
+          )
+          .join('\n');
 
   return {
     embeds: [{ title: 'Squads', description, color: BOARD_EMBED_COLOR }],
     // Same empty-array-clears-a-stale-menu reasoning as `renderBuildSection` above.
-    components: squads.length === 0 ? [] : [squadPreviewSelectRow(squads)]
-  }
+    components: squads.length === 0 ? [] : [squadPreviewSelectRow(squads)],
+  };
 }
 
 /** Discord markdown treats `*_~\`|` as formatting characters — escape them in user-supplied build/
@@ -146,5 +167,5 @@ export function renderSquadSection(squads: SquadRow[], publicOrigin: string): Di
  *  for `discord/commands/builds.ts`/`squads.ts`'s pending-approval card descriptions, which quote
  *  the same user-supplied names outside a board section. */
 export function escapeMarkdown(text: string): string {
-  return text.replace(/[*_~`|\\[\]]/g, (ch) => `\\${ch}`)
+  return text.replace(/[*_~`|\\[\]]/g, (ch) => `\\${ch}`);
 }

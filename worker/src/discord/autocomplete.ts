@@ -1,16 +1,16 @@
-import { searchBuildNames, searchSquadNames } from '../db'
-import type { Env } from '../env'
-import type { InteractionOption } from './interaction-types'
+import { searchBuildNames, searchSquadNames } from '../db';
+import type { Env } from '../env';
+import type { InteractionOption } from './interaction-types';
 
 /** Commands whose `name` argument refers to an *existing* build/squad on the board (as opposed to
  *  `buildadd`/`squadadd`'s `name`, which names a brand-new entry and has nothing to autocomplete
  *  against) — see docs/discord-bot.md's "autocomplete on every [Build Name] argument" note. */
-const BUILD_NAME_COMMANDS = new Set(['buildremove', 'buildedit', 'buildmove', 'builddisplay'])
-const SQUAD_NAME_COMMANDS = new Set(['squadremove', 'squadedit', 'squaddisplay'])
+const BUILD_NAME_COMMANDS = new Set(['buildremove', 'buildedit', 'buildmove', 'builddisplay']);
+const SQUAD_NAME_COMMANDS = new Set(['squadremove', 'squadedit', 'squaddisplay']);
 
 export interface AutocompleteChoice {
-  name: string
-  value: string
+  name: string;
+  value: string;
 }
 
 /** Answers an `APPLICATION_COMMAND_AUTOCOMPLETE` interaction — unlike a real command, this must
@@ -21,22 +21,22 @@ export async function autocompleteChoices(
   env: Env,
   guildId: string | undefined,
   commandName: string,
-  options: InteractionOption[] | undefined
+  options: InteractionOption[] | undefined,
 ): Promise<AutocompleteChoice[]> {
-  if (!guildId) return []
+  if (!guildId) return [];
 
-  const focused = options?.find((o) => o.focused)
-  if (!focused || focused.name !== 'name') return []
-  const query = typeof focused.value === 'string' ? focused.value : ''
+  const focused = options?.find((o) => o.focused);
+  if (!focused || focused.name !== 'name') return [];
+  const query = typeof focused.value === 'string' ? focused.value : '';
 
-  let names: string[]
+  let names: string[];
   if (BUILD_NAME_COMMANDS.has(commandName)) {
-    names = await searchBuildNames(env, guildId, query)
+    names = await searchBuildNames(env, guildId, query);
   } else if (SQUAD_NAME_COMMANDS.has(commandName)) {
-    names = await searchSquadNames(env, guildId, query)
+    names = await searchSquadNames(env, guildId, query);
   } else {
-    return []
+    return [];
   }
 
-  return names.map((name) => ({ name, value: name }))
+  return names.map((name) => ({ name, value: name }));
 }

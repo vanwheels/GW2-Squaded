@@ -1,19 +1,19 @@
-import { useRef, useState } from 'react'
-import type { Build } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { usePickerOpen } from '@renderer/state/picker-registry'
-import { RANGER_BEASTMODE_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
-import { SkillBarIcon } from './SkillBarIcon'
-import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
+import { useRef, useState } from 'react';
+import type { Build } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import { boonConditionFactsForSkill } from '@shared/boon-calc/sources';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { usePickerOpen } from '@renderer/state/picker-registry';
+import { RANGER_BEASTMODE_SPEC_ID } from '@shared/skill-calc/profession-mechanic';
+import { SkillBarIcon } from './SkillBarIcon';
+import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor';
 
 interface Props {
-  build: Build
-  onBuildChange: (patch: Partial<Pick<Build, 'equippedPetIds' | 'activePetIndex'>>) => void
-  equippedSpecializationIds: ReadonlySet<number>
-  combatState: CombatState
+  build: Build;
+  onBuildChange: (patch: Partial<Pick<Build, 'equippedPetIds' | 'activePetIndex'>>) => void;
+  equippedSpecializationIds: ReadonlySet<number>;
+  combatState: CombatState;
 }
 
 /**
@@ -25,15 +25,21 @@ interface Props {
  * merging with the pet (Beastmode, rendered by `ProfessionMechanicBar`/`soulbeastBeastmodeBar`)
  * replaces its standalone skill bar entirely in-game.
  */
-export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, combatState }: Props) {
-  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
-  const { skillsById, petsById, pets } = gameData
-  const { open, openThis, close } = usePickerOpen()
-  const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null)
-  const [search, setSearch] = useState('')
-  const petButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null])
-  const query = search.trim().toLowerCase()
-  const filteredPets = query ? pets.filter((p) => p.name.toLowerCase().includes(query)) : pets
+export function PetsEditor({
+  build,
+  onBuildChange,
+  equippedSpecializationIds,
+  combatState,
+}: Props) {
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } =
+    useDurationContext(build, combatState);
+  const { skillsById, petsById, pets } = gameData;
+  const { open, openThis, close } = usePickerOpen();
+  const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null);
+  const [search, setSearch] = useState('');
+  const petButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null]);
+  const query = search.trim().toLowerCase();
+  const filteredPets = query ? pets.filter((p) => p.name.toLowerCase().includes(query)) : pets;
 
   const variantContext: SkillVariantContext = {
     skills: gameData.skills,
@@ -51,59 +57,79 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: false,
     activeAttunement: build.activeAttunement,
-    familiarElement: null
-  }
+    familiarElement: null,
+  };
 
   function skillTooltipFor(skillId: number) {
-    const skill = skillsById.get(skillId)
-    if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
-    return skillTooltipContent(skill, facts, activeIds, variantContext)
+    const skill = skillsById.get(skillId);
+    if (!skill) return null;
+    const facts = boonConditionFactsForSkill(
+      skill,
+      activeIds,
+      legendIds,
+      durationPercent,
+      gameData.wvwFactOverrides.skill[skill.id],
+      gameData.legends,
+    );
+    return skillTooltipContent(skill, facts, activeIds, variantContext);
   }
 
   function choosePet(slotIndex: 0 | 1, petId: number | null): void {
-    const equippedPetIds: [number | null, number | null] = [...build.equippedPetIds]
-    equippedPetIds[slotIndex] = petId
-    onBuildChange({ equippedPetIds })
-    close()
-    setOpenPetSlot(null)
-    setSearch('')
+    const equippedPetIds: [number | null, number | null] = [...build.equippedPetIds];
+    equippedPetIds[slotIndex] = petId;
+    onBuildChange({ equippedPetIds });
+    close();
+    setOpenPetSlot(null);
+    setSearch('');
   }
 
   function toggleSlot(slotIndex: 0 | 1): void {
     if (open && openPetSlot === slotIndex) {
-      close()
+      close();
     } else {
-      setOpenPetSlot(slotIndex)
-      openThis()
+      setOpenPetSlot(slotIndex);
+      openThis();
     }
-    setSearch('')
+    setSearch('');
   }
 
-  const activePetId = build.equippedPetIds[build.activePetIndex]
-  const activePet = activePetId !== null ? petsById.get(activePetId) : undefined
+  const activePetId = build.equippedPetIds[build.activePetIndex];
+  const activePet = activePetId !== null ? petsById.get(activePetId) : undefined;
 
   function petSlot(slotIndex: 0 | 1) {
-    const petId = build.equippedPetIds[slotIndex]
-    const pet = petId !== null ? petsById.get(petId) : undefined
-    const chosenElsewhere = build.equippedPetIds[slotIndex === 0 ? 1 : 0]
+    const petId = build.equippedPetIds[slotIndex];
+    const pet = petId !== null ? petsById.get(petId) : undefined;
+    const chosenElsewhere = build.equippedPetIds[slotIndex === 0 ? 1 : 0];
     return (
       <div key={slotIndex} className="legend-slot">
         <div className="legend-slot-label">Pet {slotIndex + 1}</div>
-        <Tooltip content={pet ? <TooltipBody title={pet.name} /> : <TooltipBody title="No pet chosen" />}>
+        <Tooltip
+          content={pet ? <TooltipBody title={pet.name} /> : <TooltipBody title="No pet chosen" />}
+        >
           <button
             ref={(el) => {
-              petButtonRefs.current[slotIndex] = el
+              petButtonRefs.current[slotIndex] = el;
             }}
             type="button"
-            className={open && openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            className={
+              open && openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'
+            }
             onClick={() => toggleSlot(slotIndex)}
           >
-            {pet ? <img src={pet.icon} alt={pet.name} /> : <span className="skill-slot-placeholder">Pet</span>}
+            {pet ? (
+              <img src={pet.icon} alt={pet.name} />
+            ) : (
+              <span className="skill-slot-placeholder">Pet</span>
+            )}
           </button>
         </Tooltip>
         {openPetSlot === slotIndex && (
-          <FloatingPanel open={open} anchorRef={{ current: petButtonRefs.current[slotIndex] }} onClose={close} className="skill-picker">
+          <FloatingPanel
+            open={open}
+            anchorRef={{ current: petButtonRefs.current[slotIndex] }}
+            onClose={close}
+            className="skill-picker"
+          >
             <div className="skill-picker-header">Pet {slotIndex + 1}</div>
             <input
               type="text"
@@ -114,7 +140,11 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
               autoFocus
             />
             <div className="skill-picker-grid">
-              <button type="button" className="skill-option-button" onClick={() => choosePet(slotIndex, null)}>
+              <button
+                type="button"
+                className="skill-option-button"
+                onClick={() => choosePet(slotIndex, null)}
+              >
                 <span className="skill-option-none">—</span>
                 <span className="skill-option-name">None</span>
               </button>
@@ -124,7 +154,9 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
                   <button
                     key={p.id}
                     type="button"
-                    className={petId === p.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                    className={
+                      petId === p.id ? 'skill-option-button chosen' : 'skill-option-button'
+                    }
                     onClick={() => choosePet(slotIndex, p.id)}
                   >
                     <img src={p.icon} alt={p.name} />
@@ -135,7 +167,7 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
           </FloatingPanel>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -156,11 +188,17 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
       {!equippedSpecializationIds.has(RANGER_BEASTMODE_SPEC_ID) && (
         <div className="skill-bar">
           {activePet ? (
-            <Tooltip content={skillTooltipFor(activePet.skillId) ?? <TooltipBody title="Unknown skill" />}>
+            <Tooltip
+              content={skillTooltipFor(activePet.skillId) ?? <TooltipBody title="Unknown skill" />}
+            >
               <button type="button" className="skill-slot-button" disabled>
                 {(() => {
-                  const skill = skillsById.get(activePet.skillId)
-                  return skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>
+                  const skill = skillsById.get(activePet.skillId);
+                  return skill ? (
+                    <img src={skill.icon} alt={skill.name} />
+                  ) : (
+                    <span className="skill-slot-placeholder">?</span>
+                  );
                 })()}
               </button>
             </Tooltip>
@@ -170,5 +208,5 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
         </div>
       )}
     </div>
-  )
+  );
 }

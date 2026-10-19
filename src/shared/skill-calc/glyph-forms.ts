@@ -1,4 +1,4 @@
-import type { GlyphFormVariantMap, Skill } from '../types'
+import type { GlyphFormVariantMap, Skill } from '../types';
 
 /**
  * The Druid Glyph form-variant skill whose facts should be shown in place of `skill`'s own, given
@@ -18,15 +18,15 @@ export function glyphFormFactSourceSkill(
   skill: Skill,
   celestialAvatarActive: boolean,
   glyphFormVariants: GlyphFormVariantMap,
-  skillsById: Map<number, Skill>
+  skillsById: Map<number, Skill>,
 ): Skill | null {
-  const wantForm = celestialAvatarActive ? 'celestial' : 'normal'
+  const wantForm = celestialAvatarActive ? 'celestial' : 'normal';
   for (const [variantId, entry] of Object.entries(glyphFormVariants)) {
     if (entry.canonicalId === skill.id && entry.form === wantForm) {
-      return skillsById.get(Number(variantId)) ?? null
+      return skillsById.get(Number(variantId)) ?? null;
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -41,7 +41,10 @@ export function glyphFormDisplayIcon(
   skill: Skill,
   celestialAvatarActive: boolean,
   glyphFormVariants: GlyphFormVariantMap,
-  skillsById: Map<number, Skill>
+  skillsById: Map<number, Skill>,
 ): string {
-  return glyphFormFactSourceSkill(skill, celestialAvatarActive, glyphFormVariants, skillsById)?.icon ?? skill.icon
+  return (
+    glyphFormFactSourceSkill(skill, celestialAvatarActive, glyphFormVariants, skillsById)?.icon ??
+    skill.icon
+  );
 }

@@ -13,12 +13,14 @@
  * the "PUT it to Discord" side effect.
  */
 
-import { commands } from '../src/discord/command-catalog'
+import { commands } from '../src/discord/command-catalog';
 
-const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 if (!DISCORD_BOT_TOKEN) {
-  console.error('DISCORD_BOT_TOKEN is not set — run via `npm run register-commands` (reads .dev.vars).')
-  process.exit(1)
+  console.error(
+    'DISCORD_BOT_TOKEN is not set — run via `npm run register-commands` (reads .dev.vars).',
+  );
+  process.exit(1);
 }
 
 /** Discord bot tokens' first `.`-separated segment is the bot user's id, base64-encoded — for a
@@ -26,29 +28,29 @@ if (!DISCORD_BOT_TOKEN) {
  *  Deriving it here means the (non-secret, but separately-sourced) application id in
  *  wrangler.toml doesn't also need to be duplicated into this script's own env. */
 function applicationIdFromToken(token: string): string {
-  const firstSegment = token.split('.')[0]
-  return Buffer.from(firstSegment, 'base64').toString('utf8')
+  const firstSegment = token.split('.')[0];
+  return Buffer.from(firstSegment, 'base64').toString('utf8');
 }
 
-const applicationId = applicationIdFromToken(DISCORD_BOT_TOKEN)
+const applicationId = applicationIdFromToken(DISCORD_BOT_TOKEN);
 
 const response = await fetch(`https://discord.com/api/v10/applications/${applicationId}/commands`, {
   method: 'PUT', // PUT replaces the entire global command set with this list
   headers: {
     Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
-  body: JSON.stringify(commands)
-})
+  body: JSON.stringify(commands),
+});
 
 if (!response.ok) {
-  console.error(`Command registration failed: ${response.status} ${response.statusText}`)
-  console.error(await response.text())
-  process.exit(1)
+  console.error(`Command registration failed: ${response.status} ${response.statusText}`);
+  console.error(await response.text());
+  process.exit(1);
 }
 
-const registered = (await response.json()) as { name: string; id: string }[]
-console.log(`Registered ${registered.length} command(s):`)
+const registered = (await response.json()) as { name: string; id: string }[];
+console.log(`Registered ${registered.length} command(s):`);
 for (const command of registered) {
-  console.log(`  /${command.name} (id ${command.id})`)
+  console.log(`  /${command.name} (id ${command.id})`);
 }

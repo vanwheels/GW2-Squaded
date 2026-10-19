@@ -217,6 +217,6 @@ export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number
   62586, // Bladesong Harmony — same Master of Misdirection recharge-reduced variant, wiki id comment
   // `62617, 62586 <!-- id with Shatter Storm -->`; Infinite Forge trait facts differ in count
   // (3 vs 2 entries) but both are bare Damage values under the same trait, not a new effect
-  69385 // Axes of Symmetry — byte-identical facts to its source (43761); only the flavor-text
+  69385, // Axes of Symmetry — byte-identical facts to its source (43761); only the flavor-text
   // description differs, no new fact; live wiki infobox lists only `id = 43761`, 69385 absent
-])
+]);

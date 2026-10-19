@@ -1,4 +1,4 @@
-import type { Fact } from '../types'
+import type { Fact } from '../types';
 
 /**
  * Applies `data/game-data/recharge-wvw-overrides.json` (see `scripts/fetch-recharge-wvw-overrides.ts`
@@ -15,8 +15,14 @@ import type { Fact } from '../types'
  * `gameData.wvwFactOverrides.skill[skill.id]`/`.trait[trait.id]` are already narrowed at their own
  * call sites, rather than threading the full `{ skill, trait }` shape everywhere.
  */
-export function withRechargeOverride(facts: Fact[], id: number, overridesById: Record<number, number>): Fact[] {
-  const overrideSeconds = overridesById[id]
-  if (overrideSeconds === undefined) return facts
-  return facts.map((fact) => (fact.type === 'Recharge' ? { ...fact, value: overrideSeconds } : fact))
+export function withRechargeOverride(
+  facts: Fact[],
+  id: number,
+  overridesById: Record<number, number>,
+): Fact[] {
+  const overrideSeconds = overridesById[id];
+  if (overrideSeconds === undefined) return facts;
+  return facts.map((fact) =>
+    fact.type === 'Recharge' ? { ...fact, value: overrideSeconds } : fact,
+  );
 }

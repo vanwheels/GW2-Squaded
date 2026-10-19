@@ -1,14 +1,19 @@
-import { contextBridge, ipcRenderer } from 'electron'
-import type { Build, SquadComp } from '@shared/types'
-import type { StorageAdapter, SyncTombstone } from '@shared/storage/storage-interface'
-import { StorageIpcChannel } from '@shared/storage/ipc-channels'
-import type { GameDataProvider } from '@shared/game-data/game-data-provider'
-import type { DataUpdateProvider, DataUpdateStatus } from '@shared/game-data/data-update-provider'
-import { GameDataIpcChannel, DataUpdateIpcChannel } from '@shared/game-data/ipc-channels'
-import type { BuildScreenshotPayload, CaptureProvider, CapturePayload, SquadScreenshotPayload } from '@shared/capture/capture-provider'
-import { CaptureIpcChannel } from '@shared/capture/ipc-channels'
-import type { UpdaterProvider, UpdateStatus } from '@shared/updater/updater-provider'
-import { UpdaterIpcChannel } from '@shared/updater/ipc-channels'
+import { contextBridge, ipcRenderer } from 'electron';
+import type { Build, SquadComp } from '@shared/types';
+import type { StorageAdapter, SyncTombstone } from '@shared/storage/storage-interface';
+import { StorageIpcChannel } from '@shared/storage/ipc-channels';
+import type { GameDataProvider } from '@shared/game-data/game-data-provider';
+import type { DataUpdateProvider, DataUpdateStatus } from '@shared/game-data/data-update-provider';
+import { GameDataIpcChannel, DataUpdateIpcChannel } from '@shared/game-data/ipc-channels';
+import type {
+  BuildScreenshotPayload,
+  CaptureProvider,
+  CapturePayload,
+  SquadScreenshotPayload,
+} from '@shared/capture/capture-provider';
+import { CaptureIpcChannel } from '@shared/capture/ipc-channels';
+import type { UpdaterProvider, UpdateStatus } from '@shared/updater/updater-provider';
+import { UpdaterIpcChannel } from '@shared/updater/ipc-channels';
 
 /**
  * Implements the shared StorageAdapter interface over IPC. This is the Electron-specific
@@ -23,33 +28,40 @@ const storage: StorageAdapter = {
     update: (build: Build) => ipcRenderer.invoke(StorageIpcChannel.buildsUpdate, build),
     remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.buildsRemove, id),
     listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.buildsListTombstones),
-    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.buildsClearTombstones, ids),
+    clearTombstones: (ids: string[]) =>
+      ipcRenderer.invoke(StorageIpcChannel.buildsClearTombstones, ids),
     replaceAll: (records: Build[], tombstones: SyncTombstone[]) =>
-      ipcRenderer.invoke(StorageIpcChannel.buildsReplaceAll, records, tombstones)
+      ipcRenderer.invoke(StorageIpcChannel.buildsReplaceAll, records, tombstones),
   },
   squadComps: {
     list: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsList),
     get: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsGet, id),
-    create: (squadComp: SquadComp) => ipcRenderer.invoke(StorageIpcChannel.squadCompsCreate, squadComp),
-    update: (squadComp: SquadComp) => ipcRenderer.invoke(StorageIpcChannel.squadCompsUpdate, squadComp),
+    create: (squadComp: SquadComp) =>
+      ipcRenderer.invoke(StorageIpcChannel.squadCompsCreate, squadComp),
+    update: (squadComp: SquadComp) =>
+      ipcRenderer.invoke(StorageIpcChannel.squadCompsUpdate, squadComp),
     remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsRemove, id),
     listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsListTombstones),
-    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.squadCompsClearTombstones, ids),
+    clearTombstones: (ids: string[]) =>
+      ipcRenderer.invoke(StorageIpcChannel.squadCompsClearTombstones, ids),
     replaceAll: (records: SquadComp[], tombstones: SyncTombstone[]) =>
-      ipcRenderer.invoke(StorageIpcChannel.squadCompsReplaceAll, records, tombstones)
-  }
-}
+      ipcRenderer.invoke(StorageIpcChannel.squadCompsReplaceAll, records, tombstones),
+  },
+};
 
 const gameData: GameDataProvider = {
-  getAll: () => ipcRenderer.invoke(GameDataIpcChannel.getAll)
-}
+  getAll: () => ipcRenderer.invoke(GameDataIpcChannel.getAll),
+};
 
 const capture: CaptureProvider = {
-  captureBuildScreenshot: (payload: BuildScreenshotPayload) => ipcRenderer.invoke(CaptureIpcChannel.buildScreenshot, payload),
-  captureSquadScreenshot: (payload: SquadScreenshotPayload) => ipcRenderer.invoke(CaptureIpcChannel.squadScreenshot, payload),
-  getPayload: (token: string) => ipcRenderer.invoke(CaptureIpcChannel.getPayload, token) as Promise<CapturePayload | null>,
-  signalReady: (token: string) => ipcRenderer.invoke(CaptureIpcChannel.signalReady, token)
-}
+  captureBuildScreenshot: (payload: BuildScreenshotPayload) =>
+    ipcRenderer.invoke(CaptureIpcChannel.buildScreenshot, payload),
+  captureSquadScreenshot: (payload: SquadScreenshotPayload) =>
+    ipcRenderer.invoke(CaptureIpcChannel.squadScreenshot, payload),
+  getPayload: (token: string) =>
+    ipcRenderer.invoke(CaptureIpcChannel.getPayload, token) as Promise<CapturePayload | null>,
+  signalReady: (token: string) => ipcRenderer.invoke(CaptureIpcChannel.signalReady, token),
+};
 
 const updater: UpdaterProvider = {
   getAppVersion: () => ipcRenderer.invoke(UpdaterIpcChannel.getAppVersion),
@@ -58,11 +70,11 @@ const updater: UpdaterProvider = {
   downloadUpdate: () => ipcRenderer.invoke(UpdaterIpcChannel.download),
   quitAndInstall: () => ipcRenderer.invoke(UpdaterIpcChannel.install),
   onStatus: (listener: (status: UpdateStatus) => void) => {
-    const handler = (_event: unknown, status: UpdateStatus): void => listener(status)
-    ipcRenderer.on(UpdaterIpcChannel.status, handler)
-    return () => ipcRenderer.removeListener(UpdaterIpcChannel.status, handler)
-  }
-}
+    const handler = (_event: unknown, status: UpdateStatus): void => listener(status);
+    ipcRenderer.on(UpdaterIpcChannel.status, handler);
+    return () => ipcRenderer.removeListener(UpdaterIpcChannel.status, handler);
+  },
+};
 
 const dataUpdate: DataUpdateProvider = {
   getLocalMeta: () => ipcRenderer.invoke(DataUpdateIpcChannel.getLocalMeta),
@@ -70,14 +82,14 @@ const dataUpdate: DataUpdateProvider = {
   downloadUpdate: () => ipcRenderer.invoke(DataUpdateIpcChannel.download),
   restartAndApply: () => ipcRenderer.invoke(DataUpdateIpcChannel.restartAndApply),
   onStatus: (listener: (status: DataUpdateStatus) => void) => {
-    const handler = (_event: unknown, status: DataUpdateStatus): void => listener(status)
-    ipcRenderer.on(DataUpdateIpcChannel.status, handler)
-    return () => ipcRenderer.removeListener(DataUpdateIpcChannel.status, handler)
-  }
-}
+    const handler = (_event: unknown, status: DataUpdateStatus): void => listener(status);
+    ipcRenderer.on(DataUpdateIpcChannel.status, handler);
+    return () => ipcRenderer.removeListener(DataUpdateIpcChannel.status, handler);
+  },
+};
 
-contextBridge.exposeInMainWorld('gw2Storage', storage)
-contextBridge.exposeInMainWorld('gw2GameData', gameData)
-contextBridge.exposeInMainWorld('gw2Capture', capture)
-contextBridge.exposeInMainWorld('gw2Updater', updater)
-contextBridge.exposeInMainWorld('gw2DataUpdate', dataUpdate)
+contextBridge.exposeInMainWorld('gw2Storage', storage);
+contextBridge.exposeInMainWorld('gw2GameData', gameData);
+contextBridge.exposeInMainWorld('gw2Capture', capture);
+contextBridge.exposeInMainWorld('gw2Updater', updater);
+contextBridge.exposeInMainWorld('gw2DataUpdate', dataUpdate);

@@ -1,4 +1,4 @@
-import type { Fact, Skill } from '../types'
+import type { Fact, Skill } from '../types';
 
 /**
  * Wiki-quoted weapon-strength constants at level 80 — the midpoint of each weapon type's min-max
@@ -91,8 +91,8 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // entries' own comments for the re-derivation (phantasm medium/low respectively).
   'phantasm high': 2877.0,
   'phantasm medium': 2615.5,
-  'phantasm low': 2553.5
-}
+  'phantasm low': 2553.5,
+};
 
 /**
  * A single wiki-verified `Damage` fact's coefficient, WvW-verified (NOT the API's own
@@ -107,9 +107,9 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
  * — see each entry's comment for which case it is.
  */
 export interface DamageCoefficient {
-  factText: string
-  coefficient: number
-  weapon: keyof typeof WEAPON_STRENGTH_MIDPOINTS
+  factText: string;
+  coefficient: number;
+  weapon: keyof typeof WEAPON_STRENGTH_MIDPOINTS;
   /**
    * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
    * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
@@ -118,7 +118,7 @@ export interface DamageCoefficient {
    * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
    * curated entry actually means. See the Mesmer Utility-slot block below for the motivating cases.
    */
-  requiresTrait?: number
+  requiresTrait?: number;
 }
 
 /**
@@ -153,7 +153,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // has a WvW-specific split from PvP (0.87 WvW vs 1.1 PvP) - the WvW value is used.
   6153: [
     { factText: 'Maximum Damage', coefficient: 1.31, weapon: 'rifle' },
-    { factText: 'Minimum Damage', coefficient: 0.87, weapon: 'rifle' }
+    { factText: 'Minimum Damage', coefficient: 0.87, weapon: 'rifle' },
   ],
   // Necromancer — Axe 2, Ghastly Claws. `strikes=8` present -> wiki coefficient already totaled.
   10528: [{ factText: 'Damage', coefficient: 2.664, weapon: 'axe' }],
@@ -161,7 +161,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // fact (not gated behind a real Burning-detection this app can evaluate), shown as its own line.
   5557: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'dagger' },
-    { factText: 'Damage vs. Burning', coefficient: 2.0, weapon: 'dagger' }
+    { factText: 'Damage vs. Burning', coefficient: 2.0, weapon: 'dagger' },
   ],
   // Mesmer — Greatsword 5, Illusionary Wave. Single hit; heavily reduced in WvW/PvP vs. its PvE 0.3
   // (this skill is primarily a CC/combo-finisher pick, not a damage skill, in competitive modes).
@@ -269,7 +269,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // totaled: PvE 8.4/WvW+PvP 6.0) — WvW values used for both.
   76979: [
     { factText: 'Traveling Tornado Damage', coefficient: 0.01, weapon: 'unequipped' },
-    { factText: 'Stationary Tornado Damage', coefficient: 6.0, weapon: 'unequipped' }
+    { factText: 'Stationary Tornado Damage', coefficient: 6.0, weapon: 'unequipped' },
   ],
   // Thief — 6 raw candidate ids, 5 distinct new skills curated (the 6th raw id, Artillery Barrage/
   // 12343, is the same cross-profession shared golem-summon skill already curated above under
@@ -310,14 +310,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // wiki markup (`<c=@abilitytype>Field Damage</c>`), matched verbatim.
   42009: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' },
-    { factText: '<c=@abilitytype>Field Damage</c>', coefficient: 0.4, weapon: 'unequipped' }
+    { factText: '<c=@abilitytype>Field Damage</c>', coefficient: 0.4, weapon: 'unequipped' },
   ],
   // Amalgam (new elite spec, `requires = voe`) — Flux State. PvE/WvW+PvP split 2.0/0.01 — WvW value
   // used. Separate `strikes=12` "Storm Damage" fact, already totaled per the usual convention
   // (PvE 9.0/WvW+PvP 4.8) — WvW value used.
   76993: [
     { factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' },
-    { factText: 'Storm Damage', coefficient: 4.8, weapon: 'unequipped' }
+    { factText: 'Storm Damage', coefficient: 4.8, weapon: 'unequipped' },
   ],
   // Necromancer — 6 raw candidate ids, 3 distinct new skills curated. 1 raw id, Artillery Barrage
   // (12343), is the same cross-profession golem-summon skill already curated above under Guardian,
@@ -373,7 +373,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 0.01) and Final Damage (PvE 2.1/WvW+PvP 0.01) — WvW values used for both.
   30359: [
     { factText: 'Pulse Damage', coefficient: 0.01, weapon: 'unequipped' },
-    { factText: 'Final Damage', coefficient: 0.01, weapon: 'unequipped' }
+    { factText: 'Final Damage', coefficient: 0.01, weapon: 'unequipped' },
   ],
   // Mirage — Jaunt. PvE/WvW+PvP split 1.0/0.5 — WvW value used. The API lists this as two identical-
   // text "Damage" facts (one per mode); harmless since `damageLinesForSkill` only checks a same-text
@@ -463,7 +463,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Smite Condition. Two independently-split Damage facts — WvW values used for both.
   9245: [
     { factText: 'Damage With No Conditions', coefficient: 0.2, weapon: 'unequipped' },
-    { factText: 'Damage With Condition', coefficient: 0.3, weapon: 'unequipped' }
+    { factText: 'Damage With Condition', coefficient: 0.3, weapon: 'unequipped' },
   ],
   // Judge's Intervention. PvE/WvW+PvP split 0.5/0.1 — WvW value used. Wiki's own `weapon=trait skill`
   // param normalized to `unequipped` per the slot-skill convention.
@@ -483,7 +483,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // both.
   29786: [
     { factText: 'Initial Damage', coefficient: 0.1, weapon: 'unequipped' },
-    { factText: 'Damage', coefficient: 1.88, weapon: 'unequipped' }
+    { factText: 'Damage', coefficient: 1.88, weapon: 'unequipped' },
   ],
   // Dragonhunter — Procession of Blades. `strikes=10` present -> wiki coefficient already totaled.
   // PvE+WvW grouped 4.4 vs. a lower PvP-only 2.5 — WvW groups with PvE here, 4.4 used.
@@ -512,7 +512,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // for Maximum.
   76813: [
     { factText: 'Maximum Damage', coefficient: 2.1, weapon: 'unequipped' },
-    { factText: 'Minimum Damage', coefficient: 0.5, weapon: 'unequipped' }
+    { factText: 'Minimum Damage', coefficient: 0.5, weapon: 'unequipped' },
   ],
   // Luminary — Piercing Stance. PvE/WvW+PvP split 2.0/0.25 — WvW value used.
   77078: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
@@ -691,14 +691,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Mesmer's Jaunt/Ritualist's Splinter Weapon earlier in this sweep.
   56880: [
     { factText: 'Initial Impact Damage', coefficient: 0.01, weapon: 'unequipped' },
-    { factText: 'Pulse Damage', coefficient: 0.3, weapon: 'unequipped' }
+    { factText: 'Pulse Damage', coefficient: 0.3, weapon: 'unequipped' },
   ],
   // Prepare Thousand Needles' flip target, Thousand Needles. No split (wiki page has no `split`
   // param at all). 2 independently-split-by-name Damage facts: "Damage" (the initial impact) and
   // "Pulsing Damage".
   56898: [
     { factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' },
-    { factText: 'Pulsing Damage', coefficient: 0.2, weapon: 'unequipped' }
+    { factText: 'Pulsing Damage', coefficient: 0.2, weapon: 'unequipped' },
   ],
   // Deadeye's Shadow Flare (41158) hits a related but survivable case: it also has a differently-
   // named `flipSkill` target (Shadow Swap, 45672, "reactivate to swap places with the orb") stripped
@@ -721,7 +721,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // — WvW used) and "Second Strike Damage" (no split, 3.28).
   30693: [
     { factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' },
-    { factText: 'Second Strike Damage', coefficient: 3.28, weapon: 'unequipped' }
+    { factText: 'Second Strike Damage', coefficient: 3.28, weapon: 'unequipped' },
   ],
   // Daredevil — Fist Flurry. `strikes=5` present -> wiki coefficients already totaled. PvE 3.75 vs.
   // WvW+PvP grouped 2.5 — WvW value used.
@@ -951,7 +951,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   77282: [
     { factText: 'Damage (over 20 Might)', coefficient: 3.0, weapon: 'unequipped' },
     { factText: 'Damage (10–20 Might)', coefficient: 2.25, weapon: 'unequipped' },
-    { factText: 'Damage (under 10 Might)', coefficient: 1.5, weapon: 'unequipped' }
+    { factText: 'Damage (under 10 Might)', coefficient: 1.5, weapon: 'unequipped' },
   ],
 
   // Mesmer — the last profession in the Utility-slot sweep. 61 raw candidate ids (6 shared racial
@@ -993,8 +993,18 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   10267: [
     { factText: 'Damage without Boons', coefficient: 0.5, weapon: 'phantasm medium' },
     { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'phantasm medium' },
-    { factText: 'Damage without Boons', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 },
-    { factText: 'Damage with Boons', coefficient: 0.23, weapon: 'phantasm medium', requiresTrait: 682 }
+    {
+      factText: 'Damage without Boons',
+      coefficient: 0.575,
+      weapon: 'phantasm medium',
+      requiresTrait: 682,
+    },
+    {
+      factText: 'Damage with Boons',
+      coefficient: 0.23,
+      weapon: 'phantasm medium',
+      requiresTrait: 682,
+    },
   ],
   // Phantasmal Defender. PvE/WvW+PvP split 0.4/0.2 — WvW value used. Empowered Illusions (682)
   // trait-gated variant: 0.2*1.15=0.23. **Corrected 2026-08-05** (was `weapon: 'unequipped'`, same
@@ -1004,7 +1014,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // unchanged, only the weapon-strength bucket was wrong.
   10341: [
     { factText: 'Damage', coefficient: 0.2, weapon: 'phantasm low' },
-    { factText: 'Damage', coefficient: 0.23, weapon: 'phantasm low', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.23, weapon: 'phantasm low', requiresTrait: 682 },
   ],
   // Well of Senility. No split.
   29856: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
@@ -1016,7 +1026,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // used for both.
   30525: [
     { factText: 'Pulse Damage', coefficient: 0.75, weapon: 'unequipped' },
-    { factText: 'Final Damage', coefficient: 3.0, weapon: 'unequipped' }
+    { factText: 'Final Damage', coefficient: 3.0, weapon: 'unequipped' },
   ],
   // Well of Action. "Pulse Damage", per-pulse/not totaled (same reasoning as Well of Calamity above).
   // PvE/WvW+PvP split 1.5/0.7 — WvW value used.
@@ -1026,7 +1036,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // unaffected by the 2025-02-11 PvE-only nerf).
   35637: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' },
-    { factText: 'Damage', coefficient: 1.1, weapon: 'unequipped', requiresTrait: 2206 }
+    { factText: 'Damage', coefficient: 1.1, weapon: 'unequipped', requiresTrait: 2206 },
   ],
   // Mirage — Crystal Sands. `strikes=6` present -> wiki's 2.4 already totaled (verified: local
   // hit_count 6 * dmg_multiplier 0.4 = 2.4). No split.
@@ -1039,14 +1049,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // WvW value used. Infinite Forge (2206) trait-gated WvW+PvP variant: 0.8*1.10=0.88.
   62553: [
     { factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' },
-    { factText: 'Damage', coefficient: 0.88, weapon: 'unequipped', requiresTrait: 2206 }
+    { factText: 'Damage', coefficient: 0.88, weapon: 'unequipped', requiresTrait: 2206 },
   ],
   // Virtuoso — Psychic Force. No split (this skill's own change history shows its former PvP/WvW
   // split, 0.01, was since raised to match PvE's 1.5 uniformly across all modes). Infinite Forge
   // (2206) trait-gated variant: 1.5*1.10=1.65.
   62573: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' },
-    { factText: 'Damage', coefficient: 1.65, weapon: 'unequipped', requiresTrait: 2206 }
+    { factText: 'Damage', coefficient: 1.65, weapon: 'unequipped', requiresTrait: 2206 },
   ],
   // **Utility-slot sweep is now COMPLETE across all 9 professions.**
 
@@ -1095,7 +1105,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // not trait-gated, just the API's own dual-mode duplication of a same-named fact.
   14386: [
     { factText: 'Damage', coefficient: 1.2, weapon: 'hammer' },
-    { factText: 'Damage to Controlled or Defiant Foes', coefficient: 1.82, weapon: 'hammer' }
+    { factText: 'Damage to Controlled or Defiant Foes', coefficient: 1.82, weapon: 'hammer' },
   ],
   // Warrior — Axe 3, Throw Axe. No split (0.85 applies to all modes; only the health-threshold
   // damage-increase bonuses split by mode, not modeled here).
@@ -1120,13 +1130,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 0.46*1.10=0.506 (matches API's own traited `dmg_multiplier` exactly).
   14432: [
     { factText: 'Damage', coefficient: 0.46, weapon: 'rifle' },
-    { factText: 'Damage', coefficient: 0.506, weapon: 'rifle', requiresTrait: 1329 }
+    { factText: 'Damage', coefficient: 0.506, weapon: 'rifle', requiresTrait: 1329 },
   ],
   // Warrior — Spear 1 (aquatic autoattack), Stab. No split. Trait 1338 (Forceful Greatsword,
   // Strength) gated variant: 0.8*1.10=0.88 (matches API exactly) — see block comment above re: 1338.
   14437: [
     { factText: 'Damage', coefficient: 0.8, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 0.88, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Damage', coefficient: 0.88, weapon: 'spear', requiresTrait: 1338 },
   ],
   // Warrior — Spear 2, Mariner's Frenzy. No split. Trait 1338 variants: 0.35*1.10=0.385,
   // 0.5*1.10=0.55 (both match API exactly).
@@ -1134,12 +1144,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Damage', coefficient: 0.35, weapon: 'spear' },
     { factText: 'Final Strike Damage', coefficient: 0.5, weapon: 'spear' },
     { factText: 'Damage', coefficient: 0.385, weapon: 'spear', requiresTrait: 1338 },
-    { factText: 'Final Strike Damage', coefficient: 0.55, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Final Strike Damage', coefficient: 0.55, weapon: 'spear', requiresTrait: 1338 },
   ],
   // Warrior — Spear 4, Parry. No split. Trait 1338 variant: 2.0*1.10=2.2 (matches API exactly).
   14441: [
     { factText: 'Damage', coefficient: 2.0, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 2.2, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Damage', coefficient: 2.2, weapon: 'spear', requiresTrait: 1338 },
   ],
   // Warrior — Greatsword 5, Rush. PvE/WvW+PvP split (2.5/1.36).
   14446: [{ factText: 'Damage', coefficient: 1.36, weapon: 'greatsword' }],
@@ -1149,7 +1159,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Warrior — Spear 3, Barbed Pull. No split. Trait 1338 variant: 1.0*1.10=1.1 (matches API exactly).
   14448: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 1.1, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Damage', coefficient: 1.1, weapon: 'spear', requiresTrait: 1338 },
   ],
   // Warrior — Speargun 5, Repeating Shot. `strikes=4` present -> wiki totaled (3.0). No split.
   14465: [{ factText: 'Damage', coefficient: 3.0, weapon: 'harpoon gun' }],
@@ -1167,7 +1177,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // fact — was silently never matching, value unchanged.
   14480: [
     { factText: 'Damage per Strike', coefficient: 0.4, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 0.44, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Damage', coefficient: 0.44, weapon: 'spear', requiresTrait: 1338 },
   ],
   // Warrior — Speargun 3, Split Shot. No split.
   14481: [{ factText: 'Damage', coefficient: 0.2, weapon: 'harpoon gun' }],
@@ -1199,7 +1209,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // single hit, no totaling — WvW value used.
   14554: [
     { factText: 'Damage', coefficient: 2.8, weapon: 'greatsword' },
-    { factText: 'Final Strike Damage', coefficient: 0.8, weapon: 'greatsword' }
+    { factText: 'Final Strike Damage', coefficient: 0.8, weapon: 'greatsword' },
   ],
   // Warrior/Berserker — Torch 4, Blaze Breaker. `strikes=5` present -> wiki totaled (2.0). No split.
   29845: [{ factText: 'Damage', coefficient: 2.0, weapon: 'torch' }],
@@ -1234,13 +1244,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Initial Strike Damage (1.1/0.7/1.0), Aftershock Damage (0.75/0.3/0.5) — WvW used.
   72897: [
     { factText: 'Initial Strike Damage', coefficient: 0.7, weapon: 'spear' },
-    { factText: 'Aftershock Damage', coefficient: 0.3, weapon: 'spear' }
+    { factText: 'Aftershock Damage', coefficient: 0.3, weapon: 'spear' },
   ],
   // Warrior — Spear 1 (land), Mighty Throw. PvE/WvW+PvP split on both facts: Spear Damage
   // (1.2/0.45), Shard Damage (0.9/0.37) — WvW used.
   72958: [
     { factText: 'Spear Damage', coefficient: 0.45, weapon: 'spear' },
-    { factText: 'Shard Damage', coefficient: 0.37, weapon: 'spear' }
+    { factText: 'Shard Damage', coefficient: 0.37, weapon: 'spear' },
   ],
   // Warrior — Spear 3 (land), Disrupting Throw. PvE/WvW+PvP split (2.0/1.5).
   72959: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
@@ -1254,7 +1264,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // duplication, not trait-gated (confirmed via live API: no requires_trait on either).
   80247: [
     { factText: 'Damage', coefficient: 0.5, weapon: 'sword' },
-    { factText: 'Follow-Up Damage', coefficient: 1.25, weapon: 'sword' }
+    { factText: 'Follow-Up Damage', coefficient: 1.25, weapon: 'sword' },
   ],
 
   // --- Guardian done: 60 raw candidate ids resolved via the app's own `resolveSkillBarIds`/
@@ -1291,7 +1301,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Projectile Damage PvE/WvW+PvP split (0.275/0.1).
   9081: [
     { factText: 'Damage', coefficient: 2.8, weapon: 'greatsword' },
-    { factText: 'Projectile Damage', coefficient: 0.1, weapon: 'greatsword' }
+    { factText: 'Projectile Damage', coefficient: 0.1, weapon: 'greatsword' },
   ],
   // Guardian — Focus 5, Shield of Wrath. PvE/WvW+PvP split (2.5/1.66).
   9082: [{ factText: 'Damage', coefficient: 1.66, weapon: 'focus' }],
@@ -1307,7 +1317,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (0.28). Symbol Damage 3-way split (0.5/0.28/0.45), uses wvw (0.28).
   9090: [
     { factText: 'Damage', coefficient: 0.28, weapon: 'scepter' },
-    { factText: 'Symbol Damage', coefficient: 0.28, weapon: 'scepter' }
+    { factText: 'Symbol Damage', coefficient: 0.28, weapon: 'scepter' },
   ],
   // Guardian — Sword 2, Symbol of Blades. Already curated in the one-per-profession seed above
   // (id 9097) — local API `hit_count: 5` despite the current wiki page carrying no `strikes=` param
@@ -1348,7 +1358,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // strikes=4 present -> wiki totaled, PvE/WvW+PvP split (2.60/1.60).
   9146: [
     { factText: 'Initial Damage', coefficient: 0.8, weapon: 'greatsword' },
-    { factText: 'Symbol Damage', coefficient: 1.6, weapon: 'greatsword' }
+    { factText: 'Symbol Damage', coefficient: 1.6, weapon: 'greatsword' },
   ],
   // Guardian — Greatsword 5, Binding Blade. PvE/WvW+PvP split (2.5/0.01).
   9147: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }],
@@ -1359,7 +1369,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Minimum Damage (0.6).
   9189: [
     { factText: 'Maximum Damage', coefficient: 1.0, weapon: 'spear' },
-    { factText: 'Minimum Damage', coefficient: 0.6, weapon: 'spear' }
+    { factText: 'Minimum Damage', coefficient: 0.6, weapon: 'spear' },
   ],
   // Guardian — Spear 2 (aquatic), Zealot's Flurry. `strikes=8` present -> wiki totaled. No split
   // (2.4).
@@ -1388,7 +1398,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Damage PvE/WvW+PvP split (0.5175/0.43).
   29789: [
     { factText: 'Initial Damage', coefficient: 0.86, weapon: 'longbow' },
-    { factText: 'Symbol Damage', coefficient: 0.43, weapon: 'longbow' }
+    { factText: 'Symbol Damage', coefficient: 0.43, weapon: 'longbow' },
   ],
   // Guardian — Longbow 2, True Shot. PvE/WvW+PvP split (2.8/1.7).
   30229: [{ factText: 'Damage', coefficient: 1.7, weapon: 'longbow' }],
@@ -1398,7 +1408,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Damage 3-way split (2.5/1.333/1.666), uses wvw (1.333).
   30628: [
     { factText: 'Initial Damage', coefficient: 0.1, weapon: 'longbow' },
-    { factText: 'Final Impact Damage', coefficient: 1.333, weapon: 'longbow' }
+    { factText: 'Final Impact Damage', coefficient: 1.333, weapon: 'longbow' },
   ],
   // Guardian — Axe 2, Symbol of Vengeance. strikes=5 present -> wiki totaled. PvE/WvW+PvP split
   // (3.0/2.25).
@@ -1413,7 +1423,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Secondary Attacks strikes=4 present -> wiki totaled, 3-way split (2.5/1.6/1.32), uses wvw (1.6).
   62525: [
     { factText: 'Damage', coefficient: 0.4, weapon: 'sword' },
-    { factText: 'Secondary Attacks', coefficient: 1.6, weapon: 'sword' }
+    { factText: 'Secondary Attacks', coefficient: 1.6, weapon: 'sword' },
   ],
   // Guardian — Sword 5, Advancing Strike. strikes=2 present -> wiki totaled. 3-way split
   // (3.5/1.0/0.9), uses wvw (1.0).
@@ -1436,7 +1446,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (1.5/1.0/0.7) — WvW used. Shock-Wave Damage PvE/WvW+PvP split (1.5/1.0).
   72978: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
-    { factText: 'Shock-Wave Damage', coefficient: 1.0, weapon: 'spear' }
+    { factText: 'Shock-Wave Damage', coefficient: 1.0, weapon: 'spear' },
   ],
   // Guardian — Spear 1 (land, Janthir Wilds), Daybreaking Slash. PvE/WvW+PvP split (0.7/0.5).
   73055: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
@@ -1444,13 +1454,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (1.5/0.65/0.85) — WvW used. Minimum Damage PvE/WvW+PvP split (0.12/0.10).
   73094: [
     { factText: 'Damage', coefficient: 0.65, weapon: 'spear' },
-    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'spear' }
+    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'spear' },
   ],
   // Guardian — Spear 5 (land, Janthir Wilds), Symbol of Luminance. Initial Damage PvE/WvW+PvP split
   // (1.5/0.01). Symbol Damage PvE/WvW+PvP split (0.5/0.4).
   73132: [
     { factText: 'Initial Damage', coefficient: 0.01, weapon: 'spear' },
-    { factText: 'Symbol Damage', coefficient: 0.4, weapon: 'spear' }
+    { factText: 'Symbol Damage', coefficient: 0.4, weapon: 'spear' },
   ],
 
   // --- Revenant done: 68 raw candidate ids resolved via the app's own `resolveSkillBarIds`/
@@ -1501,14 +1511,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // above).
   26666: [
     { factText: 'Damage', coefficient: 0.4, weapon: 'mace' },
-    { factText: 'Chaining Damage', coefficient: 0.2, weapon: 'mace' }
+    { factText: 'Chaining Damage', coefficient: 0.2, weapon: 'mace' },
   ],
   // Revenant — Mace 2, Searing Fissure. Initial Strike no split (0.5). Additional Strikes no split; no
   // `strikes=` param despite 3 additional pulses (API/local hit_count=3, "Pulses" fact=4 total = 1
   // initial + 3 additional) — per-hit value totaled here: 0.25*3=0.75.
   28357: [
     { factText: 'Initial Strike', coefficient: 0.5, weapon: 'mace' },
-    { factText: 'Additional Strikes', coefficient: 0.75, weapon: 'mace' }
+    { factText: 'Additional Strikes', coefficient: 0.75, weapon: 'mace' },
   ],
   // Revenant — Mace 3, Echoing Eruption. No split (1.0).
   27964: [{ factText: 'Damage', coefficient: 1.0, weapon: 'mace' }],
@@ -1521,13 +1531,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // comment above).
   28964: [
     { factText: 'Damage', coefficient: 0.7, weapon: 'sword' },
-    { factText: 'Rift Damage', coefficient: 0.145, weapon: 'sword' }
+    { factText: 'Rift Damage', coefficient: 0.145, weapon: 'sword' },
   ],
   // Revenant — Sword 2, Chilling Isolation. Base Damage PvE/WvW+PvP split (0.8/0.7). Isolated Damage
   // PvE/WvW+PvP split (1.6/0.9).
   29233: [
     { factText: 'Damage', coefficient: 0.7, weapon: 'sword' },
-    { factText: 'Isolated Damage', coefficient: 0.9, weapon: 'sword' }
+    { factText: 'Isolated Damage', coefficient: 0.9, weapon: 'sword' },
   ],
   // Revenant — Sword 3, Unrelenting Assault. PvE/WvW+PvP split (0.7865/0.38) — the 2 identical-text
   // base facts the API exposes are this same duplication (see block comment above).
@@ -1536,7 +1546,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // `strikes=5` present -> wiki totaled, PvE/WvW+PvP split (2.0/1.0).
   28472: [
     { factText: 'Initial Damage', coefficient: 0.1, weapon: 'sword' },
-    { factText: 'Additional Strikes', coefficient: 1.0, weapon: 'sword' }
+    { factText: 'Additional Strikes', coefficient: 1.0, weapon: 'sword' },
   ],
   // Revenant — Sword 5 (chain depth 0), Deathstrike. "Initial Damage" fact; split header declares
   // pve/wvw+pvp but the fact itself only tags pve/pvp explicitly (0.45/0.1) — wvw groups with the
@@ -1558,7 +1568,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (1.5).
   28029: [
     { factText: 'Pass-Through Damage', coefficient: 0.15, weapon: 'axe' },
-    { factText: 'Final Damage', coefficient: 1.5, weapon: 'axe' }
+    { factText: 'Final Damage', coefficient: 1.5, weapon: 'axe' },
   ],
   // Revenant — Axe 5, Temporal Rift. PvE/WvW+PvP split (0.75/0.01) — steep competitive nerf.
   28409: [{ factText: 'Damage', coefficient: 0.01, weapon: 'axe' }],
@@ -1589,7 +1599,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // present -> wiki totaled (1.25, same as per-hit). Damage `strikes=3` present -> wiki totaled (0.75).
   43993: [
     { factText: 'Initial Damage', coefficient: 1.25, weapon: 'shortbow' },
-    { factText: 'Damage', coefficient: 0.75, weapon: 'shortbow' }
+    { factText: 'Damage', coefficient: 0.75, weapon: 'shortbow' },
   ],
   // Revenant/Renegade — Shortbow 5, Scorchrazor — EXCLUDED, see block comment above (wiki page stale,
   // PvE value contradicts the live API).
@@ -1610,13 +1620,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (0.5/0.05/0.15) — uses wvw (0.05).
   62828: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'greatsword' },
-    { factText: 'Damage per Block', coefficient: 0.05, weapon: 'greatsword' }
+    { factText: 'Damage per Block', coefficient: 0.05, weapon: 'greatsword' },
   ],
   // Revenant/Vindicator — Greatsword 5, Eternity's Requiem. Base Damage PvE/WvW+PvP split (1.0/0.9).
   // Minimum Damage PvE/WvW+PvP split (0.3/0.1).
   62929: [
     { factText: 'Damage', coefficient: 0.9, weapon: 'greatsword' },
-    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'greatsword' }
+    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'greatsword' },
   ],
   // Revenant — Scepter 1 (chain depth 0), Serene Slash. PvE/WvW+PvP split (0.533/0.475).
   71933: [{ factText: 'Damage', coefficient: 0.475, weapon: 'scepter' }],
@@ -1628,7 +1638,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // PvE/WvW+PvP split (1.2/0.8). Final Damage PvE/WvW+PvP split (1.0/0.5).
   71816: [
     { factText: 'Pulsing Damage', coefficient: 0.8, weapon: 'scepter' },
-    { factText: 'Final Damage', coefficient: 0.5, weapon: 'scepter' }
+    { factText: 'Final Damage', coefficient: 0.5, weapon: 'scepter' },
   ],
   // Revenant — Spear 1 (aquatic autoattack), Spear of Anguish. No split (0.8).
   28714: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
@@ -1673,7 +1683,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   72954: [
     { factText: 'Initial Attack Damage', coefficient: 0.01, weapon: 'spear' },
     { factText: 'Pulse Damage', coefficient: 0.9, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 0.91, weapon: 'spear' }
+    { factText: 'Damage', coefficient: 0.91, weapon: 'spear' },
   ],
   // Revenant — Spear 5 (land, Janthir Wilds), Abyssal Raze. No split on the Damage fact itself (1.0);
   // only the per-stack damage-increase bonus splits by mode, not modeled here.
@@ -1755,7 +1765,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // split (1.0).
   69262: [
     { factText: 'Damage', coefficient: 0.3, weapon: 'hammer' },
-    { factText: 'Follow-Up Damage', coefficient: 1.0, weapon: 'hammer' }
+    { factText: 'Follow-Up Damage', coefficient: 1.0, weapon: 'hammer' },
   ],
   // Ranger — Hammer 4, Savage Shock Wave. PvE/WvW+PvP split (0.5/0.45).
   69340: [{ factText: 'Damage', coefficient: 0.45, weapon: 'hammer' }],
@@ -1789,13 +1799,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Attack no split (1.25). Trait 1047 alt values on both facts omitted, same reasoning.
   12552: [
     { factText: 'Damage', coefficient: 2.31, weapon: 'spear' },
-    { factText: 'Final Attack', coefficient: 1.25, weapon: 'spear' }
+    { factText: 'Final Attack', coefficient: 1.25, weapon: 'spear' },
   ],
   // Ranger — Longbow 1, Long Range Shot. Maximum Damage PvE/WvW+PvP split (1.5/0.6). Minimum Damage
   // PvE/WvW+PvP split (1.33/0.466).
   12510: [
     { factText: 'Maximum Damage', coefficient: 0.6, weapon: 'longbow' },
-    { factText: 'Minimum Damage', coefficient: 0.466, weapon: 'longbow' }
+    { factText: 'Minimum Damage', coefficient: 0.466, weapon: 'longbow' },
   ],
   // Ranger — Longbow 2, Rapid Fire. `strikes=10` present -> wiki totaled. PvE/WvW+PvP split
   // (6.0/2.75).
@@ -1812,7 +1822,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Delayed Damage (1.275/1.0/0.9) — WvW used for each.
   71999: [
     { factText: 'Initial Damage', coefficient: 0.75, weapon: 'mace' },
-    { factText: 'Delayed Damage', coefficient: 1.0, weapon: 'mace' }
+    { factText: 'Delayed Damage', coefficient: 1.0, weapon: 'mace' },
   ],
   // Ranger — Mace 3, Oaken Cudgel. PvE/WvW+PvP split (2.0/0.01) — steep competitive nerf.
   71963: [{ factText: 'Damage', coefficient: 0.01, weapon: 'mace' }],
@@ -1822,7 +1832,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Final Slam Damage (1.7/0.96/0.8) — WvW used for each.
   71841: [
     { factText: 'Damage', coefficient: 0.48, weapon: 'mace' },
-    { factText: 'Final Slam Damage', coefficient: 0.96, weapon: 'mace' }
+    { factText: 'Final Slam Damage', coefficient: 0.96, weapon: 'mace' },
   ],
   // Ranger — Shortbow 1, Crossfire. PvE/WvW+PvP split (0.5/0.266).
   12470: [{ factText: 'Damage', coefficient: 0.266, weapon: 'shortbow' }],
@@ -1846,7 +1856,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   12527: [
     { factText: 'Base Damage', coefficient: 1.0, weapon: 'harpoon gun' },
     { factText: 'Less than 66% Health', coefficient: 1.75, weapon: 'harpoon gun' },
-    { factText: 'Less than 33% Health', coefficient: 2.5, weapon: 'harpoon gun' }
+    { factText: 'Less than 33% Health', coefficient: 2.5, weapon: 'harpoon gun' },
   ],
   // Ranger — Speargun 5, Ink Blast. No split. `strikes=7` present -> wiki totaled (1.4).
   12530: [{ factText: 'Damage', coefficient: 1.4, weapon: 'harpoon gun' }],
@@ -1925,7 +1935,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   13097: [
     { factText: 'Above 50%', coefficient: 1.0, weapon: 'dagger' },
     { factText: 'Below 50%', coefficient: 1.5, weapon: 'dagger' },
-    { factText: 'Below 25%', coefficient: 2.0, weapon: 'dagger' }
+    { factText: 'Below 25%', coefficient: 2.0, weapon: 'dagger' },
   ],
   // Thief — Dagger 3 (paired with Dagger offhand), Death Blossom. `strikes=3` present -> wiki totaled.
   // No split (0.63).
@@ -1941,13 +1951,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // variant: 0.383*1.10=0.4213 (matches API exactly).
   13084: [
     { factText: 'Damage', coefficient: 0.383, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 0.4213, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.4213, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Pistol 2, Bola Shot. No split (0.25). Deadly Aim (1299) trait-gated variant:
   // 0.25*1.10=0.275 (matches API exactly).
   13008: [
     { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Pistol 3 (paired with Pistol offhand), Unload. `strikes=8` present -> wiki totaled.
   // PvE/WvW+PvP split (3.36/2.16). Deadly Aim (1299) trait-gated values are present locally
@@ -1961,36 +1971,36 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   13010: [
     { factText: 'Damage', coefficient: 0.315, weapon: 'dagger' },
     { factText: 'Shot Damage', coefficient: 1.3125, weapon: 'pistol' },
-    { factText: 'Shot Damage', coefficient: 1.44375, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Shot Damage', coefficient: 1.44375, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Repeater (Shadow Strike's flip target, 2-stage ammo-reload loop sharing one wiki
   // page/values under 2 ids — see block comment above). `strikes=5` present -> wiki totaled. No split
   // (1.5). Deadly Aim (1299) trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
   13111: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 },
   ],
   59526: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Pistol 4, Head Shot. PvE/WvW+PvP split (1.0/0.25). Deadly Aim (1299) trait-gated variant:
   // 0.25*1.10=0.275 (matches API exactly).
   13012: [
     { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Sneak Attack (Vital Shot's flip target). `strikes=5` present -> wiki totaled. PvE/WvW+PvP
   // split (1.8/1.5). Deadly Aim (1299) trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
   13115: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Pistol 5, Black Powder. No split (0.25). Deadly Aim (1299) trait-gated variant:
   // 0.25*1.10=0.275 (matches API exactly).
   13113: [
     { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
-    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 },
   ],
   // Thief — Sword 1 (chain depth 0), Slice (thief sword skill — distinct wiki page from Ranger's
   // identically-named Sword 1 "Slash"/"Slice" entries elsewhere in this table). PvE/WvW+PvP split
@@ -2020,7 +2030,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Damage', coefficient: 0.9, weapon: 'sword' },
     { factText: 'Final Slash Damage', coefficient: 1.25, weapon: 'sword' },
     { factText: 'Projectile Damage', coefficient: 0.9, weapon: 'sword' },
-    { factText: 'Projectile Damage', coefficient: 0.99, weapon: 'sword', requiresTrait: 1299 }
+    { factText: 'Projectile Damage', coefficient: 0.99, weapon: 'sword', requiresTrait: 1299 },
   ],
   // Thief — Axe 1 (chain depth 0), Spinning Axe. Shares one wiki page/values with its own flip-target
   // id (71854, same name) — a 2-hit chain, both ids curated identically, same unresolvable-shared-page
@@ -2038,13 +2048,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (2.67/1.339). Damage on Untargeted Foes PvE/WvW+PvP split (1.32/0.165) — WvW used for both.
   44087: [
     { factText: 'Damage', coefficient: 1.339, weapon: 'rifle' },
-    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' }
+    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' },
   ],
   // Thief/Deadeye — Death's Judgment (Malicious Death's Judgment's own flip target — a 2-stage loop
   // sharing the exact same wiki-quoted values, same reachable-flip-target treatment as Repeater above).
   69316: [
     { factText: 'Damage', coefficient: 1.339, weapon: 'rifle' },
-    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' }
+    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' },
   ],
   // Thief/Deadeye — Rifle 2, Skirmisher's Shot. Rare *inverted* grouping: `split = pve wvw, pvp` groups
   // PvE with WvW (not the usual WvW+PvP grouping) — WvW value used is therefore identical to PvE (1.0).
@@ -2099,19 +2109,19 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // (1299) trait-gated variant: 0.55*1.10=0.605 (matches API exactly).
   13072: [
     { factText: 'Damage', coefficient: 0.55, weapon: 'harpoon gun' },
-    { factText: 'Damage', coefficient: 0.605, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.605, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — The Ripper (Piercing Shot's flip target, chain depth 1). No split (1.5). Deadly Aim (1299)
   // trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
   13126: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'harpoon gun' },
-    { factText: 'Damage', coefficient: 1.65, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 1.65, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — Speargun 2 (aquatic), Deluge. No split (0.7). Deadly Aim (1299) trait-gated variant:
   // 0.7*1.10=0.77 (matches API exactly).
   13073: [
     { factText: 'Damage', coefficient: 0.7, weapon: 'harpoon gun' },
-    { factText: 'Damage', coefficient: 0.77, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.77, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — Speargun 3 (aquatic), Escape. 2 distinct facts, neither split by mode: Missile Damage
   // (1.33), Damage (0.33). Deadly Aim (1299) trait-gated variants: 1.33*1.10=1.463,
@@ -2120,20 +2130,20 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Missile Damage', coefficient: 1.33, weapon: 'harpoon gun' },
     { factText: 'Damage', coefficient: 0.33, weapon: 'harpoon gun' },
     { factText: 'Missile Damage', coefficient: 1.463, weapon: 'harpoon gun', requiresTrait: 1299 },
-    { factText: 'Damage', coefficient: 0.363, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.363, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — Speargun 4 (aquatic), Crippling Shot. No split (1.75). Deadly Aim (1299) trait-gated
   // variant: 1.75*1.10=1.925 (matches API exactly).
   13075: [
     { factText: 'Damage', coefficient: 1.75, weapon: 'harpoon gun' },
-    { factText: 'Damage', coefficient: 1.925, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 1.925, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — Speargun 5 (aquatic, chain depth 0), Ink Shot. No split (0.75). Deadly Aim (1299)
   // trait-gated variant: 0.75*1.10=0.825 (matches API exactly). Its flip target, Smoke Trail, has no
   // Damage fact — see block comment above.
   13076: [
     { factText: 'Damage', coefficient: 0.75, weapon: 'harpoon gun' },
-    { factText: 'Damage', coefficient: 0.825, weapon: 'harpoon gun', requiresTrait: 1299 }
+    { factText: 'Damage', coefficient: 0.825, weapon: 'harpoon gun', requiresTrait: 1299 },
   ],
   // Thief — Spear 1 (land, Janthir Wilds, chain depth 0), Barbed Spear. No split (0.375).
   73145: [{ factText: 'Damage', coefficient: 0.375, weapon: 'spear' }],
@@ -2165,14 +2175,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Flanking (2.625).
   13069: [
     { factText: 'Damage', coefficient: 1.75, weapon: 'spear' },
-    { factText: 'Damage When Flanking', coefficient: 2.625, weapon: 'spear' }
+    { factText: 'Damage When Flanking', coefficient: 2.625, weapon: 'spear' },
   ],
   // Thief — Spear 3 (aquatic, chain depth 0), Nine-Tailed Strike. `strikes=8` present -> wiki totaled,
   // no split (2.0). Final Strike Damage no split (0.5). Its flip target, Break Stance, has no Damage
   // fact — see block comment above.
   13122: [
     { factText: 'Damage', coefficient: 2.0, weapon: 'spear' },
-    { factText: 'Final Strike Damage', coefficient: 0.5, weapon: 'spear' }
+    { factText: 'Final Strike Damage', coefficient: 0.5, weapon: 'spear' },
   ],
   // Thief — Spear 4 (aquatic, chain depth 0), Tow Line. No split (0.5).
   13070: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
@@ -2315,7 +2325,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // value: Damage (0.85/0.7), Initial Damage (1.35/1.0) — WvW values used for both.
   5936: [
     { factText: 'Damage', coefficient: 0.7, weapon: 'kit' },
-    { factText: 'Initial Damage', coefficient: 1, weapon: 'kit' }
+    { factText: 'Initial Damage', coefficient: 1, weapon: 'kit' },
   ],
   // Engineer — Charrzooka 1, Fire Rocket. No split (0.8). Wiki's own `weapon=unequipped` param (NOT
   // `weapon=kit` — Elite Mortar Kit below, also Elite-slot, uses `kit`; this genuinely differs
@@ -2357,7 +2367,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 2.0/1.0) and Minimum Damage (PvE/PvP+WvW 1.0/0.33) — WvW values used for both.
   5831: [
     { factText: 'Maximum Damage', coefficient: 1, weapon: 'pistol' },
-    { factText: 'Minimum Damage', coefficient: 0.33, weapon: 'pistol' }
+    { factText: 'Minimum Damage', coefficient: 0.33, weapon: 'pistol' },
   ],
   // Engineer — Pistol 5, Glue Shot. PvE/PvP+WvW split (2.5/1.5) — WvW value used.
   5830: [{ factText: 'Damage', coefficient: 1.5, weapon: 'pistol' }],
@@ -2374,7 +2384,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // = 6005, 5817` dual-id note is the usual GroundTargeted-pair shape, not a distinct second skill.
   6005: [
     { factText: 'Leap Damage', coefficient: 0.1, weapon: 'rifle' },
-    { factText: 'Landing Damage', coefficient: 1.45, weapon: 'rifle' }
+    { factText: 'Landing Damage', coefficient: 1.45, weapon: 'rifle' },
   ],
   // Engineer — Rifle 4, Overcharged Shot. PvE/PvP+WvW split (1.0/0.01) — steep competitive nerf, WvW
   // value used.
@@ -2448,7 +2458,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // despite this page's own incomplete split.
   44110: [
     { factText: 'Damage', coefficient: 0.75, weapon: 'sword' },
-    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' }
+    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' },
   ],
   // Engineer (spec-less, Weaponmaster Training) — Sword 2, Refraction Cutter. Damage fact
   // PvE/PvP+WvW split (1.4/0.75) — WvW value used. Projectile Damage fact PvE/PvP+WvW split
@@ -2456,7 +2466,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Holosmith entry (44110) above for how its incomplete split was corroborated against this page.
   71121: [
     { factText: 'Damage', coefficient: 0.75, weapon: 'sword' },
-    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' }
+    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' },
   ],
   // Engineer/Holosmith — Sword 3, Radiant Arc. PvE/WvW+PvP split (2.5/1.65) — WvW value used.
   // Spec-less variant is id 69565 below, with a different WvW-side number (see that entry).
@@ -2488,7 +2498,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Two distinct facts, neither split by mode: Damage (0.3), Shock Damage (0.2).
   71873: [
     { factText: 'Damage', coefficient: 0.3, weapon: 'shortbow' },
-    { factText: 'Shock Damage', coefficient: 0.2, weapon: 'shortbow' }
+    { factText: 'Shock Damage', coefficient: 0.2, weapon: 'shortbow' },
   ],
   // Engineer — Shortbow 2, Essence of Animated Sand. PvE+WvW grouped vs. lower PvP-only value
   // (1.0/0.6) — WvW value used, equals PvE here.
@@ -2515,7 +2525,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Focused Target Damage (1.2), Unfocused Target Damage (1.0).
   73122: [
     { factText: 'Focused Target Damage', coefficient: 1.2, weapon: 'spear' },
-    { factText: 'Unfocused Target Damage', coefficient: 1, weapon: 'spear' }
+    { factText: 'Unfocused Target Damage', coefficient: 1, weapon: 'spear' },
   ],
   // Engineer — Spear 3 (land, chain depth 0), Lightning Rod. Two distinct facts, both PvE/WvW+PvP
   // split: Focused Target Damage (0.3/0.175), plain Damage (0.17/0.125) — WvW values used for both.
@@ -2524,14 +2534,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // real title "Lightning Rod (engineer spear skill)".
   73002: [
     { factText: 'Focused Target Damage', coefficient: 0.175, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 0.125, weapon: 'spear' }
+    { factText: 'Damage', coefficient: 0.125, weapon: 'spear' },
   ],
   // Engineer — Spear 3 (land, chain depth 1), Electric Artillery. Two distinct facts, neither split
   // by mode despite the infobox's own `split = pve, wvw pvp` header (only affects the
   // burning-duration facts, not Damage): Focused Target Damage (1.5), plain Damage (1.0).
   73143: [
     { factText: 'Focused Target Damage', coefficient: 1.5, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 1, weapon: 'spear' }
+    { factText: 'Damage', coefficient: 1, weapon: 'spear' },
   ],
   // Engineer — Spear 4 (land), Roiling Skies. PvE/PvP+WvW split (2.0/0.01) — steep competitive nerf,
   // WvW value used.
@@ -2601,7 +2611,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Damage—Three Boons', coefficient: 2.625, weapon: 'focus' },
     { factText: 'Damage—Two Boons', coefficient: 1.875, weapon: 'focus' },
     { factText: 'Damage—One Boon', coefficient: 1.125, weapon: 'focus' },
-    { factText: 'Damage—No Boons', coefficient: 0.5, weapon: 'focus' }
+    { factText: 'Damage—No Boons', coefficient: 0.5, weapon: 'focus' },
   ],
   // Necromancer/Reaper — Greatsword 1 (chain depth 0), Dusk Strike. PvE/WvW+PvP split (1.2/0.666) —
   // WvW value used.
@@ -2661,7 +2671,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Damage (1.25), plain Damage (1.0).
   10616: [
     { factText: 'Missile Damage', coefficient: 1.25, weapon: 'spear' },
-    { factText: 'Damage', coefficient: 1, weapon: 'spear' }
+    { factText: 'Damage', coefficient: 1, weapon: 'spear' },
   ],
   // Necromancer/Harbinger — Pistol 1, Vicious Shot. PvE/WvW+PvP split (0.65/0.233) — WvW value used.
   62517: [{ factText: 'Damage', coefficient: 0.233, weapon: 'pistol' }],
@@ -2819,7 +2829,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dagger — Dagger 2 (Earth), Ring of Earth. PvE/PvP+WvW split (0.33/0.1) — WvW value used. 2 Damage facts (Initial Damage/Final Impact Damage).
   5525: [
     { factText: 'Initial Damage', coefficient: 0.1, weapon: 'dagger' },
-    { factText: 'Final Impact Damage', coefficient: 1.25, weapon: 'dagger' }
+    { factText: 'Final Impact Damage', coefficient: 1.25, weapon: 'dagger' },
   ],
   // Dagger — Dagger 2 (Fire), Drake's Breath. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (4.2/1.76) — WvW value used.
   5496: [{ factText: 'Damage', coefficient: 1.76, weapon: 'dagger' }],
@@ -2828,7 +2838,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dagger — Dagger 3 (Water), Katabatic Wind. No split. 2 Damage facts (Initial Damage/Delayed Damage).
   46140: [
     { factText: 'Initial Damage', coefficient: 0.2, weapon: 'dagger' },
-    { factText: 'Delayed Damage', coefficient: 2.0, weapon: 'dagger' }
+    { factText: 'Delayed Damage', coefficient: 2.0, weapon: 'dagger' },
   ],
   // Dagger — Dagger 3 (Water), Frozen Burst. No split.
   5487: [{ factText: 'Damage', coefficient: 0.4, weapon: 'dagger' }],
@@ -2841,7 +2851,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dagger — Dagger 3 (Fire), Ashen Blast. No split. 2 Damage facts (Initial Strike/Secondary Strike).
   42379: [
     { factText: 'Initial Strike', coefficient: 0.2, weapon: 'dagger' },
-    { factText: 'Secondary Strike', coefficient: 2.0, weapon: 'dagger' }
+    { factText: 'Secondary Strike', coefficient: 2.0, weapon: 'dagger' },
   ],
   // Dagger — Dagger 3 (Fire), Plasma Burst. No split.
   44652: [{ factText: 'Damage', coefficient: 2.0, weapon: 'dagger' }],
@@ -2850,7 +2860,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dagger — Dagger 3 (Fire), Burning Speed. 3-way PvE/PvP/WvW split (3.0/2.0/1.7) — WvW value used. 2 Damage facts (Blast Damage/Fire Wall Damage).
   5644: [
     { factText: 'Blast Damage', coefficient: 1.7, weapon: 'dagger' },
-    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'dagger' }
+    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'dagger' },
   ],
   // Dagger — Dagger 4, Ring of Fire. 3-way PvE/PvP/WvW split (2.0/1.2/1.0) — WvW value used.
   5691: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
@@ -2886,7 +2896,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Hammer — Hammer 1 (Earth), Stonestrike. PvE/PvP+WvW split (1.035/0.7) — WvW value used.
   62683: [{ factText: 'Damage', coefficient: 0.7, weapon: 'hammer' }],
   // Hammer — Hammer 1 (Fire), Singeing Strike. PvE/PvP+WvW split (0.69/0.50) — WvW value used.
-  62925: [{ factText: 'Damage', coefficient: 0.50, weapon: 'hammer' }],
+  62925: [{ factText: 'Damage', coefficient: 0.5, weapon: 'hammer' }],
   // Hammer — Hammer 2 (Water), Rain of Blows. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.3/1.2) — WvW value used.
   62958: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
   // Hammer — Hammer 2 (Air), Hurricane of Pain. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (4.95/2.7) — WvW value used.
@@ -2928,7 +2938,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Hammer — Hammer 5, Shock Blast. PvE/PvP+WvW split (0.575/0.5) — WvW value used. 2 Damage facts (Passthrough Damage/Explosion Damage).
   62716: [
     { factText: 'Passthrough Damage', coefficient: 0.5, weapon: 'hammer' },
-    { factText: 'Explosion Damage', coefficient: 0.01, weapon: 'hammer' }
+    { factText: 'Explosion Damage', coefficient: 0.01, weapon: 'hammer' },
   ],
   // Hammer — Hammer 5, Ground Pound. PvE/PvP+WvW split (2.8/0.91) — WvW value used.
   62778: [{ factText: 'Damage', coefficient: 0.91, weapon: 'hammer' }],
@@ -2959,7 +2969,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Spear — Spear 5, Lesser Volcano. `strikes=` present -> wiki totaled. No split. 2 Damage facts (Damage/Minimum Damage).
   72995: [
     { factText: 'Damage', coefficient: 3.778, weapon: 'spear' },
-    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'spear' }
+    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'spear' },
   ],
   // Spear — Spear 5, Lesser Jökulhlaup. No split.
   73105: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
@@ -2981,14 +2991,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   5526: [
     { factText: 'Stage 1 Damage', coefficient: 0.3, weapon: 'scepter' },
     { factText: 'Stage 2 Damage', coefficient: 0.6, weapon: 'scepter' },
-    { factText: 'Stage 3 Damage', coefficient: 1.2, weapon: 'scepter' }
+    { factText: 'Stage 3 Damage', coefficient: 1.2, weapon: 'scepter' },
   ],
   // Scepter — Scepter 1 (Earth), Stone Shards. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.5/0.3) — WvW value used.
   5500: [{ factText: 'Damage', coefficient: 0.3, weapon: 'scepter' }],
   // Scepter — Scepter 1 (Fire), Flamestrike. PvE/PvP+WvW split (0.5/0.185) — WvW value used. 2 Damage facts (Damage/Secondary Strike).
   5508: [
     { factText: 'Damage', coefficient: 0.185, weapon: 'scepter' },
-    { factText: 'Secondary Strike', coefficient: 0.28, weapon: 'scepter' }
+    { factText: 'Secondary Strike', coefficient: 0.28, weapon: 'scepter' },
   ],
   // Scepter — Scepter 2 (Water), Shatterstone. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.6/1.2) — WvW value used.
   5538: [{ factText: 'Damage', coefficient: 1.2, weapon: 'scepter' }],
@@ -3007,7 +3017,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Scepter — Scepter 3 (Air), Earthen Synergy. PvE/PvP+WvW split (1.4/0.01) — WvW value used. 2 Damage facts (Initial Damage/Secondary Damage).
   40794: [
     { factText: 'Initial Damage', coefficient: 0.01, weapon: 'scepter' },
-    { factText: 'Secondary Damage', coefficient: 0.01, weapon: 'scepter' }
+    { factText: 'Secondary Damage', coefficient: 0.01, weapon: 'scepter' },
   ],
   // Scepter — Scepter 3 (Earth), Dust Devil. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.2/0.6) — WvW value used.
   5696: [{ factText: 'Damage', coefficient: 0.6, weapon: 'scepter' }],
@@ -3020,7 +3030,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Scepter — Scepter 3 (Fire), Phoenix. PvE/PvP+WvW split (0.75/0.4) — WvW value used. 2 Damage facts (Damage/Explosion Damage).
   5675: [
     { factText: 'Damage', coefficient: 0.4, weapon: 'scepter' },
-    { factText: 'Explosion Damage', coefficient: 1.5, weapon: 'scepter' }
+    { factText: 'Explosion Damage', coefficient: 1.5, weapon: 'scepter' },
   ],
   // Staff — Staff 1 (Water), Water Blast. PvE/PvP+WvW split (0.3/0.2) — WvW value used.
   5549: [{ factText: 'Damage', coefficient: 0.2, weapon: 'staff' }],
@@ -3049,7 +3059,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Staff — Staff 3 (Fire), Pyroclastic Blast. No split. 2 Damage facts (Impact Damage/Pulse Damage).
   43762: [
     { factText: 'Impact Damage', coefficient: 0.8, weapon: 'staff' },
-    { factText: 'Pulse Damage', coefficient: 0.4, weapon: 'staff' }
+    { factText: 'Pulse Damage', coefficient: 0.4, weapon: 'staff' },
   ],
   // Staff — Staff 3 (Fire), Plasma Blast. No split.
   41125: [{ factText: 'Damage', coefficient: 1.66, weapon: 'staff' }],
@@ -3062,7 +3072,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Staff — Staff 5, Meteor Shower. 3-way PvE/PvP/WvW split (1.6/1.1/0.88) — WvW value used. 2 Damage facts (Damage/Minimum Damage).
   5501: [
     { factText: 'Damage', coefficient: 0.88, weapon: 'staff' },
-    { factText: 'Minimum Damage', coefficient: 0.176, weapon: 'staff' }
+    { factText: 'Minimum Damage', coefficient: 0.176, weapon: 'staff' },
   ],
   // Staff — Staff 5, Static Field. PvE/PvP+WvW split (0.5/0.01) — WvW value used.
   5671: [{ factText: 'Damage', coefficient: 0.01, weapon: 'staff' }],
@@ -3081,7 +3091,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Sword — Sword 1 (Air), Call Lightning. PvE/PvP+WvW split (1.2/0.8) — WvW value used. 2 Damage facts (Primary Strike Damage/Lightning Strike Damage).
   45216: [
     { factText: 'Primary Strike Damage', coefficient: 0.8, weapon: 'sword' },
-    { factText: 'Lightning Strike Damage', coefficient: 0.2, weapon: 'sword' }
+    { factText: 'Lightning Strike Damage', coefficient: 0.2, weapon: 'sword' },
   ],
   // Sword — Sword 1 (Earth), Crystal Slash. PvE/PvP+WvW split (0.8/0.44) — WvW value used.
   43616: [{ factText: 'Damage', coefficient: 0.44, weapon: 'sword' }],
@@ -3104,7 +3114,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Sword — Sword 2 (Fire), Flame Uprising. PvE/PvP+WvW split (2.0/1.25) — WvW value used. 2 Damage facts (Initial Damage/Field Damage).
   45313: [
     { factText: 'Initial Damage', coefficient: 1.25, weapon: 'sword' },
-    { factText: 'Field Damage', coefficient: 0.4, weapon: 'sword' }
+    { factText: 'Field Damage', coefficient: 0.4, weapon: 'sword' },
   ],
   // Sword — Sword 3 (Water), Shearing Edge. PvE/PvP+WvW split (1.8/1.0) — WvW value used.
   42867: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
@@ -3117,26 +3127,26 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Sword — Sword 3 (Air), Quantum Strike. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (0.5/0.1) — WvW value used. 2 Damage facts (Initial Attack/Lightning Strike Damage).
   43803: [
     { factText: 'Initial Attack', coefficient: 0.1, weapon: 'sword' },
-    { factText: 'Lightning Strike Damage', coefficient: 2.0, weapon: 'sword' }
+    { factText: 'Lightning Strike Damage', coefficient: 2.0, weapon: 'sword' },
   ],
   // Sword — Sword 3 (Earth), Rust Frenzy. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.64/2.0) — WvW value used.
   40139: [{ factText: 'Damage', coefficient: 2.0, weapon: 'sword' }],
   // Sword — Sword 3 (Fire), Twin Strike. PvE/PvP+WvW split (1.0/0.5) — WvW value used. 2 Damage facts (Initial Strike/Second Strike).
   42271: [
     { factText: 'Initial Strike', coefficient: 0.5, weapon: 'sword' },
-    { factText: 'Second Strike', coefficient: 1.0, weapon: 'sword' }
+    { factText: 'Second Strike', coefficient: 1.0, weapon: 'sword' },
   ],
   // Sword — Sword 3 (Fire), Pyro Vortex. No split. 2 Damage facts (Initial Strike/Damage).
   43074: [
     { factText: 'Initial Strike', coefficient: 1.0, weapon: 'sword' },
-    { factText: 'Damage', coefficient: 0.33, weapon: 'sword' }
+    { factText: 'Damage', coefficient: 0.33, weapon: 'sword' },
   ],
   // Sword — Sword 3 (Fire), Lava Skin. No split.
   46447: [{ factText: 'Damage', coefficient: 0.33, weapon: 'sword' }],
   // Sword — Sword 3 (Fire), Cauterizing Strike. PvE/PvP+WvW split (2.91/1.8) — WvW value used. 2 Damage facts (Damage vs. Burning/Damage).
   44451: [
     { factText: 'Damage vs. Burning', coefficient: 1.8, weapon: 'sword' },
-    { factText: 'Damage', coefficient: 1.0, weapon: 'sword' }
+    { factText: 'Damage', coefficient: 1.0, weapon: 'sword' },
   ],
   // Trident — Trident 1 (Water), Water Missile. No split.
   5604: [{ factText: 'Damage', coefficient: 0.8, weapon: 'trident' }],
@@ -3147,12 +3157,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Trident — Trident 1 (Fire), Magma Orb. No split. 2 Damage facts (Damage/Explosion Damage).
   5598: [
     { factText: 'Damage', coefficient: 0.4, weapon: 'trident' },
-    { factText: 'Explosion Damage', coefficient: 0.4, weapon: 'trident' }
+    { factText: 'Explosion Damage', coefficient: 0.4, weapon: 'trident' },
   ],
   // Trident — Trident 2 (Water), Ice Globe. No split. 2 Damage facts (Projectile Dmg/Detonation Damage).
   5605: [
     { factText: 'Projectile Dmg', coefficient: 1.0, weapon: 'trident' },
-    { factText: 'Detonation Damage', coefficient: 2.0, weapon: 'trident' }
+    { factText: 'Detonation Damage', coefficient: 2.0, weapon: 'trident' },
   ],
   // Trident — Trident 2 (Air), Electrocute. PvE/PvP+WvW split (2.4/1.2) — WvW value used.
   5655: [{ factText: 'Damage', coefficient: 1.2, weapon: 'trident' }],
@@ -3193,7 +3203,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Trident — Trident 5, Tidal Wave. No split. 2 Damage facts (Maximum Damage/Base Damage).
   5607: [
     { factText: 'Maximum Damage', coefficient: 4.675, weapon: 'trident' },
-    { factText: 'Base Damage', coefficient: 1.0, weapon: 'trident' }
+    { factText: 'Base Damage', coefficient: 1.0, weapon: 'trident' },
   ],
   // Trident — Trident 5, Lightning Cage. No split.
   5650: [{ factText: 'Damage', coefficient: 1.0, weapon: 'trident' }],
@@ -3208,7 +3218,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Warhorn — Warhorn 5, Lightning Orb. PvE/PvP+WvW split (0.8/1.0) — WvW value used. 2 Damage facts (Damage/Minimum Damage).
   30795: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'warhorn' },
-    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'warhorn' }
+    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'warhorn' },
   ],
   // Warhorn — Warhorn 5, Dust Storm. No split.
   30336: [{ factText: 'Damage', coefficient: 0.3, weapon: 'warhorn' }],
@@ -3219,7 +3229,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Fiery Greatsword — Fiery Greatsword 4, Fiery Rush. No split. 2 Damage facts (Damage/Fire Wall Damage).
   5517: [
     { factText: 'Damage', coefficient: 2.0, weapon: 'conjure' },
-    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'conjure' }
+    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'conjure' },
   ],
   // Fiery Greatsword — Fiery Greatsword 5, Firestorm. No split.
   5531: [{ factText: 'Damage', coefficient: 0.65, weapon: 'conjure' }],
@@ -3256,7 +3266,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Frost Bow — Frost Bow 4, Frost Storm. No split. 2 Damage facts (Damage/Minimum Damage).
   5723: [
     { factText: 'Damage', coefficient: 0.7, weapon: 'conjure' },
-    { factText: 'Minimum Damage', coefficient: 0.14, weapon: 'conjure' }
+    { factText: 'Minimum Damage', coefficient: 0.14, weapon: 'conjure' },
   ],
   // Frost Bow — Frost Bow 5, Deep Freeze. No split.
   5721: [{ factText: 'Damage', coefficient: 0.8, weapon: 'conjure' }],
@@ -3273,7 +3283,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Lightning Hammer — Lightning Hammer 4, Invoke Lightning. No split. 2 Damage facts (Damage/Minimum Damage).
   5725: [
     { factText: 'Damage', coefficient: 0.825, weapon: 'conjure' },
-    { factText: 'Minimum Damage', coefficient: 0.24, weapon: 'conjure' }
+    { factText: 'Minimum Damage', coefficient: 0.24, weapon: 'conjure' },
   ],
   // Lightning Hammer — Lightning Hammer 5, Static Field. No split.
   5732: [{ factText: 'Damage', coefficient: 0.5, weapon: 'conjure' }],
@@ -3353,7 +3363,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Damage', coefficient: 0.35, weapon: 'dagger' },
     { factText: 'Flurry Damage', coefficient: 0.6, weapon: 'dagger' },
     { factText: 'Damage', coefficient: 0.385, weapon: 'dagger', requiresTrait: 2206 },
-    { factText: 'Flurry Damage', coefficient: 0.66, weapon: 'dagger', requiresTrait: 2206 }
+    { factText: 'Flurry Damage', coefficient: 0.66, weapon: 'dagger', requiresTrait: 2206 },
   ],
   // Phantom Razor — Ambush replacement for Flying Cutter. `strikes=3` present -> wiki totaled. PvE/WvW+PvP
   // split 3.0/1.49. WvW value used. No `blade` marker on this one -> no Infinite Forge variant.
@@ -3367,13 +3377,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Outgoing Damage', coefficient: 0.1, weapon: 'dagger' },
     { factText: 'Returning Damage', coefficient: 0.5, weapon: 'dagger' },
     { factText: 'Outgoing Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 },
-    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 }
+    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 },
   ],
   69311: [
     { factText: 'Outgoing Damage', coefficient: 0.1, weapon: 'dagger' },
     { factText: 'Returning Damage', coefficient: 0.5, weapon: 'dagger' },
     { factText: 'Outgoing Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 },
-    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 }
+    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 },
   ],
   // Unstable Bladestorm — Dagger 3. 2 Damage facts ("Storm Damage"/"Blade Damage"), PvE/WvW+PvP split
   // 0.25/0.40 (Storm, inverted like Bladecall's Returning) and 0.5/0.10 (Blade). WvW values used.
@@ -3382,7 +3392,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Storm Damage', coefficient: 0.4, weapon: 'dagger' },
     { factText: 'Blade Damage', coefficient: 0.1, weapon: 'dagger' },
     { factText: 'Storm Damage', coefficient: 0.44, weapon: 'dagger', requiresTrait: 2206 },
-    { factText: 'Blade Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 }
+    { factText: 'Blade Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 },
   ],
   // Focus.
   // Phantasmal Warden — Focus 5. `strikes=12` present -> wiki totaled, no `weapon=` key (raw total
@@ -3390,14 +3400,14 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // split 1.656/1.2. WvW value used. Empowered Illusions (682) trait-gated variant: 1.2*1.15=1.38.
   10282: [
     { factText: 'Damage', coefficient: 1.2, weapon: 'phantasm medium' },
-    { factText: 'Damage', coefficient: 1.38, weapon: 'phantasm medium', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 1.38, weapon: 'phantasm medium', requiresTrait: 682 },
   ],
   // Greatsword.
   // Spatial Surge — Greatsword 1. 2 Damage facts (Maximum/Minimum), both `strikes=3` totaled. PvE/WvW+PvP
   // split 1.1/0.669 (Maximum) and 0.8/0.45 (Minimum). WvW values used.
   10219: [
     { factText: 'Maximum Damage', coefficient: 0.669, weapon: 'greatsword' },
-    { factText: 'Minimum Damage', coefficient: 0.45, weapon: 'greatsword' }
+    { factText: 'Minimum Damage', coefficient: 0.45, weapon: 'greatsword' },
   ],
   // Split Surge — Mirage's Ambush replacement for Spatial Surge. `strikes=3` totaled. Rare 3-way split:
   // PvE 3.1875 / WvW 1.08 / PvP 1.35 (WvW and PvP given as independent values, not combined). WvW used.
@@ -3431,13 +3441,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   10333: [
     { factText: 'Maximum Damage', coefficient: 0.75, weapon: 'greatsword' },
     { factText: 'Minimum Damage', coefficient: 0.1923, weapon: 'greatsword' },
-    { factText: 'Maximum Damage', coefficient: 0.825, weapon: 'greatsword', requiresTrait: 2206 }
+    { factText: 'Maximum Damage', coefficient: 0.825, weapon: 'greatsword', requiresTrait: 2206 },
   ],
   // Mind Stab — Greatsword 3. PvE/WvW+PvP split 1.8/1.0. WvW value used. Infinite Forge (2206) trait-gated
   // variant (same Psychic Blades hidden-`blade` shape as Mirror Blade): 1.0*1.10=1.1.
   10218: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'greatsword' },
-    { factText: 'Damage', coefficient: 1.1, weapon: 'greatsword', requiresTrait: 2206 }
+    { factText: 'Damage', coefficient: 1.1, weapon: 'greatsword', requiresTrait: 2206 },
   ],
   // Phantasmal Berserker — Greatsword 4. 2 Damage facts: "Phantasm Damage" (`strikes=4` totaled,
   // `weapon=phantasm high`, PvE/WvW+PvP split 1.2/0.6) and "Greatsword Damage" (the mesmer's own thrown
@@ -3448,7 +3458,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Phantasm Damage', coefficient: 0.6, weapon: 'phantasm high' },
     { factText: 'Greatsword Damage', coefficient: 0.4, weapon: 'greatsword' },
     { factText: 'Phantasm Damage', coefficient: 0.69, weapon: 'phantasm high', requiresTrait: 682 },
-    { factText: 'Greatsword Damage', coefficient: 0.44, weapon: 'greatsword', requiresTrait: 2206 }
+    { factText: 'Greatsword Damage', coefficient: 0.44, weapon: 'greatsword', requiresTrait: 2206 },
   ],
   // Spear.
   // Psycut — chain 1/3, Spear 1 (the Mesmer's own Janthir Wilds spear kit). PvE/WvW+PvP split 1.0/0.5.
@@ -3489,7 +3499,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Final Strike Damage', coefficient: 0.4, weapon: 'phantasm low' },
     { factText: 'Evasive Strike Damage', coefficient: 0.8, weapon: 'spear' },
     { factText: 'Damage', coefficient: 0.805, weapon: 'phantasm low', requiresTrait: 682 },
-    { factText: 'Final Strike Damage', coefficient: 0.46, weapon: 'phantasm low', requiresTrait: 682 }
+    {
+      factText: 'Final Strike Damage',
+      coefficient: 0.46,
+      weapon: 'phantasm low',
+      requiresTrait: 682,
+    },
   ],
   // Phantasmal Lancer — Spear 4. 2 Damage facts: "Damage" (the mesmer's own initial dash hit, `weapon=
   // spear`, no split) 1.0; "Phantasm Damage" (`weapon=phantasm high` explicit in this skill's own
@@ -3498,7 +3513,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // `/v2/skills/72946` pull.
   72946: [
     { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
-    { factText: 'Phantasm Damage', coefficient: 0.6, weapon: 'phantasm high' }
+    { factText: 'Phantasm Damage', coefficient: 0.6, weapon: 'phantasm high' },
   ],
   // Slipstream — Spear 4 (older cross-profession skill sharing this slot with Phantasmal Lancer above).
   // No split.
@@ -3518,7 +3533,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   10175: [
     { factText: 'Damage', coefficient: 0.33, weapon: 'pistol' },
     { factText: 'Illusion Damage', coefficient: 0.8, weapon: 'phantasm medium' },
-    { factText: 'Illusion Damage', coefficient: 0.92, weapon: 'phantasm medium', requiresTrait: 682 }
+    {
+      factText: 'Illusion Damage',
+      coefficient: 0.92,
+      weapon: 'phantasm medium',
+      requiresTrait: 682,
+    },
   ],
   // Magic Bullet — Pistol 5. PvE/WvW+PvP split 0.2/0.01. WvW value used.
   10229: [{ factText: 'Damage', coefficient: 0.01, weapon: 'pistol' }],
@@ -3556,12 +3576,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 0.45*1.15=0.5175.
   30769: [
     { factText: 'Damage', coefficient: 0.45, weapon: 'phantasm medium' },
-    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 },
   ],
   // Deja Vu — chain 2/2. Same split and trait variant as Echo of Memory.
   29649: [
     { factText: 'Damage', coefficient: 0.45, weapon: 'phantasm medium' },
-    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 },
   ],
   // Tides of Time — Shield 5. PvE/WvW+PvP split 1.5/0.01. WvW value used.
   30643: [{ factText: 'Damage', coefficient: 0.01, weapon: 'shield' }],
@@ -3576,7 +3596,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 0.225*1.15=0.25875.
   10216: [
     { factText: 'Damage', coefficient: 0.225, weapon: 'phantasm high' },
-    { factText: 'Damage', coefficient: 0.25875, weapon: 'phantasm high', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.25875, weapon: 'phantasm high', requiresTrait: 682 },
   ],
   // Chaos Storm — Staff 5. No split.
   10169: [{ factText: 'Damage', coefficient: 0.33, weapon: 'staff' }],
@@ -3601,7 +3621,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // WvW+PvP 1.5/0.666). WvW values used for both.
   10172: [
     { factText: 'Damage without Boons', coefficient: 1.333, weapon: 'sword' },
-    { factText: 'Damage with Boons', coefficient: 0.666, weapon: 'sword' }
+    { factText: 'Damage with Boons', coefficient: 0.666, weapon: 'sword' },
   ],
   // Illusionary Riposte — chain 1/2, Sword 4. PvE/WvW+PvP split 2.0/1.0. WvW value used.
   10280: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
@@ -3615,7 +3635,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   10174: [
     { factText: 'Phantasm Damage', coefficient: 0.5, weapon: 'phantasm medium' },
     { factText: 'Sword Strike Damage', coefficient: 0.5, weapon: 'sword' },
-    { factText: 'Phantasm Damage', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 }
+    {
+      factText: 'Phantasm Damage',
+      coefficient: 0.575,
+      weapon: 'phantasm medium',
+      requiresTrait: 682,
+    },
   ],
   // Torch.
   // The Prestige — Torch 4. PvE/WvW+PvP split 1.0/0.5. WvW value used.
@@ -3626,7 +3651,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // out-of-scope shape as Phantasmal Swordsman's extra hit above.)
   10189: [
     { factText: 'Damage', coefficient: 0.5, weapon: 'phantasm medium' },
-    { factText: 'Damage', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 },
   ],
   // Trident.
   // Siren's Call — chain 1/2, Trident 1. No split.
@@ -3639,7 +3664,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // low`. No split. Empowered Illusions (682) trait-gated variant: 0.6*1.15=0.69.
   10328: [
     { factText: 'Damage', coefficient: 0.6, weapon: 'phantasm low' },
-    { factText: 'Damage', coefficient: 0.69, weapon: 'phantasm low', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.69, weapon: 'phantasm low', requiresTrait: 682 },
   ],
   // Illusion of Drowning — Trident 5. No split.
   10260: [{ factText: 'Damage', coefficient: 1.28, weapon: 'trident' }],
@@ -3681,7 +3706,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   14353: [
     { factText: 'Level 1 Damage', coefficient: 1.6, weapon: 'axe' },
     { factText: 'Level 2 Damage', coefficient: 1.9, weapon: 'axe' },
-    { factText: 'Level 3 Damage', coefficient: 2.2, weapon: 'axe' }
+    { factText: 'Level 3 Damage', coefficient: 2.2, weapon: 'axe' },
   ],
   // Arcing Slice — Greatsword. Two independent Damage facts: the base hit (PvE 2.0/WvW 1.213/PvP
   // 1.36, a genuine 3-way split — WvW value used) and a separate "against foes under 50% health" bonus
@@ -3690,7 +3715,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // tiers exist for this skill.
   14375: [
     { factText: 'Damage', coefficient: 1.213, weapon: 'greatsword' },
-    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' }
+    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' },
   ],
   // Earthshaker — Hammer. PvE/WvW+PvP split (2.75/0.682) — WvW value used. Adrenaline level scales
   // this skill's knockdown/stun duration (1/1.5/2s per the wiki), not its damage.
@@ -3700,7 +3725,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   14396: [
     { factText: 'Level 1 Damage', coefficient: 1.4, weapon: 'rifle' },
     { factText: 'Level 2 Damage', coefficient: 1.7, weapon: 'rifle' },
-    { factText: 'Level 3 Damage', coefficient: 2.0, weapon: 'rifle' }
+    { factText: 'Level 3 Damage', coefficient: 2.0, weapon: 'rifle' },
   ],
   // Skull Crack — Mace. PvE/WvW+PvP split (1.5/0.75) — WvW value used. Adrenaline level scales this
   // skill's stun duration (1.25/2.25/3.25s per the wiki), not its damage.
@@ -3711,7 +3736,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   14544: [
     { factText: 'Level 1 Damage', coefficient: 2.25, weapon: 'harpoon gun' },
     { factText: 'Level 2 Damage', coefficient: 2.75, weapon: 'harpoon gun' },
-    { factText: 'Level 3 Damage', coefficient: 3.25, weapon: 'harpoon gun' }
+    { factText: 'Level 3 Damage', coefficient: 3.25, weapon: 'harpoon gun' },
   ],
   // Breaching Strike — Dagger. 3-way split PvE/WvW/PvP (2.5/1.2/1.32) — WvW value used. Canonical id
   // is the wiki's own "other specs, stage 0" tag (45252); 69433 (stage 1) already excluded as its
@@ -3850,7 +3875,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // "against foes under 50% health" bonus hit (WvW+PvP 1.82).
   42707: [
     { factText: 'Damage', coefficient: 1.213, weapon: 'greatsword' },
-    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' }
+    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' },
   ],
   // Combustive Shot — Longbow. Curatable here despite the base id being left open — see this leg's
   // intro comment. `strikes=2` totaled, no PvE/WvW/PvP split (1.0).
@@ -3897,17 +3922,17 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dragon Slash—Force (62797, Weapon_1). Min 0.535/Max 1.295 (PvE 1.16/20.4).
   62797: [
     { factText: 'Maximum Damage', coefficient: 1.295, weapon: 'bundle' },
-    { factText: 'Minimum Damage', coefficient: 0.535, weapon: 'bundle' }
+    { factText: 'Minimum Damage', coefficient: 0.535, weapon: 'bundle' },
   ],
   // Dragon Slash—Boost (62980, Weapon_2). Min 0.429/Max 1.037 (PvE 0.92/16.3).
   62980: [
     { factText: 'Maximum Damage', coefficient: 1.037, weapon: 'bundle' },
-    { factText: 'Minimum Damage', coefficient: 0.429, weapon: 'bundle' }
+    { factText: 'Minimum Damage', coefficient: 0.429, weapon: 'bundle' },
   ],
   // Dragon Slash—Reach (62951, Weapon_3). Min 0.375/Max 0.9075 (PvE 0.58/10.21).
   62951: [
     { factText: 'Maximum Damage', coefficient: 0.9075, weapon: 'bundle' },
-    { factText: 'Minimum Damage', coefficient: 0.375, weapon: 'bundle' }
+    { factText: 'Minimum Damage', coefficient: 0.375, weapon: 'bundle' },
   ],
 
   // Triggerguard (62893) and Flicker Step (62926) — the other 2 skills available during Dragon
@@ -3952,12 +3977,12 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // ("Numinous Gift gives boons... Found Purpose and Mistfire" also affect Cosmic Wisdom); see
   // `boon-calc/sources.ts`'s own comment near `LEGEND_FORM_FACT_SKILL_IDS` for the full writeup,
   // including why Found Purpose was deliberately NOT added the same way.
-  77371: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped', requiresTrait: 2429 }]
-}
+  77371: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped', requiresTrait: 2429 }],
+};
 
 export interface DamageLine {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 /**
@@ -3967,20 +3992,31 @@ export interface DamageLine {
  * `healingLinesForSkill`. Returns `[]` for any skill with no curated entry rather than falling back
  * to an unscaled/wrong number.
  */
-export function damageLinesForSkill(skill: Skill, power: number, targetArmor: number, activeIds: ReadonlySet<number>): DamageLine[] {
-  const entries = CURATED_DAMAGE_COEFFICIENTS[skill.id]
-  if (!entries) return []
+export function damageLinesForSkill(
+  skill: Skill,
+  power: number,
+  targetArmor: number,
+  activeIds: ReadonlySet<number>,
+): DamageLine[] {
+  const entries = CURATED_DAMAGE_COEFFICIENTS[skill.id];
+  if (!entries) return [];
 
-  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
-  const lines: DamageLine[] = []
+  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+  const lines: DamageLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(
-      (f) => f.type === 'Damage' && f.text === entry.factText && (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
-    )
-    if (!fact) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    const weaponStrength = WEAPON_STRENGTH_MIDPOINTS[entry.weapon]
-    lines.push({ label: entry.factText, value: Math.round((weaponStrength * entry.coefficient * power) / targetArmor) })
+      (f) =>
+        f.type === 'Damage' &&
+        f.text === entry.factText &&
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    const weaponStrength = WEAPON_STRENGTH_MIDPOINTS[entry.weapon];
+    lines.push({
+      label: entry.factText,
+      value: Math.round((weaponStrength * entry.coefficient * power) / targetArmor),
+    });
   }
-  return lines
+  return lines;
 }

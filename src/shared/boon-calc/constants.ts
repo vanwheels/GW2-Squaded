@@ -15,8 +15,8 @@ export const BOON_NAMES = [
   'Resolution',
   'Stability',
   'Swiftness',
-  'Vigor'
-] as const
+  'Vigor',
+] as const;
 
 export const CONDITION_NAMES = [
   'Bleeding',
@@ -32,8 +32,8 @@ export const CONDITION_NAMES = [
   'Taunt',
   'Torment',
   'Vulnerability',
-  'Weakness'
-] as const
+  'Weakness',
+] as const;
 
 /**
  * All 7 auras, confirmed present as real `Buff` facts (with `status`/`duration`) via a full scan of
@@ -49,25 +49,25 @@ export const AURA_NAMES = [
   'Frost Aura',
   'Light Aura',
   'Magnetic Aura',
-  'Shocking Aura'
-] as const
+  'Shocking Aura',
+] as const;
 
-export type BoonName = (typeof BOON_NAMES)[number]
-export type ConditionName = (typeof CONDITION_NAMES)[number]
-export type AuraName = (typeof AURA_NAMES)[number]
+export type BoonName = (typeof BOON_NAMES)[number];
+export type ConditionName = (typeof CONDITION_NAMES)[number];
+export type AuraName = (typeof AURA_NAMES)[number];
 
-const BOON_SET = new Set<string>(BOON_NAMES)
-const CONDITION_SET = new Set<string>(CONDITION_NAMES)
-const AURA_SET = new Set<string>(AURA_NAMES)
+const BOON_SET = new Set<string>(BOON_NAMES);
+const CONDITION_SET = new Set<string>(CONDITION_NAMES);
+const AURA_SET = new Set<string>(AURA_NAMES);
 
 export function isBoonName(status: string): status is BoonName {
-  return BOON_SET.has(status)
+  return BOON_SET.has(status);
 }
 
 export function isConditionName(status: string): status is ConditionName {
-  return CONDITION_SET.has(status)
+  return CONDITION_SET.has(status);
 }
 
 export function isAuraName(status: string): status is AuraName {
-  return AURA_SET.has(status)
+  return AURA_SET.has(status);
 }

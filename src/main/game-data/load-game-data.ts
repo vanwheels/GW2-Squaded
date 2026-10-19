@@ -1,11 +1,11 @@
-import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { app } from 'electron'
-import type { GameData } from '@shared/types'
-import type { GameDataMeta } from '@shared/game-data/data-update-provider'
-import { buildGameData } from '@shared/game-data/build-game-data'
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { app } from 'electron';
+import type { GameData } from '@shared/types';
+import type { GameDataMeta } from '@shared/game-data/data-update-provider';
+import { buildGameData } from '@shared/game-data/build-game-data';
 
-let cached: GameData | null = null
+let cached: GameData | null = null;
 
 // Unpackaged (dev and local `npm run build`), the main bundle lives at
 // <projectRoot>/out/main/index.cjs — __dirname is stable there, unlike `app.getAppPath()`, which
@@ -15,29 +15,29 @@ let cached: GameData | null = null
 // process.resourcesPath/data/game-data.
 const BUNDLED_DATA_DIR = app.isPackaged
   ? join(process.resourcesPath, 'data', 'game-data')
-  : join(__dirname, '..', '..', 'data', 'game-data')
+  : join(__dirname, '..', '..', 'data', 'game-data');
 
 // A downloaded game-data refresh (src/main/game-data/data-update.ts) writes a full replacement
 // copy here, in the writable userData directory, rather than overwriting BUNDLED_DATA_DIR (not
 // writable once packaged, and overwriting a repo-committed dev copy would be a confusing git-status
 // surprise). Preferred over BUNDLED_DATA_DIR whenever present — its own meta.json's presence is
 // what marks it "complete" (downloadUpdate() writes every other file first, meta.json last).
-export const OVERRIDE_DATA_DIR = join(app.getPath('userData'), 'game-data')
+export const OVERRIDE_DATA_DIR = join(app.getPath('userData'), 'game-data');
 
 function resolveDataDir(): string {
-  return existsSync(join(OVERRIDE_DATA_DIR, 'meta.json')) ? OVERRIDE_DATA_DIR : BUNDLED_DATA_DIR
+  return existsSync(join(OVERRIDE_DATA_DIR, 'meta.json')) ? OVERRIDE_DATA_DIR : BUNDLED_DATA_DIR;
 }
 
 function readJson<T>(fileName: string): T {
-  const filePath = join(resolveDataDir(), fileName)
-  return JSON.parse(readFileSync(filePath, 'utf-8')) as T
+  const filePath = join(resolveDataDir(), fileName);
+  return JSON.parse(readFileSync(filePath, 'utf-8')) as T;
 }
 
 /** The currently-active copy's `meta.json` — read fresh every call (unlike `loadGameData()`,
  *  never cached), since the update-check flow needs it to reflect a just-downloaded override
  *  without requiring a restart first. */
 export function loadLocalMeta(): GameDataMeta {
-  return readJson<GameDataMeta>('meta.json')
+  return readJson<GameDataMeta>('meta.json');
 }
 
 /**
@@ -57,7 +57,7 @@ export function loadLocalMeta(): GameDataMeta {
  */
 export async function loadGameData(): Promise<GameData> {
   if (!cached) {
-    cached = await buildGameData(readJson)
+    cached = await buildGameData(readJson);
   }
-  return cached
+  return cached;
 }

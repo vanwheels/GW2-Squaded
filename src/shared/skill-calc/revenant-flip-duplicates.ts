@@ -51,5 +51,5 @@ export const NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS: ReadonlySet<number> = new 
   29114, // Energy Expulsion (Centaur elite) — stale/pre-rework orphan, superseded by 27356's own curated facts
   29197, // Purifying Essence (Centaur utility) — orphan, now redundant with 27715's own curated facts
   76917, // Beguiling Haze (Entity utility) — Recharge-only variant of 76805, Resonance still uncurated
-  77159 // Beguiling Haze, ground-targeted (Entity utility) — Recharge-only variant of 77141
-])
+  77159, // Beguiling Haze, ground-targeted (Entity utility) — Recharge-only variant of 77141
+]);

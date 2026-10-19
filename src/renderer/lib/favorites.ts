@@ -1,4 +1,4 @@
-import type { MouseEvent as ReactMouseEvent } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react';
 
 /**
  * Shared helpers for the Favorites feature (Builds/Squads card grids, food/utility pickers):
@@ -10,7 +10,7 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 /** Stable partition: every item `isFavorite` accepts sorts before every item it doesn't, otherwise
  *  preserving `items`' existing relative order. */
 export function sortFavoritesFirst<T>(items: T[], isFavorite: (item: T) => boolean): T[] {
-  return [...items].sort((a, b) => Number(isFavorite(b)) - Number(isFavorite(a)))
+  return [...items].sort((a, b) => Number(isFavorite(b)) - Number(isFavorite(a)));
 }
 
 /**
@@ -20,18 +20,18 @@ export function sortFavoritesFirst<T>(items: T[], isFavorite: (item: T) => boole
  * clicks dispatch — `click` only ever fires for the primary/left button, so it never fires this).
  */
 export function middleClickToggle(onToggle: () => void): {
-  onMouseDown: (e: ReactMouseEvent) => void
-  onAuxClick: (e: ReactMouseEvent) => void
+  onMouseDown: (e: ReactMouseEvent) => void;
+  onAuxClick: (e: ReactMouseEvent) => void;
 } {
   return {
     onMouseDown: (e) => {
-      if (e.button === 1) e.preventDefault()
+      if (e.button === 1) e.preventDefault();
     },
     onAuxClick: (e) => {
       if (e.button === 1) {
-        e.preventDefault()
-        onToggle()
+        e.preventDefault();
+        onToggle();
       }
-    }
-  }
+    },
+  };
 }

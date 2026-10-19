@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
-import type { Build, GhostPick, Party } from '@shared/types'
-import { withUnderwaterSetting } from '@shared/types/build'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { TooltipBody } from '@renderer/components/common/Tooltip'
+import { useMemo, useState } from 'react';
+import type { Build, GhostPick, Party } from '@shared/types';
+import { withUnderwaterSetting } from '@shared/types/build';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { TooltipBody } from '@renderer/components/common/Tooltip';
 import {
   computePartyAuraSummary,
   computePartyBoonConditionSummary,
@@ -14,50 +14,50 @@ import {
   type PartyAuraEntry,
   type PartyBoonConditionEntry,
   type PartyComboEntry,
-  type PartyNamedFactEntry
-} from '@shared/squad-calc/party-summary'
+  type PartyNamedFactEntry,
+} from '@shared/squad-calc/party-summary';
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CLEANSE_ONLY_NAMES,
   CONTROL_MATCHERS,
   MISCELLANEOUS_MATCHERS,
-  NAMED_FACT_TARGET_COUNT_TABLES
-} from '@shared/boon-calc/sources'
+  NAMED_FACT_TARGET_COUNT_TABLES,
+} from '@shared/boon-calc/sources';
 import {
   AURA_ICONS,
   BOON_CONDITION_ICONS,
   BOON_STRIP_CORRUPT_ICONS,
   COMBO_ICONS,
   CONTROL_ICONS,
-  MISCELLANEOUS_ICONS
-} from '@shared/boon-calc/icons'
-import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
-import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants'
-import { SlotTile } from './SlotTile'
-import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow'
-import type { BuildDragPayload } from './drag-payload'
+  MISCELLANEOUS_ICONS,
+} from '@shared/boon-calc/icons';
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format';
+import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants';
+import { SlotTile } from './SlotTile';
+import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow';
+import type { BuildDragPayload } from './drag-payload';
 
 interface Props {
-  party: Party
-  partyIndex: number
-  builds: Build[]
-  buildsById: Map<string, Build>
-  onAssignBuild: (slotIndex: number, buildId: string | null) => void
-  onAssignGhost: (slotIndex: number, ghostPick: GhostPick | null) => void
-  onLabelChange: (slotIndex: number, label: string | null) => void
-  onDropBuild: (slotIndex: number, payload: BuildDragPayload) => void
-  onRemove: () => void
-  canRemove: boolean
+  party: Party;
+  partyIndex: number;
+  builds: Build[];
+  buildsById: Map<string, Build>;
+  onAssignBuild: (slotIndex: number, buildId: string | null) => void;
+  onAssignGhost: (slotIndex: number, ghostPick: GhostPick | null) => void;
+  onLabelChange: (slotIndex: number, label: string | null) => void;
+  onDropBuild: (slotIndex: number, payload: BuildDragPayload) => void;
+  onRemove: () => void;
+  canRemove: boolean;
   /** Passed straight through to each `SlotTile` — see `BuildsSidebar`'s doc comment on the same
    *  prop name. */
-  onEditBuild: (buildId: string) => void
+  onEditBuild: (buildId: string) => void;
   /** Hides the "Remove line" button and the expand/collapse toggle (and forces each `SlotTile`'s
    *  own summary closed regardless of `expanded`'s current value), since none of that editing
    *  chrome belongs in a shared squad screenshot. `CaptureHost`'s squad route (2026-08-28) is the
    *  only caller that ever passes `true` — that tree is never interactive to begin with, unlike
    *  the old on-screen capture this replaced, which flipped this on/off around the real editor's
    *  own live DOM mid-capture. Defaults to `false` so every other caller is unaffected. */
-  screenshotMode?: boolean
+  screenshotMode?: boolean;
 }
 
 /** Disambiguates contributions from identical/duplicate builds in different slots — without this,
@@ -65,8 +65,8 @@ interface Props {
  *  way to tell which slot each came from. Prefers the slot's own placeholder/role label (e.g.
  *  "Heal") when the user set one, since that's more meaningful than a bare slot number. */
 function contributionLabel(party: Party, buildName: string, slotIndex: number): string {
-  const roleLabel = party.slots[slotIndex]?.placeholderLabel
-  return roleLabel ? `${buildName} (${roleLabel})` : `${buildName} (Slot ${slotIndex + 1})`
+  const roleLabel = party.slots[slotIndex]?.placeholderLabel;
+  return roleLabel ? `${buildName} (${roleLabel})` : `${buildName} (Slot ${slotIndex + 1})`;
 }
 
 function toIconItems(entries: PartyBoonConditionEntry[], party: Party): BoonConditionIconItem[] {
@@ -78,13 +78,13 @@ function toIconItems(entries: PartyBoonConditionEntry[], party: Party): BoonCond
         title={entry.name}
         description={entry.contributions
           .map((c) => {
-            const target = !entry.isCondition ? formatTargetCount(c.targetCount) : null
-            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s${target ? ` (${target})` : ''}`
+            const target = !entry.isCondition ? formatTargetCount(c.targetCount) : null;
+            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s${target ? ` (${target})` : ''}`;
           })
           .join('\n')}
       />
-    )
-  }))
+    ),
+  }));
 }
 
 function toAuraIconItems(entries: PartyAuraEntry[], party: Party): BoonConditionIconItem[] {
@@ -95,14 +95,21 @@ function toAuraIconItems(entries: PartyAuraEntry[], party: Party): BoonCondition
       <TooltipBody
         title={entry.name}
         description={entry.contributions
-          .map((c) => `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s`)
+          .map(
+            (c) =>
+              `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s`,
+          )
           .join('\n')}
       />
-    )
-  }))
+    ),
+  }));
 }
 
-function toNamedFactIconItems(entries: PartyNamedFactEntry[], party: Party, icons: Record<string, string>): BoonConditionIconItem[] {
+function toNamedFactIconItems(
+  entries: PartyNamedFactEntry[],
+  party: Party,
+  icons: Record<string, string>,
+): BoonConditionIconItem[] {
   return entries.map((entry) => ({
     key: entry.name,
     icon: icons[entry.name],
@@ -111,13 +118,13 @@ function toNamedFactIconItems(entries: PartyNamedFactEntry[], party: Party, icon
         title={entry.name}
         description={entry.contributions
           .map((c) => {
-            const target = formatTargetCount(c.targetCount)
-            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName}${c.detail ? ` — ${c.detail}` : ''}${target ? ` (${target})` : ''}`
+            const target = formatTargetCount(c.targetCount);
+            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName}${c.detail ? ` — ${c.detail}` : ''}${target ? ` (${target})` : ''}`;
           })
           .join('\n')}
       />
-    )
-  }))
+    ),
+  }));
 }
 
 function toComboIconItems(entries: PartyComboEntry[], party: Party): BoonConditionIconItem[] {
@@ -128,11 +135,14 @@ function toComboIconItems(entries: PartyComboEntry[], party: Party): BoonConditi
       <TooltipBody
         title={`Combo ${entry.kind === 'field' ? 'Field' : 'Finisher'}`}
         description={entry.contributions
-          .map((c) => `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${c.fieldType ?? c.finisherType}`)
+          .map(
+            (c) =>
+              `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${c.fieldType ?? c.finisherType}`,
+          )
           .join('\n')}
       />
-    )
-  }))
+    ),
+  }));
 }
 
 /**
@@ -157,20 +167,23 @@ export function PartyRow({
   onRemove,
   canRemove,
   onEditBuild,
-  screenshotMode = false
+  screenshotMode = false,
 }: Props) {
-  const gameData = useGameData()
-  const { showUnderwater, partyWideOnly } = useAppSettings()
-  const [expanded, setExpanded] = useState(false)
+  const gameData = useGameData();
+  const { showUnderwater, partyWideOnly } = useAppSettings();
+  const [expanded, setExpanded] = useState(false);
 
   /** Display/calc-only view of `buildsById` — see `withUnderwaterSetting`'s doc comment. Feeds
    *  every `computePartyXSummary` call below AND each `SlotTile`'s own `build` prop, so the whole
    *  party summary (and every per-slot tooltip) treats underwater weapon skills as unequipped
    *  whenever the Settings toggle is off, matching the single-build editor's `displayBuild`. */
   const effectiveBuildsById = useMemo(
-    () => (showUnderwater ? buildsById : new Map([...buildsById].map(([id, b]) => [id, withUnderwaterSetting(b, false)]))),
-    [buildsById, showUnderwater]
-  )
+    () =>
+      showUnderwater
+        ? buildsById
+        : new Map([...buildsById].map(([id, b]) => [id, withUnderwaterSetting(b, false)])),
+    [buildsById, showUnderwater],
+  );
 
   // "Party-wide only" (TODO.md, flagged 2026-08-16) only narrows the ally-facing rows below — Boons,
   // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
@@ -178,51 +191,88 @@ export function PartyRow({
   // (see `filterPartyWideEntries`'s doc comment).
   const summary = useMemo(
     () => computePartyBoonConditionSummary(party, effectiveBuildsById, gameData),
-    [party, effectiveBuildsById, gameData]
-  )
+    [party, effectiveBuildsById, gameData],
+  );
   const boonItems = useMemo(() => {
-    const boons = summary.filter((e) => !e.isCondition)
-    return toIconItems(partyWideOnly ? filterPartyWideEntries(boons) : boons, party)
-  }, [summary, party, partyWideOnly])
-  const conditionItems = useMemo(() => toIconItems(summary.filter((e) => e.isCondition), party), [summary, party])
+    const boons = summary.filter((e) => !e.isCondition);
+    return toIconItems(partyWideOnly ? filterPartyWideEntries(boons) : boons, party);
+  }, [summary, party, partyWideOnly]);
+  const conditionItems = useMemo(
+    () =>
+      toIconItems(
+        summary.filter((e) => e.isCondition),
+        party,
+      ),
+    [summary, party],
+  );
 
-  const auraSummary = useMemo(() => computePartyAuraSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])
+  const auraSummary = useMemo(
+    () => computePartyAuraSummary(party, effectiveBuildsById, gameData),
+    [party, effectiveBuildsById, gameData],
+  );
   const auraItems = useMemo(
     () => toAuraIconItems(partyWideOnly ? filterPartyWideEntries(auraSummary) : auraSummary, party),
-    [auraSummary, party, partyWideOnly]
-  )
+    [auraSummary, party, partyWideOnly],
+  );
 
   const controlSummary = useMemo(
     () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, CONTROL_MATCHERS),
-    [party, effectiveBuildsById, gameData]
-  )
-  const controlItems = useMemo(() => toNamedFactIconItems(controlSummary, party, CONTROL_ICONS), [controlSummary, party])
+    [party, effectiveBuildsById, gameData],
+  );
+  const controlItems = useMemo(
+    () => toNamedFactIconItems(controlSummary, party, CONTROL_ICONS),
+    [controlSummary, party],
+  );
 
   const miscSummary = useMemo(
-    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES),
-    [party, effectiveBuildsById, gameData]
-  )
+    () =>
+      computePartyNamedFactSummary(
+        party,
+        effectiveBuildsById,
+        gameData,
+        MISCELLANEOUS_MATCHERS,
+        NAMED_FACT_TARGET_COUNT_TABLES,
+      ),
+    [party, effectiveBuildsById, gameData],
+  );
   const miscItems = useMemo(
-    () => toNamedFactIconItems(partyWideOnly ? filterPartyWideEntries(miscSummary) : miscSummary, party, MISCELLANEOUS_ICONS),
-    [miscSummary, party, partyWideOnly]
-  )
+    () =>
+      toNamedFactIconItems(
+        partyWideOnly ? filterPartyWideEntries(miscSummary) : miscSummary,
+        party,
+        MISCELLANEOUS_ICONS,
+      ),
+    [miscSummary, party, partyWideOnly],
+  );
 
   const stripCorruptSummary = useMemo(
-    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES),
-    [party, effectiveBuildsById, gameData]
-  )
+    () =>
+      computePartyNamedFactSummary(
+        party,
+        effectiveBuildsById,
+        gameData,
+        BOON_STRIP_CORRUPT_MATCHERS,
+        NAMED_FACT_TARGET_COUNT_TABLES,
+      ),
+    [party, effectiveBuildsById, gameData],
+  );
   const stripCorruptItems = useMemo(
     () =>
       toNamedFactIconItems(
-        partyWideOnly ? filterPartyWideNamedFactEntries(stripCorruptSummary, CLEANSE_ONLY_NAMES) : stripCorruptSummary,
+        partyWideOnly
+          ? filterPartyWideNamedFactEntries(stripCorruptSummary, CLEANSE_ONLY_NAMES)
+          : stripCorruptSummary,
         party,
-        BOON_STRIP_CORRUPT_ICONS
+        BOON_STRIP_CORRUPT_ICONS,
       ),
-    [stripCorruptSummary, party, partyWideOnly]
-  )
+    [stripCorruptSummary, party, partyWideOnly],
+  );
 
-  const comboSummary = useMemo(() => computePartyComboSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])
-  const comboItems = useMemo(() => toComboIconItems(comboSummary, party), [comboSummary, party])
+  const comboSummary = useMemo(
+    () => computePartyComboSummary(party, effectiveBuildsById, gameData),
+    [party, effectiveBuildsById, gameData],
+  );
+  const comboItems = useMemo(() => toComboIconItems(comboSummary, party), [comboSummary, party]);
 
   return (
     <div className="party-row">
@@ -232,7 +282,9 @@ export function PartyRow({
             type="button"
             className="party-row-toggle"
             onClick={() => setExpanded(!expanded)}
-            aria-label={expanded ? 'Collapse boon/condition summary' : 'Expand boon/condition summary'}
+            aria-label={
+              expanded ? 'Collapse boon/condition summary' : 'Expand boon/condition summary'
+            }
           >
             {expanded ? '▾' : '▸'}
           </button>
@@ -299,5 +351,5 @@ export function PartyRow({
         </div>
       </div>
     </div>
-  )
+  );
 }

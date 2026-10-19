@@ -1,5 +1,15 @@
-import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, ItemStatLegalIds, Rune, Sigil } from '../types'
-import { RUNE_SLOT_KEYS } from './upgrade-slots'
+import type {
+  AttributeBonusText,
+  Build,
+  Consumable,
+  EquipmentSlotKey,
+  GameData,
+  ItemStat,
+  ItemStatLegalIds,
+  Rune,
+  Sigil,
+} from '../types';
+import { RUNE_SLOT_KEYS } from './upgrade-slots';
 
 /**
  * attribute_adjustment constants for level-80 Exotic/Ascended gear, quoted directly from the
@@ -18,10 +28,10 @@ const ATTRIBUTE_ADJUSTMENT = {
   trinketRing: { exotic: 256.08, ascended: 268.884 },
   trinketAmulet: { exotic: 341.44, ascended: 358.512 },
   weaponOneHanded: { exotic: 341.44, ascended: 358.512 },
-  weaponTwoHanded: { exotic: 682.88, ascended: 717.024 }
-} as const
+  weaponTwoHanded: { exotic: 682.88, ascended: 717.024 },
+} as const;
 
-export type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT
+export type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT;
 
 /**
  * Every equipment slot this app models defaults to level-80 Ascended, the realistic gear tier
@@ -43,10 +53,10 @@ export const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey
   accessory2: 'trinketAccessory',
   ring1: 'trinketRing',
   ring2: 'trinketRing',
-  amulet: 'trinketAmulet'
-}
+  amulet: 'trinketAmulet',
+};
 
-const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
+const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2'];
 
 /**
  * The 4 equipment slots whose legal stat-combo ids come from `ItemStatLegalIds.trinket` — every
@@ -58,10 +68,17 @@ const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
  * `adjustment * 0.3` on a helm/weapon but `adjustment * 0.3 + 25` on a ring/amulet/accessory/back).
  * See `resolveItemStatId` for why this distinction matters beyond just which options are offered.
  */
-const TRINKET_CATEGORY_SLOT_KEYS = new Set<EquipmentSlotKey>(['backpiece', 'accessory1', 'accessory2', 'ring1', 'ring2', 'amulet'])
+const TRINKET_CATEGORY_SLOT_KEYS = new Set<EquipmentSlotKey>([
+  'backpiece',
+  'accessory1',
+  'accessory2',
+  'ring1',
+  'ring2',
+  'amulet',
+]);
 
 export function itemStatCategoryForSlot(slotKey: EquipmentSlotKey): keyof ItemStatLegalIds {
-  return TRINKET_CATEGORY_SLOT_KEYS.has(slotKey) ? 'trinket' : 'armorWeapon'
+  return TRINKET_CATEGORY_SLOT_KEYS.has(slotKey) ? 'trinket' : 'armorWeapon';
 }
 
 /**
@@ -81,16 +98,16 @@ export function resolveItemStatId(
   itemStatId: number,
   statsById: Map<number, ItemStat>,
   legalIds: ItemStatLegalIds,
-  category: keyof ItemStatLegalIds
+  category: keyof ItemStatLegalIds,
 ): number {
-  const stat = statsById.get(itemStatId)
-  if (!stat) return itemStatId
-  const legalSet = legalIds[category]
-  if (legalSet.includes(itemStatId)) return itemStatId
+  const stat = statsById.get(itemStatId);
+  if (!stat) return itemStatId;
+  const legalSet = legalIds[category];
+  if (legalSet.includes(itemStatId)) return itemStatId;
   for (const [id, candidate] of statsById) {
-    if (candidate.name === stat.name && legalSet.includes(id)) return id
+    if (candidate.name === stat.name && legalSet.includes(id)) return id;
   }
-  return itemStatId
+  return itemStatId;
 }
 
 /**
@@ -103,18 +120,18 @@ export function resolveItemStatId(
  * always active.
  */
 export function isActiveWeaponSlot(slotKey: EquipmentSlotKey, build: Build): boolean {
-  if (!slotKey.startsWith('weapon')) return true
+  if (!slotKey.startsWith('weapon')) return true;
   if (build.environment === 'underwater') {
-    return slotKey === (build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2')
+    return slotKey === (build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2');
   }
   return slotKey === 'weaponA1' || slotKey === 'weaponA2'
     ? build.activeWeaponSet === 'A'
     : slotKey === 'weaponB1' || slotKey === 'weaponB2'
       ? build.activeWeaponSet === 'B'
-      : false
+      : false;
 }
 
-export const RARITY: 'exotic' | 'ascended' = 'ascended'
+export const RARITY: 'exotic' | 'ascended' = 'ascended';
 
 /**
  * Gear/upgrade-derived attribute totals. `points` holds the 9 core GW2 attributes, keyed by their
@@ -127,11 +144,11 @@ export const RARITY: 'exotic' | 'ascended' = 'ascended'
  * points — these add on top of the points-derived percentage rather than being converted again.
  */
 export interface AttributeTotals {
-  points: Record<string, number>
+  points: Record<string, number>;
   bonusPercent: {
-    boonDuration: number
-    conditionDuration: number
-    magicFind: number
+    boonDuration: number;
+    conditionDuration: number;
+    magicFind: number;
     /** Rune-derived only in practice (the only source with a structured "Movement Speed" bonus
      *  line — see `PERCENT_BONUS_ALIASES`'s doc comment) — unlike its 3 siblings above, movement
      *  speed does NOT stack additively in GW2 (wiki-confirmed on Relic of the Wayfinder: "does not
@@ -140,12 +157,15 @@ export interface AttributeTotals {
      *  are — it's one candidate `combat-state.ts`'s `resolveMovementSpeedPercent` maxes against
      *  every curated trait/relic source. Safe to sum here regardless, since a build can only ever
      *  have one 6-piece rune bonus active at all. */
-    movementSpeed: number
-  }
+    movementSpeed: number;
+  };
 }
 
 export function emptyTotals(): AttributeTotals {
-  return { points: {}, bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0, movementSpeed: 0 } }
+  return {
+    points: {},
+    bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0, movementSpeed: 0 },
+  };
 }
 
 /**
@@ -158,11 +178,11 @@ export function emptyTotals(): AttributeTotals {
  * is confirmed two-handed, so they always use the two-handed constant directly.
  */
 export function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
-  return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded'
+  return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded';
 }
 
 export function addPoints(totals: AttributeTotals, attribute: string, value: number): void {
-  totals.points[attribute] = (totals.points[attribute] ?? 0) + value
+  totals.points[attribute] = (totals.points[attribute] ?? 0) + value;
 }
 
 /**
@@ -172,11 +192,15 @@ export function addPoints(totals: AttributeTotals, attribute: string, value: num
  * (`gear-optimize.ts`) can precompute each legal combo's contribution once per slot without
  * duplicating the formula.
  */
-export function statComboContribution(stat: ItemStat, adjustmentKey: AdjustmentKey): AttributeTotals {
-  const totals = emptyTotals()
-  const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
-  for (const attr of stat.attributes) addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value)
-  return totals
+export function statComboContribution(
+  stat: ItemStat,
+  adjustmentKey: AdjustmentKey,
+): AttributeTotals {
+  const totals = emptyTotals();
+  const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY];
+  for (const attr of stat.attributes)
+    addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value);
+  return totals;
 }
 
 /**
@@ -200,8 +224,8 @@ const FLAT_ATTRIBUTE_ALIASES: Record<string, string> = {
   'healing power': 'Healing',
   'condition damage': 'ConditionDamage',
   concentration: 'BoonDuration',
-  expertise: 'ConditionDuration'
-}
+  expertise: 'ConditionDuration',
+};
 
 /** The 9 core GW2 combat attributes, by their `ItemStat`-convention key — what a "+N to All
  *  Stats"/"+N to All Attributes" bonus (e.g. Superior Rune of Divinity, Superior Sigil of the
@@ -215,10 +239,10 @@ export const ALL_CORE_ATTRIBUTE_KEYS = [
   'Healing',
   'ConditionDamage',
   'BoonDuration',
-  'ConditionDuration'
-]
+  'ConditionDuration',
+];
 
-const ALL_STATS_ALIASES = new Set(['to all stats', 'to all attributes'])
+const ALL_STATS_ALIASES = new Set(['to all stats', 'to all attributes']);
 
 /** Raw `ItemStat`/API attribute key -> the player-facing name it's shown as on the Stats panel
  *  (`StatsPanel.tsx`) — the 3 that rename (`CritDamage`/`Healing`/`BoonDuration`/`ConditionDuration`)
@@ -233,8 +257,8 @@ export const ATTRIBUTE_DISPLAY_NAME: Record<string, string> = {
   Healing: 'Healing Power',
   ConditionDamage: 'Condition Damage',
   BoonDuration: 'Concentration',
-  ConditionDuration: 'Expertise'
-}
+  ConditionDuration: 'Expertise',
+};
 
 /** Free-text attribute name for a bonus already expressed as a direct percentage (e.g. "+5% Boon
  *  Duration", "+20% Magic Find") -> which `bonusPercent` bucket it adds to. Exact-match only (not
@@ -248,8 +272,8 @@ const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent'
   // confirmed via a full `runes.json` scan 2026-08-20) — no food/utility/sigil ever does. See
   // `AttributeTotals.bonusPercent.movementSpeed`'s doc comment for why this doesn't stack the way
   // its 3 siblings above do.
-  'movement speed': 'movementSpeed'
-}
+  'movement speed': 'movementSpeed',
+};
 
 /** Free-text attribute name (case-insensitive, e.g. "Ferocity", "Healing Power") -> the
  *  `ItemStat`/API attribute key it corresponds to, or `null` if it's not one of the 9 core
@@ -257,7 +281,7 @@ const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent'
  *  Exported so `activeConsumableConversions` below can resolve a "Gain X Equal to N% of Your Y"
  *  line's source/target names through the same table `addBonus` uses for ordinary flat bonuses. */
 export function resolveFlatAttributeKey(name: string): string | null {
-  return FLAT_ATTRIBUTE_ALIASES[name.trim().toLowerCase()] ?? null
+  return FLAT_ATTRIBUTE_ALIASES[name.trim().toLowerCase()] ?? null;
 }
 
 /** A `Rune`/`Consumable` bonus line's contribution — exported so `gear-optimize.ts` can fold a
@@ -270,23 +294,23 @@ export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): vo
   // rest of the build's totals are assembled (`computeCharacterStats`). A truthy check (not
   // `!== null`) so this stays backward-compatible with rune/sigil bonus data that predates this
   // field and simply has no `sourceAttribute` key at all, not an explicit `null`.
-  if (bonus.sourceAttribute) return
-  if (bonus.attribute === null || bonus.value === null) return
-  const key = bonus.attribute.trim().toLowerCase()
+  if (bonus.sourceAttribute) return;
+  if (bonus.attribute === null || bonus.value === null) return;
+  const key = bonus.attribute.trim().toLowerCase();
 
   if (bonus.isPercent) {
-    const percentKey = PERCENT_BONUS_ALIASES[key]
-    if (percentKey) totals.bonusPercent[percentKey] += bonus.value
-    return
+    const percentKey = PERCENT_BONUS_ALIASES[key];
+    if (percentKey) totals.bonusPercent[percentKey] += bonus.value;
+    return;
   }
 
   if (ALL_STATS_ALIASES.has(key)) {
-    for (const attr of ALL_CORE_ATTRIBUTE_KEYS) addPoints(totals, attr, bonus.value)
-    return
+    for (const attr of ALL_CORE_ATTRIBUTE_KEYS) addPoints(totals, attr, bonus.value);
+    return;
   }
 
-  const attr = FLAT_ATTRIBUTE_ALIASES[key]
-  if (attr) addPoints(totals, attr, bonus.value)
+  const attr = FLAT_ATTRIBUTE_ALIASES[key];
+  if (attr) addPoints(totals, attr, bonus.value);
 }
 
 /** `AttributeTotals.bonusPercent` key -> the player-facing name it's searched/shown under —
@@ -300,8 +324,8 @@ const BONUS_PERCENT_DISPLAY_NAME: Record<keyof AttributeTotals['bonusPercent'], 
   boonDuration: 'Concentration',
   conditionDuration: 'Expertise',
   magicFind: 'Magic Find',
-  movementSpeed: 'Movement Speed'
-}
+  movementSpeed: 'Movement Speed',
+};
 
 /**
  * Every stats-panel display name (see `ATTRIBUTE_DISPLAY_NAME`) one `Rune`/`Sigil`/`Consumable`
@@ -315,22 +339,23 @@ const BONUS_PERCENT_DISPLAY_NAME: Record<keyof AttributeTotals['bonusPercent'], 
  */
 export function bonusStatDisplayNames(bonus: AttributeBonusText): string[] {
   if (bonus.sourceAttribute) {
-    const names: string[] = []
-    const target = bonus.attribute ? resolveFlatAttributeKey(bonus.attribute) : null
-    const source = resolveFlatAttributeKey(bonus.sourceAttribute)
-    if (target) names.push(ATTRIBUTE_DISPLAY_NAME[target])
-    if (source) names.push(ATTRIBUTE_DISPLAY_NAME[source])
-    return names
+    const names: string[] = [];
+    const target = bonus.attribute ? resolveFlatAttributeKey(bonus.attribute) : null;
+    const source = resolveFlatAttributeKey(bonus.sourceAttribute);
+    if (target) names.push(ATTRIBUTE_DISPLAY_NAME[target]);
+    if (source) names.push(ATTRIBUTE_DISPLAY_NAME[source]);
+    return names;
   }
-  if (bonus.attribute === null || bonus.value === null) return []
-  const key = bonus.attribute.trim().toLowerCase()
+  if (bonus.attribute === null || bonus.value === null) return [];
+  const key = bonus.attribute.trim().toLowerCase();
   if (bonus.isPercent) {
-    const percentKey = PERCENT_BONUS_ALIASES[key]
-    return percentKey ? [BONUS_PERCENT_DISPLAY_NAME[percentKey]] : []
+    const percentKey = PERCENT_BONUS_ALIASES[key];
+    return percentKey ? [BONUS_PERCENT_DISPLAY_NAME[percentKey]] : [];
   }
-  if (ALL_STATS_ALIASES.has(key)) return ALL_CORE_ATTRIBUTE_KEYS.map((attr) => ATTRIBUTE_DISPLAY_NAME[attr])
-  const attr = FLAT_ATTRIBUTE_ALIASES[key]
-  return attr ? [ATTRIBUTE_DISPLAY_NAME[attr]] : []
+  if (ALL_STATS_ALIASES.has(key))
+    return ALL_CORE_ATTRIBUTE_KEYS.map((attr) => ATTRIBUTE_DISPLAY_NAME[attr]);
+  const attr = FLAT_ATTRIBUTE_ALIASES[key];
+  return attr ? [ATTRIBUTE_DISPLAY_NAME[attr]] : [];
 }
 
 /** A resolved source->target percent conversion — same shape as `TraitConversion`
@@ -339,9 +364,9 @@ export function bonusStatDisplayNames(bonus: AttributeBonusText): string[] {
  *  confirmed 2026-08-06 to be the dominant WvW Utility-consumable shape) go through the identical
  *  resolve-late-against-final-totals path traits already use, rather than a second parallel one. */
 export interface AttributeConversion {
-  source: string
-  target: string
-  percent: number
+  source: string;
+  target: string;
+  percent: number;
 }
 
 /** Every source->target conversion from the build's currently-picked food and utility, resolved
@@ -353,21 +378,21 @@ export interface AttributeConversion {
 export function activeConsumableConversions(
   build: Build,
   foodById: Map<number, Consumable>,
-  utilityById: Map<number, Consumable>
+  utilityById: Map<number, Consumable>,
 ): AttributeConversion[] {
-  const conversions: AttributeConversion[] = []
-  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined
-  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined
+  const conversions: AttributeConversion[] = [];
+  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined;
+  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined;
   for (const consumable of [food, utility]) {
-    if (!consumable) continue
+    if (!consumable) continue;
     for (const bonus of consumable.bonuses) {
-      if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue
-      const source = resolveFlatAttributeKey(bonus.sourceAttribute)
-      const target = resolveFlatAttributeKey(bonus.attribute)
-      if (source && target) conversions.push({ source, target, percent: bonus.value })
+      if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue;
+      const source = resolveFlatAttributeKey(bonus.sourceAttribute);
+      const target = resolveFlatAttributeKey(bonus.attribute);
+      if (source && target) conversions.push({ source, target, percent: bonus.value });
     }
   }
-  return conversions
+  return conversions;
 }
 
 /** Applies a list of source->target percent conversions against `totals`'s *current* snapshot —
@@ -375,12 +400,16 @@ export function activeConsumableConversions(
  *  the game itself computes simultaneous conversions. Shared by trait conversions
  *  (`trait-attributes.ts`) and consumable conversions (`activeConsumableConversions` above); call
  *  after every other additive contribution this snapshot should reflect is already in `totals`. */
-export function applyConversions(totals: AttributeTotals, conversions: AttributeConversion[]): void {
-  const conversionBonus: Record<string, number> = {}
+export function applyConversions(
+  totals: AttributeTotals,
+  conversions: AttributeConversion[],
+): void {
+  const conversionBonus: Record<string, number> = {};
   for (const c of conversions) {
-    conversionBonus[c.target] = (conversionBonus[c.target] ?? 0) + ((totals.points[c.source] ?? 0) * c.percent) / 100
+    conversionBonus[c.target] =
+      (conversionBonus[c.target] ?? 0) + ((totals.points[c.source] ?? 0) * c.percent) / 100;
   }
-  for (const [target, bonus] of Object.entries(conversionBonus)) addPoints(totals, target, bonus)
+  for (const [target, bonus] of Object.entries(conversionBonus)) addPoints(totals, target, bonus);
 }
 
 /**
@@ -397,13 +426,17 @@ export function applyConversions(totals: AttributeTotals, conversions: Attribute
  * conversion-carrying item compete fairly during the search instead of being scored as if it carried
  * no such bonus at all, converging to the exact credit once the assumption stops moving.
  */
-export function addSelfConversions(totals: AttributeTotals, bonuses: AttributeBonusText[], assumedSourcePoints: Record<string, number>): void {
+export function addSelfConversions(
+  totals: AttributeTotals,
+  bonuses: AttributeBonusText[],
+  assumedSourcePoints: Record<string, number>,
+): void {
   for (const bonus of bonuses) {
-    if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue
-    const source = resolveFlatAttributeKey(bonus.sourceAttribute)
-    const target = resolveFlatAttributeKey(bonus.attribute)
-    if (!source || !target) continue
-    addPoints(totals, target, ((assumedSourcePoints[source] ?? 0) * bonus.value) / 100)
+    if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue;
+    const source = resolveFlatAttributeKey(bonus.sourceAttribute);
+    const target = resolveFlatAttributeKey(bonus.attribute);
+    if (!source || !target) continue;
+    addPoints(totals, target, ((assumedSourcePoints[source] ?? 0) * bonus.value) / 100);
   }
 }
 
@@ -414,15 +447,15 @@ export function addSelfConversions(totals: AttributeTotals, bonuses: AttributeBo
  * armor slots that carry a rune slot (`RUNE_SLOT_KEYS`).
  */
 function addRuneBonuses(totals: AttributeTotals, build: Build, runesById: Map<number, Rune>): void {
-  const countByRuneId = new Map<number, number>()
+  const countByRuneId = new Map<number, number>();
   for (const slotKey of RUNE_SLOT_KEYS) {
-    const runeId = build.equipment[slotKey]?.runeId
-    if (runeId != null) countByRuneId.set(runeId, (countByRuneId.get(runeId) ?? 0) + 1)
+    const runeId = build.equipment[slotKey]?.runeId;
+    if (runeId != null) countByRuneId.set(runeId, (countByRuneId.get(runeId) ?? 0) + 1);
   }
   for (const [runeId, count] of countByRuneId) {
-    const rune = runesById.get(runeId)
-    if (!rune) continue
-    for (const bonus of rune.bonuses.slice(0, count)) addBonus(totals, bonus)
+    const rune = runesById.get(runeId);
+    if (!rune) continue;
+    for (const bonus of rune.bonuses.slice(0, count)) addBonus(totals, bonus);
   }
 }
 
@@ -433,32 +466,40 @@ function addRuneBonuses(totals: AttributeTotals, build: Build, runesById: Map<nu
  */
 export function computeGearAttributeTotals(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'>
+  gameData: Pick<
+    GameData,
+    'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'
+  >,
 ): AttributeTotals {
-  const statsById = new Map<number, ItemStat>(gameData.itemStats.map((s) => [s.id, s]))
-  const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
-  const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
-  const sigilsById = new Map<number, Sigil>(gameData.sigils.map((s) => [s.id, s]))
-  const foodById = new Map<number, Consumable>(gameData.food.map((f) => [f.id, f]))
-  const utilityById = new Map<number, Consumable>(gameData.utility.map((u) => [u.id, u]))
-  const totals = emptyTotals()
+  const statsById = new Map<number, ItemStat>(gameData.itemStats.map((s) => [s.id, s]));
+  const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]));
+  const runesById = new Map(gameData.runes.map((r) => [r.id, r]));
+  const sigilsById = new Map<number, Sigil>(gameData.sigils.map((s) => [s.id, s]));
+  const foodById = new Map<number, Consumable>(gameData.food.map((f) => [f.id, f]));
+  const utilityById = new Map<number, Consumable>(gameData.utility.map((u) => [u.id, u]));
+  const totals = emptyTotals();
 
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    const slot = build.equipment[slotKey]
-    if (!slot) continue
-    if (!isActiveWeaponSlot(slotKey, build)) continue
+    const slot = build.equipment[slotKey];
+    if (!slot) continue;
+    if (!isActiveWeaponSlot(slotKey, build)) continue;
 
-    const isWeaponSlot = slotKey.startsWith('weapon')
-    const weaponEquipped = !isWeaponSlot || Boolean(slot.weaponType)
+    const isWeaponSlot = slotKey.startsWith('weapon');
+    const weaponEquipped = !isWeaponSlot || Boolean(slot.weaponType);
 
     if (weaponEquipped && slot.itemStatId !== null) {
-      const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
-      const resolvedId = resolveItemStatId(slot.itemStatId, statsById, gameData.itemStatLegalIds, itemStatCategoryForSlot(slotKey))
-      const stat = statsById.get(resolvedId)
+      const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey);
+      const resolvedId = resolveItemStatId(
+        slot.itemStatId,
+        statsById,
+        gameData.itemStatLegalIds,
+        itemStatCategoryForSlot(slotKey),
+      );
+      const stat = statsById.get(resolvedId);
       if (stat) {
-        const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
+        const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY];
         for (const attr of stat.attributes) {
-          addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value)
+          addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value);
         }
       }
     }
@@ -469,10 +510,10 @@ export function computeGearAttributeTotals(
     // is needed here, unlike Rune.bonuses' free-text attribute names.
     if (weaponEquipped) {
       for (const infusionId of slot.infusionIds ?? []) {
-        if (infusionId === null) continue
-        const infusion = infusionsById.get(infusionId)
-        if (!infusion?.attribute || infusion.value === null) continue
-        addPoints(totals, infusion.attribute, infusion.value)
+        if (infusionId === null) continue;
+        const infusion = infusionsById.get(infusionId);
+        if (!infusion?.attribute || infusion.value === null) continue;
+        addPoints(totals, infusion.attribute, infusion.value);
       }
 
       // Only the handful of "stat sigils" (see `Sigil.bonuses` doc comment) contribute here —
@@ -485,23 +526,23 @@ export function computeGearAttributeTotals(
       // is a separate mechanic already (`STACKING_SIGILS`/`combatStatePoints` in
       // `combat-state.ts`), not something this per-slot loop needs to special-case.
       for (const sigilId of slot.sigilIds ?? []) {
-        if (sigilId === null) continue
-        const sigil = sigilsById.get(sigilId)
-        if (!sigil) continue
-        for (const bonus of sigil.bonuses) addBonus(totals, bonus)
+        if (sigilId === null) continue;
+        const sigil = sigilsById.get(sigilId);
+        if (!sigil) continue;
+        for (const bonus of sigil.bonuses) addBonus(totals, bonus);
       }
     }
   }
 
-  addRuneBonuses(totals, build, runesById)
+  addRuneBonuses(totals, build, runesById);
 
-  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined
-  if (food) for (const bonus of food.bonuses) addBonus(totals, bonus)
+  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined;
+  if (food) for (const bonus of food.bonuses) addBonus(totals, bonus);
 
-  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined
-  if (utility) for (const bonus of utility.bonuses) addBonus(totals, bonus)
+  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined;
+  if (utility) for (const bonus of utility.bonuses) addBonus(totals, bonus);
 
-  return totals
+  return totals;
 }
 
 /**
@@ -511,14 +552,20 @@ export function computeGearAttributeTotals(
  * adds 1% to boon/condition duration"), fetched raw wikitext this session. Rune/food/utility
  * bonuses already expressed as a direct percentage (`bonusPercent`) add on top, unconverted.
  */
-const DURATION_POINTS_PER_PERCENT = 15
+const DURATION_POINTS_PER_PERCENT = 15;
 
 export function boonDurationPercent(totals: AttributeTotals): number {
-  return (totals.points.BoonDuration ?? 0) / DURATION_POINTS_PER_PERCENT + totals.bonusPercent.boonDuration
+  return (
+    (totals.points.BoonDuration ?? 0) / DURATION_POINTS_PER_PERCENT +
+    totals.bonusPercent.boonDuration
+  );
 }
 
 export function conditionDurationPercent(totals: AttributeTotals): number {
-  return (totals.points.ConditionDuration ?? 0) / DURATION_POINTS_PER_PERCENT + totals.bonusPercent.conditionDuration
+  return (
+    (totals.points.ConditionDuration ?? 0) / DURATION_POINTS_PER_PERCENT +
+    totals.bonusPercent.conditionDuration
+  );
 }
 
 /** `computeGearAttributeTotals` + `boonDurationPercent`/`conditionDurationPercent`, bundled for the
@@ -526,10 +573,13 @@ export function conditionDurationPercent(totals: AttributeTotals): number {
  *  that only need the duration-% pair, not the full `AttributeTotals`. */
 export function boonConditionDurationPercent(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'>
+  gameData: Pick<
+    GameData,
+    'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'
+  >,
 ): { boon: number; condition: number } {
-  const totals = computeGearAttributeTotals(build, gameData)
-  return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
+  const totals = computeGearAttributeTotals(build, gameData);
+  return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) };
 }
 
 /**
@@ -538,5 +588,5 @@ export function boonConditionDurationPercent(
  * there's no points-to-percent conversion to apply, unlike Boon/Condition Duration above.
  */
 export function magicFindPercent(totals: AttributeTotals): number {
-  return totals.bonusPercent.magicFind
+  return totals.bonusPercent.magicFind;
 }

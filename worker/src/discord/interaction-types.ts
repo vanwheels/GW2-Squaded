@@ -4,8 +4,8 @@ export const InteractionType = {
   PING: 1,
   APPLICATION_COMMAND: 2,
   MESSAGE_COMPONENT: 3,
-  APPLICATION_COMMAND_AUTOCOMPLETE: 4
-} as const
+  APPLICATION_COMMAND_AUTOCOMPLETE: 4,
+} as const;
 
 /** Subset of Discord's InteractionResponseType enum. */
 export const InteractionResponseType = {
@@ -19,22 +19,22 @@ export const InteractionResponseType = {
    *  Approve/Reject buttons (`discord/approvals.ts`) since deciding a request involves a D1 write
    *  that can exceed the 3-second window. */
   DEFERRED_UPDATE_MESSAGE: 6,
-  APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8
-} as const
+  APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8,
+} as const;
 
 /** Subset of Discord's Message Component Types enum — just enough to build the Approve/Reject/
  *  Preview buttons `discord/approvals.ts` posts and the "Preview a build…" select menu
  *  `render/board.ts` posts. */
-export const ComponentType = { ACTION_ROW: 1, BUTTON: 2, STRING_SELECT: 3 } as const
+export const ComponentType = { ACTION_ROW: 1, BUTTON: 2, STRING_SELECT: 3 } as const;
 
 /** Subset of Discord's Button Style enum. */
-export const ButtonStyle = { SECONDARY: 2, SUCCESS: 3, DANGER: 4 } as const
+export const ButtonStyle = { SECONDARY: 2, SUCCESS: 3, DANGER: 4 } as const;
 
 /** Discord's "ephemeral" message flag — only the invoking user sees the reply. Every command
  *  followup in this bot is ephemeral: the *board message* is the public artifact a command
  *  mutates, the followup is just a private "it worked"/"here's why it didn't" receipt for the
  *  caller, same visibility split as a form submission's own confirmation toast. */
-export const EPHEMERAL = 1 << 6
+export const EPHEMERAL = 1 << 6;
 
 /** Subset of Discord's Application Command Option Type enum actually used by this bot's commands.
  *  https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type */
@@ -43,53 +43,53 @@ export const OptionType = {
   STRING: 3,
   INTEGER: 4,
   CHANNEL: 7,
-  ROLE: 8
-} as const
+  ROLE: 8,
+} as const;
 
 export interface InteractionOption {
-  name: string
-  type: number
-  value?: string | number | boolean
-  options?: InteractionOption[]
-  focused?: boolean
+  name: string;
+  type: number;
+  value?: string | number | boolean;
+  options?: InteractionOption[];
+  focused?: boolean;
 }
 
 export interface InteractionMember {
-  user: { id: string; username: string }
-  roles: string[]
+  user: { id: string; username: string };
+  roles: string[];
   /** Resolved total permission bitfield for the invoking user in the invoking channel, as a
    *  decimal string (too large for a JS number in general — compare via BigInt). Already accounts
    *  for role overrides, channel overrides, and guild ownership/Administrator, per Discord's own
    *  docs — this bot doesn't need to compute permissions itself. */
-  permissions: string
+  permissions: string;
 }
 
 export interface DiscordInteraction {
-  type: number
-  id: string
-  application_id: string
-  token: string
-  guild_id?: string
-  channel_id?: string
-  member?: InteractionMember
+  type: number;
+  id: string;
+  application_id: string;
+  token: string;
+  guild_id?: string;
+  channel_id?: string;
+  member?: InteractionMember;
   data?: {
-    name: string
-    options?: InteractionOption[]
+    name: string;
+    options?: InteractionOption[];
     /** Only present on a `MESSAGE_COMPONENT` interaction — the `custom_id` of the component that
      *  fired it: a button's own id (e.g. `approve:42`/`preview:42`, built by `discord/
      *  approvals.ts`'s `decisionButtons`, parsed by that file's `parseDecisionCustomId`/
      *  `parsePreviewCustomId`) or a select menu's id (`render/board.ts`'s
      *  `BOARD_BUILD_PREVIEW_CUSTOM_ID`). */
-    custom_id?: string
+    custom_id?: string;
     /** Only present on a string-select `MESSAGE_COMPONENT` interaction — the selected option
      *  values (this bot's only select menu, the board's "Preview a build…" dropdown, has
      *  `min_values`/`max_values` left at their default of 1, so this is always a single-element
      *  array in practice). */
-    values?: string[]
-  }
+    values?: string[];
+  };
 }
 
-const ADMINISTRATOR = 0x8n
+const ADMINISTRATOR = 0x8n;
 
 /** Guild admins (or anyone Discord itself resolves as having the Administrator permission) always
  *  pass every `action_permissions` role gate this bot enforces — a safety valve so a
@@ -98,31 +98,40 @@ const ADMINISTRATOR = 0x8n
  *  `/buildBoardConfig setPermission` is ever touched. */
 export function isAdministrator(member: InteractionMember): boolean {
   try {
-    return (BigInt(member.permissions) & ADMINISTRATOR) !== 0n
+    return (BigInt(member.permissions) & ADMINISTRATOR) !== 0n;
   } catch {
-    return false
+    return false;
   }
 }
 
 /** Finds a top-level option by name. For a command with a subcommand (e.g. `/buildBoardConfig
  *  setPermission`), pass `interaction.data.options[0].options` instead of the top-level list. */
-export function findOption(options: InteractionOption[] | undefined, name: string): InteractionOption | undefined {
-  return options?.find((o) => o.name === name)
+export function findOption(
+  options: InteractionOption[] | undefined,
+  name: string,
+): InteractionOption | undefined {
+  return options?.find((o) => o.name === name);
 }
 
-export function stringOption(options: InteractionOption[] | undefined, name: string): string | undefined {
-  const value = findOption(options, name)?.value
-  return typeof value === 'string' ? value : undefined
+export function stringOption(
+  options: InteractionOption[] | undefined,
+  name: string,
+): string | undefined {
+  const value = findOption(options, name)?.value;
+  return typeof value === 'string' ? value : undefined;
 }
 
-export function integerOption(options: InteractionOption[] | undefined, name: string): number | undefined {
-  const value = findOption(options, name)?.value
-  return typeof value === 'number' ? value : undefined
+export function integerOption(
+  options: InteractionOption[] | undefined,
+  name: string,
+): number | undefined {
+  const value = findOption(options, name)?.value;
+  return typeof value === 'number' ? value : undefined;
 }
 
 /** The single subcommand of a command that has one (e.g. `/buildBoardConfig setPermission`) —
  *  `null` if this command has no subcommand layer at all. */
 export function subcommand(options: InteractionOption[] | undefined): InteractionOption | null {
-  const first = options?.[0]
-  return first && first.type === OptionType.SUB_COMMAND ? first : null
+  const first = options?.[0];
+  return first && first.type === OptionType.SUB_COMMAND ? first : null;
 }

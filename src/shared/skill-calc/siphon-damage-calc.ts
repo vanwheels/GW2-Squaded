@@ -1,4 +1,4 @@
-import type { Fact, Skill } from '../types'
+import type { Fact, Skill } from '../types';
 
 /**
  * A single wiki-verified `AttributeAdjust` Life Siphon Damage fact: `Damage = baseValue +
@@ -20,14 +20,14 @@ import type { Fact, Skill } from '../types'
  * to be stored here regardless of which literal duplicate `Array.find` happens to match.
  */
 export interface SiphonDamageCoefficient {
-  factText: string
-  baseValue: number
-  coefficient: number
+  factText: string;
+  baseValue: number;
+  coefficient: number;
   /** Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather
    *  than the skill's ungated one — same purpose as `HealingCoefficient.requiresTrait`/
    *  `BarrierCoefficient.requiresTrait`. Unused by any entry in this table today (no candidate this
    *  sweep found needed it), kept for shape-parity with the sibling tables. */
-  requiresTrait?: number
+  requiresTrait?: number;
 }
 
 /**
@@ -140,7 +140,7 @@ export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoef
   // wrong.
   21762: [
     { factText: 'Passive Life-Siphon Damage', baseValue: 129, coefficient: 0.022 },
-    { factText: 'Active Life Siphon Damage', baseValue: 163, coefficient: 0.084 }
+    { factText: 'Active Life Siphon Damage', baseValue: 163, coefficient: 0.084 },
   ],
   // Necromancer/Reaper — Death Spiral (greatsword 3). Previously blocked entirely on the wiki's own
   // `{{stub||missing siphon coefficients}}` tag (no coefficient documented anywhere on the page);
@@ -169,12 +169,12 @@ export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoef
   // Thief — Vampiric Slash (Spear 3). RESOLVED 2026-09-16 via 2 live in-game readings (1410 damage
   // at 1000 Power, 1498 at 1439) — solves exactly to base 1210/coefficient 0.2, confirming both the
   // API's own base value and the wiki's coefficient (see this file's top comment).
-  73063: [{ factText: 'Life Siphon Damage', baseValue: 1210, coefficient: 0.2 }]
-}
+  73063: [{ factText: 'Life Siphon Damage', baseValue: 1210, coefficient: 0.2 }],
+};
 
 export interface SiphonDamageLine {
-  label: string
-  value: number
+  label: string;
+  value: number;
 }
 
 /**
@@ -187,23 +187,30 @@ export interface SiphonDamageLine {
  * (the one non-siphon match, `Blood Frenzy` id 12424, is an unreachable Monster-type skill with no
  * real fact value at all — see this file's own top comment).
  */
-export function siphonDamageLinesForSkill(skill: Skill, power: number, activeIds: ReadonlySet<number>): SiphonDamageLine[] {
-  const entries = CURATED_SIPHON_DAMAGE_COEFFICIENTS[skill.id]
-  if (!entries) return []
+export function siphonDamageLinesForSkill(
+  skill: Skill,
+  power: number,
+  activeIds: ReadonlySet<number>,
+): SiphonDamageLine[] {
+  const entries = CURATED_SIPHON_DAMAGE_COEFFICIENTS[skill.id];
+  if (!entries) return [];
 
-  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
-  const lines: SiphonDamageLine[] = []
+  const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+  const lines: SiphonDamageLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(
       (f) =>
         f.type === 'AttributeAdjust' &&
         f.target === 'Power' &&
         f.text === entry.factText &&
-        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
-    )
-    if (!fact) continue
-    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * power) })
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    lines.push({
+      label: entry.factText,
+      value: Math.round(entry.baseValue + entry.coefficient * power),
+    });
   }
-  return lines
+  return lines;
 }

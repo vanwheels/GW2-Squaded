@@ -17,12 +17,12 @@
  * coefficient candidate can carry several factText entries, each independently verified) and call
  * `writeVerificationFile` once at the end of `main()`.
  */
-import { writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', '..', 'data', 'game-data');
 
 /**
  * Outcome bucket for one curated value's live-wiki re-derivation. Deliberately a flat union shared
@@ -39,47 +39,47 @@ export type WikiVerificationStatus =
   | 'ambiguous' // wiki has more than one conflicting candidate value — can't pick one automatically
   | 'skip' // wiki line found but its own shape can't be safely compared (e.g. no wvw tag on a split fact)
   | 'not-found' // no wiki page resolved at all for this id
-  | 'unresolved-collision' // a wiki page was found but none of its own id= field(s) matched (name collision)
+  | 'unresolved-collision'; // a wiki page was found but none of its own id= field(s) matched (name collision)
 
 export interface WikiVerificationEntry {
-  sourceKind: 'skill' | 'trait'
-  id: number
-  name: string
+  sourceKind: 'skill' | 'trait';
+  id: number;
+  name: string;
   /** Present only for fact types with more than one curated value per id (e.g. damage
    *  coefficients, keyed by factText); absent for one-value-per-id types (e.g. target counts). */
-  factText?: string
-  status: WikiVerificationStatus
-  curatedValue: number | string
-  wikiValue?: number | string
-  wikiTitle?: string
-  wikiRevisionId?: number
+  factText?: string;
+  status: WikiVerificationStatus;
+  curatedValue: number | string;
+  wikiValue?: number | string;
+  wikiTitle?: string;
+  wikiRevisionId?: number;
   /** Free-text context — why a mismatch/skip/collision landed where it did. Optional; the status
    *  bucket alone is often enough. */
-  detail?: string
+  detail?: string;
 }
 
 export interface WikiVerificationFile {
   /** Which curated table this run diffed against, e.g. 'CURATED_DAMAGE_COEFFICIENTS'. */
-  sourceTable: string
+  sourceTable: string;
   /** Which fetch-*.ts script produced this file, for a human tracing an entry back to its source. */
-  script: string
-  generatedAt: string
+  script: string;
+  generatedAt: string;
   /** Total curated values checked (== entries.length). */
-  totalEntries: number
+  totalEntries: number;
   /** status -> count, computed from `entries` — mirrors each script's own console summary so a
    *  reader doesn't need to re-count the array by hand. */
-  summary: Partial<Record<WikiVerificationStatus, number>>
-  entries: WikiVerificationEntry[]
+  summary: Partial<Record<WikiVerificationStatus, number>>;
+  entries: WikiVerificationEntry[];
 }
 
 /** Builds the `summary` counts from `entries` and writes the file to `data/game-data/<filename>`. */
 export async function writeVerificationFile(
   filename: string,
   meta: { sourceTable: string; script: string },
-  entries: WikiVerificationEntry[]
+  entries: WikiVerificationEntry[],
 ): Promise<void> {
-  const summary: Partial<Record<WikiVerificationStatus, number>> = {}
-  for (const e of entries) summary[e.status] = (summary[e.status] ?? 0) + 1
+  const summary: Partial<Record<WikiVerificationStatus, number>> = {};
+  for (const e of entries) summary[e.status] = (summary[e.status] ?? 0) + 1;
 
   const file: WikiVerificationFile = {
     sourceTable: meta.sourceTable,
@@ -87,7 +87,7 @@ export async function writeVerificationFile(
     generatedAt: new Date().toISOString(),
     totalEntries: entries.length,
     summary,
-    entries
-  }
-  await writeFile(join(DATA_DIR, filename), JSON.stringify(file, null, 2))
+    entries,
+  };
+  await writeFile(join(DATA_DIR, filename), JSON.stringify(file, null, 2));
 }

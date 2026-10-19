@@ -1,5 +1,5 @@
-import type { ResourceCost, ResourceCostsById } from '../types'
-import type { FactLine } from './fact-numbers'
+import type { ResourceCost, ResourceCostsById } from '../types';
+import type { FactLine } from './fact-numbers';
 
 /**
  * Skill ids whose wiki infobox WvW value is stale relative to a same-day patch — the infobox page
@@ -14,8 +14,8 @@ const RESOURCE_COST_WVW_OVERRIDES: Partial<Record<number, Partial<ResourceCost>>
   // Vindicator — Tree Song. Sep 29, 2026 patch reduced WvW energy cost from 25 to 15 (now matches
   // PvE). Infobox last edited 2026-06-13 (still `energy wvw = 25` as of this fix) — confirmed via
   // Game_updates/2026-09-29's own patch-note wording instead of the (stale) infobox fetch.
-  62941: { energyWvw: 15 }
-}
+  62941: { energyWvw: 15 },
+};
 
 /**
  * Renders a skill's wiki-sourced `ResourceCost` (see `data/game-data/resource-costs.json`,
@@ -33,22 +33,27 @@ const RESOURCE_COST_WVW_OVERRIDES: Partial<Record<number, Partial<ResourceCost>>
  * this ordering also happens to put a skill's "up-front" cost before its "ongoing" one.
  */
 export function resourceCostLines(skillId: number, resourceCosts: ResourceCostsById): FactLine[] {
-  const fetched = resourceCosts[skillId]
-  const override = RESOURCE_COST_WVW_OVERRIDES[skillId]
-  if (!fetched && !override) return []
-  const cost: ResourceCost = { ...fetched, ...override }
+  const fetched = resourceCosts[skillId];
+  const override = RESOURCE_COST_WVW_OVERRIDES[skillId];
+  if (!fetched && !override) return [];
+  const cost: ResourceCost = { ...fetched, ...override };
 
-  const lines: FactLine[] = []
-  const push = (label: string, baseValue: number | undefined, wvw: number | undefined, suffix = ''): void => {
-    const value = wvw ?? baseValue
-    if (value === undefined) return
-    lines.push({ icon: null, text: `${label}: ${value.toLocaleString()}${suffix}` })
-  }
+  const lines: FactLine[] = [];
+  const push = (
+    label: string,
+    baseValue: number | undefined,
+    wvw: number | undefined,
+    suffix = '',
+  ): void => {
+    const value = wvw ?? baseValue;
+    if (value === undefined) return;
+    lines.push({ icon: null, text: `${label}: ${value.toLocaleString()}${suffix}` });
+  };
 
-  push('Energy', cost.energy, cost.energyWvw)
-  push('Initiative', cost.initiative, cost.initiativeWvw)
-  push('Upkeep', cost.upkeep, cost.upkeepWvw, '/s')
-  push('Health Cost', cost.healthCost, cost.healthCostWvw)
+  push('Energy', cost.energy, cost.energyWvw);
+  push('Initiative', cost.initiative, cost.initiativeWvw);
+  push('Upkeep', cost.upkeep, cost.upkeepWvw, '/s');
+  push('Health Cost', cost.healthCost, cost.healthCostWvw);
 
-  return lines
+  return lines;
 }

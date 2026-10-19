@@ -28,27 +28,33 @@
  *   is used instead (see `isBalanced`) — any fact line that still isn't bracket-balanced after pipe
  *   protection is dropped and logged rather than stored possibly-corrupted.
  */
-import { readFile, writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { Relic, RelicEffect, RelicEffectsById, RelicFactLine } from '../src/shared/types/game-data'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type {
+  Relic,
+  RelicEffect,
+  RelicEffectsById,
+  RelicFactLine,
+} from '../src/shared/types/game-data';
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 /** A handful of relic names collide with an unrelated page (disambiguation pages, e.g. "Relic of
  *  Dwayna" also names a back item) — the actual relic article lives at "<name> (relic)" instead. */
 async function fetchRelicPage(name: string): Promise<string | undefined> {
-  const direct = await fetchWikiPage(name)
-  if (direct !== null && !/\{\{disambig/i.test(direct) && /\{\{Relic infobox/i.test(direct)) return direct
+  const direct = await fetchWikiPage(name);
+  if (direct !== null && !/\{\{disambig/i.test(direct) && /\{\{Relic infobox/i.test(direct))
+    return direct;
   try {
-    const disambiguated = await fetchWikiPage(`${name} (relic)`)
-    if (disambiguated !== null && /\{\{Relic infobox/i.test(disambiguated)) return disambiguated
+    const disambiguated = await fetchWikiPage(`${name} (relic)`);
+    if (disambiguated !== null && /\{\{Relic infobox/i.test(disambiguated)) return disambiguated;
   } catch {
     // fall through to undefined below
   }
-  return undefined
+  return undefined;
 }
 
 /** Protects one level of piped wikilinks/templates (`[[X|Y]]`, `{{X|Y}}`) from a naive `|`-split
@@ -58,174 +64,186 @@ async function fetchRelicPage(name: string): Promise<string | undefined> {
  *  `isBalanced` below and dropped, not silently mis-parsed. */
 // Private-use-area placeholder for a "protected" pipe — vanishingly unlikely to appear in real
 // wikitext, and (unlike a literal control character) doesn't trip ESLint's no-control-regex rule.
-const PROTECTED_PIPE = ''
+const PROTECTED_PIPE = '';
 
 function protectPipes(s: string): string {
-  let out = s.replace(/\[\[([^[\]|]*)\|([^[\]]*)\]\]/g, (_, a: string, b: string) => `[[${a}${PROTECTED_PIPE}${b}]]`)
-  out = out.replace(/\{\{([^{}|]*)\|([^{}]*)\}\}/g, (_, a: string, b: string) => `{{${a}${PROTECTED_PIPE}${b}}}`)
-  return out
+  let out = s.replace(
+    /\[\[([^[\]|]*)\|([^[\]]*)\]\]/g,
+    (_, a: string, b: string) => `[[${a}${PROTECTED_PIPE}${b}]]`,
+  );
+  out = out.replace(
+    /\{\{([^{}|]*)\|([^{}]*)\}\}/g,
+    (_, a: string, b: string) => `{{${a}${PROTECTED_PIPE}${b}}}`,
+  );
+  return out;
 }
 function restorePipes(s: string): string {
-  return s.split(PROTECTED_PIPE).join('|')
+  return s.split(PROTECTED_PIPE).join('|');
 }
 function isBalanced(s: string): boolean {
-  const openLink = (s.match(/\[\[/g) ?? []).length
-  const closeLink = (s.match(/\]\]/g) ?? []).length
-  const openTpl = (s.match(/\{\{/g) ?? []).length
-  const closeTpl = (s.match(/\}\}/g) ?? []).length
-  return openLink === closeLink && openTpl === closeTpl
+  const openLink = (s.match(/\[\[/g) ?? []).length;
+  const closeLink = (s.match(/\]\]/g) ?? []).length;
+  const openTpl = (s.match(/\{\{/g) ?? []).length;
+  const closeTpl = (s.match(/\}\}/g) ?? []).length;
+  return openLink === closeLink && openTpl === closeTpl;
 }
 
 interface ParsedFacts {
-  facts: RelicFactLine[]
-  corrupted: string[]
+  facts: RelicFactLine[];
+  corrupted: string[];
 }
 
 /** Parses every `{{skill fact|...}}` invocation in a relic infobox, keeping only the WvW-relevant
  *  line wherever a fact is split by `game mode=` (drops a PvE-only or PvP-only alternate for the
  *  same label; keeps untagged lines, which apply in every mode). */
 function parseFactLines(infobox: string): ParsedFacts {
-  const factRe = /\{\{\s*skill fact\s*\|(.*?)\}\}/gis
-  const facts: RelicFactLine[] = []
-  const corrupted: string[] = []
+  const factRe = /\{\{\s*skill fact\s*\|(.*?)\}\}/gis;
+  const facts: RelicFactLine[] = [];
+  const corrupted: string[] = [];
   for (const match of infobox.matchAll(factRe)) {
-    const protectedArgs = protectPipes(match[1])
-    const rawSegments = protectedArgs.split('|').map((s) => restorePipes(s.trim()))
+    const protectedArgs = protectPipes(match[1]);
+    const rawSegments = protectedArgs.split('|').map((s) => restorePipes(s.trim()));
     if (rawSegments.some((s) => !isBalanced(s))) {
-      corrupted.push(match[0])
-      continue
+      corrupted.push(match[0]);
+      continue;
     }
-    const label = rawSegments[0]
-    if (!label) continue
+    const label = rawSegments[0];
+    if (!label) continue;
 
-    const values: string[] = []
-    const params: Record<string, string> = {}
-    let gameModeTokens: string[] | null = null
+    const values: string[] = [];
+    const params: Record<string, string> = {};
+    let gameModeTokens: string[] | null = null;
     for (const seg of rawSegments.slice(1)) {
-      const kv = /^([a-z][a-z ]*)\s*=\s*(.+)$/i.exec(seg)
+      const kv = /^([a-z][a-z ]*)\s*=\s*(.+)$/i.exec(seg);
       if (kv) {
-        const key = kv[1].trim().toLowerCase()
+        const key = kv[1].trim().toLowerCase();
         if (key === 'game mode') {
-          gameModeTokens = kv[2].toLowerCase().split(/[\s,]+/).filter(Boolean)
+          gameModeTokens = kv[2]
+            .toLowerCase()
+            .split(/[\s,]+/)
+            .filter(Boolean);
         } else {
-          params[key] = kv[2].trim()
+          params[key] = kv[2].trim();
         }
       } else if (seg) {
-        values.push(seg)
+        values.push(seg);
       }
     }
-    if (gameModeTokens !== null && !gameModeTokens.includes('wvw')) continue // PvE-only/PvP-only line for this label — drop
-    facts.push({ label, values, params })
+    if (gameModeTokens !== null && !gameModeTokens.includes('wvw')) continue; // PvE-only/PvP-only line for this label — drop
+    facts.push({ label, values, params });
   }
-  return { facts, corrupted }
+  return { facts, corrupted };
 }
 
 /** `recharge wvw=`/`recharge pvp=` fields document a WvW/PvP-specific cooldown distinct from the
  *  base `recharge=` (confirmed live: 7 relics have a `recharge wvw` override, 5 have `recharge pvp`
  *  only — none have both). Prefers the WvW-tagged field; falls back to the untagged base field. */
 function parseRechargeSeconds(infobox: string): number | null {
-  const wvwMatch = /^\|\s*recharge\s+wvw\s*=\s*([\d.]+)/im.exec(infobox)
-  if (wvwMatch) return Number(wvwMatch[1])
-  const baseMatch = /^\|\s*recharge\s*=\s*([\d.]+)/im.exec(infobox)
-  return baseMatch ? Number(baseMatch[1]) : null
+  const wvwMatch = /^\|\s*recharge\s+wvw\s*=\s*([\d.]+)/im.exec(infobox);
+  if (wvwMatch) return Number(wvwMatch[1]);
+  const baseMatch = /^\|\s*recharge\s*=\s*([\d.]+)/im.exec(infobox);
+  return baseMatch ? Number(baseMatch[1]) : null;
 }
 
 function parseListedIds(infobox: string): number[] {
-  const idFieldMatch = /\|\s*id\s*=\s*([^\n|]+)/.exec(infobox)
-  if (!idFieldMatch) return []
-  const cleaned = idFieldMatch[1].replace(/<!--.*?-->/g, '')
+  const idFieldMatch = /\|\s*id\s*=\s*([^\n|]+)/.exec(infobox);
+  if (!idFieldMatch) return [];
+  const cleaned = idFieldMatch[1].replace(/<!--.*?-->/g, '');
   return cleaned
     .split(',')
     .map((s) => Number(s.trim()))
-    .filter((n) => !Number.isNaN(n))
+    .filter((n) => !Number.isNaN(n));
 }
 
 async function main(): Promise<void> {
-  const relics = JSON.parse(await readFile(join(DATA_DIR, 'relics.json'), 'utf-8')) as Relic[]
+  const relics = JSON.parse(await readFile(join(DATA_DIR, 'relics.json'), 'utf-8')) as Relic[];
 
-  const byName = new Map<string, Relic[]>()
+  const byName = new Map<string, Relic[]>();
   for (const relic of relics) {
-    const list = byName.get(relic.name) ?? []
-    list.push(relic)
-    byName.set(relic.name, list)
+    const list = byName.get(relic.name) ?? [];
+    list.push(relic);
+    byName.set(relic.name, list);
   }
-  const names = [...byName.keys()]
+  const names = [...byName.keys()];
 
-  const result: RelicEffectsById = {}
-  const log: string[] = []
-  let pagesWithFacts = 0
-  let pagesWithNoFacts = 0
-  let idSubsetResolutions = 0
-  let corruptedLineCount = 0
+  const result: RelicEffectsById = {};
+  const log: string[] = [];
+  let pagesWithFacts = 0;
+  let pagesWithNoFacts = 0;
+  let idSubsetResolutions = 0;
+  let corruptedLineCount = 0;
 
   for (const [i, name] of names.entries()) {
-    const relicsForName = byName.get(name)!
+    const relicsForName = byName.get(name)!;
 
-    let text: string | undefined
+    let text: string | undefined;
     try {
-      text = await fetchRelicPage(name)
+      text = await fetchRelicPage(name);
     } catch (err) {
-      log.push(`skip (fetch error): "${name}" — ${(err as Error).message}`)
-      continue
+      log.push(`skip (fetch error): "${name}" — ${(err as Error).message}`);
+      continue;
     }
     if (!text) {
-      log.push(`skip (no Relic infobox found, incl. "(relic)" disambiguation retry): "${name}"`)
-      continue
+      log.push(`skip (no Relic infobox found, incl. "(relic)" disambiguation retry): "${name}"`);
+      continue;
     }
 
-    const infoboxMatch = /\{\{Relic infobox([\s\S]*?)\n\}\}/.exec(text)
+    const infoboxMatch = /\{\{Relic infobox([\s\S]*?)\n\}\}/.exec(text);
     if (!infoboxMatch) {
-      log.push(`skip (Relic infobox template not closed as expected): "${name}"`)
-      continue
+      log.push(`skip (Relic infobox template not closed as expected): "${name}"`);
+      continue;
     }
-    const infobox = infoboxMatch[1]
+    const infobox = infoboxMatch[1];
 
     // Decide which of this name's relics.json ids the parsed facts may be safely attributed to.
-    let targetIds: number[]
-    const distinctDescriptions = new Set(relicsForName.map((r) => r.description))
+    let targetIds: number[];
+    const distinctDescriptions = new Set(relicsForName.map((r) => r.description));
     if (distinctDescriptions.size === 1) {
-      targetIds = relicsForName.map((r) => r.id) // identical effect across every id sharing this name
+      targetIds = relicsForName.map((r) => r.id); // identical effect across every id sharing this name
     } else {
-      const listedIds = new Set(parseListedIds(infobox))
-      targetIds = relicsForName.filter((r) => listedIds.has(r.id)).map((r) => r.id)
+      const listedIds = new Set(parseListedIds(infobox));
+      targetIds = relicsForName.filter((r) => listedIds.has(r.id)).map((r) => r.id);
       if (targetIds.length === 0) {
-        log.push(`skip (differing descriptions across ids, and none match the wiki's own id= list): "${name}"`)
-        continue
+        log.push(
+          `skip (differing descriptions across ids, and none match the wiki's own id= list): "${name}"`,
+        );
+        continue;
       }
-      idSubsetResolutions++
+      idSubsetResolutions++;
       log.push(
         `note (subset attribution): "${name}" — applying facts only to id(s) [${targetIds.join(', ')}] of ` +
-          `[${relicsForName.map((r) => r.id).join(', ')}], since the other id(s) have different API description text`
-      )
+          `[${relicsForName.map((r) => r.id).join(', ')}], since the other id(s) have different API description text`,
+      );
     }
 
-    const { facts, corrupted } = parseFactLines(infobox)
-    corruptedLineCount += corrupted.length
-    for (const line of corrupted) log.push(`skip (unbalanced brackets after pipe-protection): "${name}" — ${line}`)
+    const { facts, corrupted } = parseFactLines(infobox);
+    corruptedLineCount += corrupted.length;
+    for (const line of corrupted)
+      log.push(`skip (unbalanced brackets after pipe-protection): "${name}" — ${line}`);
 
-    const rechargeSeconds = parseRechargeSeconds(infobox)
-    if (facts.length > 0) pagesWithFacts++
-    else pagesWithNoFacts++
+    const rechargeSeconds = parseRechargeSeconds(infobox);
+    if (facts.length > 0) pagesWithFacts++;
+    else pagesWithNoFacts++;
 
-    const effect: RelicEffect = { facts, rechargeSeconds }
-    for (const id of targetIds) result[id] = effect
+    const effect: RelicEffect = { facts, rechargeSeconds };
+    for (const id of targetIds) result[id] = effect;
 
-    if (i % 20 === 0) console.log(`[${i}/${names.length}] ${name}`)
+    if (i % 20 === 0) console.log(`[${i}/${names.length}] ${name}`);
   }
 
-  await flushWikiCache()
-  await writeFile(join(DATA_DIR, 'relic-effects.json'), JSON.stringify(result, null, 2))
+  await flushWikiCache();
+  await writeFile(join(DATA_DIR, 'relic-effects.json'), JSON.stringify(result, null, 2));
 
   console.log(
     `\nDone. relic-effects.json written for ${Object.keys(result).length} ids ` +
       `(${pagesWithFacts} names with facts, ${pagesWithNoFacts} names with no {{skill fact}} lines, ` +
-      `${idSubsetResolutions} names needed subset id attribution, ${corruptedLineCount} fact lines dropped as unparseable).`
-  )
-  console.log(`\n${log.length} log lines:`)
-  for (const line of log) console.warn(`  - ${line}`)
+      `${idSubsetResolutions} names needed subset id attribution, ${corruptedLineCount} fact lines dropped as unparseable).`,
+  );
+  console.log(`\n${log.length} log lines:`);
+  for (const line of log) console.warn(`  - ${line}`);
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

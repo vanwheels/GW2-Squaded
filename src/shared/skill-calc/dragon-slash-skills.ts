@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { Skill } from '../types';
 
 /**
  * Bladesworn's Dragon Slash bundle — the 5 skills shown while "Dragon Trigger" (Warrior's
@@ -73,35 +73,36 @@ import type { Skill } from '../types'
  * same filename as its base-skill sibling (GW2 doesn't render a distinct icon per trait variant),
  * so these reuse the base 3 skills' own `wikiIcon(...)` calls rather than sourcing new hashes.
  */
-export const DRAGON_TRIGGER_SKILL_ID = 62803
-const DRAGON_SLASH_FORCE_ID = 62797
-const DRAGON_SLASH_BOOST_ID = 62980
-const DRAGON_SLASH_REACH_ID = 62951
-const TRIGGERGUARD_ID = 62893
-const FLICKER_STEP_ID = 62926
+export const DRAGON_TRIGGER_SKILL_ID = 62803;
+const DRAGON_SLASH_FORCE_ID = 62797;
+const DRAGON_SLASH_BOOST_ID = 62980;
+const DRAGON_SLASH_REACH_ID = 62951;
+const TRIGGERGUARD_ID = 62893;
+const FLICKER_STEP_ID = 62926;
 
 /** Bladesworn's 2 traits that reflavor the whole Dragon Slash chain — see this file's own doc
  *  comment. Exported so `bundle-skills.ts`'s `dragonSlashBarSkillIdsForBuild` can gate on them. */
-export const SHARP_AS_THE_WIND_TRAIT_ID = 2260
-export const RIVERS_FLOW_TRAIT_ID = 2237
+export const SHARP_AS_THE_WIND_TRAIT_ID = 2260;
+export const RIVERS_FLOW_TRAIT_ID = 2237;
 
-const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199
-const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281
-const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246
-const DRAGON_SLASH_FORCE_RIVERS_FLOW_ID = 80250
-const DRAGON_SLASH_BOOST_RIVERS_FLOW_ID = 80228
-const DRAGON_SLASH_REACH_RIVERS_FLOW_ID = 80236
+const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199;
+const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281;
+const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246;
+const DRAGON_SLASH_FORCE_RIVERS_FLOW_ID = 80250;
+const DRAGON_SLASH_BOOST_RIVERS_FLOW_ID = 80228;
+const DRAGON_SLASH_REACH_RIVERS_FLOW_ID = 80236;
 
 function wikiIcon(file: string): string {
-  const fileName = file.split('/').pop()
-  return `https://wiki.guildwars2.com/images/thumb/${file}/64px-${fileName}`
+  const fileName = file.split('/').pop();
+  return `https://wiki.guildwars2.com/images/thumb/${file}/64px-${fileName}`;
 }
 
 export const DRAGON_SLASH_SKILLS: Skill[] = [
   {
     id: DRAGON_SLASH_FORCE_ID,
     name: 'Dragon Slash—Force',
-    description: 'Slash foes in front of you, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
+    description:
+      'Slash foes in front of you, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
     icon: wikiIcon('b/b5/Dragon_Slash—Force.png'),
     chatLink: '',
     type: 'Weapon',
@@ -116,19 +117,20 @@ export const DRAGON_SLASH_SKILLS: Skill[] = [
       { text: 'Maximum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 20.4 },
       { text: 'Minimum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 1.16 },
       { text: 'Range', type: 'Range', value: 300 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_BOOST_ID,
     name: 'Dragon Slash—Boost',
-    description: 'Dash forward while slashing all foes in a line, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
+    description:
+      'Dash forward while slashing all foes in a line, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
     icon: wikiIcon('7/75/Dragon_Slash—Boost.png'),
     chatLink: '',
     type: 'Weapon',
@@ -143,19 +145,20 @@ export const DRAGON_SLASH_SKILLS: Skill[] = [
       { text: 'Maximum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 16.3 },
       { text: 'Minimum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 0.92 },
       { text: 'Range', type: 'Range', value: 750 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_REACH_ID,
     name: 'Dragon Slash—Reach',
-    description: 'Slash to create a blade of air that strikes foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
+    description:
+      'Slash to create a blade of air that strikes foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to deal more damage.',
     icon: wikiIcon('e/eb/Dragon_Slash—Reach.png'),
     chatLink: '',
     type: 'Weapon',
@@ -172,14 +175,14 @@ export const DRAGON_SLASH_SKILLS: Skill[] = [
       { text: 'Maximum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 10.21 },
       { text: 'Minimum Damage', type: 'Damage', hit_count: 1, dmg_multiplier: 0.58 },
       { text: 'Range', type: 'Range', value: 900 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: TRIGGERGUARD_ID,
@@ -194,19 +197,25 @@ export const DRAGON_SLASH_SKILLS: Skill[] = [
     flags: [],
     categories: [],
     facts: [
-      { type: 'Buff', status: 'Aegis', duration: 2, description: 'Block the next incoming attack.', apply_count: 1 },
+      {
+        type: 'Buff',
+        status: 'Aegis',
+        duration: 2,
+        description: 'Block the next incoming attack.',
+        apply_count: 1,
+      },
       { text: 'Maximum Count', type: 'Number', value: 2 },
       // WvW/PvP value (40s) — PvE is 30s; this sweep's established convention uses the WvW value.
       { text: 'Count Recharge', type: 'Time', duration: 40 },
       { text: 'Range', type: 'Range', value: 900 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: FLICKER_STEP_ID,
@@ -226,22 +235,28 @@ export const DRAGON_SLASH_SKILLS: Skill[] = [
       { text: 'Maximum Count', type: 'Number', value: 2 },
       { text: 'Count Recharge', type: 'Time', duration: 60 },
       { text: 'Range', type: 'Range', value: 300 },
-      { text: 'Recharge', type: 'Recharge', value: 0.5 }
+      { text: 'Recharge', type: 'Recharge', value: 0.5 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
-  }
-]
+    bundleSkills: null,
+  },
+];
 
 /** Keyed in `Weapon_1`-`Weapon_5` order, same convention as `gunsaber-skills.ts`'s
  *  `GUNSABER_WEAPON_BAR_SKILL_IDS` — see `bundle-skills.ts`'s `dragonSlashBarSkillIdsForBuild`,
  *  which picks this array (untraited) or one of the 2 below (Sharp as the Wind/River's Flow
  *  chosen) for Dragon Trigger's own mechanic-bar id (62803). */
-export const DRAGON_SLASH_BAR_SKILL_IDS: number[] = [DRAGON_SLASH_FORCE_ID, DRAGON_SLASH_BOOST_ID, DRAGON_SLASH_REACH_ID, TRIGGERGUARD_ID, FLICKER_STEP_ID]
+export const DRAGON_SLASH_BAR_SKILL_IDS: number[] = [
+  DRAGON_SLASH_FORCE_ID,
+  DRAGON_SLASH_BOOST_ID,
+  DRAGON_SLASH_REACH_ID,
+  TRIGGERGUARD_ID,
+  FLICKER_STEP_ID,
+];
 
 /**
  * Sharp as the Wind's 3 reflavored Force/Boost/Reach ids — Triggerguard/Flicker Step are untouched
@@ -254,7 +269,8 @@ export const DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS: Skill[] = [
   {
     id: DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID,
     name: 'Dragon Slash—Force',
-    description: 'Slash foes in an arc in front of you, inflicting burning on enemies and ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
+    description:
+      'Slash foes in an arc in front of you, inflicting burning on enemies and ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
     icon: wikiIcon('b/b5/Dragon_Slash—Force.png'),
     chatLink: '',
     type: 'Weapon',
@@ -268,19 +284,20 @@ export const DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS: Skill[] = [
       { text: 'Number of Targets', type: 'Number', value: 5 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Range', type: 'Range', value: 300 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID,
     name: 'Dragon Slash—Boost',
-    description: 'Dash forward while slashing all foes in a line, inflicting burning and ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
+    description:
+      'Dash forward while slashing all foes in a line, inflicting burning and ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
     icon: wikiIcon('7/75/Dragon_Slash—Boost.png'),
     chatLink: '',
     type: 'Weapon',
@@ -294,19 +311,20 @@ export const DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS: Skill[] = [
       { text: 'Number of Targets', type: 'Number', value: 5 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Range', type: 'Range', value: 750 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID,
     name: 'Dragon Slash—Reach',
-    description: 'Slash to create a blade of air that strikes and burns foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
+    description:
+      'Slash to create a blade of air that strikes and burns foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to increase burning duration.',
     icon: wikiIcon('e/eb/Dragon_Slash—Reach.png'),
     chatLink: '',
     type: 'Weapon',
@@ -321,27 +339,27 @@ export const DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS: Skill[] = [
       { text: 'Pierces', type: 'NoData' },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Range', type: 'Range', value: 900 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
-  }
+    bundleSkills: null,
+  },
   // Triggerguard/Flicker Step deliberately NOT repeated here — same 2 ids as the base bar
   // (`TRIGGERGUARD_ID`/`FLICKER_STEP_ID`), already provided by `DRAGON_SLASH_SKILLS`, which every
   // caller merges into `skillsById` alongside this array regardless of which bar is active.
-]
+];
 
 export const DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS: number[] = [
   DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID,
   DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID,
   DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID,
   TRIGGERGUARD_ID,
-  FLICKER_STEP_ID
-]
+  FLICKER_STEP_ID,
+];
 
 /**
  * River's Flow's 3 reflavored Force/Boost/Reach ids — same shape as the Sharp as the Wind set
@@ -354,7 +372,8 @@ export const DRAGON_SLASH_RIVERS_FLOW_SKILLS: Skill[] = [
   {
     id: DRAGON_SLASH_FORCE_RIVERS_FLOW_ID,
     name: 'Dragon Slash—Force',
-    description: 'Slash foes in front of you, applying boons to nearby allies and ending Dragon Trigger. This attack consumes all charges to increase the number of boons applied to allies.',
+    description:
+      'Slash foes in front of you, applying boons to nearby allies and ending Dragon Trigger. This attack consumes all charges to increase the number of boons applied to allies.',
     icon: wikiIcon('b/b5/Dragon_Slash—Force.png'),
     chatLink: '',
     type: 'Weapon',
@@ -373,19 +392,20 @@ export const DRAGON_SLASH_RIVERS_FLOW_SKILLS: Skill[] = [
       { text: 'Number of Allied Targets', type: 'Number', value: 5 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Range', type: 'Range', value: 300 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_BOOST_RIVERS_FLOW_ID,
     name: 'Dragon Slash—Boost',
-    description: 'Dash forward while slashing all foes in a line, healing allies you pass through and ending Dragon Trigger. This attack consumes all charges to increase the healing granted to allies.',
+    description:
+      'Dash forward while slashing all foes in a line, healing allies you pass through and ending Dragon Trigger. This attack consumes all charges to increase the healing granted to allies.',
     icon: wikiIcon('7/75/Dragon_Slash—Boost.png'),
     chatLink: '',
     type: 'Weapon',
@@ -402,19 +422,20 @@ export const DRAGON_SLASH_RIVERS_FLOW_SKILLS: Skill[] = [
       { text: 'Number of Allied Targets', type: 'Number', value: 5 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Range', type: 'Range', value: 750 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: DRAGON_SLASH_REACH_RIVERS_FLOW_ID,
     name: 'Dragon Slash—Reach',
-    description: 'Slash to create a blade of air that strikes and dazes foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to increase the duration of daze inflicted.',
+    description:
+      'Slash to create a blade of air that strikes and dazes foes in a line in front of you, ending Dragon Trigger. This attack consumes all charges to increase the duration of daze inflicted.',
     icon: wikiIcon('e/eb/Dragon_Slash—Reach.png'),
     chatLink: '',
     type: 'Weapon',
@@ -435,23 +456,23 @@ export const DRAGON_SLASH_RIVERS_FLOW_SKILLS: Skill[] = [
       { text: 'Unblockable', type: 'NoData' },
       { text: 'Defiance Break', type: 'Number', value: 600 },
       { text: 'Range', type: 'Range', value: 900 },
-      { text: 'Recharge', type: 'Recharge', value: 1 }
+      { text: 'Recharge', type: 'Recharge', value: 1 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
-  }
+    bundleSkills: null,
+  },
   // Triggerguard/Flicker Step deliberately NOT repeated here — see the same note on
   // `DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS` above.
-]
+];
 
 export const DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS: number[] = [
   DRAGON_SLASH_FORCE_RIVERS_FLOW_ID,
   DRAGON_SLASH_BOOST_RIVERS_FLOW_ID,
   DRAGON_SLASH_REACH_RIVERS_FLOW_ID,
   TRIGGERGUARD_ID,
-  FLICKER_STEP_ID
-]
+  FLICKER_STEP_ID,
+];

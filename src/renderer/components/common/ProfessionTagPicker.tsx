@@ -1,14 +1,14 @@
-import { useRef } from 'react'
-import type { ProfessionId } from '@shared/types'
-import { useGameData } from '@renderer/state/game-data-store'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
-import { usePickerOpen } from '@renderer/state/picker-registry'
-import type { TagFilterState } from '@renderer/state/use-tag-filter'
+import { useRef } from 'react';
+import type { ProfessionId } from '@shared/types';
+import { useGameData } from '@renderer/state/game-data-store';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel';
+import { usePickerOpen } from '@renderer/state/picker-registry';
+import type { TagFilterState } from '@renderer/state/use-tag-filter';
 
 interface Props {
-  tagStates: Map<string, TagFilterState>
-  onToggleTag: (tag: string) => void
+  tagStates: Map<string, TagFilterState>;
+  onToggleTag: (tag: string) => void;
 }
 
 /**
@@ -32,28 +32,30 @@ interface Props {
  * marks `exclude`.
  */
 export function ProfessionTagPicker({ tagStates, onToggleTag }: Props) {
-  const { professions, specializations: allSpecializations } = useGameData()
-  const { open, openThis, close } = usePickerOpen()
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const { professions, specializations: allSpecializations } = useGameData();
+  const { open, openThis, close } = usePickerOpen();
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const eliteSpecsByProfession = new Map<ProfessionId, typeof allSpecializations>()
+  const eliteSpecsByProfession = new Map<ProfessionId, typeof allSpecializations>();
   for (const s of allSpecializations) {
-    if (!s.elite) continue
-    const list = eliteSpecsByProfession.get(s.profession) ?? []
-    list.push(s)
-    eliteSpecsByProfession.set(s.profession, list)
+    if (!s.elite) continue;
+    const list = eliteSpecsByProfession.get(s.profession) ?? [];
+    list.push(s);
+    eliteSpecsByProfession.set(s.profession, list);
   }
-  for (const list of eliteSpecsByProfession.values()) list.sort((a, b) => a.id - b.id)
+  for (const list of eliteSpecsByProfession.values()) list.sort((a, b) => a.id - b.id);
 
-  const professionNames = new Set(professions.map((p) => p.name))
-  const specNames = new Set(allSpecializations.map((s) => s.name))
-  const active = [...tagStates.keys()].some((tag) => professionNames.has(tag) || specNames.has(tag))
+  const professionNames = new Set(professions.map((p) => p.name));
+  const specNames = new Set(allSpecializations.map((s) => s.name));
+  const active = [...tagStates.keys()].some(
+    (tag) => professionNames.has(tag) || specNames.has(tag),
+  );
 
   function iconClass(name: string): string {
-    const state = tagStates.get(name)
-    if (state === 'include') return 'spec-icon-button chosen'
-    if (state === 'exclude') return 'spec-icon-button excluded'
-    return 'spec-icon-button'
+    const state = tagStates.get(name);
+    if (state === 'include') return 'spec-icon-button chosen';
+    if (state === 'exclude') return 'spec-icon-button excluded';
+    return 'spec-icon-button';
   }
 
   return (
@@ -81,7 +83,10 @@ export function ProfessionTagPicker({ tagStates, onToggleTag }: Props) {
             </Tooltip>
           ))}
         </div>
-        <div className="elite-spec-picker-grid" style={{ gridTemplateColumns: `repeat(${professions.length}, 36px)` }}>
+        <div
+          className="elite-spec-picker-grid"
+          style={{ gridTemplateColumns: `repeat(${professions.length}, 36px)` }}
+        >
           {professions.flatMap((p, colIndex) =>
             (eliteSpecsByProfession.get(p.id) ?? []).map((s, rowIndex) => (
               <Tooltip
@@ -96,10 +101,10 @@ export function ProfessionTagPicker({ tagStates, onToggleTag }: Props) {
                   onClick={() => onToggleTag(s.name)}
                 />
               </Tooltip>
-            ))
+            )),
           )}
         </div>
       </FloatingPanel>
     </div>
-  )
+  );
 }

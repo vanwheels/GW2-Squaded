@@ -1,4 +1,8 @@
-import type { OptimizerInput, OptimizerProgress, OptimizerResult } from '@shared/gear-calc/gear-optimize'
+import type {
+  OptimizerInput,
+  OptimizerProgress,
+  OptimizerResult,
+} from '@shared/gear-calc/gear-optimize';
 
 /**
  * Message protocol between `GearOptimizerPanel` (main thread) and `gear-optimizer.worker.ts` — see
@@ -11,9 +15,8 @@ import type { OptimizerInput, OptimizerProgress, OptimizerResult } from '@shared
  * `new Worker(new URL('./gear-optimizer.worker.ts', import.meta.url), { type: 'module' })` pattern.
  */
 export interface GearOptimizerWorkerRequest {
-  input: OptimizerInput
+  input: OptimizerInput;
 }
 
 export type GearOptimizerWorkerResponse =
-  | { type: 'progress'; progress: OptimizerProgress }
-  | { type: 'result'; result: OptimizerResult }
+  { type: 'progress'; progress: OptimizerProgress } | { type: 'result'; result: OptimizerResult };

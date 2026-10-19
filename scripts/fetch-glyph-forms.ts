@@ -31,143 +31,154 @@
  * Run manually via `npm run fetch-glyph-forms`, after `npm run fetch-game-data` (matches wiki page
  * titles against the already-fetched data/game-data/skills.json by name).
  */
-import { readFile, writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { GlyphFormVariantMap, Skill } from '../src/shared/types/game-data'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { GlyphFormVariantMap, Skill } from '../src/shared/types/game-data';
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 function parseInfoboxId(text: string): number | undefined {
-  const match = /\|\s*id\s*=\s*(\d+)/.exec(text)
-  return match ? Number(match[1]) : undefined
+  const match = /\|\s*id\s*=\s*(\d+)/.exec(text);
+  return match ? Number(match[1]) : undefined;
 }
 
 /** Child page titles from the parent's own "== Skills ==" table, e.g.
  *  `{{Slot skill table row|Glyph of Equality (non-celestial)}}`. */
 function parseChildTitles(parentWikitext: string): string[] {
-  const re = /\{\{Slot skill table row\|([^}|]+)/g
-  const titles: string[] = []
-  for (const match of parentWikitext.matchAll(re)) titles.push(match[1].trim())
-  return titles
+  const re = /\{\{Slot skill table row\|([^}|]+)/g;
+  const titles: string[] = [];
+  for (const match of parentWikitext.matchAll(re)) titles.push(match[1].trim());
+  return titles;
 }
 
 async function main(): Promise<void> {
-  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
+  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[];
 
-  const glyphGroups = new Map<string, Skill[]>()
+  const glyphGroups = new Map<string, Skill[]>();
   for (const skill of skills) {
-    if (!skill.professions.includes('Ranger') || !skill.categories.includes('Glyph')) continue
-    if (!glyphGroups.has(skill.name)) glyphGroups.set(skill.name, [])
-    glyphGroups.get(skill.name)!.push(skill)
+    if (!skill.professions.includes('Ranger') || !skill.categories.includes('Glyph')) continue;
+    if (!glyphGroups.has(skill.name)) glyphGroups.set(skill.name, []);
+    glyphGroups.get(skill.name)!.push(skill);
   }
-  const duplicateGroups = Array.from(glyphGroups.entries()).filter(([, members]) => members.length > 1)
-  console.log(`Found ${duplicateGroups.length} duplicate-named Ranger Glyph groups in local data.`)
+  const duplicateGroups = Array.from(glyphGroups.entries()).filter(
+    ([, members]) => members.length > 1,
+  );
+  console.log(`Found ${duplicateGroups.length} duplicate-named Ranger Glyph groups in local data.`);
 
-  const result: GlyphFormVariantMap = {}
-  const log: string[] = []
-  let resolvedGroups = 0
+  const result: GlyphFormVariantMap = {};
+  const log: string[] = [];
+  let resolvedGroups = 0;
 
   for (const [name, members] of duplicateGroups) {
-    const localIds = new Set(members.map((m) => m.id))
+    const localIds = new Set(members.map((m) => m.id));
 
-    let parentText: string | null
+    let parentText: string | null;
     try {
-      parentText = await fetchWikiPage(name.replace(/ /g, '_'))
+      parentText = await fetchWikiPage(name.replace(/ /g, '_'));
     } catch (err) {
-      log.push(`skip (parent fetch error): "${name}" — ${(err as Error).message}`)
-      continue
+      log.push(`skip (parent fetch error): "${name}" — ${(err as Error).message}`);
+      continue;
     }
     if (parentText === null) {
-      log.push(`skip (parent page not found): "${name}"`)
-      continue
+      log.push(`skip (parent page not found): "${name}"`);
+      continue;
     }
 
-    const parentId = parseInfoboxId(parentText)
+    const parentId = parseInfoboxId(parentText);
     if (parentId === undefined || !localIds.has(parentId)) {
-      log.push(`skip (parent id ${parentId ?? 'missing'} not in local group [${[...localIds].join(', ')}]): "${name}"`)
-      continue
+      log.push(
+        `skip (parent id ${parentId ?? 'missing'} not in local group [${[...localIds].join(', ')}]): "${name}"`,
+      );
+      continue;
     }
 
-    const childTitles = parseChildTitles(parentText)
+    const childTitles = parseChildTitles(parentText);
     if (childTitles.length !== localIds.size - 1) {
       log.push(
-        `skip (expected ${localIds.size - 1} child pages, found ${childTitles.length}): "${name}" — ${childTitles.join(', ')}`
-      )
-      continue
+        `skip (expected ${localIds.size - 1} child pages, found ${childTitles.length}): "${name}" — ${childTitles.join(', ')}`,
+      );
+      continue;
     }
 
-    const childIds: { id: number; form: 'normal' | 'celestial' }[] = []
-    let childFetchFailed = false
+    const childIds: { id: number; form: 'normal' | 'celestial' }[] = [];
+    let childFetchFailed = false;
     for (const childTitle of childTitles) {
       const form = childTitle.includes('non-celestial')
         ? 'normal'
         : childTitle.includes('Celestial Avatar')
           ? 'celestial'
-          : undefined
+          : undefined;
       if (form === undefined) {
-        log.push(`skip (child title matches neither form suffix): "${name}" / "${childTitle}"`)
-        childFetchFailed = true
-        continue
+        log.push(`skip (child title matches neither form suffix): "${name}" / "${childTitle}"`);
+        childFetchFailed = true;
+        continue;
       }
-      let childText: string | null
+      let childText: string | null;
       try {
-        childText = await fetchWikiPage(childTitle.replace(/ /g, '_'))
+        childText = await fetchWikiPage(childTitle.replace(/ /g, '_'));
       } catch (err) {
-        log.push(`skip (child fetch error): "${name}" / "${childTitle}" — ${(err as Error).message}`)
-        childFetchFailed = true
-        continue
+        log.push(
+          `skip (child fetch error): "${name}" / "${childTitle}" — ${(err as Error).message}`,
+        );
+        childFetchFailed = true;
+        continue;
       }
       if (childText === null) {
-        log.push(`skip (child page not found): "${name}" / "${childTitle}"`)
-        childFetchFailed = true
-        continue
+        log.push(`skip (child page not found): "${name}" / "${childTitle}"`);
+        childFetchFailed = true;
+        continue;
       }
-      const childId = parseInfoboxId(childText)
+      const childId = parseInfoboxId(childText);
       if (childId === undefined) {
-        log.push(`skip (no id= found): "${name}" / "${childTitle}"`)
-        childFetchFailed = true
-        continue
+        log.push(`skip (no id= found): "${name}" / "${childTitle}"`);
+        childFetchFailed = true;
+        continue;
       }
-      childIds.push({ id: childId, form })
+      childIds.push({ id: childId, form });
     }
-    if (childFetchFailed) continue
+    if (childFetchFailed) continue;
 
-    const resolvedIds = new Set([parentId, ...childIds.map((c) => c.id)])
-    const setsMatch = resolvedIds.size === localIds.size && [...resolvedIds].every((id) => localIds.has(id))
+    const resolvedIds = new Set([parentId, ...childIds.map((c) => c.id)]);
+    const setsMatch =
+      resolvedIds.size === localIds.size && [...resolvedIds].every((id) => localIds.has(id));
     if (!setsMatch) {
       log.push(
-        `skip (resolved ids [${[...resolvedIds].join(', ')}] don't exactly match local group [${[...localIds].join(', ')}]): "${name}"`
-      )
-      continue
+        `skip (resolved ids [${[...resolvedIds].join(', ')}] don't exactly match local group [${[...localIds].join(', ')}]): "${name}"`,
+      );
+      continue;
     }
-    const forms = new Set(childIds.map((c) => c.form))
+    const forms = new Set(childIds.map((c) => c.form));
     if (forms.size !== 2) {
-      log.push(`skip (expected 1 normal + 1 celestial child, got forms [${childIds.map((c) => c.form).join(', ')}]): "${name}"`)
-      continue
+      log.push(
+        `skip (expected 1 normal + 1 celestial child, got forms [${childIds.map((c) => c.form).join(', ')}]): "${name}"`,
+      );
+      continue;
     }
 
-    for (const child of childIds) result[child.id] = { canonicalId: parentId, form: child.form }
-    resolvedGroups++
-    console.log(`  "${name}": canonical id ${parentId}, variants ${childIds.map((c) => `${c.id} (${c.form})`).join(', ')}`)
+    for (const child of childIds) result[child.id] = { canonicalId: parentId, form: child.form };
+    resolvedGroups++;
+    console.log(
+      `  "${name}": canonical id ${parentId}, variants ${childIds.map((c) => `${c.id} (${c.form})`).join(', ')}`,
+    );
   }
 
-  await flushWikiCache()
-  await writeFile(join(DATA_DIR, 'glyph-form-variants.json'), JSON.stringify(result, null, 2))
+  await flushWikiCache();
+  await writeFile(join(DATA_DIR, 'glyph-form-variants.json'), JSON.stringify(result, null, 2));
 
   console.log(
     `\nDone. ${resolvedGroups}/${duplicateGroups.length} groups resolved, ` +
-      `${Object.keys(result).length} variant -> canonical id mappings written to glyph-form-variants.json.`
-  )
+      `${Object.keys(result).length} variant -> canonical id mappings written to glyph-form-variants.json.`,
+  );
   if (log.length > 0) {
-    console.warn(`\n${log.length} log lines:`)
-    for (const line of log) console.warn(`  - ${line}`)
+    console.warn(`\n${log.length} log lines:`);
+    for (const line of log) console.warn(`  - ${line}`);
   }
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { Skill } from '../types';
 
 /**
  * Bladesworn's Gunsaber weapon-skill-bar (Weapon_1-5, shown while "Unsheathe Gunsaber" is active —
@@ -38,22 +38,23 @@ import type { Skill } from '../types'
  * own 3-hit chain in `NECRO_SHROUD_SLOT_SKILLS` (`bundle-skills.ts`), since a chain's later hits
  * are never independently equippable or separately displayed.
  */
-export const GUNSABER_SWIFT_CUT_ID = 62966
-const GUNSABER_BLOOMING_FIRE_ID = 62930
-const GUNSABER_ARTILLERY_SLASH_ID = 62732
-const GUNSABER_CYCLONE_TRIGGER_ID = 62789
-const GUNSABER_BREAK_STEP_ID = 62885
+export const GUNSABER_SWIFT_CUT_ID = 62966;
+const GUNSABER_BLOOMING_FIRE_ID = 62930;
+const GUNSABER_ARTILLERY_SLASH_ID = 62732;
+const GUNSABER_CYCLONE_TRIGGER_ID = 62789;
+const GUNSABER_BREAK_STEP_ID = 62885;
 
 function wikiIcon(file: string): string {
-  const fileName = file.split('/').pop()
-  return `https://wiki.guildwars2.com/images/thumb/${file}/64px-${fileName}`
+  const fileName = file.split('/').pop();
+  return `https://wiki.guildwars2.com/images/thumb/${file}/64px-${fileName}`;
 }
 
 export const GUNSABER_SKILLS: Skill[] = [
   {
     id: GUNSABER_SWIFT_CUT_ID,
     name: 'Swift Cut',
-    description: 'Chain. Slash your foe, then fire off a ranged shot. Foes hit by the initial attack take less damage from the follow-up shot.',
+    description:
+      'Chain. Slash your foe, then fire off a ranged shot. Foes hit by the initial attack take less damage from the follow-up shot.',
     icon: wikiIcon('e/e3/Swift_Cut.png'),
     chatLink: '',
     type: 'Weapon',
@@ -64,19 +65,20 @@ export const GUNSABER_SKILLS: Skill[] = [
     categories: [],
     facts: [
       { text: 'Number of Targets', type: 'Number', value: 3 },
-      { text: 'Range', type: 'Range', value: 900 }
+      { text: 'Range', type: 'Range', value: 900 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: GUNSABER_BLOOMING_FIRE_ID,
     name: 'Blooming Fire',
-    description: 'Slash with your blade and fire a grenade shell that shatters on impact, releasing a series of explosions.',
+    description:
+      'Slash with your blade and fire a grenade shell that shatters on impact, releasing a series of explosions.',
     icon: wikiIcon('d/d0/Blooming_Fire.png'),
     chatLink: '',
     type: 'Weapon',
@@ -90,14 +92,14 @@ export const GUNSABER_SKILLS: Skill[] = [
       { text: 'Maximum Count', type: 'Number', value: 2 },
       { text: 'Count Recharge', type: 'Time', duration: 10 },
       { text: 'Explosion', type: 'NoData' },
-      { text: 'Range', type: 'Range', value: 900 }
+      { text: 'Range', type: 'Range', value: 900 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: GUNSABER_ARTILLERY_SLASH_ID,
@@ -118,19 +120,20 @@ export const GUNSABER_SKILLS: Skill[] = [
       { text: 'Count Recharge', type: 'Time', duration: 8 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Combo Finisher', type: 'ComboFinisher', percent: 100, finisher_type: 'Projectile' },
-      { text: 'Range', type: 'Range', value: 900 }
+      { text: 'Range', type: 'Range', value: 900 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: GUNSABER_CYCLONE_TRIGGER_ID,
     name: 'Cyclone Trigger',
-    description: 'Spin and block enemy projectiles. Strikes all foes in melee range, and then fires shots at foes out of melee range.',
+    description:
+      'Spin and block enemy projectiles. Strikes all foes in melee range, and then fires shots at foes out of melee range.',
     icon: wikiIcon('6/6c/Cyclone_Trigger.png'),
     chatLink: '',
     type: 'Weapon',
@@ -141,19 +144,25 @@ export const GUNSABER_SKILLS: Skill[] = [
     categories: [],
     facts: [
       { text: 'Number of Targets', type: 'Number', value: 5 },
-      { type: 'Buff', status: 'Aegis', duration: 3, description: 'Block the next incoming attack.', apply_count: 1 },
+      {
+        type: 'Buff',
+        status: 'Aegis',
+        duration: 3,
+        description: 'Block the next incoming attack.',
+        apply_count: 1,
+      },
       { text: 'Blocks Missiles', type: 'NoData' },
       { text: 'Missile Block Duration', type: 'Time', duration: 1.5 },
       { text: 'Maximum Count', type: 'Number', value: 2 },
       { text: 'Count Recharge', type: 'Time', duration: 20 },
-      { text: 'Range', type: 'Range', value: 600 }
+      { text: 'Range', type: 'Range', value: 600 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
+    bundleSkills: null,
   },
   {
     id: GUNSABER_BREAK_STEP_ID,
@@ -168,7 +177,13 @@ export const GUNSABER_SKILLS: Skill[] = [
     flags: [],
     categories: [],
     facts: [
-      { type: 'Buff', status: 'Fury', duration: 5, description: '+20% Critical Chance', apply_count: 1 },
+      {
+        type: 'Buff',
+        status: 'Fury',
+        duration: 5,
+        description: '+20% Critical Chance',
+        apply_count: 1,
+      },
       { text: 'Removes Immobile', type: 'NoData' },
       { text: 'Number of Targets', type: 'Number', value: 3 },
       { text: 'Maximum Count', type: 'Number', value: 2 },
@@ -176,16 +191,16 @@ export const GUNSABER_SKILLS: Skill[] = [
       { text: 'Radius', type: 'Distance', distance: 180 },
       { text: 'Explosion', type: 'NoData' },
       { text: 'Combo Finisher', type: 'ComboFinisher', percent: 100, finisher_type: 'Leap' },
-      { text: 'Range', type: 'Range', value: 450 }
+      { text: 'Range', type: 'Range', value: 450 },
     ],
     traitedFacts: [],
     attunement: null,
     specializationId: 68,
     flipSkill: null,
     toolbeltSkill: null,
-    bundleSkills: null
-  }
-]
+    bundleSkills: null,
+  },
+];
 
 /** Keyed by the 5 ids above, in `Weapon_1`-`Weapon_5` order — see `bundle-skills.ts`'s
  *  `GUNSABER_SLOT_SKILLS`, which maps Gunsaber's F1 toggle id to this list the same way
@@ -195,5 +210,5 @@ export const GUNSABER_WEAPON_BAR_SKILL_IDS: number[] = [
   GUNSABER_BLOOMING_FIRE_ID,
   GUNSABER_ARTILLERY_SLASH_ID,
   GUNSABER_CYCLONE_TRIGGER_ID,
-  GUNSABER_BREAK_STEP_ID
-]
+  GUNSABER_BREAK_STEP_ID,
+];

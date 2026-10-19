@@ -1,5 +1,5 @@
-import type { Legend, Trait } from '../types'
-import type { LegendFormFact } from '../boon-calc/sources'
+import type { Legend, Trait } from '../types';
+import type { LegendFormFact } from '../boon-calc/sources';
 
 /**
  * Hand-curated per-legend attribute-bonus text for traits whose own `Buff`-typed facts carry a
@@ -45,21 +45,21 @@ export const LEGEND_ATTRIBUTE_BONUS_DETAILS: Record<number, Record<string, strin
     'Legendary Centaur Stance': '75 Healing Power, 75 Concentration',
     'Legendary Demon Stance': '75 Condition Damage, 75 Expertise',
     'Legendary Dwarf Stance': '75 Toughness, 75 Vitality',
-    'Legendary Entity Stance': '50 to All Attributes'
-  }
-}
+    'Legendary Entity Stance': '50 to All Attributes',
+  },
+};
 
 /** Resolves a trait's curated `LEGEND_ATTRIBUTE_BONUS_DETAILS` entries (if any) against the real
  *  `Legend` list, in `legends`' own array order (Legend1..Legend8) — empty for any trait with no
  *  curated entry (the overwhelming majority), same "opt-in curated table, fails open" convention as
  *  `BUFF_INSTANCE_LABELS`/`DODGE_TRIGGER_NOTES` elsewhere in this codebase. */
 export function legendAttributeDetailFacts(trait: Trait, legends: Legend[]): LegendFormFact[] {
-  const curated = LEGEND_ATTRIBUTE_BONUS_DETAILS[trait.id]
-  if (!curated) return []
-  const out: LegendFormFact[] = []
+  const curated = LEGEND_ATTRIBUTE_BONUS_DETAILS[trait.id];
+  if (!curated) return [];
+  const out: LegendFormFact[] = [];
   for (const legend of legends) {
-    const text = curated[legend.name]
-    if (text) out.push({ legend, text })
+    const text = curated[legend.name];
+    if (text) out.push({ legend, text });
   }
-  return out
+  return out;
 }

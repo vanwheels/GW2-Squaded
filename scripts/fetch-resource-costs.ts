@@ -34,38 +34,40 @@
  *
  * Run manually via `npm run fetch-resource-costs`, after `npm run fetch-game-data`.
  */
-import { readFile, writeFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { ResourceCost, ResourceCostsById, Skill } from '../src/shared/types/game-data'
-import { fetchWikiPage, flushWikiCache, searchWikiTitles } from './lib/wiki-cache'
+import { readFile, writeFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { ResourceCost, ResourceCostsById, Skill } from '../src/shared/types/game-data';
+import { fetchWikiPage, flushWikiCache, searchWikiTitles } from './lib/wiki-cache';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 /** Pages a search hit is never worth fetching — overview/changelog/meta pages that happen to
  *  contain the search term in prose rather than a Skill infobox. Cheap to filter before spending a
  *  wiki fetch on them; the no-infobox/no-id checks below would also catch these, just after an
  *  unnecessary network round trip. */
 function isObviouslyNotASkillPage(title: string): boolean {
-  return title.startsWith('Game updates/') || title.startsWith('List of ') || title.endsWith('/history')
+  return (
+    title.startsWith('Game updates/') || title.startsWith('List of ') || title.endsWith('/history')
+  );
 }
 
 interface FieldSpec {
   /** Infobox field name, e.g. "energy" or "health cost" (space, not underscore — confirmed live). */
-  field: string
-  costKey: keyof ResourceCost
-  wvwKey: keyof ResourceCost
+  field: string;
+  costKey: keyof ResourceCost;
+  wvwKey: keyof ResourceCost;
 }
 
-const EPSILON = 0.01
+const EPSILON = 0.01;
 
 const FIELD_SPECS: FieldSpec[] = [
   { field: 'energy', costKey: 'energy', wvwKey: 'energyWvw' },
   { field: 'initiative', costKey: 'initiative', wvwKey: 'initiativeWvw' },
   { field: 'upkeep', costKey: 'upkeep', wvwKey: 'upkeepWvw' },
-  { field: 'health cost', costKey: 'healthCost', wvwKey: 'healthCostWvw' }
-]
+  { field: 'health cost', costKey: 'healthCost', wvwKey: 'healthCostWvw' },
+];
 
 /** Reads every `FIELD_SPECS` field off one infobox block. A page can (and Revenant upkeep skills
  *  always do) carry more than one of these fields at once, so this returns every match found
@@ -78,77 +80,81 @@ const FIELD_SPECS: FieldSpec[] = [
  *  is dropped, same "no real split, nothing to store" convention
  *  `fetch-recharge-wvw-overrides.ts` uses for `recharge wvw=`. */
 function parseResourceFields(infobox: string): ResourceCost {
-  const out: ResourceCost = {}
+  const out: ResourceCost = {};
   for (const spec of FIELD_SPECS) {
-    const escaped = spec.field.replace(/ /g, '\\s+')
-    const baseMatch = new RegExp(`^\\|\\s*${escaped}\\s*=\\s*(-?[\\d.]+)`, 'im').exec(infobox)
-    const wvwMatch = new RegExp(`^\\|\\s*${escaped}\\s+wvw\\s*=\\s*(-?[\\d.]+)`, 'im').exec(infobox)
-    const base = baseMatch ? Number(baseMatch[1]) : null
-    const wvw = wvwMatch ? Number(wvwMatch[1]) : null
-    if (base !== null) out[spec.costKey] = base
-    if (wvw !== null && (base === null || Math.abs(wvw - base) > EPSILON)) out[spec.wvwKey] = wvw
+    const escaped = spec.field.replace(/ /g, '\\s+');
+    const baseMatch = new RegExp(`^\\|\\s*${escaped}\\s*=\\s*(-?[\\d.]+)`, 'im').exec(infobox);
+    const wvwMatch = new RegExp(`^\\|\\s*${escaped}\\s+wvw\\s*=\\s*(-?[\\d.]+)`, 'im').exec(
+      infobox,
+    );
+    const base = baseMatch ? Number(baseMatch[1]) : null;
+    const wvw = wvwMatch ? Number(wvwMatch[1]) : null;
+    if (base !== null) out[spec.costKey] = base;
+    if (wvw !== null && (base === null || Math.abs(wvw - base) > EPSILON)) out[spec.wvwKey] = wvw;
   }
-  return out
+  return out;
 }
 
 async function processTitle(
   title: string,
   skillsById: Map<number, Skill>,
   result: ResourceCostsById,
-  log: string[]
+  log: string[],
 ): Promise<void> {
-  if (isObviouslyNotASkillPage(title)) return
+  if (isObviouslyNotASkillPage(title)) return;
 
-  const wikitext = await fetchWikiPage(title)
+  const wikitext = await fetchWikiPage(title);
   if (wikitext === null) {
-    log.push(`skip (page not found): "${title}"`)
-    return
+    log.push(`skip (page not found): "${title}"`);
+    return;
   }
 
-  const infoboxMatch = /\{\{\s*Skill infobox([\s\S]*?)\n\}\}/i.exec(wikitext)
+  const infoboxMatch = /\{\{\s*Skill infobox([\s\S]*?)\n\}\}/i.exec(wikitext);
   if (!infoboxMatch) {
-    log.push(`skip (no Skill infobox — likely a disambiguation/overview page): "${title}"`)
-    return
+    log.push(`skip (no Skill infobox — likely a disambiguation/overview page): "${title}"`);
+    return;
   }
-  const infobox = infoboxMatch[1]
+  const infobox = infoboxMatch[1];
 
-  const idMatch = /^\|\s*id\s*=\s*(\d+)/im.exec(infobox)
+  const idMatch = /^\|\s*id\s*=\s*(\d+)/im.exec(infobox);
   if (!idMatch) {
-    log.push(`skip (no id= field in infobox): "${title}"`)
-    return
+    log.push(`skip (no id= field in infobox): "${title}"`);
+    return;
   }
-  const id = Number(idMatch[1])
+  const id = Number(idMatch[1]);
 
-  const skill = skillsById.get(id)
+  const skill = skillsById.get(id);
   if (!skill) {
-    log.push(`skip (id ${id} not found in skills.json): "${title}"`)
-    return
+    log.push(`skip (id ${id} not found in skills.json): "${title}"`);
+    return;
   }
   if (skill.professions.length === 0) {
-    log.push(`skip (id ${id} "${skill.name}" is not player-equippable): "${title}"`)
-    return
+    log.push(`skip (id ${id} "${skill.name}" is not player-equippable): "${title}"`);
+    return;
   }
 
-  const fields = parseResourceFields(infobox)
+  const fields = parseResourceFields(infobox);
   if (Object.keys(fields).length === 0) {
-    log.push(`skip (matched search but no cost field parsed from infobox): "${title}" -> id ${id} "${skill.name}"`)
-    return
+    log.push(
+      `skip (matched search but no cost field parsed from infobox): "${title}" -> id ${id} "${skill.name}"`,
+    );
+    return;
   }
 
   if (result[id]) {
-    log.push(`note (id ${id} "${skill.name}" seen via 2+ search titles, merging): "${title}"`)
-    Object.assign(result[id], fields)
+    log.push(`note (id ${id} "${skill.name}" seen via 2+ search titles, merging): "${title}"`);
+    Object.assign(result[id], fields);
   } else {
-    result[id] = fields
+    result[id] = fields;
   }
 }
 
 async function main(): Promise<void> {
-  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
-  const skillsById = new Map(skills.map((s) => [s.id, s]))
+  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[];
+  const skillsById = new Map(skills.map((s) => [s.id, s]));
 
-  console.log('Searching the wiki for candidate pages...')
-  const energyTitles = await searchWikiTitles('insource:"energy" incategory:"Revenant skills"')
+  console.log('Searching the wiki for candidate pages...');
+  const energyTitles = await searchWikiTitles('insource:"energy" incategory:"Revenant skills"');
   // Vindicator's Legendary Alliance (Kurzick/Luxon) utility skills — e.g. Tree Song, Battle Dance,
   // Selfish Spirit, Scavenger Burst — carry an `energy=` field same as every other legend's skills,
   // but the wiki does NOT tag them `Category:Revenant skills` the way it tags every other legend's
@@ -156,39 +162,48 @@ async function main(): Promise<void> {
   // category AND `Revenant skills`; Tree Song only has `Legendary Alliance skills`/`Vindicator
   // skills`/`Kurzick skills`) — a separate search is needed or this whole skill set is silently
   // missed, which is exactly what happened on the first run (2026-08-28).
-  const allianceTitles = await searchWikiTitles('insource:"energy" incategory:"Legendary Alliance skills"')
-  const initiativeTitles = await searchWikiTitles('insource:"initiative" incategory:"Thief skills"')
-  const healthCostTitles = await searchWikiTitles('insource:"health cost"')
+  const allianceTitles = await searchWikiTitles(
+    'insource:"energy" incategory:"Legendary Alliance skills"',
+  );
+  const initiativeTitles = await searchWikiTitles(
+    'insource:"initiative" incategory:"Thief skills"',
+  );
+  const healthCostTitles = await searchWikiTitles('insource:"health cost"');
 
   // Dedup: a title can surface from more than one search in principle (it won't in practice today,
   // since energy/initiative/health-cost searches don't overlap — kept for robustness against a
   // future balance patch adding overlap rather than assumed).
-  const allTitles = [...new Set([...energyTitles, ...allianceTitles, ...initiativeTitles, ...healthCostTitles])]
+  const allTitles = [
+    ...new Set([...energyTitles, ...allianceTitles, ...initiativeTitles, ...healthCostTitles]),
+  ];
   console.log(
     `Found ${energyTitles.length} energy/upkeep candidates, ${allianceTitles.length} Legendary Alliance candidates, ` +
       `${initiativeTitles.length} initiative candidates, ${healthCostTitles.length} health-cost candidates ` +
-      `(${allTitles.length} unique titles total).`
-  )
+      `(${allTitles.length} unique titles total).`,
+  );
 
-  const result: ResourceCostsById = {}
-  const log: string[] = []
+  const result: ResourceCostsById = {};
+  const log: string[] = [];
 
-  let processed = 0
+  let processed = 0;
   for (const title of allTitles) {
-    await processTitle(title, skillsById, result, log)
-    processed++
-    if (processed % 25 === 0) console.log(`  [${processed}/${allTitles.length}] titles processed...`)
+    await processTitle(title, skillsById, result, log);
+    processed++;
+    if (processed % 25 === 0)
+      console.log(`  [${processed}/${allTitles.length}] titles processed...`);
   }
 
-  await flushWikiCache()
-  await writeFile(join(DATA_DIR, 'resource-costs.json'), JSON.stringify(result, null, 2))
+  await flushWikiCache();
+  await writeFile(join(DATA_DIR, 'resource-costs.json'), JSON.stringify(result, null, 2));
 
-  console.log(`\nDone. Resource costs written for ${Object.keys(result).length} skills to resource-costs.json.`)
-  console.log(`\n${log.length} log lines (skipped/merged):`)
-  for (const line of log) console.warn(`  - ${line}`)
+  console.log(
+    `\nDone. Resource costs written for ${Object.keys(result).length} skills to resource-costs.json.`,
+  );
+  console.log(`\n${log.length} log lines (skipped/merged):`);
+  for (const line of log) console.warn(`  - ${line}`);
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

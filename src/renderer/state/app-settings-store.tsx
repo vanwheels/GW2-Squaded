@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 /** 'system' follows the OS's `prefers-color-scheme`; 'light'/'dark' are explicit overrides. */
-export type ThemeMode = 'system' | 'light' | 'dark'
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 interface AppSettings {
   /** Off by default (noted 2026-07-31 in TODO.md): underwater isn't frequently used in WvW and
@@ -11,35 +11,35 @@ interface AppSettings {
    *  'land'` wherever a build feeds the stats/boon-condition calculators — same effect as if
    *  nothing were equipped underwater, even for a build saved with `environment: 'underwater'`
    *  before the toggle was turned off. */
-  showUnderwater: boolean
+  showUnderwater: boolean;
   /** Off by default, same reasoning as `showUnderwater`: racial skills (Human/Charr/Asura/Norn/
    *  Sylvari Heal/Utility/Elite skills) are never part of a competitive WvW build, just extra
    *  picker clutter for the overwhelming majority of users. When off, `isRacialSkill`-matching
    *  skills are dropped from the Heal/Utility/Elite picker's option list only — an already-chosen
    *  racial skill (from before the toggle was turned off) still renders normally in the bar/
    *  tooltip, same as `showUnderwater` never strips a saved build's data. */
-  showRacialSkills: boolean
+  showRacialSkills: boolean;
   /** Defaults to 'dark' (not 'system'), matching the app's behavior before this setting existed —
    *  see `resolveTheme`/`applyTheme` below for how this becomes the `<html data-theme>` attribute
    *  `global.css`'s `:root[data-theme='light']` override reads. */
-  themeMode: ThemeMode
+  themeMode: ThemeMode;
   /** Off by default. When on, the build editor's `BoonConditionSummaryPanel` and the squad editor's
    *  `PartyRow`/`SlotTile` summaries only show boons/auras/miscellaneous effects and Cleanses whose
    *  `targetCount` reaches a full party (see `isPartyWideTargetCount` in `boon-calc/sources.ts`) —
    *  TODO.md's "party-wide-only filter" (flagged 2026-08-16). Persisted like `showUnderwater`/
    *  `showRacialSkills` rather than reset per session: it's the same kind of "how much of this build's
    *  real output do I want to see" display preference. */
-  partyWideOnly: boolean
+  partyWideOnly: boolean;
   /** Cross-device sync account, if any (see `useSync.ts`). `null` means local-only storage — the
    *  default, and the only state before Sign-In UI (TODO.md's Sign-In UI leg) exists at all. Plain
    *  `localStorage` like the rest of `AppSettings`: this is per-device credential state, not data
    *  that itself needs to round-trip through sync. */
-  syncUsername: string | null
+  syncUsername: string | null;
   /** Opaque bearer token issued at signup/login (`services/syncApi.ts`) — never the password. */
-  syncToken: string | null
+  syncToken: string | null;
   /** The synced `SyncPayload.savedAt` ISO timestamp from the last successful `syncNow()`, or `null`
    *  before the first sync. Display-only; sync itself is driven by `useSync.ts`'s own triggers. */
-  lastSyncedAt: string | null
+  lastSyncedAt: string | null;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -49,50 +49,52 @@ const DEFAULT_SETTINGS: AppSettings = {
   partyWideOnly: false,
   syncUsername: null,
   syncToken: null,
-  lastSyncedAt: null
-}
+  lastSyncedAt: null,
+};
 
-const STORAGE_KEY = 'gw2squaded.appSettings'
+const STORAGE_KEY = 'gw2squaded.appSettings';
 
 function loadSettings(): AppSettings {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_SETTINGS
-    return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<AppSettings>) };
   } catch {
-    return DEFAULT_SETTINGS
+    return DEFAULT_SETTINGS;
   }
 }
 
 /** 'system' resolves via `prefers-color-scheme`; otherwise the mode itself is already resolved. */
 function resolveTheme(mode: ThemeMode): 'light' | 'dark' {
   if (mode === 'system') {
-    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
   }
-  return mode
+  return mode;
 }
 
 function applyTheme(mode: ThemeMode): void {
-  document.documentElement.dataset.theme = resolveTheme(mode)
+  document.documentElement.dataset.theme = resolveTheme(mode);
 }
 
 // Applied synchronously at module load — this module is imported (via App.tsx) before
 // ReactDOM ever renders, so this runs before the first paint and avoids a dark->light (or
 // vice versa) flash for anyone whose saved/system theme isn't the CSS file's bare-`:root`
 // default (dark).
-applyTheme(loadSettings().themeMode)
+applyTheme(loadSettings().themeMode);
 
 interface AppSettingsValue extends AppSettings {
-  setShowUnderwater: (value: boolean) => void
-  setShowRacialSkills: (value: boolean) => void
-  setThemeMode: (value: ThemeMode) => void
-  setPartyWideOnly: (value: boolean) => void
+  setShowUnderwater: (value: boolean) => void;
+  setShowRacialSkills: (value: boolean) => void;
+  setThemeMode: (value: ThemeMode) => void;
+  setPartyWideOnly: (value: boolean) => void;
   /** Batched like ChoiceBuds' `updateSettings` since `useSync.ts` always sets these three fields
    *  together (signup/login/logout/syncNow) — never one at a time. */
-  setSyncCredentials: (patch: Pick<AppSettings, 'syncUsername' | 'syncToken' | 'lastSyncedAt'>) => void
+  setSyncCredentials: (
+    patch: Pick<AppSettings, 'syncUsername' | 'syncToken' | 'lastSyncedAt'>,
+  ) => void;
 }
 
-const AppSettingsContext = createContext<AppSettingsValue | null>(null)
+const AppSettingsContext = createContext<AppSettingsValue | null>(null);
 
 /**
  * App-wide display preferences — deliberately plain `localStorage`, not `gw2Storage`'s IPC-backed
@@ -102,37 +104,39 @@ const AppSettingsContext = createContext<AppSettingsValue | null>(null)
  * `showUnderwater` need it.
  */
 export function AppSettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<AppSettings>(loadSettings)
+  const [settings, setSettings] = useState<AppSettings>(loadSettings);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
-  }, [settings])
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  }, [settings]);
 
   // Re-applies on every themeMode change, and — only while in 'system' mode — also reacts live to
   // the OS preference changing while the app is open (no restart needed).
   useEffect(() => {
-    applyTheme(settings.themeMode)
-    if (settings.themeMode !== 'system') return
-    const media = window.matchMedia('(prefers-color-scheme: light)')
-    const onChange = () => applyTheme('system')
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [settings.themeMode])
+    applyTheme(settings.themeMode);
+    if (settings.themeMode !== 'system') return;
+    const media = window.matchMedia('(prefers-color-scheme: light)');
+    const onChange = () => applyTheme('system');
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, [settings.themeMode]);
 
   const value: AppSettingsValue = {
     ...settings,
-    setShowUnderwater: (showUnderwater) => setSettings((current) => ({ ...current, showUnderwater })),
-    setShowRacialSkills: (showRacialSkills) => setSettings((current) => ({ ...current, showRacialSkills })),
+    setShowUnderwater: (showUnderwater) =>
+      setSettings((current) => ({ ...current, showUnderwater })),
+    setShowRacialSkills: (showRacialSkills) =>
+      setSettings((current) => ({ ...current, showRacialSkills })),
     setThemeMode: (themeMode) => setSettings((current) => ({ ...current, themeMode })),
     setPartyWideOnly: (partyWideOnly) => setSettings((current) => ({ ...current, partyWideOnly })),
-    setSyncCredentials: (patch) => setSettings((current) => ({ ...current, ...patch }))
-  }
+    setSyncCredentials: (patch) => setSettings((current) => ({ ...current, ...patch })),
+  };
 
-  return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>
+  return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>;
 }
 
 export function useAppSettings(): AppSettingsValue {
-  const ctx = useContext(AppSettingsContext)
-  if (!ctx) throw new Error('useAppSettings must be used within an AppSettingsProvider')
-  return ctx
+  const ctx = useContext(AppSettingsContext);
+  if (!ctx) throw new Error('useAppSettings must be used within an AppSettingsProvider');
+  return ctx;
 }

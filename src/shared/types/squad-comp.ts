@@ -1,5 +1,5 @@
-import type { LocalId, Timestamp } from './common'
-import type { ProfessionId } from './game-data'
+import type { LocalId, Timestamp } from './common';
+import type { ProfessionId } from './game-data';
 
 /**
  * A "just the icon" pick for a slot with no saved Build ready yet — profession plus optionally an
@@ -9,23 +9,23 @@ import type { ProfessionId } from './game-data'
  * `SquadSlot.buildId` (assigning one always clears the other).
  */
 export interface GhostPick {
-  profession: ProfessionId
-  specializationId: number | null
+  profession: ProfessionId;
+  specializationId: number | null;
 }
 
 /** A single roster slot within a party — either empty, a `GhostPick`, or a saved Build. */
 export interface SquadSlot {
-  buildId: LocalId | null
-  ghostPick: GhostPick | null
+  buildId: LocalId | null;
+  ghostPick: GhostPick | null;
   /** Free-text label shown in the slot when no build is assigned yet, e.g. "any DPS". */
-  placeholderLabel: string | null
+  placeholderLabel: string | null;
 }
 
 /** WvW squad parties are 5-player groups. */
-export type PartySlots = [SquadSlot, SquadSlot, SquadSlot, SquadSlot, SquadSlot]
+export type PartySlots = [SquadSlot, SquadSlot, SquadSlot, SquadSlot, SquadSlot];
 
 export interface Party {
-  slots: PartySlots
+  slots: PartySlots;
 }
 
 /**
@@ -33,22 +33,22 @@ export interface Party {
  * (see project sharing model) — this type describes the locally-editable version.
  */
 export interface SquadComp {
-  id: LocalId
-  name: string
-  notes: string
-  parties: Party[]
-  createdAt: Timestamp
-  updatedAt: Timestamp
+  id: LocalId;
+  name: string;
+  notes: string;
+  parties: Party[];
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   /** User-defined labels for search/filtering (`SquadsView`). Absent on records saved before this
    *  field existed — read paths backfill `tags ?? []`, no storage migration. See `Build.tags`. */
-  tags: string[]
+  tags: string[];
   /** Manual sort position for the Squads card grid's drag-to-reorder (`SquadsView`) — same
    *  scheme as `Build.order`, see its doc comment. */
-  order: number
+  order: number;
   /** Pins this squad to the top of the Squads card grid — same scheme as `Build.favorite`, see its
    *  doc comment. */
-  favorite: boolean
+  favorite: boolean;
   /** Persisted-shape version — same scheme as `Build.schemaVersion`, see its doc comment and
    *  `CURRENT_SCHEMA_VERSION` (schema-version.ts). */
-  schemaVersion: number
+  schemaVersion: number;
 }

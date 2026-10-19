@@ -1,4 +1,4 @@
-import type { Build } from '@shared/types'
+import type { Build } from '@shared/types';
 import {
   AEGIS_DAMAGE_TRAIT_BONUSES,
   BOLSTERED_BONDS_TRAIT_ID,
@@ -42,42 +42,51 @@ import {
   VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier,
-  type TargetArmorClass
-} from '@shared/gear-calc/combat-state'
-import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
-import { BOON_CONDITION_ICONS, DAMAGE_ICON, DEATHS_CARAPACE_ICON, KALLA_FERVOR_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
-import { useGameData } from '@renderer/state/game-data-store'
+  type TargetArmorClass,
+} from '@shared/gear-calc/combat-state';
+import { activeTraitIds } from '@shared/gear-calc/trait-attributes';
+import {
+  BOON_CONDITION_ICONS,
+  DAMAGE_ICON,
+  DEATHS_CARAPACE_ICON,
+  KALLA_FERVOR_ICON,
+  REVEALED_ICON,
+} from '@shared/boon-calc/icons';
+import { useGameData } from '@renderer/state/game-data-store';
 
 interface Props {
-  build: Build
-  value: CombatState
-  onChange: (value: CombatState) => void
+  build: Build;
+  value: CombatState;
+  onChange: (value: CombatState) => void;
 }
 
 /** Stepper values for Might/stacking-sigil stacks — 5-stack increments rather than every value
  *  0-25, matching how stacks are actually gained/tracked in practice. */
-const STACK_OPTIONS = [0, 5, 10, 15, 20, 25]
+const STACK_OPTIONS = [0, 5, 10, 15, 20, 25];
 
 /** Kalla's Fervor stacks every value 0-5 (its own real max, unlike Might/stacking-sigils'
  *  0-25-by-5s above) — few enough values that every-integer options read fine as a dropdown. */
-const KALLA_FERVOR_STACK_OPTIONS = Array.from({ length: KALLA_FERVOR_MAX_STACKS + 1 }, (_, n) => n)
+const KALLA_FERVOR_STACK_OPTIONS = Array.from({ length: KALLA_FERVOR_MAX_STACKS + 1 }, (_, n) => n);
 
 /** Death's Carapace's own max (30) back to 5-increment options, same reasoning as `STACK_OPTIONS`
  *  above (too many values for every-integer to read well, unlike Kalla's Fervor's small 0-5 range). */
-const DEATHS_CARAPACE_STACK_OPTIONS = Array.from({ length: DEATHS_CARAPACE_MAX_STACKS / 5 + 1 }, (_, n) => n * 5)
+const DEATHS_CARAPACE_STACK_OPTIONS = Array.from(
+  { length: DEATHS_CARAPACE_MAX_STACKS / 5 + 1 },
+  (_, n) => n * 5,
+);
 
-const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy']
+const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy'];
 
 /** Dropdown labels for `HealthTier` — see `CombatState.healthTier`'s doc comment for why this is a
  *  3-way tier rather than a raw percent slider. */
 const HEALTH_TIER_OPTIONS: { value: HealthTier; label: string }[] = [
   { value: 'above75', label: 'Above 75%' },
   { value: 'between50and75', label: '50%–75%' },
-  { value: 'below50', label: 'Below 50%' }
-]
+  { value: 'below50', label: 'Below 50%' },
+];
 
 function iconClass(active: boolean): string {
-  return active ? 'combat-state-icon' : 'combat-state-icon combat-state-icon-inactive'
+  return active ? 'combat-state-icon' : 'combat-state-icon combat-state-icon-inactive';
 }
 
 /**
@@ -98,10 +107,10 @@ function iconClass(active: boolean): string {
  * — see `CombatState`'s doc comment for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
-  const { sigilsById, relicsById, traitsById, foodById, utilityById } = useGameData()
+  const { sigilsById, relicsById, traitsById, foodById, utilityById } = useGameData();
 
-  const stackingSigil = detectActiveStackingSigil(build)
-  const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined
+  const stackingSigil = detectActiveStackingSigil(build);
+  const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined;
 
   // Gated on membership in ANY curated relic table — one shared toggle covers every relic-proc
   // family in this file (damage-%, movement-speed-%, outgoing-healing-%, flat attribute points,
@@ -115,26 +124,36 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
       build.relicId in CURATED_RELIC_OUTGOING_HEALING_BONUSES ||
       build.relicId in CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES ||
       build.relicId in CURATED_RELIC_DURATION_PERCENT_BONUSES ||
-      build.relicId in CURATED_RELIC_CRIT_CHANCE_BONUSES)
-  const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
+      build.relicId in CURATED_RELIC_CRIT_CHANCE_BONUSES);
+  const relicIcon =
+    relicHasCuratedBonus && build.relicId !== null
+      ? relicsById.get(build.relicId)?.icon
+      : undefined;
 
   // Only surfaced when Sigil of the Night is actually equipped on the active weapon set — same
   // reasoning as `stackingSigil` above, reads the sigil's own icon.
-  const hasSigilOfTheNight = hasSigilOfTheNightEquipped(build)
-  const nightSigilIcon = hasSigilOfTheNight ? sigilsById.get(SIGIL_OF_THE_NIGHT_ID)?.icon : undefined
+  const hasSigilOfTheNight = hasSigilOfTheNightEquipped(build);
+  const nightSigilIcon = hasSigilOfTheNight
+    ? sigilsById.get(SIGIL_OF_THE_NIGHT_ID)?.icon
+    : undefined;
 
   // Only surfaced when the build actually has a curated `mechanicActive`-family trait chosen
   // (Reaper's Onslaught / Fatal Frenzy / Sand Sage) — every build only ever has one profession's
   // mechanic to toggle, so this reads the specific trait's own icon/name rather than a generic
   // Shroud/Berserk/Shade icon (see `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`).
-  const activeMechanicTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES)
-  const mechanicTrait = activeMechanicTraitId !== undefined ? traitsById.get(activeMechanicTraitId) : undefined
+  const activeMechanicTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
+  );
+  const mechanicTrait =
+    activeMechanicTraitId !== undefined ? traitsById.get(activeMechanicTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated Revealed-gated trait chosen (currently just
   // Revealed Training) — same reasoning as `mechanicTrait` above, but uses the shared Revealed debuff
   // icon rather than the trait's own icon since this family only ever has one profession's worth of
   // candidates so far (see `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`).
-  const hasRevealedGatedTrait = [...activeTraitIds(build, traitsById)].some((id) => id in REVEALED_ATTRIBUTE_TRAIT_BONUSES)
+  const hasRevealedGatedTrait = [...activeTraitIds(build, traitsById)].some(
+    (id) => id in REVEALED_ATTRIBUTE_TRAIT_BONUSES,
+  );
 
   // Only surfaced when the build actually has a curated health-threshold-gated trait chosen (Empire
   // Divided / Last Rites / Keen Observer / Unscathed Contender) — same reasoning as `mechanicTrait`
@@ -144,67 +163,101 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // pre-existing gap found while adding the damage-% table: Keen Observer's own crit-chance bonus
   // was never checked here, so its tier selector never actually surfaced.
   const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find(
-    (id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES || id in HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES || id in HIGH_HEALTH_DAMAGE_TRAIT_BONUSES
-  )
-  const healthTrait = activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined
+    (id) =>
+      id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES ||
+      id in HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES ||
+      id in HIGH_HEALTH_DAMAGE_TRAIT_BONUSES,
+  );
+  const healthTrait =
+    activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined;
   // A curated health-threshold-gated consumable (the "Writ of X"/"Thesis on X" WvW family) also
   // needs the tier selector surfaced, same reasoning as `healthTrait` above but reading
   // `build.foodId`/`build.utilityId` instead of traits — see `HEALTH_THRESHOLD_CONSUMABLE_BONUSES`.
-  const healthConsumableId = [build.foodId, build.utilityId].find((id) => id !== null && id in HEALTH_THRESHOLD_CONSUMABLE_BONUSES)
-  const healthConsumable = healthConsumableId != null ? (foodById.get(healthConsumableId) ?? utilityById.get(healthConsumableId)) : undefined
+  const healthConsumableId = [build.foodId, build.utilityId].find(
+    (id) => id !== null && id in HEALTH_THRESHOLD_CONSUMABLE_BONUSES,
+  );
+  const healthConsumable =
+    healthConsumableId != null
+      ? (foodById.get(healthConsumableId) ?? utilityById.get(healthConsumableId))
+      : undefined;
 
   // Only surfaced when the build actually has a curated `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`
   // OR `NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` trait chosen (Renegade's Brutal Momentum / Engineer's
   // Takedown Round — opposite gates on the same `fullEnduranceActive` field) — same reasoning as
   // `mechanicTrait` above, reads the specific trait's own icon/name.
   const activeFullEnduranceTraitId = [...activeTraitIds(build, traitsById)].find(
-    (id) => id in FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES || id in NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES
-  )
-  const fullEnduranceTrait = activeFullEnduranceTraitId !== undefined ? traitsById.get(activeFullEnduranceTraitId) : undefined
+    (id) =>
+      id in FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES ||
+      id in NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES,
+  );
+  const fullEnduranceTrait =
+    activeFullEnduranceTraitId !== undefined
+      ? traitsById.get(activeFullEnduranceTraitId)
+      : undefined;
 
   // Only surfaced when the Renegade elite spec is actually equipped — Kalla's Fervor is exclusive
   // to that spec (see `combat-state.ts`'s `KALLA_FERVOR_*_PERCENT_PER_STACK`).
-  const hasRenegade = build.specializations.some((s) => s?.specializationId === RENEGADE_SPECIALIZATION_ID)
+  const hasRenegade = build.specializations.some(
+    (s) => s?.specializationId === RENEGADE_SPECIALIZATION_ID,
+  );
   // Reflects Lasting Legacy's upgrade (2%/2%/2% -> 3%/3%/3% per stack) in the stepper's own label,
   // so the per-stack rate actually being used is visible without opening the Stats panel — see
   // `kallaFervorPercentPerStack`'s doc comment.
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById);
 
   // Only surfaced when Death Magic is actually equipped — Death's Carapace can't exist without it
   // (see `combat-state.ts`'s `DEATH_MAGIC_SPECIALIZATION_ID`).
-  const hasDeathMagic = build.specializations.some((s) => s?.specializationId === DEATH_MAGIC_SPECIALIZATION_ID)
+  const hasDeathMagic = build.specializations.some(
+    (s) => s?.specializationId === DEATH_MAGIC_SPECIALIZATION_ID,
+  );
 
   // Only surfaced when Rising Momentum is actually chosen — same reasoning as `mechanicTrait`/
   // `healthTrait` above, reads the trait's own icon/name since it's the only candidate so far.
-  const hasRisingMomentum = activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)
-  const risingMomentumTrait = hasRisingMomentum ? traitsById.get(RISING_MOMENTUM_TRAIT_ID) : undefined
+  const hasRisingMomentum = activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID);
+  const risingMomentumTrait = hasRisingMomentum
+    ? traitsById.get(RISING_MOMENTUM_TRAIT_ID)
+    : undefined;
 
   // Only surfaced when Lingering Light (Ranger/Druid) is actually chosen — same reasoning as
   // `mechanicTrait` above, reads the trait's own icon/name since it's the only candidate so far.
-  const celestialAvatarTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES)
-  const celestialAvatarTrait = celestialAvatarTraitId !== undefined ? traitsById.get(celestialAvatarTraitId) : undefined
+  const celestialAvatarTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
+  );
+  const celestialAvatarTrait =
+    celestialAvatarTraitId !== undefined ? traitsById.get(celestialAvatarTraitId) : undefined;
 
   // Only surfaced when Invoking Harmony (Revenant/Salvation) is actually chosen — same reasoning as
   // `mechanicTrait` above.
-  const hasInvokingHarmony = activeTraitIds(build, traitsById).has(INVOKING_HARMONY_TRAIT_ID)
-  const invokingHarmonyTrait = hasInvokingHarmony ? traitsById.get(INVOKING_HARMONY_TRAIT_ID) : undefined
+  const hasInvokingHarmony = activeTraitIds(build, traitsById).has(INVOKING_HARMONY_TRAIT_ID);
+  const invokingHarmonyTrait = hasInvokingHarmony
+    ? traitsById.get(INVOKING_HARMONY_TRAIT_ID)
+    : undefined;
 
   // Only surfaced when Bolstered Bonds (Revenant/Conduit) is actually chosen — same reasoning as
   // `mechanicTrait`/`invokingHarmonyTrait` above.
-  const hasBolsteredBonds = activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID)
-  const bolsteredBondsTrait = hasBolsteredBonds ? traitsById.get(BOLSTERED_BONDS_TRAIT_ID) : undefined
+  const hasBolsteredBonds = activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID);
+  const bolsteredBondsTrait = hasBolsteredBonds
+    ? traitsById.get(BOLSTERED_BONDS_TRAIT_ID)
+    : undefined;
 
   // Only surfaced when the build actually has a curated `RESOLUTION_DAMAGE_TRAIT_BONUSES` trait
   // chosen (currently just Guardian's Retribution) — same reasoning as `mechanicTrait` above.
-  const resolutionTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in RESOLUTION_DAMAGE_TRAIT_BONUSES)
-  const resolutionTrait = resolutionTraitId !== undefined ? traitsById.get(resolutionTraitId) : undefined
+  const resolutionTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in RESOLUTION_DAMAGE_TRAIT_BONUSES,
+  );
+  const resolutionTrait =
+    resolutionTraitId !== undefined ? traitsById.get(resolutionTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated `PER_BOON_DAMAGE_TRAIT_BONUSES` trait
   // chosen (currently just Guardian's Inspired Virtue) — same reasoning as `risingMomentumTrait`
   // above (a raw number input, not a stepper — see `CombatState.activeBoonCount`'s doc comment).
-  const perBoonDamageTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in PER_BOON_DAMAGE_TRAIT_BONUSES)
-  const perBoonDamageTrait = perBoonDamageTraitId !== undefined ? traitsById.get(perBoonDamageTraitId) : undefined
-  const perBoonDamagePercent = perBoonDamageTraitId !== undefined ? PER_BOON_DAMAGE_TRAIT_BONUSES[perBoonDamageTraitId] : 0
+  const perBoonDamageTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in PER_BOON_DAMAGE_TRAIT_BONUSES,
+  );
+  const perBoonDamageTrait =
+    perBoonDamageTraitId !== undefined ? traitsById.get(perBoonDamageTraitId) : undefined;
+  const perBoonDamagePercent =
+    perBoonDamageTraitId !== undefined ? PER_BOON_DAMAGE_TRAIT_BONUSES[perBoonDamageTraitId] : 0;
 
   // Only surfaced when the build actually has a curated `SWIFTNESS_DAMAGE_TRAIT_BONUSES` OR
   // `SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES` trait chosen (Warrior's Sprint, or
@@ -212,38 +265,56 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // `resolutionTraitId` above. Bird of Prey also has its own separate `superspeedTrait` toggle
   // below (for its Damage half); the two stay independently togglable per that section's comment.
   const swiftnessTraitId = [...activeTraitIds(build, traitsById)].find(
-    (id) => id in SWIFTNESS_DAMAGE_TRAIT_BONUSES || id in SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES
-  )
-  const swiftnessTrait = swiftnessTraitId !== undefined ? traitsById.get(swiftnessTraitId) : undefined
+    (id) =>
+      id in SWIFTNESS_DAMAGE_TRAIT_BONUSES ||
+      id in SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES,
+  );
+  const swiftnessTrait =
+    swiftnessTraitId !== undefined ? traitsById.get(swiftnessTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated `STABILITY_DAMAGE_TRAIT_BONUSES` trait
   // chosen (currently just Stalwart Strength) — same reasoning as `resolutionTraitId` above.
-  const stabilityTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in STABILITY_DAMAGE_TRAIT_BONUSES)
-  const stabilityTrait = stabilityTraitId !== undefined ? traitsById.get(stabilityTraitId) : undefined
+  const stabilityTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in STABILITY_DAMAGE_TRAIT_BONUSES,
+  );
+  const stabilityTrait =
+    stabilityTraitId !== undefined ? traitsById.get(stabilityTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated `AEGIS_DAMAGE_TRAIT_BONUSES` trait chosen
   // (currently just Unscathed Contender) — same reasoning as `resolutionTraitId` above.
-  const aegisTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in AEGIS_DAMAGE_TRAIT_BONUSES)
-  const aegisTrait = aegisTraitId !== undefined ? traitsById.get(aegisTraitId) : undefined
+  const aegisTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in AEGIS_DAMAGE_TRAIT_BONUSES,
+  );
+  const aegisTrait = aegisTraitId !== undefined ? traitsById.get(aegisTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated `VIGOR_DAMAGE_TRAIT_BONUSES` trait chosen
   // (Engineer's Excessive Energy or Mesmer's Nomad's Endurance) — same reasoning as
   // `resolutionTraitId` above.
-  const vigorTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in VIGOR_DAMAGE_TRAIT_BONUSES)
-  const vigorTrait = vigorTraitId !== undefined ? traitsById.get(vigorTraitId) : undefined
+  const vigorTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in VIGOR_DAMAGE_TRAIT_BONUSES,
+  );
+  const vigorTrait = vigorTraitId !== undefined ? traitsById.get(vigorTraitId) : undefined;
 
   // Only surfaced when the build actually has a curated `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_
   // BONUSES` trait chosen (currently just Ranger's Bird of Prey) — same reasoning as
   // `resolutionTraitId` above. This toggle is `superspeedActive` specifically (not `swiftnessActive`,
   // which already has its own icon above) so the two boon states stay independently togglable even
   // though this table's own gate is an OR of both.
-  const superspeedTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES)
-  const superspeedTrait = superspeedTraitId !== undefined ? traitsById.get(superspeedTraitId) : undefined
+  const superspeedTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
+  );
+  const superspeedTrait =
+    superspeedTraitId !== undefined ? traitsById.get(superspeedTraitId) : undefined;
 
   return (
     <div className="combat-state-controls">
       <div className="combat-state-row">
-        <img className={iconClass(value.mightStacks > 0)} src={BOON_CONDITION_ICONS.Might} alt="" title="Might" />
+        <img
+          className={iconClass(value.mightStacks > 0)}
+          src={BOON_CONDITION_ICONS.Might}
+          alt=""
+          title="Might"
+        />
         <select
           aria-label="Might stacks"
           value={value.mightStacks}
@@ -319,7 +390,9 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
             step={1}
             aria-label="Current points of upkeep in use"
             value={value.upkeepPoints}
-            onChange={(e) => onChange({ ...value, upkeepPoints: Math.max(0, Number(e.target.value) || 0) })}
+            onChange={(e) =>
+              onChange({ ...value, upkeepPoints: Math.max(0, Number(e.target.value) || 0) })
+            }
           />
         </div>
       )}
@@ -338,7 +411,9 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
             step={1}
             aria-label="Current number of active boons"
             value={value.activeBoonCount}
-            onChange={(e) => onChange({ ...value, activeBoonCount: Math.max(0, Number(e.target.value) || 0) })}
+            onChange={(e) =>
+              onChange({ ...value, activeBoonCount: Math.max(0, Number(e.target.value) || 0) })
+            }
           />
         </div>
       )}
@@ -358,7 +433,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         title={value.regenerationActive ? 'Regeneration: On' : 'Regeneration: Off'}
         onClick={() => onChange({ ...value, regenerationActive: !value.regenerationActive })}
       >
-        <img className={iconClass(value.regenerationActive)} src={BOON_CONDITION_ICONS.Regeneration} alt="Regeneration" />
+        <img
+          className={iconClass(value.regenerationActive)}
+          src={BOON_CONDITION_ICONS.Regeneration}
+          alt="Regeneration"
+        />
       </button>
 
       <button
@@ -367,17 +446,29 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         title={value.quicknessActive ? 'Quickness: On' : 'Quickness: Off'}
         onClick={() => onChange({ ...value, quicknessActive: !value.quicknessActive })}
       >
-        <img className={iconClass(value.quicknessActive)} src={BOON_CONDITION_ICONS.Quickness} alt="Quickness" />
+        <img
+          className={iconClass(value.quicknessActive)}
+          src={BOON_CONDITION_ICONS.Quickness}
+          alt="Quickness"
+        />
       </button>
 
       {mechanicTrait && (
         <button
           type="button"
           className="combat-state-toggle-icon"
-          title={value.mechanicActive ? `${mechanicTrait.name}: Active` : `${mechanicTrait.name}: Inactive`}
+          title={
+            value.mechanicActive
+              ? `${mechanicTrait.name}: Active`
+              : `${mechanicTrait.name}: Inactive`
+          }
           onClick={() => onChange({ ...value, mechanicActive: !value.mechanicActive })}
         >
-          <img className={iconClass(value.mechanicActive)} src={mechanicTrait.icon} alt={mechanicTrait.name} />
+          <img
+            className={iconClass(value.mechanicActive)}
+            src={mechanicTrait.icon}
+            alt={mechanicTrait.name}
+          />
         </button>
       )}
 
@@ -396,10 +487,18 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         <button
           type="button"
           className="combat-state-toggle-icon"
-          title={value.fullEnduranceActive ? `${fullEnduranceTrait.name}: Full Endurance` : `${fullEnduranceTrait.name}: Not Full Endurance`}
+          title={
+            value.fullEnduranceActive
+              ? `${fullEnduranceTrait.name}: Full Endurance`
+              : `${fullEnduranceTrait.name}: Not Full Endurance`
+          }
           onClick={() => onChange({ ...value, fullEnduranceActive: !value.fullEnduranceActive })}
         >
-          <img className={iconClass(value.fullEnduranceActive)} src={fullEnduranceTrait.icon} alt={fullEnduranceTrait.name} />
+          <img
+            className={iconClass(value.fullEnduranceActive)}
+            src={fullEnduranceTrait.icon}
+            alt={fullEnduranceTrait.name}
+          />
         </button>
       )}
 
@@ -427,7 +526,12 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
 
       {stackingSigil && sigilIcon && (
         <div className="combat-state-row">
-          <img className={iconClass(value.stackingSigilStacks > 0)} src={sigilIcon} alt="" title={stackingSigil.name} />
+          <img
+            className={iconClass(value.stackingSigilStacks > 0)}
+            src={sigilIcon}
+            alt=""
+            title={stackingSigil.name}
+          />
           <select
             aria-label={`${stackingSigil.name} stacks`}
             value={value.stackingSigilStacks}
@@ -443,11 +547,18 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
       )}
 
       <div className="combat-state-row">
-        <img className="combat-state-icon" src={DAMAGE_ICON} alt="" title="Target armor (Damage row)" />
+        <img
+          className="combat-state-icon"
+          src={DAMAGE_ICON}
+          alt=""
+          title="Target armor (Damage row)"
+        />
         <select
           aria-label="Target armor class"
           value={value.targetArmorClass}
-          onChange={(e) => onChange({ ...value, targetArmorClass: e.target.value as TargetArmorClass })}
+          onChange={(e) =>
+            onChange({ ...value, targetArmorClass: e.target.value as TargetArmorClass })
+          }
         >
           {TARGET_ARMOR_OPTIONS.map((cls) => (
             <option key={cls} value={cls}>
@@ -461,10 +572,20 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         <button
           type="button"
           className="combat-state-toggle-icon"
-          title={value.celestialAvatarActive ? `${celestialAvatarTrait.name}: In Celestial Avatar Form` : `${celestialAvatarTrait.name}: Not in Celestial Avatar Form`}
-          onClick={() => onChange({ ...value, celestialAvatarActive: !value.celestialAvatarActive })}
+          title={
+            value.celestialAvatarActive
+              ? `${celestialAvatarTrait.name}: In Celestial Avatar Form`
+              : `${celestialAvatarTrait.name}: Not in Celestial Avatar Form`
+          }
+          onClick={() =>
+            onChange({ ...value, celestialAvatarActive: !value.celestialAvatarActive })
+          }
         >
-          <img className={iconClass(value.celestialAvatarActive)} src={celestialAvatarTrait.icon} alt={celestialAvatarTrait.name} />
+          <img
+            className={iconClass(value.celestialAvatarActive)}
+            src={celestialAvatarTrait.icon}
+            alt={celestialAvatarTrait.name}
+          />
         </button>
       )}
 
@@ -477,9 +598,15 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
               ? `${invokingHarmonyTrait.name}: Active (+${INVOKING_HARMONY_HEALING_PERCENT}% Outgoing Healing)`
               : `${invokingHarmonyTrait.name}: Inactive`
           }
-          onClick={() => onChange({ ...value, invokingHarmonyActive: !value.invokingHarmonyActive })}
+          onClick={() =>
+            onChange({ ...value, invokingHarmonyActive: !value.invokingHarmonyActive })
+          }
         >
-          <img className={iconClass(value.invokingHarmonyActive)} src={invokingHarmonyTrait.icon} alt={invokingHarmonyTrait.name} />
+          <img
+            className={iconClass(value.invokingHarmonyActive)}
+            src={invokingHarmonyTrait.icon}
+            alt={invokingHarmonyTrait.name}
+          />
         </button>
       )}
 
@@ -494,7 +621,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, cosmicWisdomActive: !value.cosmicWisdomActive })}
         >
-          <img className={iconClass(value.cosmicWisdomActive)} src={bolsteredBondsTrait.icon} alt={bolsteredBondsTrait.name} />
+          <img
+            className={iconClass(value.cosmicWisdomActive)}
+            src={bolsteredBondsTrait.icon}
+            alt={bolsteredBondsTrait.name}
+          />
         </button>
       )}
 
@@ -509,7 +640,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, resolutionActive: !value.resolutionActive })}
         >
-          <img className={iconClass(value.resolutionActive)} src={resolutionTrait.icon} alt={resolutionTrait.name} />
+          <img
+            className={iconClass(value.resolutionActive)}
+            src={resolutionTrait.icon}
+            alt={resolutionTrait.name}
+          />
         </button>
       )}
 
@@ -520,7 +655,9 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           title={
             value.swiftnessActive
               ? `${swiftnessTrait.name}: Active${
-                  swiftnessTraitId! in SWIFTNESS_DAMAGE_TRAIT_BONUSES ? ` (+${SWIFTNESS_DAMAGE_TRAIT_BONUSES[swiftnessTraitId!]}% Outgoing Damage)` : ''
+                  swiftnessTraitId! in SWIFTNESS_DAMAGE_TRAIT_BONUSES
+                    ? ` (+${SWIFTNESS_DAMAGE_TRAIT_BONUSES[swiftnessTraitId!]}% Outgoing Damage)`
+                    : ''
                 }${
                   swiftnessTraitId! in SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES
                     ? ` (Swiftness: ${SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES[swiftnessTraitId!]}% Movement Speed)`
@@ -530,7 +667,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, swiftnessActive: !value.swiftnessActive })}
         >
-          <img className={iconClass(value.swiftnessActive)} src={swiftnessTrait.icon} alt={swiftnessTrait.name} />
+          <img
+            className={iconClass(value.swiftnessActive)}
+            src={swiftnessTrait.icon}
+            alt={swiftnessTrait.name}
+          />
         </button>
       )}
 
@@ -545,7 +686,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, stabilityActive: !value.stabilityActive })}
         >
-          <img className={iconClass(value.stabilityActive)} src={stabilityTrait.icon} alt={stabilityTrait.name} />
+          <img
+            className={iconClass(value.stabilityActive)}
+            src={stabilityTrait.icon}
+            alt={stabilityTrait.name}
+          />
         </button>
       )}
 
@@ -554,11 +699,17 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           type="button"
           className="combat-state-toggle-icon"
           title={
-            value.aegisActive ? `${aegisTrait.name}: Active (+${AEGIS_DAMAGE_TRAIT_BONUSES[aegisTraitId!]}% Outgoing Damage)` : `${aegisTrait.name}: Inactive`
+            value.aegisActive
+              ? `${aegisTrait.name}: Active (+${AEGIS_DAMAGE_TRAIT_BONUSES[aegisTraitId!]}% Outgoing Damage)`
+              : `${aegisTrait.name}: Inactive`
           }
           onClick={() => onChange({ ...value, aegisActive: !value.aegisActive })}
         >
-          <img className={iconClass(value.aegisActive)} src={aegisTrait.icon} alt={aegisTrait.name} />
+          <img
+            className={iconClass(value.aegisActive)}
+            src={aegisTrait.icon}
+            alt={aegisTrait.name}
+          />
         </button>
       )}
 
@@ -577,7 +728,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, vigorActive: !value.vigorActive })}
         >
-          <img className={iconClass(value.vigorActive)} src={vigorTrait.icon} alt={vigorTrait.name} />
+          <img
+            className={iconClass(value.vigorActive)}
+            src={vigorTrait.icon}
+            alt={vigorTrait.name}
+          />
         </button>
       )}
 
@@ -592,7 +747,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, superspeedActive: !value.superspeedActive })}
         >
-          <img className={iconClass(value.superspeedActive)} src={superspeedTrait.icon} alt={superspeedTrait.name} />
+          <img
+            className={iconClass(value.superspeedActive)}
+            src={superspeedTrait.icon}
+            alt={superspeedTrait.name}
+          />
         </button>
       )}
 
@@ -607,7 +766,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           }
           onClick={() => onChange({ ...value, nightActive: !value.nightActive })}
         >
-          <img className={iconClass(value.nightActive)} src={nightSigilIcon} alt="Sigil of the Night" />
+          <img
+            className={iconClass(value.nightActive)}
+            src={nightSigilIcon}
+            alt="Sigil of the Night"
+          />
         </button>
       )}
 
@@ -622,5 +785,5 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         </button>
       )}
     </div>
-  )
+  );
 }

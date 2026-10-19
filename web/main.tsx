@@ -1,11 +1,11 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { AppWeb } from '@renderer/AppWeb'
-import '@renderer/styles/global.css'
-import { createIndexedDbStorage } from '@shared/storage/indexeddb-adapter'
-import type { CaptureProvider } from '@shared/capture/capture-provider'
-import type { UpdaterProvider } from '@shared/updater/updater-provider'
-import type { DataUpdateProvider } from '@shared/game-data/data-update-provider'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { AppWeb } from '@renderer/AppWeb';
+import '@renderer/styles/global.css';
+import { createIndexedDbStorage } from '@shared/storage/indexeddb-adapter';
+import type { CaptureProvider } from '@shared/capture/capture-provider';
+import type { UpdaterProvider } from '@shared/updater/updater-provider';
+import type { DataUpdateProvider } from '@shared/game-data/data-update-provider';
 
 /**
  * Stand-ins for the preload-exposed bridges `AppWeb`'s provider tree still reaches through
@@ -19,8 +19,8 @@ const noopCapture: CaptureProvider = {
   captureBuildScreenshot: () => Promise.resolve(),
   captureSquadScreenshot: () => Promise.resolve(),
   getPayload: () => Promise.resolve(null),
-  signalReady: () => Promise.resolve()
-}
+  signalReady: () => Promise.resolve(),
+};
 
 const noopUpdater: UpdaterProvider = {
   getAppVersion: () => Promise.resolve(''),
@@ -28,24 +28,24 @@ const noopUpdater: UpdaterProvider = {
   checkForUpdates: () => Promise.resolve(),
   downloadUpdate: () => Promise.resolve(),
   quitAndInstall: () => Promise.resolve(),
-  onStatus: () => () => {}
-}
+  onStatus: () => () => {},
+};
 
 const noopDataUpdate: DataUpdateProvider = {
   getLocalMeta: () => Promise.resolve({ fetchedAt: '', gw2Build: null }),
   checkForUpdate: () => Promise.resolve(),
   downloadUpdate: () => Promise.resolve(),
   restartAndApply: () => Promise.resolve(),
-  onStatus: () => () => {}
-}
+  onStatus: () => () => {},
+};
 
-window.gw2Storage = createIndexedDbStorage()
-window.gw2Capture = noopCapture
-window.gw2Updater = noopUpdater
-window.gw2DataUpdate = noopDataUpdate
+window.gw2Storage = createIndexedDbStorage();
+window.gw2Capture = noopCapture;
+window.gw2Updater = noopUpdater;
+window.gw2DataUpdate = noopDataUpdate;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppWeb />
-  </StrictMode>
-)
+  </StrictMode>,
+);

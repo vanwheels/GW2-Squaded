@@ -1,6 +1,14 @@
-import type { Build, EquipmentSlotKey, Legend, Trait } from '../types'
-import { equippedLegendIds } from '../boon-calc/sources'
-import { addPoints, ALL_CORE_ATTRIBUTE_KEYS, applyConversions, emptyTotals, isActiveWeaponSlot, type AttributeConversion, type AttributeTotals } from './attribute-totals'
+import type { Build, EquipmentSlotKey, Legend, Trait } from '../types';
+import { equippedLegendIds } from '../boon-calc/sources';
+import {
+  addPoints,
+  ALL_CORE_ATTRIBUTE_KEYS,
+  applyConversions,
+  emptyTotals,
+  isActiveWeaponSlot,
+  type AttributeConversion,
+  type AttributeTotals,
+} from './attribute-totals';
 
 /**
  * Traits can grant a flat attribute bonus (`AttributeAdjust` fact) or convert a percentage of one
@@ -21,13 +29,13 @@ import { addPoints, ALL_CORE_ATTRIBUTE_KEYS, applyConversions, emptyTotals, isAc
  * add more (there are ~190 unverified candidates from the `traits.json` scan).
  */
 export interface TraitFlatBonus {
-  traitId: number
-  target: string
-  value: number
+  traitId: number;
+  target: string;
+  value: number;
 }
 
 export interface TraitConversion extends AttributeConversion {
-  traitId: number
+  traitId: number;
 }
 
 // Exported (not just module-private) so the completeness scan
@@ -283,8 +291,8 @@ export const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // split). Unconditional half only; "Additional Condition Damage" is the same weapon-equipped-gated
   // shape as Swindler's Equilibrium/Dagger Training/Staff Master above (gated on scepter) — excluded.
   // This trait's Condition Damage→Healing conversion is added separately below.
-  { traitId: 2284, target: 'ConditionDamage', value: 90 }
-]
+  { traitId: 2284, target: 'ConditionDamage', value: 90 },
+];
 
 // Exported for the same reason as CURATED_FLAT_BONUSES above.
 export const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -429,8 +437,8 @@ export const CURATED_CONVERSIONS: TraitConversion[] = [
   // text: "unconditional and passive... a permanent stat conversion, not triggered only by combo
   // finishers." Same "in addition to procs" shape as Elevated Compassion above. Split game mode=pve 13
   // / game mode=wvw pvp 10; WvW value is 10.
-  { traitId: 2052, source: 'Power', target: 'BoonDuration', percent: 10 }
-]
+  { traitId: 2052, source: 'Power', target: 'BoonDuration', percent: 10 },
+];
 
 /**
  * Trait id -> extra flat attribute point granted only while a qualifying weapon is equipped —
@@ -451,14 +459,14 @@ export const CURATED_CONVERSIONS: TraitConversion[] = [
  * older trait wording resolves to the same `"Spear"` key used everywhere else in this codebase).
  */
 export interface WeaponEquippedTraitBonus {
-  target: string
-  value: number
-  weaponTypes: string[]
+  target: string;
+  value: number;
+  weaponTypes: string[];
   /** When true, only the active set's *main-hand* slot's weapon type is checked (Right-Hand
    *  Strength's "while wielding a one-handed weapon in your main hand" — the only curated trait
    *  gated on a specific hand rather than either). Every other entry checks both hands (and, on
    *  land, both slots of the inactive-but-mirrored two-handed weapon) via `activeWeaponTypes`. */
-  mainHandOnly?: boolean
+  mainHandOnly?: boolean;
 }
 
 export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquippedTraitBonus> = {
@@ -466,7 +474,12 @@ export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquip
   // a one-handed weapon in your main hand." Guardian's 4 one-handed main-hand weapon types per the
   // wiki's own weapon-gating list: Axe, Mace, Scepter, Sword (Focus/Shield/Torch are offhand-only,
   // never legal in the main-hand slot this checks).
-  566: { target: 'Power', value: 80, weaponTypes: ['Axe', 'Mace', 'Scepter', 'Sword'], mainHandOnly: true },
+  566: {
+    target: 'Power',
+    value: 80,
+    weaponTypes: ['Axe', 'Mace', 'Scepter', 'Sword'],
+    mainHandOnly: true,
+  },
   // Zealous Blade (Guardian, Zeal, Major Adept) — "Gain additional power while wielding a
   // greatsword."
   653: { target: 'Power', value: 120, weaponTypes: ['Greatsword'] },
@@ -507,8 +520,8 @@ export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquip
   // wiki-verified 2026-08-12 (raw wikitext confirms the full description above, quoted directly,
   // no separate unconditional half exists for this trait — unlike every other entry in this
   // table, it has no counterpart in `CURATED_FLAT_BONUSES`).
-  580: { target: 'Toughness', value: 240, weaponTypes: ['Shield'] }
-}
+  580: { target: 'Toughness', value: 240, weaponTypes: ['Shield'] },
+};
 
 /** Every weapon type (`EquipmentSlot.weaponType`) currently equipped across the build's active
  *  weapon slots — mirrors `isActiveWeaponSlot`'s "only the active set counts" gating (same rule
@@ -517,13 +530,13 @@ export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquip
  *  entry except Right-Hand Strength's main-hand-only gate below, and — exported for this reason —
  *  by `combat-state.ts`'s `MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES` (Warrior's Sprint). */
 export function activeWeaponTypes(build: Build): Set<string> {
-  const types = new Set<string>()
+  const types = new Set<string>();
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue
-    const type = build.equipment[slotKey]?.weaponType
-    if (type) types.add(type)
+    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue;
+    const type = build.equipment[slotKey]?.weaponType;
+    if (type) types.add(type);
   }
-  return types
+  return types;
 }
 
 /** The active set's main-hand weapon type (`weaponA1`/`weaponB1`, whichever set is active) —
@@ -531,9 +544,9 @@ export function activeWeaponTypes(build: Build): Set<string> {
  *  distinction. Only Right-Hand Strength cares about this distinction; every other curated trait
  *  in this family accepts the weapon in either hand via `activeWeaponTypes` above. */
 function activeMainHandWeaponType(build: Build): string | null {
-  if (build.environment === 'underwater') return null
-  const slotKey = build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1'
-  return build.equipment[slotKey]?.weaponType ?? null
+  if (build.environment === 'underwater') return null;
+  const slotKey = build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1';
+  return build.equipment[slotKey]?.weaponType ?? null;
 }
 
 /**
@@ -544,18 +557,25 @@ function activeMainHandWeaponType(build: Build): string | null {
  * reason `activeTraitFlatBonuses` is called there directly) as well as being folded into
  * `applyTraitBonuses` below for every other caller.
  */
-export function activeWeaponEquippedAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const equipped = activeWeaponTypes(build)
-  const mainHand = activeMainHandWeaponType(build)
-  const bonus: Record<string, number> = {}
-  for (const [traitIdText, { target, value, weaponTypes, mainHandOnly }] of Object.entries(WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    const matches = mainHandOnly ? mainHand !== null && weaponTypes.includes(mainHand) : weaponTypes.some((w) => equipped.has(w))
-    if (!matches) continue
-    bonus[target] = (bonus[target] ?? 0) + value
+export function activeWeaponEquippedAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const equipped = activeWeaponTypes(build);
+  const mainHand = activeMainHandWeaponType(build);
+  const bonus: Record<string, number> = {};
+  for (const [traitIdText, { target, value, weaponTypes, mainHandOnly }] of Object.entries(
+    WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES,
+  )) {
+    if (!active.has(Number(traitIdText))) continue;
+    const matches = mainHandOnly
+      ? mainHand !== null && weaponTypes.includes(mainHand)
+      : weaponTypes.some((w) => equipped.has(w));
+    if (!matches) continue;
+    bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -584,15 +604,15 @@ export function activeWeaponEquippedAttributeTraitBonus(build: Build, traitsById
  *   game-mode split.
  */
 export interface AttunementTraitBonus {
-  target: string
-  value: number
-  attunement: 'Fire' | 'Water' | 'Air' | 'Earth'
+  target: string;
+  value: number;
+  attunement: 'Fire' | 'Water' | 'Air' | 'Earth';
 }
 
 export const ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES: Record<number, AttunementTraitBonus> = {
   320: { target: 'Power', value: 150, attunement: 'Fire' }, // Empowering Flame (Elementalist, Fire, Minor Adept)
-  223: { target: 'CritDamage', value: 150, attunement: 'Air' } // Aeromancer's Training (Elementalist, Air, Minor GM)
-}
+  223: { target: 'CritDamage', value: 150, attunement: 'Air' }, // Aeromancer's Training (Elementalist, Air, Minor GM)
+};
 
 /**
  * Sums every curated attunement-gated trait bonus actually active on this build AND matching
@@ -600,20 +620,25 @@ export const ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES: Record<number, AttunementTraitB
  * shape/gating just above — persisted `Build` state is the condition here too, not an ephemeral
  * `CombatState` toggle).
  */
-export function activeAttunementAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
-  for (const [traitIdText, { target, value, attunement }] of Object.entries(ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    if (build.activeAttunement !== attunement) continue
-    bonus[target] = (bonus[target] ?? 0) + value
+export function activeAttunementAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
+  for (const [traitIdText, { target, value, attunement }] of Object.entries(
+    ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES,
+  )) {
+    if (!active.has(Number(traitIdText))) continue;
+    if (build.activeAttunement !== attunement) continue;
+    bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 export interface LegendAttributeBonus {
-  target: string
-  value: number
+  target: string;
+  value: number;
 }
 
 /**
@@ -637,7 +662,10 @@ export interface LegendAttributeBonus {
  * already uses for gear's own "+N to All Attributes" bonuses) rather than a hand-listed 9-entry
  * array.
  */
-export const LEGEND_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, LegendAttributeBonus[]>> = {
+export const LEGEND_ATTRIBUTE_TRAIT_BONUSES: Record<
+  number,
+  Record<string, LegendAttributeBonus[]>
+> = {
   // Bolstered Bonds (Revenant/Conduit, Master minor, id 2331) — see
   // `skill-calc/legend-attribute-details.ts`'s `LEGEND_ATTRIBUTE_BONUS_DETAILS` for the full
   // per-legend wiki citation (Dragon/Renegade/Alliance genuinely absent from this trait, not a gap
@@ -645,23 +673,23 @@ export const LEGEND_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, Legen
   2331: {
     'Legendary Assassin Stance': [
       { target: 'Power', value: 75 },
-      { target: 'CritDamage', value: 75 }
+      { target: 'CritDamage', value: 75 },
     ],
     'Legendary Centaur Stance': [
       { target: 'Healing', value: 75 },
-      { target: 'BoonDuration', value: 75 }
+      { target: 'BoonDuration', value: 75 },
     ],
     'Legendary Demon Stance': [
       { target: 'ConditionDamage', value: 75 },
-      { target: 'ConditionDuration', value: 75 }
+      { target: 'ConditionDuration', value: 75 },
     ],
     'Legendary Dwarf Stance': [
       { target: 'Toughness', value: 75 },
-      { target: 'Vitality', value: 75 }
+      { target: 'Vitality', value: 75 },
     ],
-    'Legendary Entity Stance': ALL_CORE_ATTRIBUTE_KEYS.map((target) => ({ target, value: 50 }))
-  }
-}
+    'Legendary Entity Stance': ALL_CORE_ATTRIBUTE_KEYS.map((target) => ({ target, value: 50 })),
+  },
+};
 
 /**
  * Sums every curated legend-equipped trait bonus actually active on this build AND matching one of
@@ -672,20 +700,24 @@ export const LEGEND_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, Legen
  * table is keyed by. A no-op for every non-Revenant build (`equippedLegendIds` returns an empty
  * set) and for any Revenant build without a curated trait active.
  */
-export function activeLegendAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>, legends: Legend[]): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const equippedIds = equippedLegendIds(build)
-  if (equippedIds.size === 0) return {}
-  const equippedNames = new Set(legends.filter((l) => equippedIds.has(l.id)).map((l) => l.name))
-  const bonus: Record<string, number> = {}
+export function activeLegendAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+  legends: Legend[],
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const equippedIds = equippedLegendIds(build);
+  if (equippedIds.size === 0) return {};
+  const equippedNames = new Set(legends.filter((l) => equippedIds.has(l.id)).map((l) => l.name));
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, byLegendName] of Object.entries(LEGEND_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
+    if (!active.has(Number(traitIdText))) continue;
     for (const [legendName, entries] of Object.entries(byLegendName)) {
-      if (!equippedNames.has(legendName)) continue
-      for (const { target, value } of entries) bonus[target] = (bonus[target] ?? 0) + value
+      if (!equippedNames.has(legendName)) continue;
+      for (const { target, value } of entries) bonus[target] = (bonus[target] ?? 0) + value;
     }
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -695,36 +727,42 @@ export function activeLegendAttributeTraitBonus(build: Build, traitsById: Map<nu
  * same "is this trait live on this build" check.
  */
 export function activeTraitIds(build: Build, traitsById: Map<number, Trait>): Set<number> {
-  const active = new Set<number>()
+  const active = new Set<number>();
   for (const line of build.specializations) {
-    if (!line) continue
-    const chosenIds = new Set(line.chosenTraitIds.filter((id): id is number => id !== null))
+    if (!line) continue;
+    const chosenIds = new Set(line.chosenTraitIds.filter((id): id is number => id !== null));
     for (const trait of traitsById.values()) {
-      if (trait.specializationId !== line.specializationId) continue
-      if (trait.slot === 'Minor' || chosenIds.has(trait.id)) active.add(trait.id)
+      if (trait.specializationId !== line.specializationId) continue;
+      if (trait.slot === 'Minor' || chosenIds.has(trait.id)) active.add(trait.id);
     }
   }
-  return active
+  return active;
 }
 
 /** Flat attribute-point bonuses from every currently-active, curated trait — gear-independent,
  *  safe to compute once regardless of what else is being varied (e.g. by the Gear Optimizer's
  *  search). */
-export function activeTraitFlatBonuses(build: Build, traitsById: Map<number, Trait>): AttributeTotals {
-  const active = activeTraitIds(build, traitsById)
-  const totals = emptyTotals()
+export function activeTraitFlatBonuses(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): AttributeTotals {
+  const active = activeTraitIds(build, traitsById);
+  const totals = emptyTotals();
   for (const bonus of CURATED_FLAT_BONUSES) {
-    if (active.has(bonus.traitId)) addPoints(totals, bonus.target, bonus.value)
+    if (active.has(bonus.traitId)) addPoints(totals, bonus.target, bonus.value);
   }
-  return totals
+  return totals;
 }
 
 /** Every currently-active, curated trait conversion, unresolved (the source attribute's *final*
  *  value — after gear, runes, other trait bonuses, everything — isn't known until the rest of the
  *  totals are assembled, so this just lists what to apply; see `applyTraitBonuses`). */
-export function activeTraitConversions(build: Build, traitsById: Map<number, Trait>): TraitConversion[] {
-  const active = activeTraitIds(build, traitsById)
-  return CURATED_CONVERSIONS.filter((c) => active.has(c.traitId))
+export function activeTraitConversions(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): TraitConversion[] {
+  const active = activeTraitIds(build, traitsById);
+  return CURATED_CONVERSIONS.filter((c) => active.has(c.traitId));
 }
 
 /** Applies every active trait's flat bonuses, then every active conversion computed from the
@@ -734,17 +772,31 @@ export function activeTraitConversions(build: Build, traitsById: Map<number, Tra
  *  is already in `totals`, since conversions need the real final source-attribute value.
  *  `legends` (`GameData.legends`, defaulted to `[]` for the rare call site that doesn't have it
  *  handy) feeds `activeLegendAttributeTraitBonus` — harmless for every non-Revenant build. */
-export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsById: Map<number, Trait>, legends: Legend[] = []): void {
-  const flat = activeTraitFlatBonuses(build, traitsById)
-  for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v)
+export function applyTraitBonuses(
+  totals: AttributeTotals,
+  build: Build,
+  traitsById: Map<number, Trait>,
+  legends: Legend[] = [],
+): void {
+  const flat = activeTraitFlatBonuses(build, traitsById);
+  for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v);
 
-  for (const [target, value] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
+  for (const [target, value] of Object.entries(
+    activeWeaponEquippedAttributeTraitBonus(build, traitsById),
+  ))
+    addPoints(totals, target, value);
 
-  for (const [target, value] of Object.entries(activeAttunementAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
+  for (const [target, value] of Object.entries(
+    activeAttunementAttributeTraitBonus(build, traitsById),
+  ))
+    addPoints(totals, target, value);
 
-  for (const [target, value] of Object.entries(activeLegendAttributeTraitBonus(build, traitsById, legends))) addPoints(totals, target, value)
+  for (const [target, value] of Object.entries(
+    activeLegendAttributeTraitBonus(build, traitsById, legends),
+  ))
+    addPoints(totals, target, value);
 
-  applyConversions(totals, activeTraitConversions(build, traitsById))
+  applyConversions(totals, activeTraitConversions(build, traitsById));
 }
 
 /**
@@ -762,17 +814,17 @@ export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsB
  *   this app just never had anywhere to apply a Health percent bonus to before now.
  */
 export const MAX_HEALTH_PERCENT_BONUSES: Record<number, number> = {
-  1737: 10 // Draconic Fortitude
-}
+  1737: 10, // Draconic Fortitude
+};
 
 /** Sum of every currently-active, curated `MAX_HEALTH_PERCENT_BONUSES` entry (0 if none apply) —
  *  applied multiplicatively to `baseHealth + vitality * HEALTH_PER_VITALITY` by `derived-stats.ts`,
  *  the same "gear-independent, safe to compute once" shape as `activeTraitFlatBonuses`. */
 export function maxHealthPercentTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let percent = 0
+  const active = activeTraitIds(build, traitsById);
+  let percent = 0;
   for (const [traitIdStr, bonus] of Object.entries(MAX_HEALTH_PERCENT_BONUSES)) {
-    if (active.has(Number(traitIdStr))) percent += bonus
+    if (active.has(Number(traitIdStr))) percent += bonus;
   }
-  return percent
+  return percent;
 }

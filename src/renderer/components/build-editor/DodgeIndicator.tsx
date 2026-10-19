@@ -1,13 +1,17 @@
-import type { Build } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { daredevilDodgeContent, relicDodgeContent, vindicatorDodgeContent } from '@shared/skill-calc/dodge-replacement-facts'
-import type { DodgeReplacementContent } from '@shared/skill-calc/dodge-replacement-facts'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { factsBlock, useDurationContext } from './SkillsEditor'
+import type { Build } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import {
+  daredevilDodgeContent,
+  relicDodgeContent,
+  vindicatorDodgeContent,
+} from '@shared/skill-calc/dodge-replacement-facts';
+import type { DodgeReplacementContent } from '@shared/skill-calc/dodge-replacement-facts';
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
+import { factsBlock, useDurationContext } from './SkillsEditor';
 
 interface Props {
-  build: Build
-  combatState?: CombatState
+  build: Build;
+  combatState?: CombatState;
 }
 
 /**
@@ -22,15 +26,23 @@ interface Props {
  * and unclickable, since there's no `Build` field this could ever toggle.
  */
 export function DodgeIndicator({ build, combatState }: Props) {
-  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } =
+    useDurationContext(build, combatState);
 
   const professionContent =
-    vindicatorDodgeContent(activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor, durationPercent) ??
-    daredevilDodgeContent(activeIds)
-  const relicContent = relicDodgeContent(build.relicId, gameData.relicsById, gameData.relicEffects)
-  const contents = [professionContent, relicContent].filter((c): c is DodgeReplacementContent => c !== null)
+    vindicatorDodgeContent(
+      activeIds,
+      characterAttributes.power,
+      characterAttributes.healingPower,
+      targetArmor,
+      durationPercent,
+    ) ?? daredevilDodgeContent(activeIds);
+  const relicContent = relicDodgeContent(build.relicId, gameData.relicsById, gameData.relicEffects);
+  const contents = [professionContent, relicContent].filter(
+    (c): c is DodgeReplacementContent => c !== null,
+  );
 
-  if (contents.length === 0) return null
+  if (contents.length === 0) return null;
 
   return (
     <>
@@ -39,8 +51,17 @@ export function DodgeIndicator({ build, combatState }: Props) {
           <Tooltip
             content={
               <>
-                <TooltipBody title={content.name} description={content.description} icon={content.icon} />
-                {factsBlock(content.numericLines, content.facts, {}, characterAttributes.conditionDamage)}
+                <TooltipBody
+                  title={content.name}
+                  description={content.description}
+                  icon={content.icon}
+                />
+                {factsBlock(
+                  content.numericLines,
+                  content.facts,
+                  {},
+                  characterAttributes.conditionDamage,
+                )}
               </>
             }
           >
@@ -52,5 +73,5 @@ export function DodgeIndicator({ build, combatState }: Props) {
         </div>
       ))}
     </>
-  )
+  );
 }

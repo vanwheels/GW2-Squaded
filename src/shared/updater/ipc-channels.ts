@@ -6,5 +6,5 @@ export const UpdaterIpcChannel = {
   download: 'updater:download',
   install: 'updater:install',
   /** Main -> renderer push event carrying the latest `UpdateStatus`. */
-  status: 'updater:status'
-} as const
+  status: 'updater:status',
+} as const;

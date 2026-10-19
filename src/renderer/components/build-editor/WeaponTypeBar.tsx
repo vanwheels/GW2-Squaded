@@ -1,16 +1,22 @@
-import type { Build, EquipmentSlotKey } from '@shared/types'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
-import { AQUATIC_ONLY_WEAPON_NAMES, chooseSingleWeapon, weaponMiniIcon, weaponOptionsFor, weaponPairHandlers } from './weapon-slot-logic'
+import type { Build, EquipmentSlotKey } from '@shared/types';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { UpgradePicker, type UpgradeOption } from './UpgradePicker';
+import {
+  AQUATIC_ONLY_WEAPON_NAMES,
+  chooseSingleWeapon,
+  weaponMiniIcon,
+  weaponOptionsFor,
+  weaponPairHandlers,
+} from './weapon-slot-logic';
 
 interface Props {
-  build: Build
-  onEquipmentChange: (equipment: Build['equipment']) => void
+  build: Build;
+  onEquipmentChange: (equipment: Build['equipment']) => void;
 }
 
 function toIconOptions(entries: [string, unknown][], isAquatic: boolean): UpgradeOption<string>[] {
-  return entries.map(([name]) => ({ id: name, name, icon: weaponMiniIcon(name, isAquatic) ?? '' }))
+  return entries.map(([name]) => ({ id: name, name, icon: weaponMiniIcon(name, isAquatic) ?? '' }));
 }
 
 /**
@@ -27,24 +33,26 @@ function toIconOptions(entries: [string, unknown][], isAquatic: boolean): Upgrad
  * both apply the identical two-handed-mirroring rule).
  */
 export function WeaponTypeBar({ build, onEquipmentChange }: Props) {
-  const { professions } = useGameData()
-  const { showUnderwater } = useAppSettings()
-  const profession = professions.find((p) => p.id === build.profession)
-  const equipment = build.equipment
+  const { professions } = useGameData();
+  const { showUnderwater } = useAppSettings();
+  const profession = professions.find((p) => p.id === build.profession);
+  const equipment = build.equipment;
 
   function weaponSet(title: string, mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey) {
     const mainOptions = weaponOptionsFor(
       profession,
-      (name, w) => (w.flags.includes('Mainhand') || w.flags.includes('TwoHand')) && !AQUATIC_ONLY_WEAPON_NAMES.has(name)
-    )
-    const offOptions = weaponOptionsFor(profession, (_name, w) => w.flags.includes('Offhand'))
+      (name, w) =>
+        (w.flags.includes('Mainhand') || w.flags.includes('TwoHand')) &&
+        !AQUATIC_ONLY_WEAPON_NAMES.has(name),
+    );
+    const offOptions = weaponOptionsFor(profession, (_name, w) => w.flags.includes('Offhand'));
     const { mainSlot, offSlot, isTwoHanded, chooseMain, chooseOff } = weaponPairHandlers(
       profession,
       equipment,
       onEquipmentChange,
       mainKey,
-      offKey
-    )
+      offKey,
+    );
     return (
       <div className="weapon-type-bar-set" key={title}>
         <span className="weapon-type-bar-title">{title}</span>
@@ -69,11 +77,11 @@ export function WeaponTypeBar({ build, onEquipmentChange }: Props) {
           />
         )}
       </div>
-    )
+    );
   }
 
   function underwaterSet(title: string, key: EquipmentSlotKey) {
-    const options = weaponOptionsFor(profession, (_name, w) => w.flags.includes('Aquatic'))
+    const options = weaponOptionsFor(profession, (_name, w) => w.flags.includes('Aquatic'));
     return (
       <div className="weapon-type-bar-set" key={title}>
         <span className="weapon-type-bar-title">{title}</span>
@@ -86,7 +94,7 @@ export function WeaponTypeBar({ build, onEquipmentChange }: Props) {
           size="lg"
         />
       </div>
-    )
+    );
   }
 
   return (
@@ -100,5 +108,5 @@ export function WeaponTypeBar({ build, onEquipmentChange }: Props) {
         </>
       )}
     </div>
-  )
+  );
 }

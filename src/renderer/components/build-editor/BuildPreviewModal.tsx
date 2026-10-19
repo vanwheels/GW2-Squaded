@@ -1,14 +1,14 @@
-import { useMemo } from 'react'
-import type { Build, TraitLineSelection } from '@shared/types'
-import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state'
-import { withUnderwaterSetting } from '@shared/types/build'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { Modal } from '@renderer/components/common/Modal'
-import { BuildScreenshotGrid } from './BuildScreenshotGrid'
+import { useMemo } from 'react';
+import type { Build, TraitLineSelection } from '@shared/types';
+import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state';
+import { withUnderwaterSetting } from '@shared/types/build';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { Modal } from '@renderer/components/common/Modal';
+import { BuildScreenshotGrid } from './BuildScreenshotGrid';
 
 interface Props {
-  build: Build | null
-  onClose: () => void
+  build: Build | null;
+  onClose: () => void;
 }
 
 /**
@@ -20,14 +20,19 @@ interface Props {
  * screenshot immediately.
  */
 export function BuildPreviewModal({ build, onClose }: Props) {
-  const { showUnderwater } = useAppSettings()
-  const displayBuild = useMemo(() => (build ? withUnderwaterSetting(build, showUnderwater) : null), [build, showUnderwater])
+  const { showUnderwater } = useAppSettings();
+  const displayBuild = useMemo(
+    () => (build ? withUnderwaterSetting(build, showUnderwater) : null),
+    [build, showUnderwater],
+  );
   const equippedSpecializationIds = useMemo(() => {
-    if (!build) return new Set<number>()
+    if (!build) return new Set<number>();
     return new Set(
-      build.specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
-    )
-  }, [build])
+      build.specializations
+        .filter((s): s is TraitLineSelection => s !== null)
+        .map((s) => s.specializationId),
+    );
+  }, [build]);
 
   return (
     <Modal open={displayBuild !== null} onClose={onClose} className="build-preview-modal">
@@ -48,5 +53,5 @@ export function BuildPreviewModal({ build, onClose }: Props) {
         </>
       )}
     </Modal>
-  )
+  );
 }

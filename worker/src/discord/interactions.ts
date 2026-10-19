@@ -1,12 +1,25 @@
-import { getGuildSettings } from '../db'
-import type { Env } from '../env'
-import { json } from '../http'
-import { BOARD_BUILD_PREVIEW_CUSTOM_ID, BOARD_SQUAD_PREVIEW_CUSTOM_ID } from '../render/board'
-import { parseDecisionCustomId, parsePreviewCustomId } from './approvals'
-import { autocompleteChoices } from './autocomplete'
-import { runApprovalDecision, runApprovalPreview, runBoardBuildPreview, runBoardSquadPreview, runCommand, resolveHandler } from './dispatch'
-import { EPHEMERAL, InteractionResponseType, InteractionType, isAdministrator, type DiscordInteraction } from './interaction-types'
-import { verifyDiscordRequest } from './verify'
+import { getGuildSettings } from '../db';
+import type { Env } from '../env';
+import { json } from '../http';
+import { BOARD_BUILD_PREVIEW_CUSTOM_ID, BOARD_SQUAD_PREVIEW_CUSTOM_ID } from '../render/board';
+import { parseDecisionCustomId, parsePreviewCustomId } from './approvals';
+import { autocompleteChoices } from './autocomplete';
+import {
+  runApprovalDecision,
+  runApprovalPreview,
+  runBoardBuildPreview,
+  runBoardSquadPreview,
+  runCommand,
+  resolveHandler,
+} from './dispatch';
+import {
+  EPHEMERAL,
+  InteractionResponseType,
+  InteractionType,
+  isAdministrator,
+  type DiscordInteraction,
+} from './interaction-types';
+import { verifyDiscordRequest } from './verify';
 
 /** Handles `POST /interactions`, the single HTTP endpoint Discord calls for every slash command,
  *  autocomplete request, and (Phase 3) Preview/Approve/Reject button click in this design (see
@@ -24,36 +37,48 @@ import { verifyDiscordRequest } from './verify'
  *  permission check runs synchronously first (cheap, and needs to decide the response type before
  *  acking), then the actual decide-and-apply work defers via `dispatch.ts`'s
  *  `runApprovalDecision`. */
-export async function handleInteraction(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-  const signature = request.headers.get('X-Signature-Ed25519')
-  const timestamp = request.headers.get('X-Signature-Timestamp')
-  const body = await request.text()
+export async function handleInteraction(
+  request: Request,
+  env: Env,
+  ctx: ExecutionContext,
+): Promise<Response> {
+  const signature = request.headers.get('X-Signature-Ed25519');
+  const timestamp = request.headers.get('X-Signature-Timestamp');
+  const body = await request.text();
 
-  const valid = await verifyDiscordRequest(body, signature, timestamp, env.DISCORD_PUBLIC_KEY)
-  if (!valid) return new Response('invalid request signature', { status: 401 })
+  const valid = await verifyDiscordRequest(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
+  if (!valid) return new Response('invalid request signature', { status: 401 });
 
-  let interaction: DiscordInteraction
+  let interaction: DiscordInteraction;
   try {
-    interaction = JSON.parse(body) as DiscordInteraction
+    interaction = JSON.parse(body) as DiscordInteraction;
   } catch {
-    return json({ error: 'invalid_json' }, 400)
+    return json({ error: 'invalid_json' }, 400);
   }
 
   if (interaction.type === InteractionType.PING) {
-    return json({ type: InteractionResponseType.PONG })
+    return json({ type: InteractionResponseType.PONG });
   }
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE) {
-    const choices = await autocompleteChoices(env, interaction.guild_id, interaction.data?.name ?? '', interaction.data?.options)
-    return json({ type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data: { choices } })
+    const choices = await autocompleteChoices(
+      env,
+      interaction.guild_id,
+      interaction.data?.name ?? '',
+      interaction.data?.options,
+    );
+    return json({
+      type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+      data: { choices },
+    });
   }
 
   if (interaction.type === InteractionType.MESSAGE_COMPONENT) {
     if (!interaction.guild_id || !interaction.member) {
       return json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: { content: 'This bot only works inside a server.', flags: EPHEMERAL }
-      })
+        data: { content: 'This bot only works inside a server.', flags: EPHEMERAL },
+      });
     }
 
     // Preview is checked first and handled entirely separately from a decision: no approver-role
@@ -61,10 +86,13 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
     // acks the same way a slash command does (`DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`, a *new*
     // ephemeral message) rather than `DEFERRED_UPDATE_MESSAGE` (which would target the card
     // itself) — see `dispatch.ts`'s `runApprovalPreview` doc comment.
-    const previewRequestId = parsePreviewCustomId(interaction.data?.custom_id ?? '')
+    const previewRequestId = parsePreviewCustomId(interaction.data?.custom_id ?? '');
     if (previewRequestId !== null) {
-      ctx.waitUntil(runApprovalPreview(env, interaction, previewRequestId))
-      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
+      ctx.waitUntil(runApprovalPreview(env, interaction, previewRequestId));
+      return json({
+        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { flags: EPHEMERAL },
+      });
     }
 
     // The board's "Preview a build…" select menu (`render/board.ts`'s `buildPreviewSelectRow`) —
@@ -72,28 +100,43 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
     // selected build id instead of a pending request. `values` is always present and non-empty for
     // a string select the user actually interacted with; the `?? []`/`[0]` guard is defensive only.
     if (interaction.data?.custom_id === BOARD_BUILD_PREVIEW_CUSTOM_ID) {
-      const buildId = Number(interaction.data.values?.[0])
+      const buildId = Number(interaction.data.values?.[0]);
       if (!Number.isInteger(buildId)) {
-        return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized selection.', flags: EPHEMERAL } })
+        return json({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: { content: 'Unrecognized selection.', flags: EPHEMERAL },
+        });
       }
-      ctx.waitUntil(runBoardBuildPreview(env, interaction, buildId))
-      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
+      ctx.waitUntil(runBoardBuildPreview(env, interaction, buildId));
+      return json({
+        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { flags: EPHEMERAL },
+      });
     }
 
     // Squad-board equivalent of the build select menu above (`render/board.ts`'s
     // `squadPreviewSelectRow`).
     if (interaction.data?.custom_id === BOARD_SQUAD_PREVIEW_CUSTOM_ID) {
-      const squadId = Number(interaction.data.values?.[0])
+      const squadId = Number(interaction.data.values?.[0]);
       if (!Number.isInteger(squadId)) {
-        return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized selection.', flags: EPHEMERAL } })
+        return json({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: { content: 'Unrecognized selection.', flags: EPHEMERAL },
+        });
       }
-      ctx.waitUntil(runBoardSquadPreview(env, interaction, squadId))
-      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
+      ctx.waitUntil(runBoardSquadPreview(env, interaction, squadId));
+      return json({
+        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { flags: EPHEMERAL },
+      });
     }
 
-    const parsed = parseDecisionCustomId(interaction.data?.custom_id ?? '')
+    const parsed = parseDecisionCustomId(interaction.data?.custom_id ?? '');
     if (!parsed) {
-      return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized button.', flags: EPHEMERAL } })
+      return json({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { content: 'Unrecognized button.', flags: EPHEMERAL },
+      });
     }
 
     // Load-bearing, not just UX — button visibility in Discord isn't restricted to a specific
@@ -101,21 +144,25 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
     // approval-workflow step 3). Checked synchronously here, before acking, so a rejected clicker
     // gets an immediate ephemeral reply that leaves the card (and its buttons) untouched for a
     // legitimate approver — only a real decision goes through the deferred apply path below.
-    const settings = await getGuildSettings(env, interaction.guild_id)
-    const approverRoleId = settings?.approver_role_id ?? null
-    const allowed = isAdministrator(interaction.member) || (approverRoleId !== null && interaction.member.roles.includes(approverRoleId))
+    const settings = await getGuildSettings(env, interaction.guild_id);
+    const approverRoleId = settings?.approver_role_id ?? null;
+    const allowed =
+      isAdministrator(interaction.member) ||
+      (approverRoleId !== null && interaction.member.roles.includes(approverRoleId));
     if (!allowed) {
       return json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: approverRoleId ? `You need the <@&${approverRoleId}> role to decide this.` : 'No approver role is configured for this server.',
-          flags: EPHEMERAL
-        }
-      })
+          content: approverRoleId
+            ? `You need the <@&${approverRoleId}> role to decide this.`
+            : 'No approver role is configured for this server.',
+          flags: EPHEMERAL,
+        },
+      });
     }
 
-    ctx.waitUntil(runApprovalDecision(env, interaction, parsed.requestId, parsed.decision))
-    return json({ type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE })
+    ctx.waitUntil(runApprovalDecision(env, interaction, parsed.requestId, parsed.decision));
+    return json({ type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE });
   }
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {
@@ -125,24 +172,24 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
     if (!interaction.guild_id || !interaction.member) {
       return json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: { content: 'This bot only works inside a server.', flags: EPHEMERAL }
-      })
+        data: { content: 'This bot only works inside a server.', flags: EPHEMERAL },
+      });
     }
 
-    const resolved = resolveHandler(interaction.data?.name ?? '', interaction.data?.options)
+    const resolved = resolveHandler(interaction.data?.name ?? '', interaction.data?.options);
     if (!resolved) {
       return json({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: { content: 'Unknown command.', flags: EPHEMERAL }
-      })
+        data: { content: 'Unknown command.', flags: EPHEMERAL },
+      });
     }
 
-    ctx.waitUntil(runCommand(env, interaction, resolved.handler, resolved.options))
+    ctx.waitUntil(runCommand(env, interaction, resolved.handler, resolved.options));
     return json({
       type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { flags: EPHEMERAL }
-    })
+      data: { flags: EPHEMERAL },
+    });
   }
 
-  return json({ error: 'unhandled_interaction_type' }, 400)
+  return json({ error: 'unhandled_interaction_type' }, 400);
 }

@@ -1,6 +1,10 @@
-import type { Build, Consumable, EquipmentSlotKey, Legend, Trait } from '../types'
-import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
-import { activeLegendAttributeTraitBonus, activeTraitIds, activeWeaponTypes } from './trait-attributes'
+import type { Build, Consumable, EquipmentSlotKey, Legend, Trait } from '../types';
+import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals';
+import {
+  activeLegendAttributeTraitBonus,
+  activeTraitIds,
+  activeWeaponTypes,
+} from './trait-attributes';
 
 /**
  * Ephemeral "what-if" combat inputs for the Stats panel — deliberately never persisted on `Build`
@@ -10,26 +14,26 @@ import { activeLegendAttributeTraitBonus, activeTraitIds, activeWeaponTypes } fr
  */
 export interface CombatState {
   /** 0-25 stacks. */
-  mightStacks: number
+  mightStacks: number;
   /** Gates every Fury-conditional trait bonus curated anywhere in this file (crit chance —
    *  `FURY_CRITICAL_CHANCE_TRAIT_BONUSES`; movement speed — `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`;
    *  outgoing damage — `FURY_DAMAGE_TRAIT_BONUSES`) — a real boon state, not a build choice, same
    *  "assume the condition is currently true" shape as `mechanicActive`/`relicActive`. */
-  furyActive: boolean
+  furyActive: boolean;
   /** Gates `REGENERATION_ATTRIBUTE_TRAIT_BONUSES` — mirrors `furyActive`'s shape/gating, one
    *  boolean per boon rather than a generalized "which boons are up" map, since only Regeneration
    *  and Quickness have any curated conditional trait bonus so far (see TODO.md's "Boon-gated flat
    *  bonuses" family). */
-  regenerationActive: boolean
+  regenerationActive: boolean;
   /** Gates `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — sibling to `regenerationActive` above. */
-  quicknessActive: boolean
+  quicknessActive: boolean;
   /** Gates `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` (currently just Brutal Momentum) — defaults to
    *  `true`, unlike every boolean above (which default `false`): endurance, like health
    *  (`healthTier`, also defaulted to its "full" tier), is the player's own passively-regenerating
    *  resource rather than an externally-granted boon, so "full" is the reasonable steady-state
    *  assumption a static build snapshot should start from — matches gw2skills.net's own default and
    *  a real in-game hero-panel check out of combat (both confirmed 2026-08-13). */
-  fullEnduranceActive: boolean
+  fullEnduranceActive: boolean;
   /** Gates `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES` — the "Shroud/stance-gated flat bonuses"
    *  family from TODO.md: whether the build's profession mechanic (Necromancer Shroud, Necromancer
    *  Scourge's active shade, Warrior Berserker's berserk mode, ...) is currently toggled on. One
@@ -38,13 +42,13 @@ export interface CombatState {
    *  traits key off each — a build only ever has one profession's mechanic to toggle at all, so
    *  `CombatStatePanel` only surfaces this control when a curated trait for the build's own
    *  profession actually exists. */
-  mechanicActive: boolean
+  mechanicActive: boolean;
   /** Gates `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — the "Revealed-state-gated flat bonuses" family from
    *  TODO.md (Thief only, currently just Revealed Training). Single boolean, same shape as
    *  `furyActive`/`mechanicActive`, even though only one profession has any curated Revealed-gated
    *  trait so far — `CombatStatePanel` only surfaces this control when the build has a curated
    *  trait for it chosen, same gating as `mechanicActive`. */
-  revealedActive: boolean
+  revealedActive: boolean;
   /** Gates `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` — the "Health-threshold-conditional flat
    *  bonuses" family from TODO.md, 8th and final leg of the conditional-trait-attribute-bonus sweep.
    *  A 3-way tier rather than a boolean (unlike every other family here) since the two curated
@@ -53,26 +57,26 @@ export interface CombatState {
    *  breakpoints are. Always meaningful (no "which trait is chosen" branch the way `mechanicActive`/
    *  `revealedActive` need one to pick an icon) since a tier is always selected, just defaults to
    *  full health. */
-  healthTier: HealthTier
+  healthTier: HealthTier;
   /** 0-25 stacks of whichever stacking sigil is equipped on either weapon set, if any — stacks
    *  persist across a weapon swap, unlike passive sigil bonuses, so this isn't gated to the active
    *  set — see `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
-  stackingSigilStacks: number
+  stackingSigilStacks: number;
   /** Only meaningful when the equipped relic has a curated entry in
    *  `CURATED_RELIC_DAMAGE_BONUSES` below. */
-  relicActive: boolean
+  relicActive: boolean;
   /** Assumed enemy armor class for the Damage tooltip row (see `damage-calc.ts`) — armor is the
    *  *target's* stat, not this build's, so it has no other home on a single-build editor and rides
    *  along with the other "what-if" combat inputs here. Same 3-tier convention gw2skills.net's own
    *  WvW golem toggle uses. */
-  targetArmorClass: TargetArmorClass
+  targetArmorClass: TargetArmorClass;
   /** 0-5 stacks of Kalla's Fervor, Revenant/Renegade's own stacking self-buff (2% strike damage, 2%
    *  condition damage, 2% life-steal damage per stack — 3%/3%/3% with Lasting Legacy chosen, see
    *  `kallaFervorPercentPerStack` below). Only meaningful/surfaced when the Renegade elite spec is
    *  equipped (`CombatStatePanel` gates its stepper on `RENEGADE_SPECIALIZATION_ID`), same shape as
    *  `stackingSigilStacks` (a build-conditional stepper) rather than a flat boolean like
    *  `furyActive` etc. */
-  kallaFervorStacks: number
+  kallaFervorStacks: number;
   /** 0-30 stacks of Death's Carapace, Necromancer/Death Magic's own stacking self-buff (+20
    *  Toughness per stack WvW/PvE, +10 PvP — see `DEATHS_CARAPACE_TOUGHNESS_PER_STACK`), granted by
    *  Death Magic's Armored Shroud (on Shroud entry, both auto-granted minors so always live once the
@@ -80,7 +84,7 @@ export interface CombatState {
    *  Major pick). Only meaningful/surfaced when Death Magic is equipped (`CombatStatePanel` gates its
    *  stepper on `DEATH_MAGIC_SPECIALIZATION_ID`), same shape as `kallaFervorStacks` (a
    *  build-conditional stepper) rather than a flat boolean. */
-  deathsCarapaceStacks: number
+  deathsCarapaceStacks: number;
   /** Manual count of the player's current total "points of upkeep" — Revenant/Herald's Rising
    *  Momentum (see `RISING_MOMENTUM_TRAIT_ID`) reads this. Unlike every other stepper above, this
    *  has no fixed real max: it's the sum of however many upkeep skills (Facets, Impossible Odds,
@@ -93,7 +97,7 @@ export interface CombatState {
    *  Only meaningful/surfaced when Rising Momentum is actually chosen (`CombatStatePanel` gates its
    *  input on `RISING_MOMENTUM_TRAIT_ID`, same pattern as `mechanicActive`/`revealedActive`'s
    *  single-trait gates). */
-  upkeepPoints: number
+  upkeepPoints: number;
   /** Gates `CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES` (currently just Lingering Light) — a
    *  real in-combat state (actually shapeshifted into Celestial Avatar form), not a build choice,
    *  same "assume the condition is currently true" shape as `furyActive`/`mechanicActive`.
@@ -101,12 +105,12 @@ export interface CombatState {
    *  entry there is display-only and doesn't gate boon/condition totals, per that field's own doc
    *  comment) — Lingering Light's bonus genuinely only applies while actually shapeshifted, so it
    *  needs its own toggle here instead. */
-  celestialAvatarActive: boolean
+  celestialAvatarActive: boolean;
   /** Gates `INVOKING_HARMONY_HEALING_PERCENT` — Invoking Harmony's bonus only lasts a short window
    *  after invoking a legend (wiki: 10s), not a steady-state passive, same "assume the proc window
    *  is currently up" shape as `relicActive`. Only meaningful/surfaced when Invoking Harmony
    *  (`INVOKING_HARMONY_TRAIT_ID`) is actually chosen. */
-  invokingHarmonyActive: boolean
+  invokingHarmonyActive: boolean;
   /** Gates Superior Sigil of the Night's (`SIGIL_OF_THE_NIGHT_ID`) additional +7% night-only damage
    *  share, on top of its own always-on 3% (see `CURATED_SIGIL_DAMAGE_BONUSES`) — a real Tyrian-
    *  time-of-day condition (wiki-verified 2026-08-22: active 21:00-5:00 Tyrian time, inactive during
@@ -115,7 +119,7 @@ export interface CombatState {
    *  "off by default" convention as `relicActive`/`invokingHarmonyActive` rather than the "assume
    *  full/passive resource" default `fullEnduranceActive`/`healthTier` use. Only meaningful/surfaced
    *  when Sigil of the Night is actually equipped on the active weapon set. */
-  nightActive: boolean
+  nightActive: boolean;
   /** Gates `RESOLUTION_DAMAGE_TRAIT_BONUSES` (currently just Guardian/Radiance's Retribution) — a
    *  real boon state, not a build choice, same "assume the condition is currently true" shape as
    *  `furyActive`. Unlike `furyActive`/`regenerationActive`/`quicknessActive` (unconditionally
@@ -123,7 +127,7 @@ export interface CombatState {
    *  Resolution only has this one curated candidate so far, so it follows the newer "only surfaced
    *  when a curated trait for it is actually chosen" pattern instead — same as `celestialAvatarActive`/
    *  `invokingHarmonyActive`. */
-  resolutionActive: boolean
+  resolutionActive: boolean;
   /** Manual count of how many boons are currently active on the player — gates `PER_BOON_DAMAGE_
    *  TRAIT_BONUSES` (currently Guardian/Virtues' Inspired Virtue and Warrior/Tactics' Empowered).
    *  This app has no general "which boons are up" tracking (see `regenerationActive`'s doc comment
@@ -133,27 +137,27 @@ export interface CombatState {
    *  trait is actually chosen, same gating as `upkeepPoints`/`celestialAvatarActive`. No fixed real
    *  max (a full boon bar is commonly 8-10+ boons in a support-heavy WvW squad), so — like
    *  `upkeepPoints` — this is a raw number input, not a dropdown. */
-  activeBoonCount: number
+  activeBoonCount: number;
   /** Gates `SWIFTNESS_DAMAGE_TRAIT_BONUSES` (currently just Warrior/Discipline's Warrior's Sprint)
    *  — a real boon state, not a build choice, same "assume the condition is currently true" shape
    *  as `furyActive`/`resolutionActive`. Only one curated candidate so far, so it follows the newer
    *  "only surfaced when a curated trait for it is actually chosen" pattern — same as
    *  `resolutionActive`/`celestialAvatarActive`. */
-  swiftnessActive: boolean
+  swiftnessActive: boolean;
   /** Gates `STABILITY_DAMAGE_TRAIT_BONUSES` (currently just Warrior/Defense's Stalwart Strength) —
    *  same shape/reasoning as `swiftnessActive` above, one boon, one curated candidate so far. */
-  stabilityActive: boolean
+  stabilityActive: boolean;
   /** Gates `AEGIS_DAMAGE_TRAIT_BONUSES` (currently just Guardian/Virtues' Unscathed Contender) —
    *  same shape/reasoning as `swiftnessActive`/`stabilityActive` above. */
-  aegisActive: boolean
+  aegisActive: boolean;
   /** Gates `VIGOR_DAMAGE_TRAIT_BONUSES` (currently just Engineer/Tools' Excessive Energy) — a real
    *  boon state, not a build choice, same shape/reasoning as `swiftnessActive`/`stabilityActive`/
    *  `aegisActive` above (one boon, one curated candidate so far, "off by default"). */
-  vigorActive: boolean
+  vigorActive: boolean;
   /** Gates `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES` (currently just Galeshot's Bird of Prey,
    *  ORed together with `swiftnessActive`) — a real boon state, not a build choice, same shape/
    *  reasoning as `swiftnessActive`/`stabilityActive`/`aegisActive`/`vigorActive` above. */
-  superspeedActive: boolean
+  superspeedActive: boolean;
   /** Gates Revenant/Conduit's Bolstered Bonds (id 2331, see `LEGEND_ATTRIBUTE_TRAIT_BONUSES` in
    *  `trait-attributes.ts`) doubling its own per-legend attribute bonus — Cosmic Wisdom (Conduit's
    *  own Profession_3 mechanic skill, id 77371) is a short (7s per its own wiki description) timed
@@ -161,7 +165,7 @@ export interface CombatState {
    *  `invokingHarmonyActive`/`relicActive`. Only meaningful/surfaced when Bolstered Bonds is
    *  actually chosen (`CombatStatePanel` gates its toggle the same way `invokingHarmonyActive`
    *  gates on Invoking Harmony being chosen). */
-  cosmicWisdomActive: boolean
+  cosmicWisdomActive: boolean;
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -189,17 +193,17 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   aegisActive: false,
   vigorActive: false,
   superspeedActive: false,
-  cosmicWisdomActive: false
-}
+  cosmicWisdomActive: false,
+};
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
-export const MIGHT_POWER_PER_STACK = 34
-export const MIGHT_CONDITION_DAMAGE_PER_STACK = 34
+export const MIGHT_POWER_PER_STACK = 34;
+export const MIGHT_CONDITION_DAMAGE_PER_STACK = 34;
 
 /** Revenant/Renegade's elite-spec trait line — gates `CombatStatePanel`'s Kalla's Fervor stepper
  *  (also happens to be the same id Revenant/Shortbow's `specializationId` requires, since both are
  *  Renegade-gated; unrelated to this constant's own use here). */
-export const RENEGADE_SPECIALIZATION_ID = 63
+export const RENEGADE_SPECIALIZATION_ID = 63;
 
 /**
  * Kalla's Fervor (Revenant/Renegade's stacking self-buff, max 5 stacks) — wiki-verified via raw
@@ -211,10 +215,10 @@ export const RENEGADE_SPECIALIZATION_ID = 63
  * damage gets its own `DerivedStats.outgoingConditionDamagePercent` sibling field (distinct from the
  * raw `ConditionDamage` attribute total).
  */
-export const KALLA_FERVOR_MAX_STACKS = 5
-export const KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK = 2
-export const KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK = 2
-export const KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK = 2
+export const KALLA_FERVOR_MAX_STACKS = 5;
+export const KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK = 2;
+export const KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK = 2;
+export const KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK = 2;
 
 /**
  * Renegade/Grandmaster major trait "Lasting Legacy" (id 2100) upgrades Kalla's Fervor to "Improved
@@ -227,15 +231,15 @@ export const KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK = 2
  * tracked. Heroic Command's separate "grants more might per stack" clause is its own skill-tooltip
  * Buff fact (already rendered via `boonConditionFactsForTrait`), not part of this per-stack-%% math.
  */
-export const LASTING_LEGACY_TRAIT_ID = 2100
-export const KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK = 3
-export const KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK = 3
-export const KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK = 3
+export const LASTING_LEGACY_TRAIT_ID = 2100;
+export const KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK = 3;
+export const KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK = 3;
+export const KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK = 3;
 
 export interface KallaFervorPercentPerStack {
-  strikeDamage: number
-  conditionDamage: number
-  lifeSteal: number
+  strikeDamage: number;
+  conditionDamage: number;
+  lifeSteal: number;
   /** Righteous Rebel's own outgoing-healing-to-others bonus while Kalla's Fervor is active — unlike
    *  the 3 fields above (which scale *per stack*), this is a flat value applied once whenever
    *  `CombatState.kallaFervorStacks > 0`, not multiplied by the stack count (user-caught 2026-08-22:
@@ -248,10 +252,10 @@ export interface KallaFervorPercentPerStack {
    *  own baseline. Not affected by Lasting Legacy's upgrade (a different GM-tier pick in the same
    *  line — wiki gives no evidence the two interact). See `resolveOutgoingHealingPercent`'s own use
    *  of this field for the flat (not `stacks *`) application. */
-  outgoingHealing: number
+  outgoingHealing: number;
   /** Whether Lasting Legacy's upgraded per-stack values are the ones being returned — surfaced so
    *  `CombatStatePanel` can label its stepper accordingly. */
-  improved: boolean
+  improved: boolean;
 }
 
 /** Renegade/Grandmaster major trait "Righteous Rebel" (id 2182) — wiki-verified via raw wikitext
@@ -262,32 +266,37 @@ export interface KallaFervorPercentPerStack {
  *  this one's genuinely different, flat one). Mutually exclusive with Lasting Legacy (same GM tier,
  *  same Renegade line), so a build never has both — `kallaFervorPercentPerStack` gates this
  *  independently of the `improved` flag regardless. */
-export const RIGHTEOUS_REBEL_TRAIT_ID = 2182
-export const RIGHTEOUS_REBEL_HEALING_PERCENT = 4
+export const RIGHTEOUS_REBEL_TRAIT_ID = 2182;
+export const RIGHTEOUS_REBEL_HEALING_PERCENT = 4;
 
 /** Resolves Kalla's Fervor's actual per-stack %-per-stat, upgraded by Lasting Legacy when it's
  *  chosen — mirrors `mightStackAttributeTraitBonus`'s "check `activeTraitIds` once" convention, but
  *  a straight override rather than an additive bonus (Lasting Legacy replaces the base 2%/2%/2%
  *  with 3%/3%/3%, it doesn't stack on top of it). */
-export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number, Trait>): KallaFervorPercentPerStack {
-  const active = activeTraitIds(build, traitsById)
-  const improved = active.has(LASTING_LEGACY_TRAIT_ID)
-  const outgoingHealing = active.has(RIGHTEOUS_REBEL_TRAIT_ID) ? RIGHTEOUS_REBEL_HEALING_PERCENT : 0
+export function kallaFervorPercentPerStack(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): KallaFervorPercentPerStack {
+  const active = activeTraitIds(build, traitsById);
+  const improved = active.has(LASTING_LEGACY_TRAIT_ID);
+  const outgoingHealing = active.has(RIGHTEOUS_REBEL_TRAIT_ID)
+    ? RIGHTEOUS_REBEL_HEALING_PERCENT
+    : 0;
   return improved
     ? {
         strikeDamage: KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK,
         conditionDamage: KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK,
         lifeSteal: KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK,
         outgoingHealing,
-        improved: true
+        improved: true,
       }
     : {
         strikeDamage: KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
         conditionDamage: KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
         lifeSteal: KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
         outgoingHealing,
-        improved: false
-      }
+        improved: false,
+      };
 }
 
 /**
@@ -311,14 +320,14 @@ export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number,
  * stacks actually accumulate mid-fight is exactly what the manual `deathsCarapaceStacks` stepper
  * exists to sidestep, same reasoning `kallaFervorStacks` above already documents.
  */
-export const DEATHS_CARAPACE_MAX_STACKS = 30
-export const DEATHS_CARAPACE_TOUGHNESS_PER_STACK = 20 // WvW/PvE value; PvP is 10
+export const DEATHS_CARAPACE_MAX_STACKS = 30;
+export const DEATHS_CARAPACE_TOUGHNESS_PER_STACK = 20; // WvW/PvE value; PvP is 10
 
 /** Death Magic (Necromancer core spec) — gates `CombatStatePanel`'s Carapace stepper, mirrors
  *  `RENEGADE_SPECIALIZATION_ID`'s role for `kallaFervorStacks` above: Death's Carapace can't exist on
  *  a build without this line equipped (both granting minors live here), so there's no reason to show
  *  the stepper otherwise. */
-export const DEATH_MAGIC_SPECIALIZATION_ID = 2
+export const DEATH_MAGIC_SPECIALIZATION_ID = 2;
 
 /**
  * Trait id -> extra flat attribute points (by target) granted per stack of Death's Carapace — Deadly
@@ -332,8 +341,8 @@ export const DEATH_MAGIC_SPECIALIZATION_ID = 2
  * since `activeTraitIds` already only ever contains the one actually chosen.
  */
 export const DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
-  855: { Power: 10, ConditionDamage: 10 } // Deadly Strength (Necromancer/Death Magic, Major tier 2)
-}
+  855: { Power: 10, ConditionDamage: 10 }, // Deadly Strength (Necromancer/Death Magic, Major tier 2)
+};
 
 /**
  * Resolves the baseline Toughness grant plus any curated Deadly-Strength-shaped per-stack trait
@@ -342,16 +351,21 @@ export const DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<stri
  * one function since — unlike Might, which every profession can have — nothing else in this file
  * ever needs Death's Carapace's baseline alone).
  */
-export function deathsCarapaceAttributePoints(build: Build, stacks: number, traitsById: Map<number, Trait>): Record<string, number> {
-  const bonus: Record<string, number> = {}
-  if (stacks <= 0) return bonus
-  bonus.Toughness = stacks * DEATHS_CARAPACE_TOUGHNESS_PER_STACK
-  const active = activeTraitIds(build, traitsById)
+export function deathsCarapaceAttributePoints(
+  build: Build,
+  stacks: number,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const bonus: Record<string, number> = {};
+  if (stacks <= 0) return bonus;
+  bonus.Toughness = stacks * DEATHS_CARAPACE_TOUGHNESS_PER_STACK;
+  const active = activeTraitIds(build, traitsById);
   for (const [traitIdText, targets] of Object.entries(DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    for (const [target, valuePerStack] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + valuePerStack * stacks
+    if (!active.has(Number(traitIdText))) continue;
+    for (const [target, valuePerStack] of Object.entries(targets))
+      bonus[target] = (bonus[target] ?? 0) + valuePerStack * stacks;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -369,17 +383,21 @@ export function deathsCarapaceAttributePoints(build: Build, stacks: number, trai
  * bonus targets movement speed rather than an attribute/crit-chance/%-damage stat — `DerivedStats.
  * movementSpeedPercent` is its own new, first-of-its-kind field for that reason.
  */
-export const RISING_MOMENTUM_TRAIT_ID = 1716
-export const RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT = 5
+export const RISING_MOMENTUM_TRAIT_ID = 1716;
+export const RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT = 5;
 
 /**
  * Resolves Rising Momentum's movement-speed bonus for the given `upkeepPoints` count — 0 unless
  * the trait is actually chosen (mirrors `fullEnduranceCritChanceTraitBonus`'s single-trait gating
  * shape), then a flat multiple of `upkeepPoints` with no threshold or cap of its own.
  */
-export function risingMomentumMovementSpeedPercent(build: Build, upkeepPoints: number, traitsById: Map<number, Trait>): number {
-  if (!activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)) return 0
-  return upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT
+export function risingMomentumMovementSpeedPercent(
+  build: Build,
+  upkeepPoints: number,
+  traitsById: Map<number, Trait>,
+): number {
+  if (!activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)) return 0;
+  return upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT;
 }
 
 /**
@@ -413,8 +431,8 @@ export function risingMomentumMovementSpeedPercent(build: Build, upkeepPoints: n
 export const FLAT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
   1859: 25, // Time Marches On (Mesmer, Chronomancer, Minor)
   2222: 25, // Righteous Sprint (Guardian, Willbender, Minor)
-  2341: 25 // Jetstream (Ranger, Galeshot, Minor)
-}
+  2341: 25, // Jetstream (Ranger, Galeshot, Minor)
+};
 
 /** Trait id -> movement-speed-% gated on a specific attunement — Zephyr's Speed (Elementalist/Air,
  *  Minor, id 221): "While attuned to air, your movement speed is also increased" (its own
@@ -422,17 +440,20 @@ export const FLAT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
  *  Wiki-verified via raw wikitext 2026-08-20, no game-mode split. Reuses `Build.activeAttunement`
  *  directly, same reuse `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES` above already
  *  documents — no new state needed. */
-export const ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, { percent: number; attunement: 'Fire' | 'Water' | 'Air' | 'Earth' }> = {
-  221: { percent: 25, attunement: 'Air' } // Zephyr's Speed (Elementalist, Air, Minor)
-}
+export const ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<
+  number,
+  { percent: number; attunement: 'Fire' | 'Water' | 'Air' | 'Earth' }
+> = {
+  221: { percent: 25, attunement: 'Air' }, // Zephyr's Speed (Elementalist, Air, Minor)
+};
 
 /** Trait id -> movement-speed-% gated on Fury being up — Furious Focus (Guardian/Zeal, Major, id
  *  2017): "Your strike damage and movement speed are increased while you have fury" (its Damage
  *  Increase half is a separate fact, out of scope here). Wiki-verified via raw wikitext 2026-08-20,
  *  no game-mode split. Reuses `CombatState.furyActive`. */
 export const FURY_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
-  2017: 33 // Furious Focus (Guardian, Zeal, Major)
-}
+  2017: 33, // Furious Focus (Guardian, Zeal, Major)
+};
 
 /** Trait id -> movement-speed-% gated on Quickness being up — Aggressive Onslaught (Warrior/
  *  Strength, Major, id 1440): "While you have quickness, your movement speed is increased" (its
@@ -440,8 +461,8 @@ export const FURY_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
  *  Wiki-verified via raw wikitext 2026-08-20, no game-mode split. Reuses
  *  `CombatState.quicknessActive`. */
 export const QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
-  1440: 33 // Aggressive Onslaught (Warrior, Strength, Major)
-}
+  1440: 33, // Aggressive Onslaught (Warrior, Strength, Major)
+};
 
 /** Trait id -> movement-speed-% gated on wielding a melee weapon — Warrior's Sprint (Warrior/
  *  Discipline, Major, id 1413): "Run faster while wielding melee weapons" (its Swiftness-strike-
@@ -453,12 +474,28 @@ export const QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
  *  harmlessly included below rather than hand-trimmed). Reuses `activeWeaponTypes` (exported from
  *  `trait-attributes.ts` for this purpose), the same "either hand, active set only" gating
  *  `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES` already uses. */
-export const MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, { percent: number; weaponTypes: string[] }> = {
+export const MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES: Record<
+  number,
+  { percent: number; weaponTypes: string[] }
+> = {
   1413: {
     percent: 25,
-    weaponTypes: ['Axe', 'Dagger', 'Mace', 'Sword', 'Pistol', 'Shield', 'Torch', 'Warhorn', 'Greatsword', 'Hammer', 'Staff', 'Spear']
-  } // Warrior's Sprint (Warrior, Discipline, Major)
-}
+    weaponTypes: [
+      'Axe',
+      'Dagger',
+      'Mace',
+      'Sword',
+      'Pistol',
+      'Shield',
+      'Torch',
+      'Warhorn',
+      'Greatsword',
+      'Hammer',
+      'Staff',
+      'Spear',
+    ],
+  }, // Warrior's Sprint (Warrior, Discipline, Major)
+};
 
 /** Relic id -> movement-speed-% granted while `CombatState.relicActive` is on — the same generic
  *  "assume the relic's own condition/proc is currently satisfied" toggle `CURATED_RELIC_DAMAGE_
@@ -470,8 +507,8 @@ export const MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, { percent
  *  `gw2squaded-claude-code-prompt.md`), no game-mode split. The relic's own combat-entry Superspeed
  *  burst is a transient proc, out of scope per this section's own doc comment. */
 export const CURATED_RELIC_MOVEMENT_SPEED_BONUSES: Record<number, number> = {
-  101943: 25 // Relic of the Wayfinder
-}
+  101943: 25, // Relic of the Wayfinder
+};
 
 /**
  * Trait id -> the resulting movement-speed-% while Swiftness is active, for traits that make
@@ -495,8 +532,8 @@ export const CURATED_RELIC_MOVEMENT_SPEED_BONUSES: Record<number, number> = {
  */
 export const SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
   2165: 39.6, // Elemental Pursuit (Elementalist, Weaver, Major)
-  2363: 39.6 // Bird of Prey (Ranger, Galeshot, Minor)
-}
+  2363: 39.6, // Bird of Prey (Ranger, Galeshot, Minor)
+};
 
 /**
  * Resolves the single "highest value wins" movement-speed-% slot from every curated non-additive
@@ -511,47 +548,58 @@ export function resolveMovementSpeedPercent(
   build: Build,
   combatState: CombatState,
   gearMovementSpeedPercent: number,
-  traitsById: Map<number, Trait>
+  traitsById: Map<number, Trait>,
 ): number {
-  const active = activeTraitIds(build, traitsById)
-  const candidates = [gearMovementSpeedPercent]
+  const active = activeTraitIds(build, traitsById);
+  const candidates = [gearMovementSpeedPercent];
 
   for (const [traitIdText, percent] of Object.entries(FLAT_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) candidates.push(percent)
+    if (active.has(Number(traitIdText))) candidates.push(percent);
   }
-  for (const [traitIdText, { percent, attunement }] of Object.entries(ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText)) && build.activeAttunement === attunement) candidates.push(percent)
+  for (const [traitIdText, { percent, attunement }] of Object.entries(
+    ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES,
+  )) {
+    if (active.has(Number(traitIdText)) && build.activeAttunement === attunement)
+      candidates.push(percent);
   }
   if (combatState.furyActive) {
     for (const [traitIdText, percent] of Object.entries(FURY_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) candidates.push(percent)
+      if (active.has(Number(traitIdText))) candidates.push(percent);
     }
   }
   if (combatState.quicknessActive) {
     for (const [traitIdText, percent] of Object.entries(QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) candidates.push(percent)
+      if (active.has(Number(traitIdText))) candidates.push(percent);
     }
   }
   if (combatState.swiftnessActive) {
-    for (const [traitIdText, percent] of Object.entries(SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) candidates.push(percent)
+    for (const [traitIdText, percent] of Object.entries(
+      SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES,
+    )) {
+      if (active.has(Number(traitIdText))) candidates.push(percent);
     }
   }
-  const equippedWeaponTypes = activeWeaponTypes(build)
-  for (const [traitIdText, { percent, weaponTypes }] of Object.entries(MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText)) && weaponTypes.some((w) => equippedWeaponTypes.has(w))) candidates.push(percent)
+  const equippedWeaponTypes = activeWeaponTypes(build);
+  for (const [traitIdText, { percent, weaponTypes }] of Object.entries(
+    MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES,
+  )) {
+    if (active.has(Number(traitIdText)) && weaponTypes.some((w) => equippedWeaponTypes.has(w)))
+      candidates.push(percent);
   }
   if (combatState.relicActive && build.relicId !== null) {
-    const relicBonus = CURATED_RELIC_MOVEMENT_SPEED_BONUSES[build.relicId]
-    if (relicBonus !== undefined) candidates.push(relicBonus)
+    const relicBonus = CURATED_RELIC_MOVEMENT_SPEED_BONUSES[build.relicId];
+    if (relicBonus !== undefined) candidates.push(relicBonus);
   }
 
-  return Math.max(...candidates) + risingMomentumMovementSpeedPercent(build, combatState.upkeepPoints, traitsById)
+  return (
+    Math.max(...candidates) +
+    risingMomentumMovementSpeedPercent(build, combatState.upkeepPoints, traitsById)
+  );
 }
 
-export const FURY_CRITICAL_CHANCE_PERCENT = 20
+export const FURY_CRITICAL_CHANCE_PERCENT = 20;
 
-export type TargetArmorClass = 'Light' | 'Medium' | 'Heavy'
+export type TargetArmorClass = 'Light' | 'Medium' | 'Heavy';
 
 /** gw2skills.net's own WvW golem armor values, quoted directly per the user's spec rather than
  *  re-derived — this app has no independent source for "typical WvW target armor" the way skill
@@ -559,15 +607,15 @@ export type TargetArmorClass = 'Light' | 'Medium' | 'Heavy'
 export const TARGET_ARMOR_VALUES: Record<TargetArmorClass, number> = {
   Light: 2000,
   Medium: 2200,
-  Heavy: 2681
-}
+  Heavy: 2681,
+};
 
-const ALL_STATS = 'AllStats' as const
+const ALL_STATS = 'AllStats' as const;
 /** Sentinel `STACKING_SIGILS` attribute for Superior Sigil of Benevolence — its per-kill charge
  *  grants outgoing-healing-%-to-others, not a core `AttributeTotals` point, so `combatStatePoints`
  *  below deliberately skips adding it there; `stackingSigilOutgoingHealingPercent` reads it
  *  directly instead. Mirrors `ALL_STATS`'s role as a non-literal-attribute marker. */
-const OUTGOING_HEALING_PERCENT = 'OutgoingHealingPercent' as const
+const OUTGOING_HEALING_PERCENT = 'OutgoingHealingPercent' as const;
 
 /**
  * The 8 sigils whose description matches "Gain a charge of +X <attribute> each time you kill a
@@ -576,7 +624,14 @@ const OUTGOING_HEALING_PERCENT = 'OutgoingHealingPercent' as const
  * used throughout gear-calc (see attribute-totals.ts), except `AllStats`, a sentinel this module
  * expands to all 9 core attributes (Superior Sigil of the Stars' "+2 to all stats" wording).
  */
-export const STACKING_SIGILS: Record<number, { name: string; attribute: string | typeof ALL_STATS | typeof OUTGOING_HEALING_PERCENT; perStack: number }> = {
+export const STACKING_SIGILS: Record<
+  number,
+  {
+    name: string;
+    attribute: string | typeof ALL_STATS | typeof OUTGOING_HEALING_PERCENT;
+    perStack: number;
+  }
+> = {
   24575: { name: 'Superior Sigil of Bloodlust', attribute: 'Power', perStack: 10 },
   24578: { name: 'Superior Sigil of Corruption', attribute: 'ConditionDamage', perStack: 10 },
   24580: { name: 'Superior Sigil of Perception', attribute: 'Precision', perStack: 10 },
@@ -591,8 +646,12 @@ export const STACKING_SIGILS: Record<number, { name: string; attribute: string |
   // active at a time.)" — that last clause is the same mutual-exclusivity rule the other 8 entries
   // here already share, confirming this belongs in the same family/field despite its payout being
   // a %-effectiveness rather than a core attribute (see `OUTGOING_HEALING_PERCENT`'s doc comment).
-  24584: { name: 'Superior Sigil of Benevolence', attribute: OUTGOING_HEALING_PERCENT, perStack: 0.5 }
-}
+  24584: {
+    name: 'Superior Sigil of Benevolence',
+    attribute: OUTGOING_HEALING_PERCENT,
+    perStack: 0.5,
+  },
+};
 
 /**
  * Relic ids whose full proc is a flat outgoing-strike-damage-% bonus while active, gated on
@@ -625,8 +684,8 @@ export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
   104241: 10, // Relic of the Eagle — +10% strike damage to enemies below a 50% health threshold
   104501: 10, // Relic of Fire — Fire Aura from a heal skill grants +10% outgoing strike damage (WvW/PvP value, PvE is 7%)
   104800: 10, // Relic of Bloodstone — "Bloodstone Fervor" window from a combo-field blast, +10% strike damage (WvW/PvP value, PvE is 7%)
-  109351: 10 // Relic of the Director — after a heal skill, +10% strike damage to vulnerable foes for a duration
-}
+  109351: 10, // Relic of the Director — after a heal skill, +10% strike damage to vulnerable foes for a duration
+};
 
 /**
  * Relic id -> flat outgoing-condition-damage-% bonus while `CombatState.relicActive` is on — first/
@@ -636,8 +695,8 @@ export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
  * WvW/PvP value (25% PvE).
  */
 export const CURATED_RELIC_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
-  101191: 15 // Relic of Nourys — WvW/PvP value
-}
+  101191: 15, // Relic of Nourys — WvW/PvP value
+};
 
 /**
  * Relic id -> flat attribute-*point* bonus while `CombatState.relicActive` is on, added directly
@@ -656,8 +715,8 @@ export const CURATED_RELIC_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
  */
 export const CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES: Record<number, Record<string, number>> = {
   100219: { BoonDuration: 250 }, // Relic of the Herald — 25 Concentration/stack x 10 stacks
-  104424: { ConditionDamage: 500 } // Relic of Thorns — 50 Condition Damage/stack (WvW/PvP) x 10 stacks
-}
+  104424: { ConditionDamage: 500 }, // Relic of Thorns — 50 Condition Damage/stack (WvW/PvP) x 10 stacks
+};
 
 /**
  * Relic id -> flat Boon/Condition Duration *percent* bonus while `CombatState.relicActive` is on —
@@ -675,11 +734,14 @@ export const CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES: Record<number, Record<string,
  * - Relic of the Firebrand (100453): "Upon using the final charge of a mantra skill, gain increased
  *   boon duration" — flat +20% (non-stacking, 4s duration). No game-mode split documented.
  */
-export const CURATED_RELIC_DURATION_PERCENT_BONUSES: Record<number, { boonDuration?: number; conditionDuration?: number }> = {
+export const CURATED_RELIC_DURATION_PERCENT_BONUSES: Record<
+  number,
+  { boonDuration?: number; conditionDuration?: number }
+> = {
   100368: { conditionDuration: 15 }, // Relic of the Scourge — 1.5%/stack x 10 stacks
   100849: { conditionDuration: 15 }, // Relic of the Aristocracy — 3%/stack x 5 stacks
-  100453: { boonDuration: 20 } // Relic of the Firebrand — flat, non-stacking
-}
+  100453: { boonDuration: 20 }, // Relic of the Firebrand — flat, non-stacking
+};
 
 /** `CURATED_RELIC_DURATION_PERCENT_BONUSES`'s resolver — `derived-stats.ts`'s
  *  `computeCharacterStats` adds this directly onto `totals.bonusPercent` before calling
@@ -689,10 +751,17 @@ export const CURATED_RELIC_DURATION_PERCENT_BONUSES: Record<number, { boonDurati
  *  gear-only helper `SkillsEditor.tsx`/`TraitsEditor.tsx` use for tooltip display) since that
  *  helper has no `CombatState` access and, same as every other combat-state-gated point/percent
  *  source in this file, is intentionally excluded from those simpler tooltip-only contexts. */
-export function resolveRelicDurationPercentBonus(build: Build, combatState: CombatState): { boonDuration: number; conditionDuration: number } {
-  if (!combatState.relicActive || build.relicId === null) return { boonDuration: 0, conditionDuration: 0 }
-  const bonus = CURATED_RELIC_DURATION_PERCENT_BONUSES[build.relicId]
-  return { boonDuration: bonus?.boonDuration ?? 0, conditionDuration: bonus?.conditionDuration ?? 0 }
+export function resolveRelicDurationPercentBonus(
+  build: Build,
+  combatState: CombatState,
+): { boonDuration: number; conditionDuration: number } {
+  if (!combatState.relicActive || build.relicId === null)
+    return { boonDuration: 0, conditionDuration: 0 };
+  const bonus = CURATED_RELIC_DURATION_PERCENT_BONUSES[build.relicId];
+  return {
+    boonDuration: bonus?.boonDuration ?? 0,
+    conditionDuration: bonus?.conditionDuration ?? 0,
+  };
 }
 
 /**
@@ -702,12 +771,12 @@ export function resolveRelicDurationPercentBonus(build: Build, combatState: Comb
  * (non-stacking, 8s duration). No game-mode split documented.
  */
 export const CURATED_RELIC_CRIT_CHANCE_BONUSES: Record<number, number> = {
-  106355: 10 // Relic of the Scoundrel
-}
+  106355: 10, // Relic of the Scoundrel
+};
 
 export function curatedRelicCritChanceBonus(build: Build, combatState: CombatState): number {
-  if (!combatState.relicActive || build.relicId === null) return 0
-  return CURATED_RELIC_CRIT_CHANCE_BONUSES[build.relicId] ?? 0
+  if (!combatState.relicActive || build.relicId === null) return 0;
+  return CURATED_RELIC_CRIT_CHANCE_BONUSES[build.relicId] ?? 0;
 }
 
 /** Superior Sigil of Force (24615) — wiki-verified 2026-08-21 (see TODO.md): flat +5% outgoing
@@ -718,8 +787,8 @@ export function curatedRelicCritChanceBonus(build: Build, combatState: CombatSta
  *  wiki-confirmed "Does not affect Condition Damage and Life stealing," which needs no special
  *  handling here since this app already tracks strike/condition damage as separate `DerivedStats`
  *  fields and has no life-steal-%-from-sigils source anywhere. */
-export const SIGIL_OF_FORCE_ID = 24615
-export const SIGIL_OF_FORCE_DAMAGE_PERCENT = 5
+export const SIGIL_OF_FORCE_ID = 24615;
+export const SIGIL_OF_FORCE_DAMAGE_PERCENT = 5;
 
 /** Superior Sigil of the Night (36053) — wiki-verified 2026-08-22: "Outgoing damage is increased by
  *  3% with an additional 7% at night" (10% total during the night stage, 3% otherwise), explicitly
@@ -727,9 +796,9 @@ export const SIGIL_OF_FORCE_DAMAGE_PERCENT = 5
  *  BONUSES` below (so it doubles per slot like every other unconditional sigil bonus); the
  *  conditional +7% is added separately here, gated on `CombatState.nightActive`, and doubles per
  *  slot the same way (no "does not stack" clause found for this sigil, unlike Sigil of Force). */
-export const SIGIL_OF_THE_NIGHT_ID = 36053
-export const SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT = 3
-export const SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT = 7
+export const SIGIL_OF_THE_NIGHT_ID = 36053;
+export const SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT = 3;
+export const SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT = 7;
 
 /**
  * Sigil id -> flat outgoing-strike-damage-% bonus while equipped on the active weapon set, doubling
@@ -765,26 +834,27 @@ export const CURATED_SIGIL_DAMAGE_BONUSES: Record<number, number> = {
   37912: 3, // Superior Sigil of Karka Slaying
   91339: 3, // Superior Sigil of Hologram Slaying
   24868: 3, // Superior Sigil of Impact — unconditional baseline only, see doc comment above
-  36053: SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT // Superior Sigil of the Night — always-on share
-}
+  36053: SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT, // Superior Sigil of the Night — always-on share
+};
 
 function curatedSigilDamagePercent(build: Build, combatState: CombatState): number {
-  let total = 0
-  let forceEquipped = false
+  let total = 0;
+  let forceEquipped = false;
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!isActiveWeaponSlot(slotKey, build)) continue
+    if (!isActiveWeaponSlot(slotKey, build)) continue;
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId === null) continue
+      if (sigilId === null) continue;
       if (sigilId === SIGIL_OF_FORCE_ID) {
-        forceEquipped = true
-        continue
+        forceEquipped = true;
+        continue;
       }
-      total += CURATED_SIGIL_DAMAGE_BONUSES[sigilId] ?? 0
-      if (sigilId === SIGIL_OF_THE_NIGHT_ID && combatState.nightActive) total += SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT
+      total += CURATED_SIGIL_DAMAGE_BONUSES[sigilId] ?? 0;
+      if (sigilId === SIGIL_OF_THE_NIGHT_ID && combatState.nightActive)
+        total += SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT;
     }
   }
-  if (forceEquipped) total += SIGIL_OF_FORCE_DAMAGE_PERCENT
-  return total
+  if (forceEquipped) total += SIGIL_OF_FORCE_DAMAGE_PERCENT;
+  return total;
 }
 
 /** True while Sigil of the Night is equipped on the active weapon set — gates `CombatStatePanel`'s
@@ -792,12 +862,12 @@ function curatedSigilDamagePercent(build: Build, combatState: CombatState): numb
  *  control here uses. */
 export function hasSigilOfTheNightEquipped(build: Build): boolean {
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!isActiveWeaponSlot(slotKey, build)) continue
+    if (!isActiveWeaponSlot(slotKey, build)) continue;
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId === SIGIL_OF_THE_NIGHT_ID) return true
+      if (sigilId === SIGIL_OF_THE_NIGHT_ID) return true;
     }
   }
-  return false
+  return false;
 }
 
 /** Superior Sigil of Bursting (44944) — wiki-verified 2026-08-22: "+5% Condition Damage," and per
@@ -806,19 +876,19 @@ export function hasSigilOfTheNightEquipped(build: Build): boolean {
  *  not the core attribute totals. No "does not stack" clause found, so it doubles per equipped slot
  *  like every other unconditional sigil bonus. */
 export const CURATED_SIGIL_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
-  44944: 5 // Superior Sigil of Bursting
-}
+  44944: 5, // Superior Sigil of Bursting
+};
 
 function curatedSigilConditionDamagePercent(build: Build): number {
-  let total = 0
+  let total = 0;
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!isActiveWeaponSlot(slotKey, build)) continue
+    if (!isActiveWeaponSlot(slotKey, build)) continue;
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId === null) continue
-      total += CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[sigilId] ?? 0
+      if (sigilId === null) continue;
+      total += CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[sigilId] ?? 0;
     }
   }
-  return total
+  return total;
 }
 
 /**
@@ -1116,8 +1186,8 @@ function curatedSigilConditionDamagePercent(build: Build): number {
 export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   2017: 7, // Furious Focus (Guardian, Zeal, Major)
   2156: 7, // Furious Strength (Ranger, Soulbeast, Minor)
-  1758: 7 // Ferocious Aggression (Revenant, Invocation, Minor)
-}
+  1758: 7, // Ferocious Aggression (Revenant, Invocation, Minor)
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Resolution is active — gated on
@@ -1131,8 +1201,8 @@ export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  */
 export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   565: 10, // Retribution (Guardian, Radiance, Major)
-  1779: 10 // Vicious Reprisal (Revenant, Retribution, Major)
-}
+  1779: 10, // Vicious Reprisal (Revenant, Retribution, Major)
+};
 
 /**
  * Trait id -> outgoing-strike-damage-% granted per active boon on self — multiplied by
@@ -1162,8 +1232,8 @@ export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   621: 1, // Inspired Virtue (Guardian, Virtues, Minor)
   1485: 1, // Empowered (Warrior, Tactics, Minor)
   1788: 1, // Reinforced Potency (Revenant, Herald, Minor)
-  2160: 1 // Premeditation (Thief, Deadeye, Major)
-}
+  2160: 1, // Premeditation (Thief, Deadeye, Major)
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Swiftness is active — gated on
@@ -1173,8 +1243,8 @@ export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 3% — WvW value used here.
  */
 export const SWIFTNESS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1413: 3 // Warrior's Sprint (Warrior, Discipline, Major)
-}
+  1413: 3, // Warrior's Sprint (Warrior, Discipline, Major)
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Stability is active — gated on
@@ -1183,8 +1253,8 @@ export const SWIFTNESS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * 2026-08-22 (`split = pve, wvw, pvp`): flat 10% in every mode.
  */
 export const STABILITY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1708: 10 // Stalwart Strength (Warrior, Defense, Major)
-}
+  1708: 10, // Stalwart Strength (Warrior, Defense, Major)
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Aegis is active — gated on
@@ -1195,8 +1265,8 @@ export const STABILITY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * (`split = pve, wvw pvp`): PvE 5%, WvW/PvP 7% — WvW value used here.
  */
 export const AEGIS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  624: 7 // Unscathed Contender (Guardian, Virtues, Major)
-}
+  624: 7, // Unscathed Contender (Guardian, Virtues, Major)
+};
 
 /**
  * Trait id -> { above the health threshold / otherwise } flat outgoing-strike-damage-% bonus — the
@@ -1214,7 +1284,10 @@ export const AEGIS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * approximated to the `'above75'`/`'otherwise'` 2-tier model same as Unscathed Contender's own 90%
  * threshold already does, despite the wiki's 50% threshold differing from both.
  */
-export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
+export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<
+  number,
+  { aboveThreshold: number; otherwise: number }
+> = {
   624: { aboveThreshold: 7, otherwise: 0 }, // Unscathed Contender (Guardian, Virtues, Major)
   349: { aboveThreshold: 15, otherwise: 5 }, // Flow like Water (Elementalist, Water, Major)
   // Glass Cannon (Engineer, Explosives, Major, id 1882): "Strike damage dealt increases when above
@@ -1237,8 +1310,8 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
   // the damage value splits): PvE 75% threshold/10% damage, WvW+PvP 90% threshold/7% damage — WvW
   // pair used, 90% approximated to the `'above75'` tier same as Unscathed Contender's own 90%
   // threshold already does. No baseline below the threshold (`otherwise: 0`).
-  1761: { aboveThreshold: 7, otherwise: 0 }
-}
+  1761: { aboveThreshold: 7, otherwise: 0 },
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while endurance is NOT full — the inverse gate of
@@ -1256,8 +1329,8 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
 export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1832: 10, // Takedown Round (Engineer, Tools, Major)
   2258: 10, // Leviathan Strength (Revenant, Vindicator, Major)
-  1893: 10 // Havoc Specialist (Thief, Daredevil, Major)
-}
+  1893: 10, // Havoc Specialist (Thief, Daredevil, Major)
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Vigor is active — gated on the new
@@ -1275,8 +1348,8 @@ export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  */
 export const VIGOR_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1936: 10, // Excessive Energy (Engineer, Tools, Minor)
-  2069: 10 // Nomad's Endurance (Mesmer, Mirage, Minor) — strike-damage half, see doc comment
-}
+  2069: 10, // Nomad's Endurance (Mesmer, Mirage, Minor) — strike-damage half, see doc comment
+};
 
 /**
  * Trait id -> flat outgoing-condition-damage-% while Vigor is active — gated on `CombatState.
@@ -1285,8 +1358,8 @@ export const VIGOR_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * WvW/PvP value 10%.
  */
 export const VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  2069: 10 // Nomad's Endurance (Mesmer, Mirage, Minor) — condition-damage half, see doc comment
-}
+  2069: 10, // Nomad's Endurance (Mesmer, Mirage, Minor) — condition-damage half, see doc comment
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while the build's profession mechanic is active —
@@ -1299,8 +1372,8 @@ export const VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * ATTRIBUTE_TRAIT_BONUSES`), so no `CombatStatePanel` change is needed for this entry.
  */
 export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1928: 10 // Bloody Roar (Warrior, Berserker, Major)
-}
+  1928: 10, // Bloody Roar (Warrior, Berserker, Major)
+};
 
 /**
  * Trait id -> flat, unconditional outgoing-strike-damage-% — the damage-% sibling to `FLAT_CRIT_
@@ -1341,8 +1414,8 @@ export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   681: 7, // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
   914: 7, // Spiteful Talisman (Necromancer, Spite, Major) — baseline only, see doc comment
   1000: 10, // Farsighted (Ranger, Marksmanship, Major) — baseline only, see doc comment
-  1724: 5 // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
-}
+  1724: 5, // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
+};
 
 /**
  * Trait id -> flat, unconditional outgoing-condition-damage-% — the condition-damage sibling to
@@ -1351,8 +1424,8 @@ export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * TRAIT_BONUSES`'s doc comment): wiki-verified flat 5%, no game-mode split.
  */
 export const FLAT_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1724: 5 // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
-}
+  1724: 5, // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
+};
 
 /**
  * Trait id -> flat outgoing-strike-damage-% while Swiftness OR Superspeed is active — gated on
@@ -1365,8 +1438,8 @@ export const FLAT_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * TODO.md data-completeness backlog item (Shape 1, "Swiftness effectiveness"), out of scope here.
  */
 export const SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  2363: 10 // Bird of Prey (Ranger, Galeshot, Minor)
-}
+  2363: 10, // Bird of Prey (Ranger, Galeshot, Minor)
+};
 
 /**
  * Sums every curated outgoing-strike-damage-% source actually active on this build — the
@@ -1374,68 +1447,78 @@ export const SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES: Record<number, number
  * (plain additive stacking). Supersedes the old inline formula that only covered
  * `CURATED_RELIC_DAMAGE_BONUSES` + Kalla's Fervor.
  */
-export function resolveOutgoingDamagePercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
-  let total = 0
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
-  total += combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage
-  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0
-  total += curatedSigilDamagePercent(build, combatState)
-  const active = activeTraitIds(build, traitsById)
+export function resolveOutgoingDamagePercent(
+  build: Build,
+  combatState: CombatState,
+  traitsById: Map<number, Trait>,
+): number {
+  let total = 0;
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById);
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage;
+  if (combatState.relicActive && build.relicId !== null)
+    total += CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0;
+  total += curatedSigilDamagePercent(build, combatState);
+  const active = activeTraitIds(build, traitsById);
   if (combatState.furyActive) {
     for (const [traitIdText, percent] of Object.entries(FURY_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.resolutionActive) {
     for (const [traitIdText, percent] of Object.entries(RESOLUTION_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.swiftnessActive) {
     for (const [traitIdText, percent] of Object.entries(SWIFTNESS_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.stabilityActive) {
     for (const [traitIdText, percent] of Object.entries(STABILITY_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.aegisActive) {
     for (const [traitIdText, percent] of Object.entries(AEGIS_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.vigorActive) {
     for (const [traitIdText, percent] of Object.entries(VIGOR_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.swiftnessActive || combatState.superspeedActive) {
-    for (const [traitIdText, percent] of Object.entries(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+    for (const [traitIdText, percent] of Object.entries(
+      SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
+    )) {
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (!combatState.fullEnduranceActive) {
     for (const [traitIdText, percent] of Object.entries(NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   if (combatState.mechanicActive) {
     for (const [traitIdText, percent] of Object.entries(MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
-  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(HIGH_HEALTH_DAMAGE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += combatState.healthTier === 'above75' ? aboveThreshold : otherwise
+  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(
+    HIGH_HEALTH_DAMAGE_TRAIT_BONUSES,
+  )) {
+    if (active.has(Number(traitIdText)))
+      total += combatState.healthTier === 'above75' ? aboveThreshold : otherwise;
   }
   for (const [traitIdText, percentPerBoon] of Object.entries(PER_BOON_DAMAGE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += percentPerBoon * combatState.activeBoonCount
+    if (active.has(Number(traitIdText))) total += percentPerBoon * combatState.activeBoonCount;
   }
   for (const [traitIdText, percent] of Object.entries(FLAT_DAMAGE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += percent
+    if (active.has(Number(traitIdText))) total += percent;
   }
-  return total
+  return total;
 }
 
 /**
@@ -1443,22 +1526,27 @@ export function resolveOutgoingDamagePercent(build: Build, combatState: CombatSt
  * `DerivedStats.outgoingConditionDamagePercent` resolver, sibling to `resolveOutgoingDamagePercent`
  * above. Supersedes the old inline formula that only covered Kalla's Fervor.
  */
-export function resolveOutgoingConditionDamagePercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
-  let total = 0
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
-  total += combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage
-  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_CONDITION_DAMAGE_BONUSES[build.relicId] ?? 0
-  total += curatedSigilConditionDamagePercent(build)
-  const active = activeTraitIds(build, traitsById)
+export function resolveOutgoingConditionDamagePercent(
+  build: Build,
+  combatState: CombatState,
+  traitsById: Map<number, Trait>,
+): number {
+  let total = 0;
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById);
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage;
+  if (combatState.relicActive && build.relicId !== null)
+    total += CURATED_RELIC_CONDITION_DAMAGE_BONUSES[build.relicId] ?? 0;
+  total += curatedSigilConditionDamagePercent(build);
+  const active = activeTraitIds(build, traitsById);
   if (combatState.vigorActive) {
     for (const [traitIdText, percent] of Object.entries(VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
   for (const [traitIdText, percent] of Object.entries(FLAT_CONDITION_DAMAGE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += percent
+    if (active.has(Number(traitIdText))) total += percent;
   }
-  return total
+  return total;
 }
 
 /**
@@ -1478,19 +1566,23 @@ export function resolveOutgoingConditionDamagePercent(build: Build, combatState:
  * relic, logged in TODO.md instead).
  */
 export const CURATED_RELIC_LIFE_STEAL_BONUSES: Record<number, number> = {
-  102245: 15 // Relic of Atrocity
-}
+  102245: 15, // Relic of Atrocity
+};
 
 /**
  * Sums every curated life-steal-% source actually active on this build — the `DerivedStats.
  * lifeStealPercent` resolver. Supersedes the old inline formula that only covered Kalla's Fervor.
  */
-export function resolveLifeStealPercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
-  let total = 0
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
-  total += combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal
-  if (build.relicId !== null) total += CURATED_RELIC_LIFE_STEAL_BONUSES[build.relicId] ?? 0
-  return total
+export function resolveLifeStealPercent(
+  build: Build,
+  combatState: CombatState,
+  traitsById: Map<number, Trait>,
+): number {
+  let total = 0;
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById);
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal;
+  if (build.relicId !== null) total += CURATED_RELIC_LIFE_STEAL_BONUSES[build.relicId] ?? 0;
+  return total;
 }
 
 /**
@@ -1535,8 +1627,8 @@ export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
   1342: 5, // Furious Burst (Warrior, Arms, Minor Adept) — no mode split
   1719: 20, // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
   1888: 10, // Vicious Quarry (Ranger, Skirmishing, Major GM) — WvW/PvP value; PvE is 15
-  2193: 10 // Quiet Intensity (Mesmer, Virtuoso, Minor GM) — WvW/PvP value; PvE is 15, WvW is 10
-}
+  2193: 10, // Quiet Intensity (Mesmer, Virtuoso, Minor GM) — WvW/PvP value; PvE is 15, WvW is 10
+};
 
 /**
  * Sums every curated fury-crit trait bonus actually active on this build (via `activeTraitIds`).
@@ -1545,12 +1637,12 @@ export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
  * than a fully-derived value).
  */
 export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let bonus = 0
+  const active = activeTraitIds(build, traitsById);
+  let bonus = 0;
   for (const [traitIdText, value] of Object.entries(FURY_CRIT_CHANCE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) bonus += value
+    if (active.has(Number(traitIdText))) bonus += value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1568,9 +1660,12 @@ export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, T
  * (an override display name for the same fact slot, not a separate additive fact) confirms this
  * reading structurally too.
  */
-export const FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { fullEndurance: number; otherwise: number }> = {
-  2142: { fullEndurance: 33, otherwise: 10 } // Brutal Momentum (Revenant, Renegade, Minor GM) — WvW value
-}
+export const FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES: Record<
+  number,
+  { fullEndurance: number; otherwise: number }
+> = {
+  2142: { fullEndurance: 33, otherwise: 10 }, // Brutal Momentum (Revenant, Renegade, Minor GM) — WvW value
+};
 
 /**
  * Picks the right `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` value (full-Endurance vs. otherwise,
@@ -1578,13 +1673,19 @@ export const FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { fullEndu
  * `furyCritChanceTraitBonus` (an on/off add the caller gates), this always contributes *something*
  * once the trait is active — mirrors `kallaFervorPercentPerStack`'s "override, not stack" shape.
  */
-export function fullEnduranceCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>, fullEnduranceActive: boolean): number {
-  const active = activeTraitIds(build, traitsById)
-  let bonus = 0
-  for (const [traitIdText, { fullEndurance, otherwise }] of Object.entries(FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) bonus += fullEnduranceActive ? fullEndurance : otherwise
+export function fullEnduranceCritChanceTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+  fullEnduranceActive: boolean,
+): number {
+  const active = activeTraitIds(build, traitsById);
+  let bonus = 0;
+  for (const [traitIdText, { fullEndurance, otherwise }] of Object.entries(
+    FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES,
+  )) {
+    if (active.has(Number(traitIdText))) bonus += fullEnduranceActive ? fullEndurance : otherwise;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1616,20 +1717,20 @@ export function fullEnduranceCritChanceTraitBonus(build: Build, traitsById: Map<
 export const FLAT_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
   221: 5, // Zephyr's Speed (Elementalist, Air, Minor tier 1) — no mode split
   893: 15, // Death Perception (Necromancer, Soul Reaping, Major tier 3) — WvW value (PvP is 10)
-  1453: 5 // Pinnacle of Strength (Warrior, Strength, Minor tier 3) — no mode split
-}
+  1453: 5, // Pinnacle of Strength (Warrior, Strength, Minor tier 3) — no mode split
+};
 
 /**
  * Sums every curated unconditional flat-crit-chance trait bonus active on this build (mirrors
  * `furyCritChanceTraitBonus`'s shape, minus the caller-side gate — this one always contributes).
  */
 export function flatCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let bonus = 0
+  const active = activeTraitIds(build, traitsById);
+  let bonus = 0;
   for (const [traitIdText, value] of Object.entries(FLAT_CRIT_CHANCE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) bonus += value
+    if (active.has(Number(traitIdText))) bonus += value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1666,22 +1767,25 @@ export const FURY_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; valu
   1343: { target: 'ConditionDamage', value: 180 }, // Deep Strikes (Warrior, Minor)
   1888: { target: 'CritDamage', value: 250 }, // Vicious Quarry (Ranger, Major) — also grants a crit-*chance* bonus, curated separately in FURY_CRIT_CHANCE_TRAIT_BONUSES above
   1904: { target: 'CritDamage', value: 300 }, // No Quarter (Thief, Major) — WvW/PvP value; PvE is 250
-  2207: { target: 'ConditionDuration', value: 150 } // Sharpening Sorrow (Mesmer, Major)
-}
+  2207: { target: 'ConditionDuration', value: 150 }, // Sharpening Sorrow (Mesmer, Major)
+};
 
 /**
  * Sums every curated fury-attribute trait bonus actually active on this build, grouped by target
  * attribute (mirrors `furyCritChanceTraitBonus`'s gating, see that function's doc comment). Only
  * meaningful when combined with `combatState.furyActive` by the caller.
  */
-export function furyAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function furyAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, { target, value }] of Object.entries(FURY_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1711,25 +1815,34 @@ export function furyAttributeTraitBonus(build: Build, traitsById: Map<number, Tr
  *   applies continuously per stack, the same shape as the other two entries here, not a
  *   single-breakpoint fact.
  */
-export const MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; valuePerStack: number }> = {
+export const MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES: Record<
+  number,
+  { target: string; valuePerStack: number }
+> = {
   915: { target: 'Power', valuePerStack: 10 }, // Awaken the Pain (Necromancer, Minor)
   1453: { target: 'Power', valuePerStack: 10 }, // Pinnacle of Strength (Warrior, Minor)
-  1849: { target: 'Power', valuePerStack: 10 } // Applied Force (Engineer, Major) — WvW value
-}
+  1849: { target: 'Power', valuePerStack: 10 }, // Applied Force (Engineer, Major) — WvW value
+};
 
 /**
  * Sums every curated Might-stack-scaling trait bonus actually active on this build, grouped by
  * target attribute and pre-multiplied by the current `mightStacks` count (mirrors
  * `furyAttributeTraitBonus`'s shape/gating, see that function's doc comment).
  */
-export function mightStackAttributeTraitBonus(build: Build, mightStacks: number, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
-  for (const [traitIdText, { target, valuePerStack }] of Object.entries(MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    bonus[target] = (bonus[target] ?? 0) + valuePerStack * mightStacks
+export function mightStackAttributeTraitBonus(
+  build: Build,
+  mightStacks: number,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
+  for (const [traitIdText, { target, valuePerStack }] of Object.entries(
+    MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES,
+  )) {
+    if (!active.has(Number(traitIdText))) continue;
+    bonus[target] = (bonus[target] ?? 0) + valuePerStack * mightStacks;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1751,15 +1864,18 @@ export function mightStackAttributeTraitBonus(build: Build, mightStacks: number,
  * even with a single entry.
  */
 export interface MightThresholdAttunementDoubledTraitBonus {
-  target: string
-  value: number
-  mightThreshold: number
-  doubleAttunement: 'Fire' | 'Water' | 'Air' | 'Earth'
+  target: string;
+  value: number;
+  mightThreshold: number;
+  doubleAttunement: 'Fire' | 'Water' | 'Air' | 'Earth';
 }
 
-export const MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES: Record<number, MightThresholdAttunementDoubledTraitBonus> = {
-  334: { target: 'Power', value: 150, mightThreshold: 8, doubleAttunement: 'Fire' } // Power Overwhelming (Elementalist, Air, Major tier 2) — WvW threshold
-}
+export const MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES: Record<
+  number,
+  MightThresholdAttunementDoubledTraitBonus
+> = {
+  334: { target: 'Power', value: 150, mightThreshold: 8, doubleAttunement: 'Fire' }, // Power Overwhelming (Elementalist, Air, Major tier 2) — WvW threshold
+};
 
 /**
  * Resolves every curated might-threshold+attunement-doubled trait bonus actually active on this
@@ -1768,16 +1884,22 @@ export const MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES: Record<
  * contributes nothing at all (not a smaller flat amount) — matches the wiki's own "at or above the
  * threshold" wording, a hard gate rather than a taper.
  */
-export function mightThresholdAttunementDoubledAttributeTraitBonus(build: Build, mightStacks: number, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
-  for (const [traitIdText, { target, value, mightThreshold, doubleAttunement }] of Object.entries(MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    if (mightStacks < mightThreshold) continue
-    const amount = build.activeAttunement === doubleAttunement ? value * 2 : value
-    bonus[target] = (bonus[target] ?? 0) + amount
+export function mightThresholdAttunementDoubledAttributeTraitBonus(
+  build: Build,
+  mightStacks: number,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
+  for (const [traitIdText, { target, value, mightThreshold, doubleAttunement }] of Object.entries(
+    MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES,
+  )) {
+    if (!active.has(Number(traitIdText))) continue;
+    if (mightStacks < mightThreshold) continue;
+    const amount = build.activeAttunement === doubleAttunement ? value * 2 : value;
+    bonus[target] = (bonus[target] ?? 0) + amount;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1798,22 +1920,26 @@ export function mightThresholdAttunementDoubledAttributeTraitBonus(build: Build,
  */
 export const REGENERATION_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
   1865: { BoonDuration: 250, ConditionDuration: 250 }, // Chaotic Persistence (Mesmer, Minor GM) — WvW value
-  519: { Power: 250, Healing: 250 } // Energy Amplifier (Engineer, Minor GM)
-}
+  519: { Power: 250, Healing: 250 }, // Energy Amplifier (Engineer, Minor GM)
+};
 
 /**
  * Sums every curated Regeneration-gated trait bonus actually active on this build, grouped by
  * target attribute (mirrors `furyAttributeTraitBonus`'s shape/gating). Only meaningful when
  * combined with `combatState.regenerationActive` by the caller.
  */
-export function regenerationAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function regenerationAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, targets] of Object.entries(REGENERATION_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    for (const [target, value] of Object.entries(targets))
+      bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1833,22 +1959,26 @@ export function regenerationAttributeTraitBonus(build: Build, traitsById: Map<nu
  */
 export const QUICKNESS_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
   2148: { ConditionDamage: 150, Healing: 150, Vitality: 150 }, // Imbued Haste (Guardian, Minor GM) — WvW/PvP value
-  2093: { Power: 200, Precision: 200 } // Be Quick or Be Killed (Thief, Major GM)
-}
+  2093: { Power: 200, Precision: 200 }, // Be Quick or Be Killed (Thief, Major GM)
+};
 
 /**
  * Sums every curated Quickness-gated trait bonus actually active on this build, grouped by target
  * attribute (mirrors `regenerationAttributeTraitBonus` above). Only meaningful when combined with
  * `combatState.quicknessActive` by the caller.
  */
-export function quicknessAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function quicknessAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, targets] of Object.entries(QUICKNESS_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    for (const [target, value] of Object.entries(targets))
+      bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1884,22 +2014,26 @@ export function quicknessAttributeTraitBonus(build: Build, traitsById: Map<numbe
 export const MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
   2021: { CritDamage: 300 }, // Reaper's Onslaught (Necromancer/Reaper, Major tier 3) — Ferocity
   2046: { Power: 300, ConditionDamage: 300 }, // Fatal Frenzy (Warrior/Berserker, Minor tier 3) — WvW value
-  2121: { BoonDuration: 150, ConditionDuration: 150 } // Sand Sage (Necromancer/Scourge, Minor tier 2) — WvW value
-}
+  2121: { BoonDuration: 150, ConditionDuration: 150 }, // Sand Sage (Necromancer/Scourge, Minor tier 2) — WvW value
+};
 
 /**
  * Sums every curated mechanic-active trait bonus actually active on this build, grouped by target
  * attribute (mirrors `regenerationAttributeTraitBonus`/`quicknessAttributeTraitBonus` above). Only
  * meaningful when combined with `combatState.mechanicActive` by the caller.
  */
-export function mechanicActiveAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function mechanicActiveAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, targets] of Object.entries(MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    for (const [target, value] of Object.entries(targets))
+      bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1915,21 +2049,24 @@ export function mechanicActiveAttributeTraitBonus(build: Build, traitsById: Map<
  * hit) is a proc/duration effect, not a character-stat gain — out of scope here.
  */
 export const MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
-  2049: 5 // Smash Brawler (Warrior, Berserker, Major tier 1) — WvW value (PvE/PvP is 15)
-}
+  2049: 5, // Smash Brawler (Warrior, Berserker, Major tier 1) — WvW value (PvE/PvP is 15)
+};
 
 /**
  * Sums every curated mechanic-active flat-crit-chance trait bonus active on this build (mirrors
  * `furyCritChanceTraitBonus`'s shape). Only meaningful when combined with `combatState.mechanicActive`
  * by the caller.
  */
-export function mechanicActiveCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let bonus = 0
+export function mechanicActiveCritChanceTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): number {
+  const active = activeTraitIds(build, traitsById);
+  let bonus = 0;
   for (const [traitIdText, value] of Object.entries(MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) bonus += value
+    if (active.has(Number(traitIdText))) bonus += value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -1945,28 +2082,31 @@ export function mechanicActiveCritChanceTraitBonus(build: Build, traitsById: Map
  * no need for the target-map shape the boon/mechanic families use).
  */
 export const REVEALED_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; value: number }> = {
-  1704: { target: 'Power', value: 150 } // Revealed Training (Thief, Deadly Arts, Major GM) — WvW value
-}
+  1704: { target: 'Power', value: 150 }, // Revealed Training (Thief, Deadly Arts, Major GM) — WvW value
+};
 
 /**
  * Sums every curated Revealed-gated trait bonus actually active on this build (mirrors
  * `furyAttributeTraitBonus`'s shape/gating). Only meaningful when combined with
  * `combatState.revealedActive` by the caller.
  */
-export function revealedAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function revealedAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, { target, value }] of Object.entries(REVEALED_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /** 3-way health tier `CombatState.healthTier` distinguishes — coarse enough to cover both curated
  *  traits' breakpoints (Empire Divided's single 50% threshold, Last Rites' 75%/50% pair) without a
  *  raw percent slider; see `CombatState.healthTier`'s doc comment. */
-export type HealthTier = 'above75' | 'between50and75' | 'below50'
+export type HealthTier = 'above75' | 'between50and75' | 'below50';
 
 /**
  * Trait id -> extra flat attribute points (by target), one entry per `HealthTier`, granted while
@@ -1988,20 +2128,23 @@ export type HealthTier = 'above75' | 'between50and75' | 'below50'
  *   effect (allies near you don't bleed out while downed) is a proc/utility effect, not a character-
  *   stat gain — out of scope.
  */
-export const HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<HealthTier, Record<string, number>>> = {
+export const HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES: Record<
+  number,
+  Record<HealthTier, Record<string, number>>
+> = {
   2229: {
     // Empire Divided (Revenant/Vindicator, Minor GM) — WvW value
     above75: { Power: 240 },
     between50and75: { Power: 240 },
-    below50: { Healing: 240 }
+    below50: { Healing: 240 },
   },
   1931: {
     // Last Rites (Necromancer/Blood Magic, Major tier 3) — WvW value
     above75: { Healing: 150 },
     between50and75: { Healing: 300 },
-    below50: { Healing: 450 }
-  }
-}
+    below50: { Healing: 450 },
+  },
+};
 
 /**
  * Sums every curated health-threshold trait bonus actually active on this build for the given tier,
@@ -2009,14 +2152,19 @@ export const HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<Hea
  * every prior family here, this isn't gated by a separate boolean — `state.healthTier` itself always
  * has a value, so this just picks the matching tier's bonus map per curated trait.
  */
-export function healthThresholdAttributeTraitBonus(build: Build, tier: HealthTier, traitsById: Map<number, Trait>): Record<string, number> {
-  const active = activeTraitIds(build, traitsById)
-  const bonus: Record<string, number> = {}
+export function healthThresholdAttributeTraitBonus(
+  build: Build,
+  tier: HealthTier,
+  traitsById: Map<number, Trait>,
+): Record<string, number> {
+  const active = activeTraitIds(build, traitsById);
+  const bonus: Record<string, number> = {};
   for (const [traitIdText, tiers] of Object.entries(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)) {
-    if (!active.has(Number(traitIdText))) continue
-    for (const [target, value] of Object.entries(tiers[tier])) bonus[target] = (bonus[target] ?? 0) + value
+    if (!active.has(Number(traitIdText))) continue;
+    for (const [target, value] of Object.entries(tiers[tier]))
+      bonus[target] = (bonus[target] ?? 0) + value;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -2036,9 +2184,12 @@ export function healthThresholdAttributeTraitBonus(build: Build, tier: HealthTie
  * a >75%-but-not-exactly-90% threshold — `aboveThreshold` only fires at the `'above75'` tier, not
  * `'between50and75'`.
  */
-export const HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
-  1281: { aboveThreshold: 10, otherwise: 5 } // Keen Observer (Thief, Deadly Arts, Minor tier 1) — WvW values
-}
+export const HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES: Record<
+  number,
+  { aboveThreshold: number; otherwise: number }
+> = {
+  1281: { aboveThreshold: 10, otherwise: 5 }, // Keen Observer (Thief, Deadly Arts, Minor tier 1) — WvW values
+};
 
 /**
  * Sums every curated health-tier-gated flat-crit-chance trait bonus active on this build for the
@@ -2046,13 +2197,19 @@ export const HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { aboveThresh
  * `HealthTier` instead of a boolean). Unlike the Fury/mechanic-active crit-chance tables, this isn't
  * gated by a separate boolean — `state.healthTier` itself always has a value.
  */
-export function highHealthCritChanceTraitBonus(build: Build, tier: HealthTier, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let bonus = 0
-  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) bonus += tier === 'above75' ? aboveThreshold : otherwise
+export function highHealthCritChanceTraitBonus(
+  build: Build,
+  tier: HealthTier,
+  traitsById: Map<number, Trait>,
+): number {
+  const active = activeTraitIds(build, traitsById);
+  let bonus = 0;
+  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(
+    HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES,
+  )) {
+    if (active.has(Number(traitIdText))) bonus += tier === 'above75' ? aboveThreshold : otherwise;
   }
-  return bonus
+  return bonus;
 }
 
 /**
@@ -2071,7 +2228,10 @@ export function highHealthCritChanceTraitBonus(build: Build, tier: HealthTier, t
  * `HealthTier`'s `'above75'` bucket (same simplification `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`
  * already makes for its own curated traits) — `between50and75`/`below50` never grant this bonus.
  */
-export const HEALTH_THRESHOLD_CONSUMABLE_BONUSES: Record<number, { target: string; value: number }> = {
+export const HEALTH_THRESHOLD_CONSUMABLE_BONUSES: Record<
+  number,
+  { target: string; value: number }
+> = {
   70845: { target: 'Power', value: 100 }, // Thesis on Studied Strength
   70883: { target: 'Power', value: 100 }, // Writ of Studied Strength
   70920: { target: 'ConditionDamage', value: 120 }, // Thesis on Calculated Malice
@@ -2107,8 +2267,8 @@ export const HEALTH_THRESHOLD_CONSUMABLE_BONUSES: Record<number, { target: strin
   76870: { target: 'Precision', value: 120 }, // Thesis on Calculated Accuracy
   77106: { target: 'ConditionDamage', value: 100 }, // Thesis on Studied Malice
   77128: { target: 'Power', value: 120 }, // Writ of Calculated Strength
-  77146: { target: 'Power', value: 200 } // Thesis on Masterful Strength
-}
+  77146: { target: 'Power', value: 200 }, // Thesis on Masterful Strength
+};
 
 /**
  * Sums `HEALTH_THRESHOLD_CONSUMABLE_BONUSES` for whichever of `build.foodId`/`build.utilityId` has
@@ -2121,25 +2281,25 @@ export function healthThresholdConsumableBonus(
   build: Build,
   tier: HealthTier,
   foodById: Map<number, Consumable>,
-  utilityById: Map<number, Consumable>
+  utilityById: Map<number, Consumable>,
 ): Record<string, number> {
-  const bonus: Record<string, number> = {}
-  if (tier !== 'above75') return bonus
+  const bonus: Record<string, number> = {};
+  if (tier !== 'above75') return bonus;
   for (const id of [build.foodId, build.utilityId]) {
-    if (id === null) continue
-    if (!foodById.has(id) && !utilityById.has(id)) continue
-    const entry = HEALTH_THRESHOLD_CONSUMABLE_BONUSES[id]
-    if (!entry) continue
-    bonus[entry.target] = (bonus[entry.target] ?? 0) + entry.value
+    if (id === null) continue;
+    if (!foodById.has(id) && !utilityById.has(id)) continue;
+    const entry = HEALTH_THRESHOLD_CONSUMABLE_BONUSES[id];
+    if (!entry) continue;
+    bonus[entry.target] = (bonus[entry.target] ?? 0) + entry.value;
   }
-  return bonus
+  return bonus;
 }
 
 export interface ActiveStackingSigil {
-  sigilId: number
-  name: string
-  attribute: string
-  perStack: number
+  sigilId: number;
+  name: string;
+  attribute: string;
+  perStack: number;
 }
 
 /**
@@ -2160,22 +2320,24 @@ export interface ActiveStackingSigil {
  * real mechanic.
  */
 export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | null {
-  const relevantSlots: EquipmentSlotKey[] = build.environment === 'underwater'
-    ? ['weaponU1', 'weaponU2']
-    : ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2']
+  const relevantSlots: EquipmentSlotKey[] =
+    build.environment === 'underwater'
+      ? ['weaponU1', 'weaponU2']
+      : ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2'];
   for (const slotKey of relevantSlots) {
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId == null) continue
-      const entry = STACKING_SIGILS[sigilId]
-      if (entry) return { sigilId, name: entry.name, attribute: entry.attribute, perStack: entry.perStack }
+      if (sigilId == null) continue;
+      const entry = STACKING_SIGILS[sigilId];
+      if (entry)
+        return { sigilId, name: entry.name, attribute: entry.attribute, perStack: entry.perStack };
     }
   }
-  return null
+  return null;
 }
 
 /** Revenant/Conduit's Master minor "Bolstered Bonds" — see `trait-attributes.ts`'s
  *  `LEGEND_ATTRIBUTE_TRAIT_BONUSES` for its own base per-legend attribute grant. */
-export const BOLSTERED_BONDS_TRAIT_ID = 2331
+export const BOLSTERED_BONDS_TRAIT_ID = 2331;
 
 /**
  * Bolstered Bonds' own per-legend attribute bonus, a 2nd time, while Cosmic Wisdom is active —
@@ -2189,9 +2351,13 @@ export const BOLSTERED_BONDS_TRAIT_ID = 2331
  * `BOLSTERED_BONDS_TRAIT_ID` specifically (not "every legend-attribute trait") so a 2nd trait ever
  * added to that table without its own Cosmic-Wisdom clause doesn't silently get doubled too.
  */
-export function cosmicWisdomLegendAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>, legends: Legend[]): Record<string, number> {
-  if (!activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID)) return {}
-  return activeLegendAttributeTraitBonus(build, traitsById, legends)
+export function cosmicWisdomLegendAttributeTraitBonus(
+  build: Build,
+  traitsById: Map<number, Trait>,
+  legends: Legend[],
+): Record<string, number> {
+  if (!activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID)) return {};
+  return activeLegendAttributeTraitBonus(build, traitsById, legends);
 }
 
 /**
@@ -2213,64 +2379,98 @@ export function cosmicWisdomLegendAttributeTraitBonus(build: Build, traitsById: 
  * non-Revenant/no-Bolstered-Bonds build regardless) so existing call sites that never exercise
  * Cosmic Wisdom don't need updating.
  */
-export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>, legends: Legend[] = []): Record<string, number> {
-  const points: Record<string, number> = {}
+export function combatStatePoints(
+  build: Build,
+  state: CombatState,
+  traitsById: Map<number, Trait>,
+  legends: Legend[] = [],
+): Record<string, number> {
+  const points: Record<string, number> = {};
   const add = (attribute: string, value: number): void => {
-    points[attribute] = (points[attribute] ?? 0) + value
-  }
+    points[attribute] = (points[attribute] ?? 0) + value;
+  };
 
   if (state.mightStacks > 0) {
-    add('Power', state.mightStacks * MIGHT_POWER_PER_STACK)
-    add('ConditionDamage', state.mightStacks * MIGHT_CONDITION_DAMAGE_PER_STACK)
-    for (const [attribute, value] of Object.entries(mightStackAttributeTraitBonus(build, state.mightStacks, traitsById))) add(attribute, value)
+    add('Power', state.mightStacks * MIGHT_POWER_PER_STACK);
+    add('ConditionDamage', state.mightStacks * MIGHT_CONDITION_DAMAGE_PER_STACK);
+    for (const [attribute, value] of Object.entries(
+      mightStackAttributeTraitBonus(build, state.mightStacks, traitsById),
+    ))
+      add(attribute, value);
   }
-  for (const [attribute, value] of Object.entries(mightThresholdAttunementDoubledAttributeTraitBonus(build, state.mightStacks, traitsById))) add(attribute, value)
+  for (const [attribute, value] of Object.entries(
+    mightThresholdAttunementDoubledAttributeTraitBonus(build, state.mightStacks, traitsById),
+  ))
+    add(attribute, value);
 
-  const sigil = detectActiveStackingSigil(build)
+  const sigil = detectActiveStackingSigil(build);
   if (sigil && state.stackingSigilStacks > 0) {
-    const value = sigil.perStack * state.stackingSigilStacks
+    const value = sigil.perStack * state.stackingSigilStacks;
     if (sigil.attribute === ALL_STATS) {
-      for (const attribute of ALL_CORE_ATTRIBUTE_KEYS) add(attribute, value)
+      for (const attribute of ALL_CORE_ATTRIBUTE_KEYS) add(attribute, value);
     } else if (sigil.attribute !== OUTGOING_HEALING_PERCENT) {
-      add(sigil.attribute, value)
+      add(sigil.attribute, value);
     }
     // OUTGOING_HEALING_PERCENT (Benevolence) isn't a core attribute point — DerivedStats.
     // outgoingHealingPercent reads it directly via `stackingSigilOutgoingHealingPercent` below.
   }
 
   if (state.furyActive) {
-    for (const [attribute, value] of Object.entries(furyAttributeTraitBonus(build, traitsById))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(furyAttributeTraitBonus(build, traitsById)))
+      add(attribute, value);
   }
 
   if (state.regenerationActive) {
-    for (const [attribute, value] of Object.entries(regenerationAttributeTraitBonus(build, traitsById))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(
+      regenerationAttributeTraitBonus(build, traitsById),
+    ))
+      add(attribute, value);
   }
 
   if (state.quicknessActive) {
-    for (const [attribute, value] of Object.entries(quicknessAttributeTraitBonus(build, traitsById))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(
+      quicknessAttributeTraitBonus(build, traitsById),
+    ))
+      add(attribute, value);
   }
 
   if (state.mechanicActive) {
-    for (const [attribute, value] of Object.entries(mechanicActiveAttributeTraitBonus(build, traitsById))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(
+      mechanicActiveAttributeTraitBonus(build, traitsById),
+    ))
+      add(attribute, value);
   }
 
   if (state.revealedActive) {
-    for (const [attribute, value] of Object.entries(revealedAttributeTraitBonus(build, traitsById))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(revealedAttributeTraitBonus(build, traitsById)))
+      add(attribute, value);
   }
 
-  for (const [attribute, value] of Object.entries(healthThresholdAttributeTraitBonus(build, state.healthTier, traitsById))) add(attribute, value)
+  for (const [attribute, value] of Object.entries(
+    healthThresholdAttributeTraitBonus(build, state.healthTier, traitsById),
+  ))
+    add(attribute, value);
 
-  for (const [attribute, value] of Object.entries(deathsCarapaceAttributePoints(build, state.deathsCarapaceStacks, traitsById))) add(attribute, value)
+  for (const [attribute, value] of Object.entries(
+    deathsCarapaceAttributePoints(build, state.deathsCarapaceStacks, traitsById),
+  ))
+    add(attribute, value);
 
   if (state.cosmicWisdomActive) {
-    for (const [attribute, value] of Object.entries(cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends))) add(attribute, value)
+    for (const [attribute, value] of Object.entries(
+      cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends),
+    ))
+      add(attribute, value);
   }
 
   if (state.relicActive && build.relicId !== null) {
-    for (const [attribute, value] of Object.entries(CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES[build.relicId] ?? {})) add(attribute, value)
+    for (const [attribute, value] of Object.entries(
+      CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES[build.relicId] ?? {},
+    ))
+      add(attribute, value);
   }
 
-  return points
+  return points;
 }
 
 /**
@@ -2341,8 +2541,8 @@ export const FLAT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
   1915: 5, // Illusionary Inspiration (Mesmer, Inspiration, GM Minor)
   1676: 15, // Aquamancer's Training (Elementalist, Water, Major) — WvW value
   1992: 15, // Natural Mender (Ranger, Druid, GM Minor) — WvW value
-  2272: 10 // Dark Sentry (Thief, Specter, Master Minor) — WvW value
-}
+  2272: 10, // Dark Sentry (Thief, Specter, Master Minor) — WvW value
+};
 
 /** Trait id -> flat incoming-healing-%-to-self bonus, granted unconditionally once the trait is
  *  chosen — wiki-verified via raw wikitext 2026-08-22, WvW value used wherever a split exists:
@@ -2358,8 +2558,8 @@ export const FLAT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
 export const FLAT_INCOMING_HEALING_TRAIT_BONUSES: Record<number, number> = {
   1381: 3, // Stalwart Focus (Warrior, Discipline, Major) — WvW value
   521: 10, // Health Insurance (Engineer, Alchemy, Major)
-  861: 10 // Vital Persistence (Necromancer, Soul Reaping, Major) — WvW value
-}
+  861: 10, // Vital Persistence (Necromancer, Soul Reaping, Major) — WvW value
+};
 
 // Stalwart Focus also grants a flat outgoing-to-others half distinct from its incoming half above
 // — wiki: "Increase your incoming healing effectiveness and healing to other allies," 15% PvE /
@@ -2369,20 +2569,20 @@ export const FLAT_INCOMING_HEALING_TRAIT_BONUSES: Record<number, number> = {
 // resolved — merged via `Object.assign` immediately below to keep the doc comment above accurate
 // about what's WvW-verified where.
 Object.assign(FLAT_OUTGOING_HEALING_TRAIT_BONUSES, {
-  1381: 10 // Stalwart Focus (Warrior, Discipline, Major) — WvW value, outgoing half
-})
+  1381: 10, // Stalwart Focus (Warrior, Discipline, Major) — WvW value, outgoing half
+});
 
 /** Engineer's Heal-slot "Med Kit" skill (id 5802, `slot: 'Heal'` — despite the name, not a Utility
  *  kit) — gates Health Insurance's outgoing healing-to-others half. */
-export const MED_KIT_SKILL_ID = 5802
+export const MED_KIT_SKILL_ID = 5802;
 
 /** Trait id -> outgoing-healing-%-to-others bonus while `Build.skills.heal === MED_KIT_SKILL_ID` —
  *  Health Insurance (Engineer/Alchemy, Adept Major, id 521): "Gain increased healing to others
  *  while using a med kit" — 20% PvE / 10% PvP / 7% WvW (a genuine independent 3-way split, unlike
  *  the trait's own flat-10%-everywhere incoming half). Wiki-verified via raw wikitext 2026-08-22. */
 export const MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
-  521: 7 // Health Insurance (Engineer, Alchemy, Major) — WvW value
-}
+  521: 7, // Health Insurance (Engineer, Alchemy, Major) — WvW value
+};
 
 /** Revenant/Salvation's Adept Major "Invoking Harmony" (id 1823) — wiki-verified via raw wikitext
  *  2026-08-22: "Healing done to other allies is increased for a short duration [10s] after invoking
@@ -2390,8 +2590,8 @@ export const MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
  *  invokingHarmonyActive` rather than always-on, since — unlike the flat traits above — this is a
  *  timed proc window, not a steady passive (same "assume the proc is currently up" shape as
  *  `relicActive`). */
-export const INVOKING_HARMONY_TRAIT_ID = 1823
-export const INVOKING_HARMONY_HEALING_PERCENT = 10 // WvW value
+export const INVOKING_HARMONY_TRAIT_ID = 1823;
+export const INVOKING_HARMONY_HEALING_PERCENT = 10; // WvW value
 
 /** Revenant/Salvation's own Grandmaster Minor "Serene Rejuvenation" (id 1814, auto-active whenever
  *  Salvation is equipped — see `activeTraitIds`) — wiki-verified via raw wikitext 2026-08-22:
@@ -2400,18 +2600,18 @@ export const INVOKING_HARMONY_HEALING_PERCENT = 10 // WvW value
  *  gating_fix` memory) is also chosen — Numinous Gift's own "third minor traits ... have improved
  *  effectiveness" clause is genuinely a cross-trait conditional, not a display quirk, matching the
  *  raw API's `traitedFacts[].requires_trait` field on trait 1814 pointing at 2440. */
-export const SERENE_REJUVENATION_TRAIT_ID = 1814
-export const NUMINOUS_GIFT_TRAIT_ID = 2440
-export const SERENE_REJUVENATION_BASE_HEALING_PERCENT = 15 // WvW value
-export const SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT = 18 // WvW value, with Numinous Gift
+export const SERENE_REJUVENATION_TRAIT_ID = 1814;
+export const NUMINOUS_GIFT_TRAIT_ID = 2440;
+export const SERENE_REJUVENATION_BASE_HEALING_PERCENT = 15; // WvW value
+export const SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT = 18; // WvW value, with Numinous Gift
 
 /** Ranger/Druid's Grandmaster Major "Lingering Light" (id 2058) — wiki-verified via raw wikitext
  *  2026-08-22: "While in Celestial Avatar form, your healing of others is significantly increased"
  *  — flat 20%, no game-mode split. Gated on `CombatState.celestialAvatarActive` — see that field's
  *  doc comment for why this needs its own toggle rather than reusing `Build.activeBundleSkillId`. */
 export const CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
-  2058: 20 // Lingering Light (Ranger, Druid, GM Major)
-}
+  2058: 20, // Lingering Light (Ranger, Druid, GM Major)
+};
 
 /** Guardian/Honor's Grandmaster Major "Force of Will" (id 1682) — wiki-verified via raw wikitext
  *  2026-08-22: "Healing others is improved based on a percentage of your vitality" — 1% PvE / 0.5%
@@ -2420,8 +2620,8 @@ export const CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, num
  *  "scales continuously with a live attribute total" outgoing-healing source in this file — reads
  *  `CharacterAttributes.vitality` directly from `derived-stats.ts`, the same "attributes are already
  *  computed by the time `derived` is built" reasoning `armor`/`health` already rely on. */
-export const FORCE_OF_WILL_TRAIT_ID = 1682
-export const FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY = 0.5 // WvW value
+export const FORCE_OF_WILL_TRAIT_ID = 1682;
+export const FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY = 0.5; // WvW value
 
 /** Relic id -> flat outgoing-healing-%-to-others bonus while `CombatState.relicActive` is on — same
  *  "assume the relic's own proc/condition is currently satisfied" toggle `CURATED_RELIC_DAMAGE_
@@ -2437,8 +2637,8 @@ export const FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY = 0.5 // WvW value
  */
 export const CURATED_RELIC_OUTGOING_HEALING_BONUSES: Record<number, number> = {
   100031: 10, // Relic of the Monk
-  105652: 20 // Relic of Castora — WvW value
-}
+  105652: 20, // Relic of Castora — WvW value
+};
 
 /** Sigil id -> flat outgoing-healing-%-to-others bonus while equipped on the *active* weapon set —
  *  same "active weapon set only" gating every passive/stat sigil bonus already follows (see the
@@ -2448,28 +2648,28 @@ export const CURATED_RELIC_OUTGOING_HEALING_BONUSES: Record<number, number> = {
  *  wiki-verified via raw wikitext 2026-08-22) carries no "does not stack" clause, so the normal
  *  stat-sigil doubling rule applies rather than Force's own explicit exception. */
 export const CURATED_SIGIL_OUTGOING_HEALING_BONUSES: Record<number, number> = {
-  74326: 10 // Superior Sigil of Transference
-}
+  74326: 10, // Superior Sigil of Transference
+};
 
 function curatedSigilOutgoingHealingPercent(build: Build): number {
-  let total = 0
+  let total = 0;
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!isActiveWeaponSlot(slotKey, build)) continue
+    if (!isActiveWeaponSlot(slotKey, build)) continue;
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
-      if (sigilId === null) continue
-      total += CURATED_SIGIL_OUTGOING_HEALING_BONUSES[sigilId] ?? 0
+      if (sigilId === null) continue;
+      total += CURATED_SIGIL_OUTGOING_HEALING_BONUSES[sigilId] ?? 0;
     }
   }
-  return total
+  return total;
 }
 
 /** Superior Sigil of Benevolence's (24584) outgoing-healing-%-to-others share of `CombatState.
  *  stackingSigilStacks` — see its `STACKING_SIGILS` entry's doc comment for why it's excluded from
  *  `combatStatePoints`'s generic core-attribute loop and read here instead. */
 export function stackingSigilOutgoingHealingPercent(build: Build, state: CombatState): number {
-  const sigil = detectActiveStackingSigil(build)
-  if (!sigil || sigil.attribute !== OUTGOING_HEALING_PERCENT) return 0
-  return sigil.perStack * state.stackingSigilStacks
+  const sigil = detectActiveStackingSigil(build);
+  if (!sigil || sigil.attribute !== OUTGOING_HEALING_PERCENT) return 0;
+  return sigil.perStack * state.stackingSigilStacks;
 }
 
 /** Food/utility id -> flat outgoing-healing-%-to-others bonus, unconditional once equipped (`Build.
@@ -2498,8 +2698,8 @@ export const CURATED_FOOD_OUTGOING_HEALING_BONUSES: Record<number, number> = {
   99804: 10, // Bowl of Mists-Infused Fruit Salad with Mint Garnish
   68634: 10, // Delicious Rice Ball
   76840: 10, // Bowl of Tapioca Pudding
-  89088: 8 // Canned Rice Ball with "Lucky" Filling
-}
+  89088: 8, // Canned Rice Ball with "Lucky" Filling
+};
 
 /** Utility id -> continuous per-100-Healing-Power / per-100-Concentration outgoing-healing-%-to-
  *  others scaling — the "Bountiful Maintenance Oil" family (3 ids sharing identical text: Bountiful
@@ -2511,19 +2711,22 @@ export const CURATED_FOOD_OUTGOING_HEALING_BONUSES: Record<number, number> = {
  *  explicit that it's continuous, not stepwise: "Rather than being stepwise, as 'for Every 100
  *  Healing Power' might suggest, the conversion is continuous (i.e. 50 Healing Power would result in
  *  0.3% outgoing healing)." No game-mode split. */
-export const CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING: Record<number, { perHealingPower: number; perConcentration: number }> = {
+export const CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING: Record<
+  number,
+  { perHealingPower: number; perConcentration: number }
+> = {
   67528: { perHealingPower: 0.6, perConcentration: 0.8 }, // Bountiful Maintenance Oil
   99842: { perHealingPower: 0.6, perConcentration: 0.8 }, // Mist-Infused Maintenance Oil
-  103885: { perHealingPower: 0.6, perConcentration: 0.8 } // Bountiful Maintenance Oil Station
-}
+  103885: { perHealingPower: 0.6, perConcentration: 0.8 }, // Bountiful Maintenance Oil Station
+};
 
 /** Inputs `resolveOutgoingHealingPercent` needs from `CharacterAttributes` — a narrow pick rather
  *  than importing the full interface (defined in `derived-stats.ts`, which already imports from
  *  this file, so a full import back would be circular). */
 export interface OutgoingHealingAttributeInputs {
-  healingPower: number
-  concentration: number
-  vitality: number
+  healingPower: number;
+  concentration: number;
+  vitality: number;
 }
 
 /**
@@ -2536,57 +2739,67 @@ export function resolveOutgoingHealingPercent(
   build: Build,
   combatState: CombatState,
   traitsById: Map<number, Trait>,
-  attributes: OutgoingHealingAttributeInputs
+  attributes: OutgoingHealingAttributeInputs,
 ): number {
-  const active = activeTraitIds(build, traitsById)
-  let total = 0
+  const active = activeTraitIds(build, traitsById);
+  let total = 0;
 
   for (const [traitIdText, percent] of Object.entries(FLAT_OUTGOING_HEALING_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += percent
+    if (active.has(Number(traitIdText))) total += percent;
   }
 
   // Righteous Rebel's healing share is flat while Kalla's Fervor is active, unlike the per-stack
   // strike/condition/life-steal shares elsewhere in this file — see `KallaFervorPercentPerStack.
   // outgoingHealing`'s doc comment. Deliberately NOT `stacks * outgoingHealing`.
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
-  if (combatState.kallaFervorStacks > 0) total += kallaFervorPerStack.outgoingHealing
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById);
+  if (combatState.kallaFervorStacks > 0) total += kallaFervorPerStack.outgoingHealing;
 
   if (active.has(SERENE_REJUVENATION_TRAIT_ID)) {
-    total += active.has(NUMINOUS_GIFT_TRAIT_ID) ? SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT : SERENE_REJUVENATION_BASE_HEALING_PERCENT
+    total += active.has(NUMINOUS_GIFT_TRAIT_ID)
+      ? SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT
+      : SERENE_REJUVENATION_BASE_HEALING_PERCENT;
   }
 
-  if (combatState.invokingHarmonyActive && active.has(INVOKING_HARMONY_TRAIT_ID)) total += INVOKING_HARMONY_HEALING_PERCENT
+  if (combatState.invokingHarmonyActive && active.has(INVOKING_HARMONY_TRAIT_ID))
+    total += INVOKING_HARMONY_HEALING_PERCENT;
 
   if (combatState.celestialAvatarActive) {
-    for (const [traitIdText, percent] of Object.entries(CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+    for (const [traitIdText, percent] of Object.entries(
+      CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
+    )) {
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
 
-  if (active.has(FORCE_OF_WILL_TRAIT_ID)) total += (attributes.vitality / 100) * FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY
+  if (active.has(FORCE_OF_WILL_TRAIT_ID))
+    total += (attributes.vitality / 100) * FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY;
 
   if (build.skills.kind === 'standard' && build.skills.heal === MED_KIT_SKILL_ID) {
     for (const [traitIdText, percent] of Object.entries(MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES)) {
-      if (active.has(Number(traitIdText))) total += percent
+      if (active.has(Number(traitIdText))) total += percent;
     }
   }
 
-  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_OUTGOING_HEALING_BONUSES[build.relicId] ?? 0
+  if (combatState.relicActive && build.relicId !== null)
+    total += CURATED_RELIC_OUTGOING_HEALING_BONUSES[build.relicId] ?? 0;
 
-  total += curatedSigilOutgoingHealingPercent(build)
-  total += stackingSigilOutgoingHealingPercent(build, combatState)
+  total += curatedSigilOutgoingHealingPercent(build);
+  total += stackingSigilOutgoingHealingPercent(build, combatState);
 
   for (const id of [build.foodId, build.utilityId]) {
-    if (id !== null) total += CURATED_FOOD_OUTGOING_HEALING_BONUSES[id] ?? 0
+    if (id !== null) total += CURATED_FOOD_OUTGOING_HEALING_BONUSES[id] ?? 0;
   }
 
   for (const id of [build.foodId, build.utilityId]) {
-    if (id === null) continue
-    const scaling = CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING[id]
-    if (scaling) total += (attributes.healingPower / 100) * scaling.perHealingPower + (attributes.concentration / 100) * scaling.perConcentration
+    if (id === null) continue;
+    const scaling = CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING[id];
+    if (scaling)
+      total +=
+        (attributes.healingPower / 100) * scaling.perHealingPower +
+        (attributes.concentration / 100) * scaling.perConcentration;
   }
 
-  return total
+  return total;
 }
 
 /** Sums every curated incoming-healing-%-to-self source actually active on this build — the
@@ -2594,11 +2807,14 @@ export function resolveOutgoingHealingPercent(
  *  unconditional trait bonus (see `FLAT_INCOMING_HEALING_TRAIT_BONUSES`), so this is simpler than
  *  `resolveOutgoingHealingPercent` — no relic/sigil/food/proc family has turned up an incoming-
  *  healing source yet. */
-export function resolveIncomingHealingPercent(build: Build, traitsById: Map<number, Trait>): number {
-  const active = activeTraitIds(build, traitsById)
-  let total = 0
+export function resolveIncomingHealingPercent(
+  build: Build,
+  traitsById: Map<number, Trait>,
+): number {
+  const active = activeTraitIds(build, traitsById);
+  let total = 0;
   for (const [traitIdText, percent] of Object.entries(FLAT_INCOMING_HEALING_TRAIT_BONUSES)) {
-    if (active.has(Number(traitIdText))) total += percent
+    if (active.has(Number(traitIdText))) total += percent;
   }
-  return total
+  return total;
 }

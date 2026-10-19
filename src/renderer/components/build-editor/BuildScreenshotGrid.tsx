@@ -1,43 +1,43 @@
-import { useState, type RefObject } from 'react'
-import type { Build, ProfessionId, TraitLineSlots } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { ProfessionSpecPicker } from './ProfessionSpecPicker'
-import { WeaponTypeBar } from './WeaponTypeBar'
-import { CombatStatePanel } from './CombatStatePanel'
-import { TraitsEditor } from './TraitsEditor'
-import { EquipmentEditor } from './EquipmentEditor'
-import { EquipmentTextManifest } from './EquipmentTextManifest'
-import { StatsPanel } from './StatsPanel'
-import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel'
-import { SkillsEditor } from './SkillsEditor'
+import { useState, type RefObject } from 'react';
+import type { Build, ProfessionId, TraitLineSlots } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import { ProfessionSpecPicker } from './ProfessionSpecPicker';
+import { WeaponTypeBar } from './WeaponTypeBar';
+import { CombatStatePanel } from './CombatStatePanel';
+import { TraitsEditor } from './TraitsEditor';
+import { EquipmentEditor } from './EquipmentEditor';
+import { EquipmentTextManifest } from './EquipmentTextManifest';
+import { StatsPanel } from './StatsPanel';
+import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel';
+import { SkillsEditor } from './SkillsEditor';
 
 interface Props {
   /** Display build — already underwater-masked by the caller (see `withUnderwaterSetting`), same
    *  as `BuildEditorView`'s `displayBuild`. */
-  build: Build
-  combatState: CombatState
-  equippedSpecializationIds: Set<number>
+  build: Build;
+  combatState: CombatState;
+  equippedSpecializationIds: Set<number>;
   /** Only `CaptureHost` passes this (2026-08-28) — its own "wait for every rendered `<img>` to
    *  decode before signaling ready" hook, same as `BuildPreviewPage.tsx`'s identical use of this
    *  prop for the Discord bot's render page. `BuildEditorView`/`BuildPreviewModal` both omit it —
    *  neither has anything that still needs a ref to this root; `ScreenshotButton` in particular no
    *  longer captures the live on-screen DOM at all, see its own doc comment. */
-  gridRef?: RefObject<HTMLDivElement>
+  gridRef?: RefObject<HTMLDivElement>;
   /** `false` makes the whole grid inert (`pointer-events: none`) — used by `BuildPreviewModal` so
    *  a quick look at a build's layout can never accidentally start editing it. Every `on*` handler
    *  below is optional and no-ops by default for exactly that case: with pointer events off, none
    *  of them can fire anyway, so the read-only caller doesn't need to wire up real ones. Defaults
    *  to `true` (the interactive, `BuildEditorView` case). */
-  interactive?: boolean
-  onProfessionSpecChoose?: (profession: ProfessionId, eliteSpecializationId: number | null) => void
-  onCombatStateChange?: (state: CombatState) => void
-  onWeaponEquipmentChange?: (equipment: Build['equipment']) => void
-  onSpecializationsChange?: (specializations: TraitLineSlots) => void
-  onEquipmentChange?: (equipment: Build['equipment']) => void
-  onConsumablesChange?: (value: Pick<Build, 'relicId' | 'foodId' | 'utilityId'>) => void
-  onOpenOptimizer?: () => void
-  onSkillsChange?: (skills: Build['skills']) => void
-  onBuildChange?: (patch: Partial<Build>) => void
+  interactive?: boolean;
+  onProfessionSpecChoose?: (profession: ProfessionId, eliteSpecializationId: number | null) => void;
+  onCombatStateChange?: (state: CombatState) => void;
+  onWeaponEquipmentChange?: (equipment: Build['equipment']) => void;
+  onSpecializationsChange?: (specializations: TraitLineSlots) => void;
+  onEquipmentChange?: (equipment: Build['equipment']) => void;
+  onConsumablesChange?: (value: Pick<Build, 'relicId' | 'foodId' | 'utilityId'>) => void;
+  onOpenOptimizer?: () => void;
+  onSkillsChange?: (skills: Build['skills']) => void;
+  onBuildChange?: (patch: Partial<Build>) => void;
 }
 
 /** Phone-width-only section tabs (Leg 1, 2026-10-08) — at every wider tier `.build-editor-area-tabs`
@@ -48,10 +48,10 @@ interface Props {
 const MOBILE_TABS = [
   { key: 'traits', label: 'Traits' },
   { key: 'equipment', label: 'Equipment' },
-  { key: 'stats', label: 'Skills & Stats' }
-] as const
+  { key: 'stats', label: 'Skills & Stats' },
+] as const;
 
-type MobileTabKey = (typeof MOBILE_TABS)[number]['key']
+type MobileTabKey = (typeof MOBILE_TABS)[number]['key'];
 
 /**
  * The "screenshot" portion of the build editor — Profession/Weapon-type/Combat-state toolbar row
@@ -75,9 +75,9 @@ export function BuildScreenshotGrid({
   onConsumablesChange = () => {},
   onOpenOptimizer = () => {},
   onSkillsChange = () => {},
-  onBuildChange = () => {}
+  onBuildChange = () => {},
 }: Props) {
-  const [mobileTab, setMobileTab] = useState<MobileTabKey>('traits')
+  const [mobileTab, setMobileTab] = useState<MobileTabKey>('traits');
 
   return (
     <div
@@ -175,5 +175,5 @@ export function BuildScreenshotGrid({
         <EquipmentTextManifest build={build} />
       </div>
     </div>
-  )
+  );
 }

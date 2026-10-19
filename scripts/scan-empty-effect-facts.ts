@@ -53,19 +53,19 @@
  *
  * Run manually via `npm run scan-empty-effect-facts`, after `npm run fetch-game-data`.
  */
-import { readFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { Fact, Skill } from '../src/shared/types/game-data'
-import { SHROUD_SLOT_SKILLS } from '../src/shared/skill-calc/bundle-skills'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { readFile } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type { Fact, Skill } from '../src/shared/types/game-data';
+import { SHROUD_SLOT_SKILLS } from '../src/shared/skill-calc/bundle-skills';
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache';
 
-const WIKI_API = 'https://wiki.guildwars2.com/api.php'
+const WIKI_API = 'https://wiki.guildwars2.com/api.php';
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)';
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = join(__dirname, '..', 'data', 'game-data');
 
 /** Fact types that describe positioning/timing overhead, not what a skill actually DOES — see
  *  module doc comment. Kept deliberately small and conservative: every other type this app's local
@@ -74,51 +74,54 @@ const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
  *  full-file type-frequency scan while building this script) contributes real information about
  *  the skill's effect, even ones with an unhelpful-sounding name (`NoData`'s own `text` field is
  *  itself the content, e.g. "Pierces"/"Unblockable"/"Reflects Missiles" — not literally "no data"). */
-const META_ONLY_FACT_TYPES = new Set(['Range', 'Recharge', 'Distance', 'Radius'])
+const META_ONLY_FACT_TYPES = new Set(['Range', 'Recharge', 'Distance', 'Radius']);
 
 /** Same set, but as the wiki template's own lowercase label vocabulary (confirmed live: `{{skill
  *  fact|range|900}}`, `{{skill fact|Radius|360}}` — casing varies, compared case-insensitively). */
-const META_ONLY_WIKI_LABELS = new Set(['range', 'recharge', 'distance', 'radius'])
+const META_ONLY_WIKI_LABELS = new Set(['range', 'recharge', 'distance', 'radius']);
 
 /** Chosen from a live look at the description-length distribution of every content-empty player
  *  skill (2026-08-08): below ~30 chars is reliably a one-line toggle label ("Release the Bear," 37
  *  chars); above 60 reliably reads as a real sentence describing a mechanic. 60 is a deliberately
  *  loose (over-inclusive) cut — pass 2's wiki check is what actually separates signal from the
  *  toggle-skill noise this alone lets through, see module doc comment. */
-const MIN_DESCRIPTION_LENGTH = 60
+const MIN_DESCRIPTION_LENGTH = 60;
 
 function stripMarkup(description: string): string {
-  return description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+  return description
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** Same helper as every other fetch-*.ts script — shout-style skill titles keep/drop surrounding
  *  quote marks inconsistently between the API and the wiki. */
 function titleVariants(title: string): string[] {
-  const unquoted = title.replace(/^"(.*)"$/, '$1')
-  return unquoted === title ? [title, `"${title}"`] : [title, unquoted]
+  const unquoted = title.replace(/^"(.*)"$/, '$1');
+  return unquoted === title ? [title, `"${title}"`] : [title, unquoted];
 }
 
 async function searchCandidateTitles(query: string): Promise<string[]> {
-  const url = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=20`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) return []
-  const json = (await response.json()) as { query?: { search?: { title: string }[] } }
-  return (json.query?.search ?? []).map((s) => s.title)
+  const url = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=20`;
+  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
+  if (!response.ok) return [];
+  const json = (await response.json()) as { query?: { search?: { title: string }[] } };
+  return (json.query?.search ?? []).map((s) => s.title);
 }
 
 function parseInfoboxSkillIds(wikitext: string): number[] {
-  const match = /\|\s*id\s*=\s*([^\n|}]+)/.exec(wikitext)
-  if (!match) return []
+  const match = /\|\s*id\s*=\s*([^\n|}]+)/.exec(wikitext);
+  if (!match) return [];
   return match[1]
     .split(',')
     .map((s) => Number(s.trim()))
-    .filter((n) => !Number.isNaN(n))
+    .filter((n) => !Number.isNaN(n));
 }
 
 type PageResolution =
   | { status: 'ok'; wikitext: string; title: string; method: 'direct' | 'disambiguated' }
   | { status: 'not-found' }
-  | { status: 'unresolved-collision'; note: string }
+  | { status: 'unresolved-collision'; note: string };
 
 /** Simplified two-tier version of `fetch-skill-coefficients.ts`'s `resolveSkillPage` — direct
  *  title match, then a MediaWiki-search fallback, each self-verified against the page's own
@@ -127,34 +130,35 @@ type PageResolution =
  *  human review, not a value cross-check) doesn't need — an unresolved collision here just gets
  *  logged for a human to look at directly, same as any other unresolved case. */
 async function resolveSkillPage(skill: Skill): Promise<PageResolution> {
-  const triedTitles: string[] = []
-  let anyPageFound = false
+  const triedTitles: string[] = [];
+  let anyPageFound = false;
 
   for (const title of titleVariants(skill.name)) {
-    triedTitles.push(title)
-    const text = await fetchWikiPage(title)
-    if (text === null) continue
-    anyPageFound = true
-    if (/\{\{\s*disambig/i.test(text)) continue
-    if (parseInfoboxSkillIds(text).includes(skill.id)) return { status: 'ok', wikitext: text, title, method: 'direct' }
+    triedTitles.push(title);
+    const text = await fetchWikiPage(title);
+    if (text === null) continue;
+    anyPageFound = true;
+    if (/\{\{\s*disambig/i.test(text)) continue;
+    if (parseInfoboxSkillIds(text).includes(skill.id))
+      return { status: 'ok', wikitext: text, title, method: 'direct' };
   }
 
-  const candidates = await searchCandidateTitles(skill.name)
+  const candidates = await searchCandidateTitles(skill.name);
   for (const candidate of candidates) {
-    if (triedTitles.includes(candidate)) continue
-    const text = await fetchWikiPage(candidate)
-    if (text === null) continue
-    anyPageFound = true
+    if (triedTitles.includes(candidate)) continue;
+    const text = await fetchWikiPage(candidate);
+    if (text === null) continue;
+    anyPageFound = true;
     if (parseInfoboxSkillIds(text).includes(skill.id)) {
-      return { status: 'ok', wikitext: text, title: candidate, method: 'disambiguated' }
+      return { status: 'ok', wikitext: text, title: candidate, method: 'disambiguated' };
     }
   }
 
-  if (!anyPageFound) return { status: 'not-found' }
+  if (!anyPageFound) return { status: 'not-found' };
   return {
     status: 'unresolved-collision',
-    note: `tried [${triedTitles.join(', ')}] and ${candidates.length} search candidate(s), none had id=${skill.id}`
-  }
+    note: `tried [${triedTitles.join(', ')}] and ${candidates.length} search candidate(s), none had id=${skill.id}`,
+  };
 }
 
 /** Every `{{skill fact|LABEL|...}}` invocation's LABEL (first pipe segment) — presence-only check,
@@ -163,119 +167,136 @@ async function resolveSkillPage(skill: Skill): Promise<PageResolution> {
  *  (the wrinkle those scripts guard against for value parsing) can't produce a false NEGATIVE here
  *  since the label itself is always the first segment, only affects params after it. */
 function parseSkillFactLabels(wikitext: string): string[] {
-  const re = /\{\{\s*skill fact\s*\|\s*([^|}]+)/gi
-  const labels: string[] = []
-  for (const match of wikitext.matchAll(re)) labels.push(match[1].trim())
-  return labels
+  const re = /\{\{\s*skill fact\s*\|\s*([^|}]+)/gi;
+  const labels: string[] = [];
+  for (const match of wikitext.matchAll(re)) labels.push(match[1].trim());
+  return labels;
 }
 
 interface Candidate {
-  skill: Skill
-  descLen: number
+  skill: Skill;
+  descLen: number;
 }
 
 /** Every id reachable via a Shroud weapon-bar slot (see `bundle-skills.ts`'s own doc comment) — the
  *  one documented exception to "a `Downed_*`-slotted id is unreachable" (this app has no
  *  downed-skill concept at all, see `boon-calc/sources.ts`'s own note on the same reachability
  *  question for the target-count sweep). */
-const REACHABLE_SHROUD_IDS = new Set(Object.values(SHROUD_SLOT_SKILLS).flat())
+const REACHABLE_SHROUD_IDS = new Set(Object.values(SHROUD_SLOT_SKILLS).flat());
 
 function selectCandidates(skills: Skill[]): Candidate[] {
-  const out: Candidate[] = []
+  const out: Candidate[] = [];
   for (const skill of skills) {
-    if (skill.professions.length === 0) continue
-    if (skill.slot.startsWith('Downed_') && !REACHABLE_SHROUD_IDS.has(skill.id)) continue
-    const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
-    const contentFacts = allFacts.filter((f) => !META_ONLY_FACT_TYPES.has(f.type))
-    if (contentFacts.length > 0) continue
-    const desc = stripMarkup(skill.description)
-    if (desc.length < MIN_DESCRIPTION_LENGTH) continue
-    out.push({ skill, descLen: desc.length })
+    if (skill.professions.length === 0) continue;
+    if (skill.slot.startsWith('Downed_') && !REACHABLE_SHROUD_IDS.has(skill.id)) continue;
+    const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+    const contentFacts = allFacts.filter((f) => !META_ONLY_FACT_TYPES.has(f.type));
+    if (contentFacts.length > 0) continue;
+    const desc = stripMarkup(skill.description);
+    if (desc.length < MIN_DESCRIPTION_LENGTH) continue;
+    out.push({ skill, descLen: desc.length });
   }
-  return out
+  return out;
 }
 
 async function main(): Promise<void> {
-  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
+  const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[];
 
-  const candidates = selectCandidates(skills)
+  const candidates = selectCandidates(skills);
   console.log(
     `Pass 1 (local): ${candidates.length} player-equippable skills have a substantive description` +
-      ` (>=${MIN_DESCRIPTION_LENGTH} chars) but zero non-meta facts, out of ${skills.length} total skills.`
-  )
-  console.log(`Pass 2 (wiki): checking each candidate's wiki page for a structured template covering it...\n`)
+      ` (>=${MIN_DESCRIPTION_LENGTH} chars) but zero non-meta facts, out of ${skills.length} total skills.`,
+  );
+  console.log(
+    `Pass 2 (wiki): checking each candidate's wiki page for a structured template covering it...\n`,
+  );
 
-  const hasTemplate: string[] = []
-  const noTemplate: string[] = []
-  const unresolved: string[] = []
-  let processed = 0
+  const hasTemplate: string[] = [];
+  const noTemplate: string[] = [];
+  const unresolved: string[] = [];
+  let processed = 0;
 
   for (const { skill, descLen } of candidates) {
-    let resolution: PageResolution
+    let resolution: PageResolution;
     try {
-      resolution = await resolveSkillPage(skill)
+      resolution = await resolveSkillPage(skill);
     } catch (err) {
-      unresolved.push(`fetch error: skill ${skill.id} "${skill.name}" — ${(err as Error).message}`)
-      processed++
-      continue
+      unresolved.push(`fetch error: skill ${skill.id} "${skill.name}" — ${(err as Error).message}`);
+      processed++;
+      continue;
     }
 
     if (resolution.status === 'not-found') {
-      unresolved.push(`no wiki page found: skill ${skill.id} "${skill.name}" (tried: ${titleVariants(skill.name).join(', ')})`)
-      processed++
-      continue
+      unresolved.push(
+        `no wiki page found: skill ${skill.id} "${skill.name}" (tried: ${titleVariants(skill.name).join(', ')})`,
+      );
+      processed++;
+      continue;
     }
     if (resolution.status === 'unresolved-collision') {
-      unresolved.push(`skill ${skill.id} "${skill.name}" — ${resolution.note}`)
-      processed++
-      continue
+      unresolved.push(`skill ${skill.id} "${skill.name}" — ${resolution.note}`);
+      processed++;
+      continue;
     }
 
-    const labels = parseSkillFactLabels(resolution.wikitext)
-    const contentLabels = [...new Set(labels.filter((l) => !META_ONLY_WIKI_LABELS.has(l.toLowerCase())))]
+    const labels = parseSkillFactLabels(resolution.wikitext);
+    const contentLabels = [
+      ...new Set(labels.filter((l) => !META_ONLY_WIKI_LABELS.has(l.toLowerCase()))),
+    ];
 
-    const desc = stripMarkup(skill.description)
-    const truncatedDesc = desc.length > 120 ? `${desc.slice(0, 117)}...` : desc
+    const desc = stripMarkup(skill.description);
+    const truncatedDesc = desc.length > 120 ? `${desc.slice(0, 117)}...` : desc;
 
     if (contentLabels.length > 0) {
       hasTemplate.push(
         `skill ${skill.id} "${skill.name}" (${skill.type}/${skill.slot}, desc ${descLen} chars) — ` +
           `wiki page "${resolution.title}" has ${contentLabels.length} non-meta fact label(s): ` +
-          `[${contentLabels.slice(0, 8).join(', ')}${contentLabels.length > 8 ? ', ...' : ''}] — desc: "${truncatedDesc}"`
-      )
+          `[${contentLabels.slice(0, 8).join(', ')}${contentLabels.length > 8 ? ', ...' : ''}] — desc: "${truncatedDesc}"`,
+      );
     } else {
       noTemplate.push(
         `skill ${skill.id} "${skill.name}" (${skill.type}/${skill.slot}, desc ${descLen} chars) — ` +
-          `wiki page "${resolution.title}" also has no non-meta fact template — desc: "${truncatedDesc}"`
-      )
+          `wiki page "${resolution.title}" also has no non-meta fact template — desc: "${truncatedDesc}"`,
+      );
     }
 
-    processed++
-    if (processed % 20 === 0) console.log(`  [${processed}/${candidates.length}] candidates checked...`)
+    processed++;
+    if (processed % 20 === 0)
+      console.log(`  [${processed}/${candidates.length}] candidates checked...`);
   }
 
-  console.log(`\nDone. ${processed}/${candidates.length} candidates checked.`)
-  console.log(`  HAS STRUCTURED WIKI TEMPLATE (actionable — API omits data the wiki has): ${hasTemplate.length}`)
-  console.log(`  NO TEMPLATE (wiki agrees with API — likely not a real gap):            ${noTemplate.length}`)
-  console.log(`  UNRESOLVED (couldn't find/verify a wiki page — needs a human look):     ${unresolved.length}`)
+  console.log(`\nDone. ${processed}/${candidates.length} candidates checked.`);
+  console.log(
+    `  HAS STRUCTURED WIKI TEMPLATE (actionable — API omits data the wiki has): ${hasTemplate.length}`,
+  );
+  console.log(
+    `  NO TEMPLATE (wiki agrees with API — likely not a real gap):            ${noTemplate.length}`,
+  );
+  console.log(
+    `  UNRESOLVED (couldn't find/verify a wiki page — needs a human look):     ${unresolved.length}`,
+  );
 
   if (hasTemplate.length > 0) {
-    console.log(`\n--- HAS STRUCTURED WIKI TEMPLATE (the actionable Otherworldly-Bond-shaped findings) ---`)
-    for (const line of hasTemplate) console.log(`  - ${line}`)
+    console.log(
+      `\n--- HAS STRUCTURED WIKI TEMPLATE (the actionable Otherworldly-Bond-shaped findings) ---`,
+    );
+    for (const line of hasTemplate) console.log(`  - ${line}`);
   }
   if (noTemplate.length > 0) {
-    console.log(`\n--- NO TEMPLATE (wiki also has nothing beyond Range/Recharge/Distance/Radius) ---`)
-    for (const line of noTemplate) console.log(`  - ${line}`)
+    console.log(
+      `\n--- NO TEMPLATE (wiki also has nothing beyond Range/Recharge/Distance/Radius) ---`,
+    );
+    for (const line of noTemplate) console.log(`  - ${line}`);
   }
   if (unresolved.length > 0) {
-    console.log(`\n--- UNRESOLVED (no verified wiki page) ---`)
-    for (const line of unresolved) console.log(`  - ${line}`)
+    console.log(`\n--- UNRESOLVED (no verified wiki page) ---`);
+    for (const line of unresolved) console.log(`  - ${line}`);
   }
 
-  await flushWikiCache()
+  await flushWikiCache();
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

@@ -1,15 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
-import type { Build, SquadComp, TraitLineSelection } from '@shared/types'
-import type { CombatState } from '@shared/gear-calc/combat-state'
-import { withUnderwaterSetting } from '@shared/types/build'
-import { useGameData } from '@renderer/state/game-data-store'
-import { useAppSettings } from '@renderer/state/app-settings-store'
-import { useBuildsStore } from '@renderer/state/builds-store'
-import { BuildScreenshotGrid } from '@renderer/components/build-editor/BuildScreenshotGrid'
-import { SquadCompScreenshotGrid } from '@renderer/components/squad-editor/SquadCompScreenshotGrid'
+import { useEffect, useRef, useState } from 'react';
+import type { Build, SquadComp, TraitLineSelection } from '@shared/types';
+import type { CombatState } from '@shared/gear-calc/combat-state';
+import { withUnderwaterSetting } from '@shared/types/build';
+import { useGameData } from '@renderer/state/game-data-store';
+import { useAppSettings } from '@renderer/state/app-settings-store';
+import { useBuildsStore } from '@renderer/state/builds-store';
+import { BuildScreenshotGrid } from '@renderer/components/build-editor/BuildScreenshotGrid';
+import { SquadCompScreenshotGrid } from '@renderer/components/squad-editor/SquadCompScreenshotGrid';
 
 function equippedSpecializationIdsFor(build: Build): Set<number> {
-  return new Set(build.specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId))
+  return new Set(
+    build.specializations
+      .filter((s): s is TraitLineSelection => s !== null)
+      .map((s) => s.specializationId),
+  );
 }
 
 /**
@@ -23,43 +27,43 @@ function equippedSpecializationIdsFor(build: Build): Set<number> {
  * origin, see `offscreen-capture.ts`'s doc comment).
  */
 function BuildCaptureHost({ token }: { token: string }) {
-  const { loading: gameDataLoading } = useGameData()
-  const { showUnderwater } = useAppSettings()
-  const [build, setBuild] = useState<Build | null>(null)
-  const [combatState, setCombatState] = useState<CombatState | null>(null)
-  const [signaled, setSignaled] = useState(false)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const { loading: gameDataLoading } = useGameData();
+  const { showUnderwater } = useAppSettings();
+  const [build, setBuild] = useState<Build | null>(null);
+  const [combatState, setCombatState] = useState<CombatState | null>(null);
+  const [signaled, setSignaled] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void window.gw2Capture.getPayload(token).then((result) => {
-      if (cancelled || !result || result.kind !== 'build') return
-      setBuild(result.payload.build)
-      setCombatState(result.payload.combatState)
-    })
+      if (cancelled || !result || result.kind !== 'build') return;
+      setBuild(result.payload.build);
+      setCombatState(result.payload.combatState);
+    });
     return () => {
-      cancelled = true
-    }
-  }, [token])
+      cancelled = true;
+    };
+  }, [token]);
 
-  const readyToMount = build !== null && combatState !== null && !gameDataLoading
+  const readyToMount = build !== null && combatState !== null && !gameDataLoading;
 
   useEffect(() => {
-    if (!readyToMount || signaled || !gridRef.current) return
-    let cancelled = false
-    const images = Array.from(gridRef.current.querySelectorAll('img'))
+    if (!readyToMount || signaled || !gridRef.current) return;
+    let cancelled = false;
+    const images = Array.from(gridRef.current.querySelectorAll('img'));
     void Promise.all(images.map((img) => img.decode().catch(() => undefined))).then(() => {
-      if (cancelled) return
-      setSignaled(true)
-      void window.gw2Capture.signalReady(token)
-    })
+      if (cancelled) return;
+      setSignaled(true);
+      void window.gw2Capture.signalReady(token);
+    });
     return () => {
-      cancelled = true
-    }
-  }, [readyToMount, signaled, token])
+      cancelled = true;
+    };
+  }, [readyToMount, signaled, token]);
 
   // Re-derived (not just `!readyToMount`) so TypeScript narrows `build`/`combatState` below.
-  if (!build || !combatState || gameDataLoading) return null
+  if (!build || !combatState || gameDataLoading) return null;
 
   return (
     <BuildScreenshotGrid
@@ -69,7 +73,7 @@ function BuildCaptureHost({ token }: { token: string }) {
       interactive={false}
       gridRef={gridRef}
     />
-  )
+  );
 }
 
 /** Squad-editor half of `CaptureHost` — see `BuildCaptureHost`'s doc comment for the shared
@@ -80,39 +84,39 @@ function BuildCaptureHost({ token }: { token: string }) {
  *  `SquadCompEditorView`'s own (that toggle only ever existed to hide editing chrome from an
  *  on-screen capture, which no longer applies here). */
 function SquadCaptureHost({ token }: { token: string }) {
-  const { builds } = useBuildsStore()
-  const [squadComp, setSquadComp] = useState<SquadComp | null>(null)
-  const [signaled, setSignaled] = useState(false)
-  const gridRef = useRef<HTMLDivElement>(null)
+  const { builds } = useBuildsStore();
+  const [squadComp, setSquadComp] = useState<SquadComp | null>(null);
+  const [signaled, setSignaled] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let cancelled = false
+    let cancelled = false;
     void window.gw2Capture.getPayload(token).then((result) => {
-      if (cancelled || !result || result.kind !== 'squad') return
-      setSquadComp(result.payload.squadComp)
-    })
+      if (cancelled || !result || result.kind !== 'squad') return;
+      setSquadComp(result.payload.squadComp);
+    });
     return () => {
-      cancelled = true
-    }
-  }, [token])
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
-    if (!squadComp || signaled || !gridRef.current) return
-    let cancelled = false
-    const images = Array.from(gridRef.current.querySelectorAll('img'))
+    if (!squadComp || signaled || !gridRef.current) return;
+    let cancelled = false;
+    const images = Array.from(gridRef.current.querySelectorAll('img'));
     void Promise.all(images.map((img) => img.decode().catch(() => undefined))).then(() => {
-      if (cancelled) return
-      setSignaled(true)
-      void window.gw2Capture.signalReady(token)
-    })
+      if (cancelled) return;
+      setSignaled(true);
+      void window.gw2Capture.signalReady(token);
+    });
     return () => {
-      cancelled = true
-    }
-  }, [squadComp, signaled, token])
+      cancelled = true;
+    };
+  }, [squadComp, signaled, token]);
 
-  if (!squadComp) return null
+  if (!squadComp) return null;
 
-  const buildsById = new Map(builds.map((b) => [b.id, b]))
+  const buildsById = new Map(builds.map((b) => [b.id, b]));
 
   return (
     <SquadCompScreenshotGrid
@@ -123,7 +127,7 @@ function SquadCaptureHost({ token }: { token: string }) {
       interactive={false}
       screenshotMode
     />
-  )
+  );
 }
 
 /**
@@ -144,5 +148,5 @@ function SquadCaptureHost({ token }: { token: string }) {
  * public share.
  */
 export function CaptureHost({ kind, token }: { kind: 'build' | 'squad'; token: string }) {
-  return kind === 'build' ? <BuildCaptureHost token={token} /> : <SquadCaptureHost token={token} />
+  return kind === 'build' ? <BuildCaptureHost token={token} /> : <SquadCaptureHost token={token} />;
 }

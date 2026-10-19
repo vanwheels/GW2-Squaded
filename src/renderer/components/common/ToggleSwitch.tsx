@@ -1,7 +1,7 @@
 interface Props {
-  checked: boolean
-  onChange: (checked: boolean) => void
-  label: string
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label: string;
 }
 
 /**
@@ -26,5 +26,5 @@ export function ToggleSwitch({ checked, onChange, label }: Props) {
       </span>
       <span>{label}</span>
     </label>
-  )
+  );
 }

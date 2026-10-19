@@ -1,7 +1,7 @@
-import type { Skill } from '../types'
+import type { Skill } from '../types';
 
 /** Vindicator's specialization id — see `vindicatorAspectSkillId`'s doc comment. */
-export const VINDICATOR_SPEC_ID = 69
+export const VINDICATOR_SPEC_ID = 69;
 
 /**
  * Legend7 (Legendary Alliance)'s 5 canonical "Aspect of the Archemorus" ids — `Legend.heal`/
@@ -21,7 +21,9 @@ export const VINDICATOR_SPEC_ID = 69
  * Celestial Avatar's weapon-bar toggle), unlike every other Legend's `flipSkill` pairs, which are
  * genuine on/release pairs still shown stacked.
  */
-export const VINDICATOR_ASPECT_ARCHEMORUS_IDS: ReadonlySet<number> = new Set([62719, 62832, 62962, 62878, 62942])
+export const VINDICATOR_ASPECT_ARCHEMORUS_IDS: ReadonlySet<number> = new Set([
+  62719, 62832, 62962, 62878, 62942,
+]);
 
 /**
  * Resolves one of Legend7's heal/utility/elite `baseSkillId`s (always the "Aspect of the
@@ -33,8 +35,12 @@ export const VINDICATOR_ASPECT_ARCHEMORUS_IDS: ReadonlySet<number> = new Set([62
  * target is somehow missing from `skillsById` (stale/incomplete data — same fail-open convention
  * used throughout this codebase rather than showing nothing).
  */
-export function vindicatorAspectSkillId(baseSkillId: number, flipped: boolean, skillsById: Map<number, Skill>): number {
-  if (!flipped) return baseSkillId
-  const base = skillsById.get(baseSkillId)
-  return base?.flipSkill ?? baseSkillId
+export function vindicatorAspectSkillId(
+  baseSkillId: number,
+  flipped: boolean,
+  skillsById: Map<number, Skill>,
+): number {
+  if (!flipped) return baseSkillId;
+  const base = skillsById.get(baseSkillId);
+  return base?.flipSkill ?? baseSkillId;
 }

@@ -12,143 +12,154 @@
  * Raw API response shapes are typed loosely and locally in this file only — the normalized,
  * app-facing types live in src/shared/types/game-data.ts and are what gets written to disk.
  */
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import type { AttributeBonusText, Consumable, ConsumableKind, Infusion, Relic, Rune, Sigil } from '../src/shared/types/game-data'
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import type {
+  AttributeBonusText,
+  Consumable,
+  ConsumableKind,
+  Infusion,
+  Relic,
+  Rune,
+  Sigil,
+} from '../src/shared/types/game-data';
 
-const API_BASE = 'https://api.guildwars2.com/v2'
-const BATCH_SIZE = 200
-const MAX_RETRIES = 5
-const BATCH_DELAY_MS = 150
+const API_BASE = 'https://api.guildwars2.com/v2';
+const BATCH_SIZE = 200;
+const MAX_RETRIES = 5;
+const BATCH_DELAY_MS = 150;
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const OUTPUT_DIR = join(__dirname, '..', 'data', 'game-data')
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const OUTPUT_DIR = join(__dirname, '..', 'data', 'game-data');
 // Raw /v2/items dump is ~74k records with no server-side subtype filter, so every tweak to the
 // bucketing/normalization logic below would otherwise cost a full multi-minute refetch. Cached
 // here (gitignored — see .gitignore) and reused unless --refresh is passed.
-const CACHE_FILE = join(__dirname, '..', '.cache', 'items-raw.json')
-const FORCE_REFRESH = process.argv.includes('--refresh')
+const CACHE_FILE = join(__dirname, '..', '.cache', 'items-raw.json');
+const FORCE_REFRESH = process.argv.includes('--refresh');
 
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function fetchJsonWithRetry<T>(url: string): Promise<T> {
-  let lastError: unknown
+  let lastError: unknown;
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const response = await fetch(url)
+      const response = await fetch(url);
       if (response.status === 429 || response.status >= 500) {
-        const backoffMs = 500 * 2 ** attempt
-        console.warn(`  [retry] ${response.status} from ${url} — backing off ${backoffMs}ms`)
-        await sleep(backoffMs)
-        continue
+        const backoffMs = 500 * 2 ** attempt;
+        console.warn(`  [retry] ${response.status} from ${url} — backing off ${backoffMs}ms`);
+        await sleep(backoffMs);
+        continue;
       }
       if (!response.ok) {
-        throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`)
+        throw new Error(`GET ${url} failed: ${response.status} ${response.statusText}`);
       }
-      return (await response.json()) as T
+      return (await response.json()) as T;
     } catch (err) {
-      lastError = err
-      const backoffMs = 500 * 2 ** attempt
-      console.warn(`  [retry] ${String(err)} — backing off ${backoffMs}ms`)
-      await sleep(backoffMs)
+      lastError = err;
+      const backoffMs = 500 * 2 ** attempt;
+      console.warn(`  [retry] ${String(err)} — backing off ${backoffMs}ms`);
+      await sleep(backoffMs);
     }
   }
-  throw new Error(`Failed to fetch ${url} after ${MAX_RETRIES} attempts: ${String(lastError)}`)
+  throw new Error(`Failed to fetch ${url} after ${MAX_RETRIES} attempts: ${String(lastError)}`);
 }
 
 function chunk<T>(items: T[], size: number): T[][] {
-  const chunks: T[][] = []
+  const chunks: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
-    chunks.push(items.slice(i, i + size))
+    chunks.push(items.slice(i, i + size));
   }
-  return chunks
+  return chunks;
 }
 
 // --- Raw API shapes (trimmed to the fields we actually consume) -----------------------------
 
 interface RawItem {
-  id: number
-  name: string
-  description?: string
-  icon?: string
-  type: string
-  rarity: string
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  type: string;
+  rarity: string;
   /** Top-level acquisition/tradeability flags (e.g. "SoulbindOnAcquire", "NoSell") — distinct from
    *  `details.flags` (upgrade-slot compatibility flags on runes/sigils). Used to disambiguate the
    *  reward-track-bound relic duplicates handled in `dedupeRelicsByName` below. */
-  flags?: string[]
+  flags?: string[];
   details?: {
-    type?: string
-    flags?: string[]
-    bonuses?: string[]
+    type?: string;
+    flags?: string[];
+    bonuses?: string[];
     infix_upgrade?: {
-      buff?: { description?: string }
-      attributes?: { attribute: string; modifier: number }[]
-    }
-    infusion_upgrade_flags?: string[]
-    duration_ms?: number
-    apply_count?: number
-    name?: string
-    description?: string
-    stat_choices?: number[]
-  }
+      buff?: { description?: string };
+      attributes?: { attribute: string; modifier: number }[];
+    };
+    infusion_upgrade_flags?: string[];
+    duration_ms?: number;
+    apply_count?: number;
+    name?: string;
+    description?: string;
+    stat_choices?: number[];
+  };
 }
 
 async function fetchAllItemsRaw(): Promise<RawItem[]> {
   if (!FORCE_REFRESH) {
     try {
-      const cached = JSON.parse(await readFile(CACHE_FILE, 'utf-8')) as RawItem[]
-      console.log(`Using cached raw item dump (${cached.length} items) from ${CACHE_FILE} — pass --refresh to refetch.`)
-      return cached
+      const cached = JSON.parse(await readFile(CACHE_FILE, 'utf-8')) as RawItem[];
+      console.log(
+        `Using cached raw item dump (${cached.length} items) from ${CACHE_FILE} — pass --refresh to refetch.`,
+      );
+      return cached;
     } catch {
       // No cache yet — fall through to a real fetch.
     }
   }
 
-  console.log('Fetching item ids...')
-  const ids = await fetchJsonWithRetry<number[]>(`${API_BASE}/items`)
-  console.log(`  items: ${ids.length} ids`)
+  console.log('Fetching item ids...');
+  const ids = await fetchJsonWithRetry<number[]>(`${API_BASE}/items`);
+  console.log(`  items: ${ids.length} ids`);
 
-  const batches = chunk(ids, BATCH_SIZE)
-  const allItems: RawItem[] = []
+  const batches = chunk(ids, BATCH_SIZE);
+  const allItems: RawItem[] = [];
   for (const [index, batch] of batches.entries()) {
-    const idsParam = batch.join(',')
-    const batchItems = await fetchJsonWithRetry<RawItem[]>(`${API_BASE}/items?ids=${idsParam}`)
-    allItems.push(...batchItems)
+    const idsParam = batch.join(',');
+    const batchItems = await fetchJsonWithRetry<RawItem[]>(`${API_BASE}/items?ids=${idsParam}`);
+    allItems.push(...batchItems);
     if (index % 20 === 0 || index === batches.length - 1) {
-      console.log(`  items: batch ${index + 1}/${batches.length}`)
+      console.log(`  items: batch ${index + 1}/${batches.length}`);
     }
-    if (index < batches.length - 1) await sleep(BATCH_DELAY_MS)
+    if (index < batches.length - 1) await sleep(BATCH_DELAY_MS);
   }
 
-  await mkdir(dirname(CACHE_FILE), { recursive: true })
-  await writeFile(CACHE_FILE, JSON.stringify(allItems))
-  console.log(`Cached raw item dump to ${CACHE_FILE}`)
-  return allItems
+  await mkdir(dirname(CACHE_FILE), { recursive: true });
+  await writeFile(CACHE_FILE, JSON.stringify(allItems));
+  console.log(`Cached raw item dump to ${CACHE_FILE}`);
+  return allItems;
 }
 
 // --- Bucket accumulators, filled in as batches stream in --------------------------------------
 
-const runeItems: RawItem[] = []
-const sigilItems: RawItem[] = []
-const infusionItems: RawItem[] = []
-const relicItems: RawItem[] = []
-const foodItems: RawItem[] = []
-const utilityItems: RawItem[] = []
+const runeItems: RawItem[] = [];
+const sigilItems: RawItem[] = [];
+const infusionItems: RawItem[] = [];
+const relicItems: RawItem[] = [];
+const foodItems: RawItem[] = [];
+const utilityItems: RawItem[] = [];
 /** Anything whose name looks like a relic ("Relic of ...") but didn't match the relic filter —
  *  logged so a wrong assumption about the `type`/`details.type` field gets caught, not silently
  *  missed. */
-const suspectedRelicMisses: RawItem[] = []
-const typeFrequency = new Map<string, number>()
-const detailsTypeFrequency = new Map<string, number>()
+const suspectedRelicMisses: RawItem[] = [];
+const typeFrequency = new Map<string, number>();
+const detailsTypeFrequency = new Map<string, number>();
 
 function bucketItem(item: RawItem): void {
-  typeFrequency.set(item.type, (typeFrequency.get(item.type) ?? 0) + 1)
-  const detailsType = item.details?.type
-  if (detailsType) detailsTypeFrequency.set(detailsType, (detailsTypeFrequency.get(detailsType) ?? 0) + 1)
+  typeFrequency.set(item.type, (typeFrequency.get(item.type) ?? 0) + 1);
+  const detailsType = item.details?.type;
+  if (detailsType)
+    detailsTypeFrequency.set(detailsType, (detailsTypeFrequency.get(detailsType) ?? 0) + 1);
 
   // Runes/sigils/relics each exist as a Legendary-rarity duplicate (same name, same effect,
   // reforgeable via legendary crafting) of their Exotic-tier id — confirmed live against the raw
@@ -159,12 +170,20 @@ function bucketItem(item: RawItem): void {
   // filter (reward-track-bound variants of the same relic, a separate/preexisting wrinkle, not
   // Legendary-related) — resolved downstream by `dedupeRelicsByName`, since unlike the
   // rune/sigil case both members of a relic pair are Exotic (no rarity field to filter on here).
-  if (item.rarity === 'Legendary') return
+  if (item.rarity === 'Legendary') return;
 
-  if (item.type === 'UpgradeComponent' && detailsType === 'Rune' && item.name.startsWith('Superior Rune of')) {
-    runeItems.push(item)
-  } else if (item.type === 'UpgradeComponent' && detailsType === 'Sigil' && item.name.startsWith('Superior Sigil of')) {
-    sigilItems.push(item)
+  if (
+    item.type === 'UpgradeComponent' &&
+    detailsType === 'Rune' &&
+    item.name.startsWith('Superior Rune of')
+  ) {
+    runeItems.push(item);
+  } else if (
+    item.type === 'UpgradeComponent' &&
+    detailsType === 'Sigil' &&
+    item.name.startsWith('Superior Sigil of')
+  ) {
+    sigilItems.push(item);
   } else if (
     item.type === 'UpgradeComponent' &&
     (item.details?.infusion_upgrade_flags?.includes('Infusion') ?? false) &&
@@ -176,13 +195,13 @@ function bucketItem(item: RawItem): void {
     // marks an item as infusion-slot-compatible; there's no API field distinguishing WvW
     // infusions from Agony ones at all, so the name suffix ("... WvW Infusion") is the only
     // reliable filter — matches the wiki's own naming convention for this item family.
-    infusionItems.push(item)
+    infusionItems.push(item);
   } else if (item.type === 'Relic' || detailsType === 'Relic') {
-    relicItems.push(item)
+    relicItems.push(item);
   } else if (item.type === 'Consumable' && detailsType === 'Food') {
-    foodItems.push(item)
+    foodItems.push(item);
   } else if (item.type === 'Consumable' && detailsType === 'Utility') {
-    utilityItems.push(item)
+    utilityItems.push(item);
   } else if (
     item.type === 'Consumable' &&
     detailsType === 'Generic' &&
@@ -201,9 +220,9 @@ function bucketItem(item: RawItem): void {
     // on both the name suffix AND the top-level description prefix (not `detailsType ===
     // 'Generic'` alone) since that bucket also holds ~125 unrelated items — Guild bank boosts,
     // Fractal potions, Mist-attunement potions — that aren't a per-character equipment-slot pick.
-    utilityItems.push(item)
+    utilityItems.push(item);
   } else if (/^Relic of /.test(item.name)) {
-    suspectedRelicMisses.push(item)
+    suspectedRelicMisses.push(item);
   }
 }
 
@@ -223,21 +242,33 @@ function bucketItem(item: RawItem): void {
  * value, so it can't be applied in a single pass like an ordinary flat bonus).
  */
 function parseAttributeBonusText(raw: string): AttributeBonusText {
-  const trimmed = raw.trim()
-  const conversionMatch = /^Gain (.+?) Equal to (\d+(?:\.\d+)?)% of Your (.+?)\.?$/.exec(trimmed)
+  const trimmed = raw.trim();
+  const conversionMatch = /^Gain (.+?) Equal to (\d+(?:\.\d+)?)% of Your (.+?)\.?$/.exec(trimmed);
   if (conversionMatch) {
-    const [, targetRaw, percentStr, sourceRaw] = conversionMatch
-    return { raw, attribute: targetRaw, value: Number(percentStr), isPercent: false, sourceAttribute: sourceRaw }
+    const [, targetRaw, percentStr, sourceRaw] = conversionMatch;
+    return {
+      raw,
+      attribute: targetRaw,
+      value: Number(percentStr),
+      isPercent: false,
+      sourceAttribute: sourceRaw,
+    };
   }
-  const match = /^\+(\d+(?:\.\d+)?)(%?)\s+(.+)$/.exec(trimmed)
-  if (!match) return { raw, attribute: null, value: null, isPercent: false, sourceAttribute: null }
-  const [, valueStr, percentSign, attributeRaw] = match
+  const match = /^\+(\d+(?:\.\d+)?)(%?)\s+(.+)$/.exec(trimmed);
+  if (!match) return { raw, attribute: null, value: null, isPercent: false, sourceAttribute: null };
+  const [, valueStr, percentSign, attributeRaw] = match;
   // Trailing period observed live on at least one sigil description (Superior Sigil of Malice:
   // "+10% condition duration.", lowercase and punctuated unlike every sibling sigil's "+10% Boon
   // Duration" style) — stripped so the attribute-name lookup in attribute-totals.ts's `addBonus`
   // still matches its alias table exactly.
-  const attribute = attributeRaw.replace(/\.$/, '')
-  return { raw, attribute, value: Number(valueStr), isPercent: percentSign === '%', sourceAttribute: null }
+  const attribute = attributeRaw.replace(/\.$/, '');
+  return {
+    raw,
+    attribute,
+    value: Number(valueStr),
+    isPercent: percentSign === '%',
+    sourceAttribute: null,
+  };
 }
 
 function normalizeRune(item: RawItem): Rune {
@@ -245,12 +276,12 @@ function normalizeRune(item: RawItem): Rune {
     id: item.id,
     name: item.name,
     icon: item.icon ?? '',
-    bonuses: (item.details?.bonuses ?? []).map(parseAttributeBonusText)
-  }
+    bonuses: (item.details?.bonuses ?? []).map(parseAttributeBonusText),
+  };
 }
 
 function normalizeSigil(item: RawItem): Sigil {
-  const description = item.details?.infix_upgrade?.buff?.description ?? ''
+  const description = item.details?.infix_upgrade?.buff?.description ?? '';
   return {
     id: item.id,
     name: item.name,
@@ -262,20 +293,20 @@ function normalizeSigil(item: RawItem): Sigil {
     // handful of "stat sigils" (e.g. Superior Sigil of Concentration: "+10% Boon Duration") are a
     // flat/percent attribute bonus in the exact same "+N[%] Attribute" shape Rune/Consumable
     // bonus lines use, so they parse the same way with no extra modeling.
-    bonuses: description ? description.split('\n').map(parseAttributeBonusText) : []
-  }
+    bonuses: description ? description.split('\n').map(parseAttributeBonusText) : [],
+  };
 }
 
 function normalizeInfusion(item: RawItem): Infusion {
-  const attr = item.details?.infix_upgrade?.attributes?.[0]
+  const attr = item.details?.infix_upgrade?.attributes?.[0];
   return {
     id: item.id,
     name: item.name,
     icon: item.icon ?? '',
     description: item.description ?? '',
     attribute: attr?.attribute ?? null,
-    value: attr?.modifier ?? null
-  }
+    value: attr?.modifier ?? null,
+  };
 }
 
 function normalizeRelic(item: RawItem): Relic {
@@ -283,8 +314,8 @@ function normalizeRelic(item: RawItem): Relic {
     id: item.id,
     name: item.name,
     icon: item.icon ?? '',
-    description: item.description ?? ''
-  }
+    description: item.description ?? '',
+  };
 }
 
 /**
@@ -298,25 +329,25 @@ function normalizeRelic(item: RawItem): Relic {
  * against a future pair that doesn't follow this exact flag pattern).
  */
 function dedupeRelicsByName(items: RawItem[]): RawItem[] {
-  const byName = new Map<string, RawItem[]>()
+  const byName = new Map<string, RawItem[]>();
   for (const item of items) {
-    const group = byName.get(item.name)
-    if (group) group.push(item)
-    else byName.set(item.name, [item])
+    const group = byName.get(item.name);
+    if (group) group.push(item);
+    else byName.set(item.name, [item]);
   }
   return [...byName.values()].map((group) => {
-    if (group.length === 1) return group[0]
-    const openlyObtainable = group.filter((i) => !(i.flags ?? []).includes('SoulbindOnAcquire'))
-    const candidates = openlyObtainable.length === 1 ? openlyObtainable : group
-    return candidates.reduce((lowest, i) => (i.id < lowest.id ? i : lowest))
-  })
+    if (group.length === 1) return group[0];
+    const openlyObtainable = group.filter((i) => !(i.flags ?? []).includes('SoulbindOnAcquire'));
+    const candidates = openlyObtainable.length === 1 ? openlyObtainable : group;
+    return candidates.reduce((lowest, i) => (i.id < lowest.id ? i : lowest));
+  });
 }
 
 function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
   // A consumable's actual buff (if it grants one at all — some Food entries are "Feast" reagents
   // with no direct-use buff) lives at details.{name,duration_ms,apply_count,description}, not the
   // item's own top-level `description` (that's flavor/usage text, e.g. "Double-click to serve...").
-  const effectText = item.details?.description
+  const effectText = item.details?.description;
   return {
     id: item.id,
     name: item.name,
@@ -328,8 +359,8 @@ function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
     applyCount: item.details?.apply_count ?? null,
     description: effectText ?? item.description ?? '',
     bonuses: effectText ? effectText.split('\n').map(parseAttributeBonusText) : [],
-    sharedBuffSource: null
-  }
+    sharedBuffSource: null,
+  };
 }
 
 /**
@@ -337,7 +368,16 @@ function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
  * "Tray of X(s)", "Pot of X", "Giant X Cake", etc. Order doesn't matter (a name starts with at
  * most one of these). See `Consumable.sharedBuffSource`'s doc comment for why this exists.
  */
-const SHARED_CONTAINER_PREFIXES = ['Feast of ', 'Tray of ', 'Pot of ', 'Plate of ', 'Pile of ', 'Giant ', 'Complete ', 'Bottle of ']
+const SHARED_CONTAINER_PREFIXES = [
+  'Feast of ',
+  'Tray of ',
+  'Pot of ',
+  'Plate of ',
+  'Pile of ',
+  'Giant ',
+  'Complete ',
+  'Bottle of ',
+];
 
 /** Container word the matching *individually-eaten* item might itself be prefixed with — tried in
  *  this priority order (empty string, i.e. no prefix at all, first) alongside the bare de-prefixed
@@ -355,8 +395,8 @@ const INDIVIDUAL_CONTAINER_PREFIXES = [
   'Slice of ',
   'Piece of ',
   'Filet of ',
-  'Loaf of '
-]
+  'Loaf of ',
+];
 
 /** `word` re-singularized, every plausible way — "Cookies" -> "Cookie"/"Cooky" (only one is ever a
  *  real word; whichever one is an existing item's name wins), "Pizzas" -> "Pizza", "Salad" (already
@@ -365,10 +405,10 @@ const INDIVIDUAL_CONTAINER_PREFIXES = [
  *  "s"-strip is right far more often than the "-ies"->"-y" pattern, but both are tried and the
  *  candidate-matching in `borrowSharedContainerBonuses` below is what actually decides). */
 function singularCandidates(word: string): Set<string> {
-  const out = new Set([word])
-  if (/s$/.test(word)) out.add(word.slice(0, -1))
-  if (/ies$/.test(word)) out.add(`${word.slice(0, -3)}y`)
-  return out
+  const out = new Set([word]);
+  if (/s$/.test(word)) out.add(word.slice(0, -1));
+  if (/ies$/.test(word)) out.add(`${word.slice(0, -3)}y`);
+  return out;
 }
 
 /**
@@ -380,18 +420,19 @@ function singularCandidates(word: string): Set<string> {
  * buffed item's name — any candidate that doesn't exist in the catalog is simply never looked up.
  */
 function candidateSourceNames(sharedName: string): Set<string> {
-  const candidates = new Set<string>()
+  const candidates = new Set<string>();
   for (const prefix of SHARED_CONTAINER_PREFIXES) {
-    if (!sharedName.startsWith(prefix)) continue
-    const rest = sharedName.slice(prefix.length)
-    const words = rest.split(' ')
-    const last = words[words.length - 1]
+    if (!sharedName.startsWith(prefix)) continue;
+    const rest = sharedName.slice(prefix.length);
+    const words = rest.split(' ');
+    const last = words[words.length - 1];
     for (const lastSingular of singularCandidates(last)) {
-      const restSingular = [...words.slice(0, -1), lastSingular].join(' ')
-      for (const individualPrefix of INDIVIDUAL_CONTAINER_PREFIXES) candidates.add(individualPrefix + restSingular)
+      const restSingular = [...words.slice(0, -1), lastSingular].join(' ');
+      for (const individualPrefix of INDIVIDUAL_CONTAINER_PREFIXES)
+        candidates.add(individualPrefix + restSingular);
     }
   }
-  return candidates
+  return candidates;
 }
 
 /**
@@ -408,15 +449,15 @@ function candidateSourceNames(sharedName: string): Set<string> {
  * no separate individually-eaten sibling to borrow from at all — see TODO.md.
  */
 function borrowSharedContainerBonuses(items: Consumable[]): void {
-  const buffedByName = new Map(items.filter((i) => i.effectName !== null).map((i) => [i.name, i]))
+  const buffedByName = new Map(items.filter((i) => i.effectName !== null).map((i) => [i.name, i]));
   for (const item of items) {
-    if (item.effectName !== null) continue
-    const matches = [...candidateSourceNames(item.name)].filter((name) => buffedByName.has(name))
-    if (matches.length !== 1) continue
-    const source = buffedByName.get(matches[0])!
-    item.effectName = source.effectName
-    item.bonuses = source.bonuses
-    item.sharedBuffSource = source.name
+    if (item.effectName !== null) continue;
+    const matches = [...candidateSourceNames(item.name)].filter((name) => buffedByName.has(name));
+    if (matches.length !== 1) continue;
+    const source = buffedByName.get(matches[0])!;
+    item.effectName = source.effectName;
+    item.bonuses = source.bonuses;
+    item.sharedBuffSource = source.name;
   }
 }
 
@@ -448,18 +489,21 @@ const ASCENDED_FEAST_TYPE_LINES: Record<string, string[]> = {
   'Fruit Salad': ['+100 Healing', '+70 Concentration'],
   'Poultry Aspic': ['+100 Concentration', '+70 Toughness'],
   'Sous-Vide Steak': ['+100 Power', '+70 Ferocity'],
-  'Veggie Flatbread': ['+100 Expertise', '+70 Condition Damage']
-}
+  'Veggie Flatbread': ['+100 Expertise', '+70 Condition Damage'],
+};
 
 /** `Truffle Ravioli`/`Oyster Soup`/`Cheesecake` food types don't reduce to a clean name substring
  *  (Ravioli names read "Clear Truffle and X Ravioli"; Cheesecake's minor slot is proc text, not a
  *  flat attribute; Oyster Soup has no minor slot at all) — handled ahead of the generic table. */
 function ascendedFeastTypeLines(name: string): string[] | null {
-  if (name.includes('Truffle') && name.includes('Ravioli')) return ['+100 Vitality', '+70 Toughness']
-  if (name.includes('Oyster Soup')) return ['+45 to All Attributes']
-  if (name.includes('Cheesecake')) return ['+100 Concentration', '33% Chance to Gain Might on Critical Hit']
-  for (const [type, lines] of Object.entries(ASCENDED_FEAST_TYPE_LINES)) if (name.includes(type)) return lines
-  return null
+  if (name.includes('Truffle') && name.includes('Ravioli'))
+    return ['+100 Vitality', '+70 Toughness'];
+  if (name.includes('Oyster Soup')) return ['+45 to All Attributes'];
+  if (name.includes('Cheesecake'))
+    return ['+100 Concentration', '33% Chance to Gain Might on Critical Hit'];
+  for (const [type, lines] of Object.entries(ASCENDED_FEAST_TYPE_LINES))
+    if (name.includes(type)) return lines;
+  return null;
 }
 
 const ASCENDED_FEAST_HERB_LINES: Record<string, string> = {
@@ -467,14 +511,16 @@ const ASCENDED_FEAST_HERB_LINES: Record<string, string> = {
   Clove: '-20% Incoming Condition Duration',
   Mint: '+10% Outgoing Healing',
   Peppercorn: '-10% Incoming Damage',
-  Sesame: 'Gain Health Every Second'
-}
+  Sesame: 'Gain Health Every Second',
+};
 
 function ascendedFeastHerbLine(name: string): string | null {
-  for (const [herb, line] of Object.entries(ASCENDED_FEAST_HERB_LINES)) if (name.includes(herb)) return line
-  if (name.includes('Salsa')) return ASCENDED_FEAST_HERB_LINES.Cilantro
-  if (name.includes('Spiced') || name.includes('Peppered')) return ASCENDED_FEAST_HERB_LINES.Peppercorn
-  return null
+  for (const [herb, line] of Object.entries(ASCENDED_FEAST_HERB_LINES))
+    if (name.includes(herb)) return line;
+  if (name.includes('Salsa')) return ASCENDED_FEAST_HERB_LINES.Cilantro;
+  if (name.includes('Spiced') || name.includes('Peppered'))
+    return ASCENDED_FEAST_HERB_LINES.Peppercorn;
+  return null;
 }
 
 /** The 5 End of Dragons ascended feasts: same major/minor pair as their closest core food type
@@ -485,30 +531,40 @@ const ASCENDED_FEAST_EOD_LINES: Record<string, string[]> = {
   'Bowl of Jade Sea Bounty': ['+150 Fishing Power', '+100 Power', '+70 Ferocity'],
   'Flight of Sushi': ['+150 Fishing Power', '+45 to All Attributes'],
   'Plate of Imperial Palace Special': ['+150 Fishing Power', '+100 Healing', '+70 Concentration'],
-  'Plate of Crispy Fish Pancakes': ['+150 Fishing Power', '+100 Vitality', '+70 Toughness']
-}
+  'Plate of Crispy Fish Pancakes': ['+150 Fishing Power', '+100 Vitality', '+70 Toughness'],
+};
 
 /** Every Ascended feast, core or End of Dragons, additionally grants these 5 — confirmed identical
  *  and in this exact order across every raw-wikitext sample fetched. */
-const ASCENDED_FEAST_UNIVERSAL_LINES = ['+10% Karma', '+5% All Experience Gained', '+20% Magic Find', '+20% Gold Find', '+10% WXP Gained']
+const ASCENDED_FEAST_UNIVERSAL_LINES = [
+  '+10% Karma',
+  '+5% All Experience Gained',
+  '+20% Magic Find',
+  '+20% Gold Find',
+  '+10% WXP Gained',
+];
 
 /** Fills in `bonuses`/`effectName`/`durationMs` for the 68 Ascended Gourmet Feast items described
  *  above. Must run after `borrowSharedContainerBonuses` (only touches items that fix left
  *  buffless) but doesn't depend on it. */
 function applyAscendedFeastFormula(items: Consumable[]): void {
   for (const item of items) {
-    if (item.effectName !== null) continue
-    if (!item.description.startsWith('Gourmet Feast:')) continue
-    const eodLines = ASCENDED_FEAST_EOD_LINES[item.name]
-    const typeLines = eodLines ?? ascendedFeastTypeLines(item.name)
-    const herbLine = eodLines ? null : ascendedFeastHerbLine(item.name)
-    if (!typeLines || (!eodLines && !herbLine)) continue
-    const lines = [...(herbLine ? [herbLine] : []), ...typeLines, ...ASCENDED_FEAST_UNIVERSAL_LINES]
-    item.effectName = 'Nourishment'
-    item.durationMs = 3_600_000
-    item.applyCount = 1
-    item.bonuses = lines.map(parseAttributeBonusText)
-    item.description = lines.join('\n')
+    if (item.effectName !== null) continue;
+    if (!item.description.startsWith('Gourmet Feast:')) continue;
+    const eodLines = ASCENDED_FEAST_EOD_LINES[item.name];
+    const typeLines = eodLines ?? ascendedFeastTypeLines(item.name);
+    const herbLine = eodLines ? null : ascendedFeastHerbLine(item.name);
+    if (!typeLines || (!eodLines && !herbLine)) continue;
+    const lines = [
+      ...(herbLine ? [herbLine] : []),
+      ...typeLines,
+      ...ASCENDED_FEAST_UNIVERSAL_LINES,
+    ];
+    item.effectName = 'Nourishment';
+    item.durationMs = 3_600_000;
+    item.applyCount = 1;
+    item.bonuses = lines.map(parseAttributeBonusText);
+    item.description = lines.join('\n');
   }
 }
 
@@ -535,25 +591,52 @@ function applyAscendedFeastFormula(items: Consumable[]): void {
  */
 const CURATED_FOOD_BUFFS: Record<number, { durationMs: number; bonuses: string[] }> = {
   // Feast of Dill Meatball Dinners
-  12609: { durationMs: 3_600_000, bonuses: ['+50 Toughness', '+40 Precision', '+10% Experience from Kills'] },
+  12609: {
+    durationMs: 3_600_000,
+    bonuses: ['+50 Toughness', '+40 Precision', '+10% Experience from Kills'],
+  },
   // Bowl of "Elon Red"
-  82541: { durationMs: 1_800_000, bonuses: ['+100 Expertise', '+70 Toughness', '+1% All Experience Gained'] },
+  82541: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Expertise', '+70 Toughness', '+1% All Experience Gained'],
+  },
   // Cup of Light-Roasted Coffee
   82642: {
     durationMs: 1_800_000,
-    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
+    bonuses: [
+      'Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)',
+      '+70 Precision',
+      '+10% Karma',
+      '+1% All Experience Gained',
+    ],
   },
   // Red Lentil and Flatbread Feast
-  82657: { durationMs: 3_600_000, bonuses: ['-15% Incoming Condition Duration', '+45 to All Attributes', '+1% All Experience Gained'] },
+  82657: {
+    durationMs: 3_600_000,
+    bonuses: [
+      '-15% Incoming Condition Duration',
+      '+45 to All Attributes',
+      '+1% All Experience Gained',
+    ],
+  },
   // Bowl of Spiced Red Lentil Stew
   83345: {
     durationMs: 1_800_000,
-    bonuses: ['Lose a Condition on Successful Evade (Cooldown: 10 Seconds)', '+70 Toughness', '+1% All Experience Gained']
+    bonuses: [
+      'Lose a Condition on Successful Evade (Cooldown: 10 Seconds)',
+      '+70 Toughness',
+      '+1% All Experience Gained',
+    ],
   },
   // Pitcher of Desert-Spiced Coffee — see doc comment above
   83545: {
     durationMs: 1_200_000,
-    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
+    bonuses: [
+      'Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)',
+      '+70 Precision',
+      '+10% Karma',
+      '+1% All Experience Gained',
+    ],
   },
   // Plate of Sugar Rib Roast
   83622: {
@@ -561,61 +644,106 @@ const CURATED_FOOD_BUFFS: Record<number, { durationMs: number; bonuses: string[]
     bonuses: [
       '25% Chance on Critical Hit to Inflict Chill (1 Second), Burning (2 Seconds), and Poison (3 Seconds) (Cooldown: 20 Seconds)',
       '+70 Condition Damage',
-      '+1% All Experience Gained'
-    ]
+      '+1% All Experience Gained',
+    ],
   },
   // Bowl of Red Lentil Soup
-  83955: { durationMs: 1_800_000, bonuses: ['Gain Health Every Second', '+70 Condition Damage', '+1% All Experience Gained'] },
+  83955: {
+    durationMs: 1_800_000,
+    bonuses: ['Gain Health Every Second', '+70 Condition Damage', '+1% All Experience Gained'],
+  },
   // Red-Lentil Saobosa
-  84550: { durationMs: 1_800_000, bonuses: ['+100 Expertise', '+70 Condition Damage', '+1% All Experience Gained'] },
+  84550: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Expertise', '+70 Condition Damage', '+1% All Experience Gained'],
+  },
   // Chef's Tasting Platter
   91689: {
     durationMs: 1_800_000,
-    bonuses: ['+80 Power for 30 Seconds on Kill', '+50 Precision', '+50 Condition Damage', '+30% Magic Find', '+10% Experience from Kills']
+    bonuses: [
+      '+80 Power for 30 Seconds on Kill',
+      '+50 Precision',
+      '+50 Condition Damage',
+      '+30% Magic Find',
+      '+10% Experience from Kills',
+    ],
   },
   // Plate of Eggs Benedict
-  91842: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+10% Experience from Kills'] },
+  91842: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Concentration', '+70 Expertise', '+10% Experience from Kills'],
+  },
   // Plate of Spicy Moa Wings
   91917: {
     durationMs: 1_800_000,
-    bonuses: ['+100 Power', '+70 Ferocity', '+1% All Experience Gained', 'May Cause Intermittent Gastric Distress']
+    bonuses: [
+      '+100 Power',
+      '+70 Ferocity',
+      '+1% All Experience Gained',
+      'May Cause Intermittent Gastric Distress',
+    ],
   },
   // Feast of Carne Khan Chili — see doc comment above
-  91943: { durationMs: 3_600_000, bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'] },
+  91943: {
+    durationMs: 3_600_000,
+    bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'],
+  },
   // Bowl of Firebreather Chili
   91950: {
     durationMs: 1_800_000,
-    bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained', 'May Cause Intermittent Gastric Distress']
+    bonuses: [
+      '+100 Concentration',
+      '+70 Expertise',
+      '+1% All Experience Gained',
+      'May Cause Intermittent Gastric Distress',
+    ],
   },
   // Bowl of Carne Khan Chili
-  91954: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'] },
+  91954: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'],
+  },
   // Bowl of Green Chile Ice Cream
-  92078: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+10% Karma Gained'] },
+  92078: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Concentration', '+70 Expertise', '+10% Karma Gained'],
+  },
   // Tray of Decade Desserts
   98924: {
     durationMs: 7_200_000,
-    bonuses: ['+3% to All Attributes', '+10% Magic Find', '+10% Gold from Monsters', '+10% Karma', '+10% Experience from Kills']
+    bonuses: [
+      '+3% to All Attributes',
+      '+10% Magic Find',
+      '+10% Gold from Monsters',
+      '+10% Karma',
+      '+10% Experience from Kills',
+    ],
   },
   // Mocha of the Mists Coffee Pitcher — see doc comment above
   99379: {
     durationMs: 1_200_000,
-    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
-  }
-}
+    bonuses: [
+      'Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)',
+      '+70 Precision',
+      '+10% Karma',
+      '+1% All Experience Gained',
+    ],
+  },
+};
 
 /** Fills in `bonuses`/`effectName`/`durationMs` from `CURATED_FOOD_BUFFS` above. Must run after
  *  `borrowSharedContainerBonuses`/`applyAscendedFeastFormula` (only touches items still buffless)
  *  but doesn't depend on either. */
 function applyCuratedFoodBuffs(items: Consumable[]): void {
   for (const item of items) {
-    if (item.effectName !== null) continue
-    const curated = CURATED_FOOD_BUFFS[item.id]
-    if (!curated) continue
-    item.effectName = 'Nourishment'
-    item.durationMs = curated.durationMs
-    item.applyCount = 1
-    item.bonuses = curated.bonuses.map(parseAttributeBonusText)
-    item.description = curated.bonuses.join('\n')
+    if (item.effectName !== null) continue;
+    const curated = CURATED_FOOD_BUFFS[item.id];
+    if (!curated) continue;
+    item.effectName = 'Nourishment';
+    item.durationMs = curated.durationMs;
+    item.applyCount = 1;
+    item.bonuses = curated.bonuses.map(parseAttributeBonusText);
+    item.description = curated.bonuses.join('\n');
   }
 }
 
@@ -655,12 +783,13 @@ function applyCuratedFoodBuffs(items: Consumable[]): void {
  *    belong in a build-planning Food picker.
  */
 const EXCLUDED_FOOD_IDS = new Set<number>([
-  8602, 43902, 48804, 68404, 68405, 68407, 68408, 68409, 68410, 68411, 70628, 71176, 74065, 77586, 77616, 77620, 77631, 77633, 77651,
-  78005, 79646, 79729, 79848, 80272, 82531, 83171, 83389, 83591, 83613, 87631, 88101, 88330, 88573, 88973, 89692, 89828, 93992, 94454,
-  94457, 94459, 95283, 95286, 95290, 95294, 98929, 106982, 107031, 107063
-])
+  8602, 43902, 48804, 68404, 68405, 68407, 68408, 68409, 68410, 68411, 70628, 71176, 74065, 77586,
+  77616, 77620, 77631, 77633, 77651, 78005, 79646, 79729, 79848, 80272, 82531, 83171, 83389, 83591,
+  83613, 87631, 88101, 88330, 88573, 88973, 89692, 89828, 93992, 94454, 94457, 94459, 95283, 95286,
+  95290, 95294, 98929, 106982, 107031, 107063,
+]);
 
-const INSIGNIA_SUFFIX = ' Insignia'
+const INSIGNIA_SUFFIX = ' Insignia';
 
 /**
  * A per-stat-combo icon for the equipment editor's stat picker (e.g. "Berserker's", "Wanderer's")
@@ -676,17 +805,22 @@ const INSIGNIA_SUFFIX = ' Insignia'
  */
 function deriveItemStatIcons(allItems: RawItem[], itemStatNames: string[]): Record<string, string> {
   const insignias = allItems.filter(
-    (item) => item.rarity !== 'Legendary' && !item.name.startsWith('Recipe:') && item.name.endsWith(INSIGNIA_SUFFIX)
-  )
-  const icons: Record<string, string> = {}
+    (item) =>
+      item.rarity !== 'Legendary' &&
+      !item.name.startsWith('Recipe:') &&
+      item.name.endsWith(INSIGNIA_SUFFIX),
+  );
+  const icons: Record<string, string> = {};
   for (const name of itemStatNames) {
-    if (name.trim() === '') continue
-    const matches = insignias.filter((item) => item.name.startsWith(`${name} `))
-    if (matches.length === 0) continue
-    const preferred = matches.find((item) => item.rarity === 'Exotic') ?? [...matches].sort((a, b) => a.id - b.id)[0]
-    if (preferred.icon) icons[name] = preferred.icon
+    if (name.trim() === '') continue;
+    const matches = insignias.filter((item) => item.name.startsWith(`${name} `));
+    if (matches.length === 0) continue;
+    const preferred =
+      matches.find((item) => item.rarity === 'Exotic') ??
+      [...matches].sort((a, b) => a.id - b.id)[0];
+    if (preferred.icon) icons[name] = preferred.icon;
   }
-  return icons
+  return icons;
 }
 
 /**
@@ -701,76 +835,94 @@ function deriveItemStatIcons(allItems: RawItem[], itemStatNames: string[]): Reco
  * item with a slightly different list.
  */
 function deriveLegalItemStatIds(allItems: RawItem[]): { armorWeapon: number[]; trinket: number[] } {
-  const armorWeapon = new Set<number>()
-  const trinket = new Set<number>()
+  const armorWeapon = new Set<number>();
+  const trinket = new Set<number>();
   for (const item of allItems) {
-    if (item.rarity !== 'Legendary' || !item.details?.stat_choices) continue
-    const bucket = item.type === 'Armor' || item.type === 'Weapon' ? armorWeapon : item.type === 'Back' || item.type === 'Trinket' ? trinket : null
-    if (!bucket) continue
-    for (const id of item.details.stat_choices) bucket.add(id)
+    if (item.rarity !== 'Legendary' || !item.details?.stat_choices) continue;
+    const bucket =
+      item.type === 'Armor' || item.type === 'Weapon'
+        ? armorWeapon
+        : item.type === 'Back' || item.type === 'Trinket'
+          ? trinket
+          : null;
+    if (!bucket) continue;
+    for (const id of item.details.stat_choices) bucket.add(id);
   }
-  return { armorWeapon: [...armorWeapon].sort((a, b) => a - b), trinket: [...trinket].sort((a, b) => a - b) }
+  return {
+    armorWeapon: [...armorWeapon].sort((a, b) => a - b),
+    trinket: [...trinket].sort((a, b) => a - b),
+  };
 }
 
 async function main(): Promise<void> {
-  await mkdir(OUTPUT_DIR, { recursive: true })
+  await mkdir(OUTPUT_DIR, { recursive: true });
 
-  const allItems = await fetchAllItemsRaw()
-  for (const item of allItems) bucketItem(item)
+  const allItems = await fetchAllItemsRaw();
+  for (const item of allItems) bucketItem(item);
 
-  console.log('\nRaw type frequency (top-level `type`):')
-  console.log([...typeFrequency.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15))
-  console.log('\nRaw details.type frequency:')
-  console.log([...detailsTypeFrequency.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20))
+  console.log('\nRaw type frequency (top-level `type`):');
+  console.log([...typeFrequency.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15));
+  console.log('\nRaw details.type frequency:');
+  console.log([...detailsTypeFrequency.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20));
 
   if (suspectedRelicMisses.length > 0) {
     console.warn(
       `\n[warn] ${suspectedRelicMisses.length} items named "Relic of ..." did NOT match the relic filter — ` +
         'the relic type-detection assumption may be wrong. Sample:',
-      suspectedRelicMisses.slice(0, 3).map((i) => ({ id: i.id, name: i.name, type: i.type, detailsType: i.details?.type }))
-    )
+      suspectedRelicMisses
+        .slice(0, 3)
+        .map((i) => ({ id: i.id, name: i.name, type: i.type, detailsType: i.details?.type })),
+    );
   }
 
-  const runes = runeItems.map(normalizeRune)
-  const sigils = sigilItems.map(normalizeSigil)
-  const infusions = infusionItems.map(normalizeInfusion)
-  const relics = dedupeRelicsByName(relicItems).map(normalizeRelic)
-  const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'))
+  const runes = runeItems.map(normalizeRune);
+  const sigils = sigilItems.map(normalizeSigil);
+  const infusions = infusionItems.map(normalizeInfusion);
+  const relics = dedupeRelicsByName(relicItems).map(normalizeRelic);
+  const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'));
   // Utility "Station" items (bucketed into utilityItems above) already carry their own full buff
   // data — only Food's "Feast"/"Tray"/"Pot" items need bonus-borrowing (see
   // `Consumable.sharedBuffSource`'s doc comment).
-  let food = foodItems.map((i) => normalizeConsumable(i, 'Food'))
-  borrowSharedContainerBonuses(food)
+  let food = foodItems.map((i) => normalizeConsumable(i, 'Food'));
+  borrowSharedContainerBonuses(food);
   // Ascended Gourmet Feasts have no sibling to borrow from at all (see `applyAscendedFeastFormula`'s
   // doc comment) — resolved separately, after borrowing, since it only touches items still buffless.
-  applyAscendedFeastFormula(food)
+  applyAscendedFeastFormula(food);
   // Individually wiki-curated real food (see `CURATED_FOOD_BUFFS` doc comment) — also only touches
   // items still buffless, so ordering relative to the two calls above doesn't matter.
-  applyCuratedFoodBuffs(food)
+  applyCuratedFoodBuffs(food);
   // Drop the disjoint "confirmed genuinely not food" half of the same investigation (see
   // `EXCLUDED_FOOD_IDS` doc comment) rather than leaving them in the catalog buffless.
-  const foodBeforeExclusion = food.length
-  food = food.filter((f) => !EXCLUDED_FOOD_IDS.has(f.id))
-  const stillBuffless = food.filter((f) => f.effectName === null)
+  const foodBeforeExclusion = food.length;
+  food = food.filter((f) => !EXCLUDED_FOOD_IDS.has(f.id));
+  const stillBuffless = food.filter((f) => f.effectName === null);
   if (stillBuffless.length > 0) {
     console.warn(
       `\n[warn] ${stillBuffless.length} Food entries are still buffless after borrowing+curation+exclusion — ` +
         'a future API patch may have added new ones; sample:',
-      stillBuffless.slice(0, 10).map((f) => ({ id: f.id, name: f.name }))
-    )
+      stillBuffless.slice(0, 10).map((f) => ({ id: f.id, name: f.name })),
+    );
   }
 
-  const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as { name: string }[]
-  const itemStatNames = [...new Set(itemStats.map((s) => s.name))]
-  const itemStatIcons = deriveItemStatIcons(allItems, itemStatNames)
-  const namesWithoutIcon = itemStatNames.filter((n) => n.trim() !== '' && !(n in itemStatIcons))
+  const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as {
+    name: string;
+  }[];
+  const itemStatNames = [...new Set(itemStats.map((s) => s.name))];
+  const itemStatIcons = deriveItemStatIcons(allItems, itemStatNames);
+  const namesWithoutIcon = itemStatNames.filter((n) => n.trim() !== '' && !(n in itemStatIcons));
   if (namesWithoutIcon.length > 0) {
-    console.warn(`\n[warn] ${namesWithoutIcon.length}/${itemStatNames.length} stat names got no insignia-derived icon:`, namesWithoutIcon)
+    console.warn(
+      `\n[warn] ${namesWithoutIcon.length}/${itemStatNames.length} stat names got no insignia-derived icon:`,
+      namesWithoutIcon,
+    );
   }
 
-  const itemStatLegalIds = deriveLegalItemStatIds(allItems)
+  const itemStatLegalIds = deriveLegalItemStatIds(allItems);
   if (itemStatLegalIds.armorWeapon.length === 0 || itemStatLegalIds.trinket.length === 0) {
-    console.warn('\n[warn] found no Legendary-item stat_choices for one or both categories — legality data may be stale/wrong:', itemStatLegalIds)
+    console.warn(
+      '\n[warn] found no Legendary-item stat_choices for one or both categories — legality data may be stale/wrong:',
+      itemStatLegalIds,
+    );
   }
 
   await Promise.all([
@@ -781,19 +933,22 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'food.json'), JSON.stringify(food, null, 2)),
     writeFile(join(OUTPUT_DIR, 'utility.json'), JSON.stringify(utility, null, 2)),
     writeFile(join(OUTPUT_DIR, 'itemstat-icons.json'), JSON.stringify(itemStatIcons, null, 2)),
-    writeFile(join(OUTPUT_DIR, 'itemstat-legal-ids.json'), JSON.stringify(itemStatLegalIds, null, 2))
-  ])
+    writeFile(
+      join(OUTPUT_DIR, 'itemstat-legal-ids.json'),
+      JSON.stringify(itemStatLegalIds, null, 2),
+    ),
+  ]);
 
   console.log(
     `\nDone. runes=${runes.length} sigils=${sigils.length} infusions=${infusions.length} ` +
       `relics=${relics.length} food=${food.length} (${foodBeforeExclusion - food.length} excluded non-food) utility=${utility.length} ` +
       `itemStatIcons=${Object.keys(itemStatIcons).length}/${itemStatNames.length} ` +
-      `itemStatLegalIds=${itemStatLegalIds.armorWeapon.length}armor/weapon+${itemStatLegalIds.trinket.length}trinket`
-  )
-  console.log(`Written to ${OUTPUT_DIR}`)
+      `itemStatLegalIds=${itemStatLegalIds.armorWeapon.length}armor/weapon+${itemStatLegalIds.trinket.length}trinket`,
+  );
+  console.log(`Written to ${OUTPUT_DIR}`);
 }
 
 main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+  console.error(err);
+  process.exit(1);
+});

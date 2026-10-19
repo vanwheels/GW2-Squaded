@@ -1,14 +1,14 @@
-import { resolve } from 'node:path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
-import react from '@vitejs/plugin-react'
+import { resolve } from 'node:path';
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
-        '@shared': resolve('src/shared')
-      }
+        '@shared': resolve('src/shared'),
+      },
     },
     build: {
       // Force CJS regardless of the root package.json's "type": "module" — Electron's
@@ -20,38 +20,38 @@ export default defineConfig({
       rollupOptions: {
         output: {
           format: 'cjs',
-          entryFileNames: '[name].cjs'
-        }
-      }
-    }
+          entryFileNames: '[name].cjs',
+        },
+      },
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
-        '@shared': resolve('src/shared')
-      }
+        '@shared': resolve('src/shared'),
+      },
     },
     build: {
       rollupOptions: {
         output: {
           format: 'cjs',
-          entryFileNames: '[name].cjs'
-        }
-      }
-    }
+          entryFileNames: '[name].cjs',
+        },
+      },
+    },
   },
   renderer: {
     root: 'src/renderer',
     build: {
-      outDir: 'out/renderer'
+      outDir: 'out/renderer',
     },
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer'),
-        '@shared': resolve('src/shared')
-      }
+        '@shared': resolve('src/shared'),
+      },
     },
-    plugins: [react()]
-  }
-})
+    plugins: [react()],
+  },
+});

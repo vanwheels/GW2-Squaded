@@ -1,5 +1,5 @@
-import { NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS } from './revenant-flip-duplicates'
-import { NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS } from './other-profession-flip-duplicates'
+import { NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS } from './revenant-flip-duplicates';
+import { NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS } from './other-profession-flip-duplicates';
 
 /**
  * A `flipSkill` target id known to carry no genuinely new content over its own source skill — see
@@ -11,5 +11,8 @@ import { NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS } from './other-profess
  * places.
  */
 export function isNonActionableFlipTarget(id: number): boolean {
-  return NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS.has(id) || NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS.has(id)
+  return (
+    NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS.has(id) ||
+    NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS.has(id)
+  );
 }

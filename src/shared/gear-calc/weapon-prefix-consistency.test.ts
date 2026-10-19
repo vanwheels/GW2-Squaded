@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import type { Build, ItemStat, Profession } from '../types'
-import { DEFAULT_COMBAT_STATE } from './combat-state'
-import { optimizeGear, type OptimizerInput } from './gear-optimize'
+import { describe, expect, it } from 'vitest';
+import type { Build, ItemStat, Profession } from '../types';
+import { DEFAULT_COMBAT_STATE } from './combat-state';
+import { optimizeGear, type OptimizerInput } from './gear-optimize';
 
 /**
  * Coverage for "shared weapon prefix across all sets", added 2026-08-23 following the user's real
@@ -43,8 +43,8 @@ function makeBuild(overrides: Partial<Build> = {}): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 const PROFESSION: Profession = {
@@ -57,25 +57,29 @@ const PROFESSION: Profession = {
   weapons: {
     Greatsword: { flags: ['TwoHand'], specializationId: null, skills: [] },
     Sword: { flags: ['Mainhand'], specializationId: null, skills: [] },
-    Axe: { flags: ['Offhand'], specializationId: null, skills: [] }
+    Axe: { flags: ['Offhand'], specializationId: null, skills: [] },
   },
   professionSkills: [],
   code: 2,
-  skillPalette: []
-}
+  skillPalette: [],
+};
 
 // Two synthetic stat combos with different shapes (one pure Power, one Power+Precision+CritDamage)
 // so a search with freedom to mix would have a real incentive to split them across slots.
-const POWER_COMBO: ItemStat = { id: 1, name: 'Synthetic Power', attributes: [{ attribute: 'Power', multiplier: 1, value: 0 }] }
+const POWER_COMBO: ItemStat = {
+  id: 1,
+  name: 'Synthetic Power',
+  attributes: [{ attribute: 'Power', multiplier: 1, value: 0 }],
+};
 const CRIT_COMBO: ItemStat = {
   id: 2,
   name: 'Synthetic Crit',
   attributes: [
     { attribute: 'Power', multiplier: 0.6, value: 0 },
     { attribute: 'Precision', multiplier: 0.2, value: 0 },
-    { attribute: 'CritDamage', multiplier: 0.2, value: 0 }
-  ]
-}
+    { attribute: 'CritDamage', multiplier: 0.2, value: 0 },
+  ],
+};
 
 const GAME_DATA: OptimizerInput['gameData'] = {
   itemStats: [POWER_COMBO, CRIT_COMBO],
@@ -87,17 +91,17 @@ const GAME_DATA: OptimizerInput['gameData'] = {
   food: [],
   utility: [],
   traits: [],
-  legends: []
-}
+  legends: [],
+};
 
 describe('Gear Optimizer weapon slots share one stat prefix across sets', () => {
-  it("locks a one-handed main/off pair to the same prefix (no independent split)", () => {
+  it('locks a one-handed main/off pair to the same prefix (no independent split)', () => {
     const build = makeBuild({
       equipment: {
         weaponA1: { itemStatId: null, weaponType: 'Sword' },
-        weaponA2: { itemStatId: null, weaponType: 'Axe' }
-      }
-    })
+        weaponA2: { itemStatId: null, weaponType: 'Axe' },
+      },
+    });
     const input: OptimizerInput = {
       build,
       gameData: GAME_DATA,
@@ -105,13 +109,15 @@ describe('Gear Optimizer weapon slots share one stat prefix across sets', () => 
       floors: [{ metric: 'CriticalChancePercent', value: 10 }],
       targets: ['Power'],
       optimizeFoodUtility: false,
-      optimizeRunesInfusions: false
-    }
-    const result = optimizeGear(input)
-    expect(result.feasible).toBe(true)
-    expect(result.build.equipment.weaponA1?.itemStatId).not.toBeNull()
-    expect(result.build.equipment.weaponA1?.itemStatId).toBe(result.build.equipment.weaponA2?.itemStatId)
-  })
+      optimizeRunesInfusions: false,
+    };
+    const result = optimizeGear(input);
+    expect(result.feasible).toBe(true);
+    expect(result.build.equipment.weaponA1?.itemStatId).not.toBeNull();
+    expect(result.build.equipment.weaponA1?.itemStatId).toBe(
+      result.build.equipment.weaponA2?.itemStatId,
+    );
+  });
 
   it('fills the currently-inactive set with the same prefix as the active set, across a 2h <-> 1h+1h swap', () => {
     const build = makeBuild({
@@ -121,9 +127,9 @@ describe('Gear Optimizer weapon slots share one stat prefix across sets', () => 
         weaponA1: { itemStatId: null, weaponType: 'Greatsword' },
         // Set B (inactive): Sword + Axe, one-handed pair.
         weaponB1: { itemStatId: null, weaponType: 'Sword' },
-        weaponB2: { itemStatId: null, weaponType: 'Axe' }
-      }
-    })
+        weaponB2: { itemStatId: null, weaponType: 'Axe' },
+      },
+    });
     const input: OptimizerInput = {
       build,
       gameData: GAME_DATA,
@@ -131,29 +137,29 @@ describe('Gear Optimizer weapon slots share one stat prefix across sets', () => 
       floors: [],
       targets: ['CriticalChancePercent'],
       optimizeFoodUtility: false,
-      optimizeRunesInfusions: false
-    }
-    const result = optimizeGear(input)
-    expect(result.feasible).toBe(true)
+      optimizeRunesInfusions: false,
+    };
+    const result = optimizeGear(input);
+    expect(result.feasible).toBe(true);
 
-    const chosen = result.build.equipment.weaponA1?.itemStatId
-    expect(chosen).not.toBeNull()
+    const chosen = result.build.equipment.weaponA1?.itemStatId;
+    expect(chosen).not.toBeNull();
     // The inactive set's items (never independently searched, since they can't affect any tracked
     // metric) still land on the exact same prefix the active set's search picked.
-    expect(result.build.equipment.weaponB1?.itemStatId).toBe(chosen)
-    expect(result.build.equipment.weaponB2?.itemStatId).toBe(chosen)
+    expect(result.build.equipment.weaponB1?.itemStatId).toBe(chosen);
+    expect(result.build.equipment.weaponB2?.itemStatId).toBe(chosen);
 
     // Sanity: the reported CriticalChancePercent matches what only the ACTIVE (Greatsword) set
     // contributes — picking the crit-leaning combo should raise it above baseline.
-    expect(result.metricValues.CriticalChancePercent ?? 0).toBeGreaterThan(5)
-  })
+    expect(result.metricValues.CriticalChancePercent ?? 0).toBeGreaterThan(5);
+  });
 
-  it('mirrors a two-handed weapon\'s chosen id onto both its main and off-hand equipment keys', () => {
+  it("mirrors a two-handed weapon's chosen id onto both its main and off-hand equipment keys", () => {
     const build = makeBuild({
       equipment: {
-        weaponA1: { itemStatId: null, weaponType: 'Greatsword' }
-      }
-    })
+        weaponA1: { itemStatId: null, weaponType: 'Greatsword' },
+      },
+    });
     const input: OptimizerInput = {
       build,
       gameData: GAME_DATA,
@@ -161,10 +167,12 @@ describe('Gear Optimizer weapon slots share one stat prefix across sets', () => 
       floors: [],
       targets: ['Power'],
       optimizeFoodUtility: false,
-      optimizeRunesInfusions: false
-    }
-    const result = optimizeGear(input)
-    expect(result.feasible).toBe(true)
-    expect(result.build.equipment.weaponA2?.itemStatId).toBe(result.build.equipment.weaponA1?.itemStatId)
-  })
-})
+      optimizeRunesInfusions: false,
+    };
+    const result = optimizeGear(input);
+    expect(result.feasible).toBe(true);
+    expect(result.build.equipment.weaponA2?.itemStatId).toBe(
+      result.build.equipment.weaponA1?.itemStatId,
+    );
+  });
+});

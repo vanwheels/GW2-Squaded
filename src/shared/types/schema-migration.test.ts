@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest'
-import { withCurrentSchemaVersion } from './schema-migration'
-import { CURRENT_SCHEMA_VERSION } from './schema-version'
-import type { Build } from './build'
-import type { SquadComp } from './squad-comp'
+import { describe, expect, it } from 'vitest';
+import { withCurrentSchemaVersion } from './schema-migration';
+import { CURRENT_SCHEMA_VERSION } from './schema-version';
+import type { Build } from './build';
+import type { SquadComp } from './squad-comp';
 
 /**
  * `withCurrentSchemaVersion` is the load-time schema check `normalizeBuild`/`normalizeSquadComp`
@@ -13,27 +13,27 @@ import type { SquadComp } from './squad-comp'
  */
 describe('withCurrentSchemaVersion', () => {
   it('backfills schemaVersion on an old-format (unversioned) Build fixture', () => {
-    const legacyBuild = { id: 'legacy-build', name: 'Old Build' } as unknown as Build
-    expect(legacyBuild.schemaVersion).toBeUndefined()
+    const legacyBuild = { id: 'legacy-build', name: 'Old Build' } as unknown as Build;
+    expect(legacyBuild.schemaVersion).toBeUndefined();
 
-    const migrated = withCurrentSchemaVersion(legacyBuild)
+    const migrated = withCurrentSchemaVersion(legacyBuild);
 
-    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION)
-    expect(migrated.id).toBe('legacy-build')
-  })
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.id).toBe('legacy-build');
+  });
 
   it('backfills schemaVersion on an old-format (unversioned) SquadComp fixture', () => {
-    const legacySquadComp = { id: 'legacy-squad', name: 'Old Squad' } as unknown as SquadComp
-    expect(legacySquadComp.schemaVersion).toBeUndefined()
+    const legacySquadComp = { id: 'legacy-squad', name: 'Old Squad' } as unknown as SquadComp;
+    expect(legacySquadComp.schemaVersion).toBeUndefined();
 
-    const migrated = withCurrentSchemaVersion(legacySquadComp)
+    const migrated = withCurrentSchemaVersion(legacySquadComp);
 
-    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION)
-    expect(migrated.id).toBe('legacy-squad')
-  })
+    expect(migrated.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.id).toBe('legacy-squad');
+  });
 
   it('leaves an already-current schemaVersion untouched', () => {
-    const versioned = { id: 'b', schemaVersion: CURRENT_SCHEMA_VERSION } as unknown as Build
-    expect(withCurrentSchemaVersion(versioned).schemaVersion).toBe(CURRENT_SCHEMA_VERSION)
-  })
-})
+    const versioned = { id: 'b', schemaVersion: CURRENT_SCHEMA_VERSION } as unknown as Build;
+    expect(withCurrentSchemaVersion(versioned).schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  });
+});

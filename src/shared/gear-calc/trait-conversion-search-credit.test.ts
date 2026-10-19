@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import type { Build, ItemStat, Profession, Trait } from '../types'
-import { DEFAULT_COMBAT_STATE } from './combat-state'
-import { optimizeGear, type OptimizerInput } from './gear-optimize'
+import { describe, expect, it } from 'vitest';
+import type { Build, ItemStat, Profession, Trait } from '../types';
+import { DEFAULT_COMBAT_STATE } from './combat-state';
+import { optimizeGear, type OptimizerInput } from './gear-optimize';
 
 /**
  * Coverage for "trait conversions credited during search, not just in the final result", added
@@ -49,8 +49,8 @@ function makeBuild(overrides: Partial<Build> = {}): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 const PROFESSION: Profession = {
@@ -63,13 +63,13 @@ const PROFESSION: Profession = {
   weapons: {},
   professionSkills: [],
   code: 7,
-  skillPalette: []
-}
+  skillPalette: [],
+};
 
 // Quiet Intensity (Mesmer, Virtuoso, Minor GM): "Gain ferocity based on your vitality." Real
 // specializationId irrelevant here — just needs to match the build's equipped line so
 // `activeTraitIds` treats this always-on minor trait as active.
-const VIRTUOSO_SPEC_ID = 99
+const VIRTUOSO_SPEC_ID = 99;
 const QUIET_INTENSITY_TRAIT: Trait = {
   id: 2193,
   tier: 3,
@@ -80,8 +80,8 @@ const QUIET_INTENSITY_TRAIT: Trait = {
   specializationId: VIRTUOSO_SPEC_ID,
   icon: '',
   facts: [],
-  traitedFacts: []
-}
+  traitedFacts: [],
+};
 
 // A pure-Ferocity combo (id 1) vs. a pure-Vitality combo (id 2) with a MUCH bigger multiplier —
 // large enough that 10% of its Vitality contribution (the trait's conversion) exceeds combo 1's
@@ -89,8 +89,16 @@ const QUIET_INTENSITY_TRAIT: Trait = {
 // CriticalDamagePercent is tracked, so this is a clean, unambiguous "which wins" comparison: with
 // the conversion credited, combo 2 should strictly beat combo 1; without it, combo 2 contributes
 // nothing to the only tracked metric and should never be chosen.
-const FEROCITY_COMBO: ItemStat = { id: 1, name: 'Synthetic Ferocity', attributes: [{ attribute: 'CritDamage', multiplier: 0.35, value: 0 }] }
-const VITALITY_COMBO: ItemStat = { id: 2, name: 'Synthetic Vitality', attributes: [{ attribute: 'Vitality', multiplier: 5, value: 0 }] }
+const FEROCITY_COMBO: ItemStat = {
+  id: 1,
+  name: 'Synthetic Ferocity',
+  attributes: [{ attribute: 'CritDamage', multiplier: 0.35, value: 0 }],
+};
+const VITALITY_COMBO: ItemStat = {
+  id: 2,
+  name: 'Synthetic Vitality',
+  attributes: [{ attribute: 'Vitality', multiplier: 5, value: 0 }],
+};
 
 function gameDataWith(traits: Trait[]): OptimizerInput['gameData'] {
   return {
@@ -103,8 +111,8 @@ function gameDataWith(traits: Trait[]): OptimizerInput['gameData'] {
     food: [],
     utility: [],
     traits,
-    legends: []
-  }
+    legends: [],
+  };
 }
 
 const baseInput: Omit<OptimizerInput, 'gameData' | 'build'> = {
@@ -112,27 +120,39 @@ const baseInput: Omit<OptimizerInput, 'gameData' | 'build'> = {
   floors: [],
   targets: ['CriticalDamagePercent'],
   optimizeFoodUtility: false,
-  optimizeRunesInfusions: false
-}
+  optimizeRunesInfusions: false,
+};
 
 describe('Gear Optimizer credits active trait conversions during search, not just in the final result', () => {
   it('prefers the Vitality combo over the direct-Ferocity combo once Quiet Intensity is active', () => {
     const build = makeBuild({
-      specializations: [{ specializationId: VIRTUOSO_SPEC_ID, chosenTraitIds: [null, null, null] }, null, null]
-    })
-    const result = optimizeGear({ ...baseInput, build, gameData: gameDataWith([QUIET_INTENSITY_TRAIT]) })
-    expect(result.feasible).toBe(true)
-    const gearSlots = result.slots.filter((s) => s.kind === undefined)
-    expect(gearSlots.length).toBeGreaterThan(0)
-    expect(gearSlots.every((s) => s.chosenId === 2)).toBe(true)
-  })
+      specializations: [
+        { specializationId: VIRTUOSO_SPEC_ID, chosenTraitIds: [null, null, null] },
+        null,
+        null,
+      ],
+    });
+    const result = optimizeGear({
+      ...baseInput,
+      build,
+      gameData: gameDataWith([QUIET_INTENSITY_TRAIT]),
+    });
+    expect(result.feasible).toBe(true);
+    const gearSlots = result.slots.filter((s) => s.kind === undefined);
+    expect(gearSlots.length).toBeGreaterThan(0);
+    expect(gearSlots.every((s) => s.chosenId === 2)).toBe(true);
+  });
 
   it('never picks the Vitality combo without the trait active (it contributes nothing on its own)', () => {
-    const build = makeBuild() // no specializations equipped
-    const result = optimizeGear({ ...baseInput, build, gameData: gameDataWith([QUIET_INTENSITY_TRAIT]) })
-    expect(result.feasible).toBe(true)
-    const gearSlots = result.slots.filter((s) => s.kind === undefined)
-    expect(gearSlots.length).toBeGreaterThan(0)
-    expect(gearSlots.every((s) => s.chosenId === 1)).toBe(true)
-  })
-})
+    const build = makeBuild(); // no specializations equipped
+    const result = optimizeGear({
+      ...baseInput,
+      build,
+      gameData: gameDataWith([QUIET_INTENSITY_TRAIT]),
+    });
+    expect(result.feasible).toBe(true);
+    const gearSlots = result.slots.filter((s) => s.kind === undefined);
+    expect(gearSlots.length).toBeGreaterThan(0);
+    expect(gearSlots.every((s) => s.chosenId === 1)).toBe(true);
+  });
+});

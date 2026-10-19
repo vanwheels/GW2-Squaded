@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
-import type { Build, GameData } from '../types'
-import { computeCharacterStats } from './derived-stats'
-import { DEFAULT_COMBAT_STATE } from './combat-state'
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Build, GameData } from '../types';
+import { computeCharacterStats } from './derived-stats';
+import { DEFAULT_COMBAT_STATE } from './combat-state';
 
 /**
  * Tier 3 — hand-verified reference builds (TODO.md's "Automated testing strategy", final tier,
@@ -42,12 +42,23 @@ import { DEFAULT_COMBAT_STATE } from './combat-state'
  * mis-modeled, far outside these tolerances).
  */
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 function loadGameData(name: string): unknown {
-  return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'))
+  return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'));
 }
 
-const gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'> = {
+const gameData: Pick<
+  GameData,
+  | 'itemStats'
+  | 'itemStatLegalIds'
+  | 'infusions'
+  | 'runes'
+  | 'sigils'
+  | 'food'
+  | 'utility'
+  | 'traits'
+  | 'legends'
+> = {
   itemStats: loadGameData('itemstats.json') as GameData['itemStats'],
   itemStatLegalIds: loadGameData('itemstat-legal-ids.json') as GameData['itemStatLegalIds'],
   infusions: loadGameData('infusions.json') as GameData['infusions'],
@@ -56,11 +67,11 @@ const gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 
   food: loadGameData('food.json') as GameData['food'],
   utility: loadGameData('utility.json') as GameData['utility'],
   traits: loadGameData('traits.json') as GameData['traits'],
-  legends: loadGameData('legends.json') as GameData['legends']
-}
+  legends: loadGameData('legends.json') as GameData['legends'],
+};
 
 function repeat(infusionId: number, count: number): number[] {
-  return Array.from({ length: count }, () => infusionId)
+  return Array.from({ length: count }, () => infusionId);
 }
 
 function baseBuild(overrides: Partial<Build>): Build {
@@ -94,8 +105,8 @@ function baseBuild(overrides: Partial<Build>): Build {
     tags: [],
     order: 0,
     favorite: false,
-    ...overrides
-  }
+    ...overrides,
+  };
 }
 
 // Infusion ids — one per build (all "Mighty x20" / "Concentration x20" / "Healing x20" per the
@@ -103,9 +114,9 @@ function baseBuild(overrides: Partial<Build>): Build {
 // 2 (Spear, active set A) + 2 (the build's own inactive set B, 2 more slots either way) = 20 total
 // physically equipped, matching the user's own count, even though only the 18 on the active set
 // actually contribute to the totals asserted below).
-const MIGHTY_INFUSION = 43254
-const CONCENTRATION_INFUSION = 86986
-const HEALING_INFUSION = 43250
+const MIGHTY_INFUSION = 43254;
+const CONCENTRATION_INFUSION = 86986;
+const HEALING_INFUSION = 43250;
 
 /**
  * "DPS Strip Renegade" — gw2skills.net: https://gw2skills.net/editor/?PmgEQrU2ChwyIImGFx2IJ2IByMIBm0XavXA-DWZYBRFKcIkaezhqcGVIF6WFIzPEBIg9wrpKLYAA-w
@@ -123,7 +134,7 @@ const dpsStripRenegade = baseBuild({
   specializations: [
     { specializationId: 3, chosenTraitIds: [1761, 1760, 1719] }, // Invocation 2-2-3
     { specializationId: 15, chosenTraitIds: [1767, 1765, 1715] }, // Devastation 2-2-1
-    { specializationId: 63, chosenTraitIds: [2120, 2108, 2100] } // Renegade 3-3-2
+    { specializationId: 63, chosenTraitIds: [2120, 2108, 2100] }, // Renegade 3-3-2
   ],
   skills: { kind: 'revenant', legends: ['Legend5', 'Legend4'], activeLegendIndex: 0 },
   equipment: {
@@ -139,15 +150,25 @@ const dpsStripRenegade = baseBuild({
     ring1: { itemStatId: 1119, infusionIds: repeat(MIGHTY_INFUSION, 3) },
     ring2: { itemStatId: 1119, infusionIds: repeat(MIGHTY_INFUSION, 3) },
     amulet: { itemStatId: 584, infusionIds: [] }, // amulet has no infusion slot
-    weaponA1: { itemStatId: 161, weaponType: 'Spear', sigilIds: [72872, 24615], infusionIds: repeat(MIGHTY_INFUSION, 2) }, // Absorption, Force
+    weaponA1: {
+      itemStatId: 161,
+      weaponType: 'Spear',
+      sigilIds: [72872, 24615],
+      infusionIds: repeat(MIGHTY_INFUSION, 2),
+    }, // Absorption, Force
     weaponA2: { itemStatId: 161, weaponType: 'Spear' }, // mirrored stat combo for the 2H weapon, see EquipmentEditor.tsx
-    weaponB1: { itemStatId: 161, weaponType: 'Shortbow', sigilIds: [72872, 24615], infusionIds: repeat(MIGHTY_INFUSION, 2) },
-    weaponB2: { itemStatId: 161, weaponType: 'Shortbow' }
+    weaponB1: {
+      itemStatId: 161,
+      weaponType: 'Shortbow',
+      sigilIds: [72872, 24615],
+      infusionIds: repeat(MIGHTY_INFUSION, 2),
+    },
+    weaponB2: { itemStatId: 161, weaponType: 'Shortbow' },
   },
   relicId: 103574, // Relic of the Claw
   foodId: 99785, // Mists-Infused Peppercorn-Crusted Sous-Vide Steak
-  utilityId: 73191 // Writ of Masterful Strength
-})
+  utilityId: 73191, // Writ of Masterful Strength
+});
 
 /**
  * "Shattered Aegis Firebrand" — gw2skills.net: https://gw2skills.net/editor/?PWwEQ7srMC2DDjdxMxx6q6pC-DWJYnR9/h0oEITRV6KBP+aIEh5vGNcpBA-w
@@ -164,7 +185,7 @@ const shatteredAegisFirebrand = baseBuild({
   specializations: [
     { specializationId: 42, chosenTraitIds: [1925, 653, 637] }, // Zeal 3-2-2
     { specializationId: 46, chosenTraitIds: [624, 603, 622] }, // Virtues 1-1-1
-    { specializationId: 62, chosenTraitIds: [2101, 2076, 2179] } // Firebrand 2-2-2
+    { specializationId: 62, chosenTraitIds: [2101, 2076, 2179] }, // Firebrand 2-2-2
   ],
   skills: { kind: 'standard', heal: 41714, utility: [40915, 9153, 9084], elite: 43357 },
   equipment: {
@@ -180,15 +201,30 @@ const shatteredAegisFirebrand = baseBuild({
     ring1: { itemStatId: 1162, infusionIds: repeat(CONCENTRATION_INFUSION, 3) },
     ring2: { itemStatId: 1162, infusionIds: repeat(CONCENTRATION_INFUSION, 3) },
     amulet: { itemStatId: 1162, infusionIds: [] },
-    weaponA1: { itemStatId: 1140, weaponType: 'Spear', sigilIds: [72339, 24600], infusionIds: repeat(CONCENTRATION_INFUSION, 2) }, // Concentration, Vision
+    weaponA1: {
+      itemStatId: 1140,
+      weaponType: 'Spear',
+      sigilIds: [72339, 24600],
+      infusionIds: repeat(CONCENTRATION_INFUSION, 2),
+    }, // Concentration, Vision
     weaponA2: { itemStatId: 1140, weaponType: 'Spear' },
-    weaponB1: { itemStatId: 1140, weaponType: 'Axe', sigilIds: [24607], infusionIds: repeat(CONCENTRATION_INFUSION, 1) }, // Energy
-    weaponB2: { itemStatId: 1140, weaponType: 'Shield', sigilIds: [72339], infusionIds: repeat(CONCENTRATION_INFUSION, 1) } // Concentration
+    weaponB1: {
+      itemStatId: 1140,
+      weaponType: 'Axe',
+      sigilIds: [24607],
+      infusionIds: repeat(CONCENTRATION_INFUSION, 1),
+    }, // Energy
+    weaponB2: {
+      itemStatId: 1140,
+      weaponType: 'Shield',
+      sigilIds: [72339],
+      infusionIds: repeat(CONCENTRATION_INFUSION, 1),
+    }, // Concentration
   },
   relicId: 101116, // Relic of Febe
   foodId: 91835, // Spiced Peppercorn Cheesecake
-  utilityId: 81157 // Magnanimous Maintenance Oil
-})
+  utilityId: 81157, // Magnanimous Maintenance Oil
+});
 
 /**
  * "Heal Druid" — gw2skills.net: https://gw2skills.net/editor/?POwEYKNssCGCDjtwIxk3yqVWir3C-DWJYjR9/hkkQITVQMTAdddIEB4vl23sAA-w
@@ -206,7 +242,7 @@ const healDruid = baseBuild({
   specializations: [
     { specializationId: 25, chosenTraitIds: [978, 964, 1038] }, // Nature Magic 2-3-1
     { specializationId: 32, chosenTraitIds: [1072, 975, 1945] }, // Beastmastery 2-1-1
-    { specializationId: 5, chosenTraitIds: [1868, 2053, 2058] } // Druid 1-1-2
+    { specializationId: 5, chosenTraitIds: [1868, 2053, 2058] }, // Druid 1-1-2
   ],
   skills: { kind: 'standard', heal: 12489, utility: [12497, 12502, 31322], elite: 12569 },
   equippedPetIds: [5, 24], // Brown Bear, Polar Bear
@@ -223,33 +259,48 @@ const healDruid = baseBuild({
     ring1: { itemStatId: 1134, infusionIds: repeat(HEALING_INFUSION, 3) },
     ring2: { itemStatId: 1134, infusionIds: repeat(HEALING_INFUSION, 3) },
     amulet: { itemStatId: 1134, infusionIds: [] },
-    weaponA1: { itemStatId: 1123, weaponType: 'Staff', sigilIds: [24607, 82876], infusionIds: repeat(HEALING_INFUSION, 2) }, // Energy, Frenzy
+    weaponA1: {
+      itemStatId: 1123,
+      weaponType: 'Staff',
+      sigilIds: [24607, 82876],
+      infusionIds: repeat(HEALING_INFUSION, 2),
+    }, // Energy, Frenzy
     weaponA2: { itemStatId: 1123, weaponType: 'Staff' },
-    weaponB1: { itemStatId: 1123, weaponType: 'Mace', sigilIds: [24607], infusionIds: repeat(HEALING_INFUSION, 1) }, // Energy
-    weaponB2: { itemStatId: 1123, weaponType: 'Warhorn', sigilIds: [24584], infusionIds: repeat(HEALING_INFUSION, 1) } // Benevolence
+    weaponB1: {
+      itemStatId: 1123,
+      weaponType: 'Mace',
+      sigilIds: [24607],
+      infusionIds: repeat(HEALING_INFUSION, 1),
+    }, // Energy
+    weaponB2: {
+      itemStatId: 1123,
+      weaponType: 'Warhorn',
+      sigilIds: [24584],
+      infusionIds: repeat(HEALING_INFUSION, 1),
+    }, // Benevolence
   },
   relicId: 101268, // Relic of Karakosa
   foodId: 91690, // Bowl of Fruit Salad with Mint Garnish
-  utilityId: 67528 // Bountiful Maintenance Oil
-})
+  utilityId: 67528, // Bountiful Maintenance Oil
+});
 
-const ATTRIBUTE_TOLERANCE = 3
-const HEALTH_TOLERANCE = 15
-const PERCENT_TOLERANCE = 0.2
+const ATTRIBUTE_TOLERANCE = 3;
+const HEALTH_TOLERANCE = 15;
+const PERCENT_TOLERANCE = 0.2;
 
 interface ExpectedStats {
-  power: number
-  toughness: number
-  vitality: number
-  precision: number
-  ferocity: number
-  concentration: number
-  armor: number
-  health: number
-  criticalChance: number
-  criticalDamage: number
-  boonDuration: number
-  magicFind: number
+  power: number;
+  toughness: number;
+  vitality: number;
+  precision: number;
+  ferocity: number;
+  concentration: number;
+  armor: number;
+  health: number;
+  criticalChance: number;
+  criticalDamage: number;
+  boonDuration: number;
+  magicFind: number;
 }
 
 const CASES: Array<{ build: Build; expected: ExpectedStats }> = [
@@ -257,35 +308,62 @@ const CASES: Array<{ build: Build; expected: ExpectedStats }> = [
     build: dpsStripRenegade,
     // gw2skills.net Attributes panel + live in-game hero-panel check, both 2026-08-13.
     expected: {
-      power: 2830, toughness: 1000, vitality: 1561, precision: 1468, ferocity: 1373,
-      concentration: 0, armor: 2271, health: 21532,
-      criticalChance: 60.29, criticalDamage: 241.53, boonDuration: 0, magicFind: 20
-    }
+      power: 2830,
+      toughness: 1000,
+      vitality: 1561,
+      precision: 1468,
+      ferocity: 1373,
+      concentration: 0,
+      armor: 2271,
+      health: 21532,
+      criticalChance: 60.29,
+      criticalDamage: 241.53,
+      boonDuration: 0,
+      magicFind: 20,
+    },
   },
   {
     build: shatteredAegisFirebrand,
     // gw2skills.net Attributes panel, 2026-08-13 (not separately in-game-verified, unlike the
     // Renegade above — cross-checked here only against this app's own computed output).
     expected: {
-      power: 2328, toughness: 1669, vitality: 2208, precision: 1036, ferocity: 36,
-      concentration: 975, armor: 2940, health: 23725,
-      criticalChance: 6.71, criticalDamage: 152.4, boonDuration: 100, magicFind: 20
-    }
+      power: 2328,
+      toughness: 1669,
+      vitality: 2208,
+      precision: 1036,
+      ferocity: 36,
+      concentration: 975,
+      armor: 2940,
+      health: 23725,
+      criticalChance: 6.71,
+      criticalDamage: 152.4,
+      boonDuration: 100,
+      magicFind: 20,
+    },
   },
   {
     build: healDruid,
     expected: {
-      power: 1000, toughness: 2172, vitality: 1633, precision: 1000, ferocity: 0,
-      concentration: 823, armor: 3290, health: 22252,
-      criticalChance: 5, criticalDamage: 150, boonDuration: 79.87, magicFind: 20
-    }
-  }
-]
+      power: 1000,
+      toughness: 2172,
+      vitality: 1633,
+      precision: 1000,
+      ferocity: 0,
+      concentration: 823,
+      armor: 3290,
+      health: 22252,
+      criticalChance: 5,
+      criticalDamage: 150,
+      boonDuration: 79.87,
+      magicFind: 20,
+    },
+  },
+];
 
 describe('Tier 3 — hand-verified reference builds', () => {
   for (const { build, expected } of CASES) {
     describe(build.name, () => {
-      const { attributes, derived } = computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE)
+      const { attributes, derived } = computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE);
 
       it('matches every flat core attribute', () => {
         for (const [key, target] of [
@@ -294,27 +372,39 @@ describe('Tier 3 — hand-verified reference builds', () => {
           ['vitality', expected.vitality],
           ['precision', expected.precision],
           ['ferocity', expected.ferocity],
-          ['concentration', expected.concentration]
+          ['concentration', expected.concentration],
         ] as const) {
-          expect(Math.abs(attributes[key] - target), `${key}: expected ~${target}, got ${attributes[key]}`).toBeLessThanOrEqual(ATTRIBUTE_TOLERANCE)
+          expect(
+            Math.abs(attributes[key] - target),
+            `${key}: expected ~${target}, got ${attributes[key]}`,
+          ).toBeLessThanOrEqual(ATTRIBUTE_TOLERANCE);
         }
-      })
+      });
 
       it('matches armor and health', () => {
-        expect(Math.abs(derived.armor - expected.armor), `armor: expected ~${expected.armor}, got ${derived.armor}`).toBeLessThanOrEqual(ATTRIBUTE_TOLERANCE)
-        expect(Math.abs(derived.health - expected.health), `health: expected ~${expected.health}, got ${derived.health}`).toBeLessThanOrEqual(HEALTH_TOLERANCE)
-      })
+        expect(
+          Math.abs(derived.armor - expected.armor),
+          `armor: expected ~${expected.armor}, got ${derived.armor}`,
+        ).toBeLessThanOrEqual(ATTRIBUTE_TOLERANCE);
+        expect(
+          Math.abs(derived.health - expected.health),
+          `health: expected ~${expected.health}, got ${derived.health}`,
+        ).toBeLessThanOrEqual(HEALTH_TOLERANCE);
+      });
 
       it('matches every derived percentage', () => {
         for (const [key, target] of [
           ['criticalChance', expected.criticalChance],
           ['criticalDamage', expected.criticalDamage],
           ['boonDuration', expected.boonDuration],
-          ['magicFind', expected.magicFind]
+          ['magicFind', expected.magicFind],
         ] as const) {
-          expect(Math.abs(derived[key] - target), `${key}: expected ~${target}, got ${derived[key]}`).toBeLessThanOrEqual(PERCENT_TOLERANCE)
+          expect(
+            Math.abs(derived[key] - target),
+            `${key}: expected ~${target}, got ${derived[key]}`,
+          ).toBeLessThanOrEqual(PERCENT_TOLERANCE);
         }
-      })
-    })
+      });
+    });
   }
-})
+});

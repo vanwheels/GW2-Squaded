@@ -11,28 +11,30 @@
  * `playerProfile` has no GW2-Squaded equivalent).
  */
 
-import type { SyncTombstone } from './merge'
+import type { SyncTombstone } from './merge';
 
-type Timestamp = string
+type Timestamp = string;
 
 /** The Worker only ever needs `id`/`updatedAt` to merge a record (see merge.ts's
  *  `mergeCollection`) — the rest of each collection's shape (Build/SquadComp) is opaque to it. */
 export interface HasIdAndUpdatedAt {
-  id: string
-  updatedAt: Timestamp
-  [key: string]: unknown
+  id: string;
+  updatedAt: Timestamp;
+  [key: string]: unknown;
 }
 
 export interface SyncPayload {
-  builds: HasIdAndUpdatedAt[]
-  buildTombstones: SyncTombstone[]
-  squadComps: HasIdAndUpdatedAt[]
-  squadCompTombstones: SyncTombstone[]
-  savedAt: Timestamp
+  builds: HasIdAndUpdatedAt[];
+  buildTombstones: SyncTombstone[];
+  squadComps: HasIdAndUpdatedAt[];
+  squadCompTombstones: SyncTombstone[];
+  savedAt: Timestamp;
 }
 
 export const EMPTY_SYNC_PAYLOAD: SyncPayload = {
-  builds: [], buildTombstones: [],
-  squadComps: [], squadCompTombstones: [],
-  savedAt: new Date(0).toISOString()
-}
+  builds: [],
+  buildTombstones: [],
+  squadComps: [],
+  squadCompTombstones: [],
+  savedAt: new Date(0).toISOString(),
+};

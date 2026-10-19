@@ -1,4 +1,4 @@
-import type { GameData } from '../types'
+import type { GameData } from '../types';
 
 /**
  * The renderer's only way to reach static GW2 game data — reached via the preload-exposed
@@ -7,5 +7,5 @@ import type { GameData } from '../types'
  * and the renderer code doesn't change.
  */
 export interface GameDataProvider {
-  getAll(): Promise<GameData>
+  getAll(): Promise<GameData>;
 }

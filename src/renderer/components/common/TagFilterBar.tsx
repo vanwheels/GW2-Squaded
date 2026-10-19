@@ -1,20 +1,20 @@
-import type { TagFilterState } from '@renderer/state/use-tag-filter'
-import { ProfessionTagPicker } from './ProfessionTagPicker'
-import { TagChipDropdown } from './TagChipDropdown'
+import type { TagFilterState } from '@renderer/state/use-tag-filter';
+import { ProfessionTagPicker } from './ProfessionTagPicker';
+import { TagChipDropdown } from './TagChipDropdown';
 
 interface Props {
-  query: string
-  onQueryChange: (query: string) => void
+  query: string;
+  onQueryChange: (query: string) => void;
   /** User-created tags in use across the current records (not profession/elite-spec auto tags —
    *  those get their own icon picker, see `showProfessionPicker`). */
-  customTags: string[]
-  tagStates: Map<string, TagFilterState>
-  onToggleTag: (tag: string) => void
-  onClearTag: (tag: string) => void
+  customTags: string[];
+  tagStates: Map<string, TagFilterState>;
+  onToggleTag: (tag: string) => void;
+  onClearTag: (tag: string) => void;
   /** Show the profession/elite-spec icon picker above the custom-tag dropdown — only meaningful
    *  for build-listing views (`BuildsView`/`BuildsSidebar`); squads have no single profession. */
-  showProfessionPicker?: boolean
-  placeholder?: string
+  showProfessionPicker?: boolean;
+  placeholder?: string;
 }
 
 /** Search box + tag filters, shared by BuildsView/SquadsView/BuildsSidebar. Search box, tag-filter
@@ -29,7 +29,7 @@ export function TagFilterBar({
   onToggleTag,
   onClearTag,
   showProfessionPicker,
-  placeholder
+  placeholder,
 }: Props) {
   return (
     <div className="tag-filter-bar">
@@ -40,8 +40,15 @@ export function TagFilterBar({
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={placeholder ?? 'Search…'}
       />
-      <TagChipDropdown allTags={customTags} tagStates={tagStates} onToggleTag={onToggleTag} onClearTag={onClearTag} />
-      {showProfessionPicker && <ProfessionTagPicker tagStates={tagStates} onToggleTag={onToggleTag} />}
+      <TagChipDropdown
+        allTags={customTags}
+        tagStates={tagStates}
+        onToggleTag={onToggleTag}
+        onClearTag={onClearTag}
+      />
+      {showProfessionPicker && (
+        <ProfessionTagPicker tagStates={tagStates} onToggleTag={onToggleTag} />
+      )}
     </div>
-  )
+  );
 }
