@@ -2,6 +2,18 @@
 
 Entries are added as work lands, most recent first.
 
+### [Schema Version] — Leg 4
+2026-10-19. Added `schemaVersion` to `Build`/`SquadComp` (`CURRENT_SCHEMA_VERSION = 1`), stamped on
+every new record and backfilled on read via a shared `withCurrentSchemaVersion` helper called from
+`normalizeBuild`/`normalizeSquadComp` — the one choke point every persisted read (including a
+post-sync refresh) already passes through, since the SQLite/IndexedDB storage adapters are generic
+over `T` and can't know how to migrate either type themselves. No worker-side change needed: the
+Worker's `SyncPayload` already treats both collections as opaque blobs, so the field travels through
+sync unmodified. Added a unit test loading an old-format (unversioned) fixture for both types, plus
+a real SQLite round-trip check (current-format record persists its version; an old-format row
+written without one reads back unharmed). Last leg of Project Revision v2 — also stamped
+`Conventions: v2` in CLAUDE.md. See commit `91b2be7`.
+
 ### [Memory Cleanup] — Leg 3
 2026-10-19. Deleted the 63 orphaned memory files (on disk, never indexed in MEMORY.md) and
 reclassified the 36 indexed entries. 16 were deleted as redundant — fully covered by existing code
