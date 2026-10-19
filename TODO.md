@@ -8,43 +8,25 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Polish/Parity
+## Current Milestone: Tooling & Cleanup
 
-Last milestone of the 4-part web initiative, resumed 2026-10-19 after Project Revision v2 closed
-(see MILESTONES.md/`docs/postmortems/project-revision-v2.md`). Legs 1-2 (Build Editor Mobile Tabs,
-Squad Editor Mobile Layout) already shipped before the pause — archived in
-`docs/archive/completed-2026-09-29-to-2026-10-19.md`. The `deploy-web` CI item originally scoped for
-this milestone turned out to already be shipped as part of Web App Port
-(`.github/workflows/deploy-web.yml` builds + `actions/deploy-pages` on every push to `main`) —
-dropped from scope, nothing left to do there.
+Done when:
+- Prettier is installed and configured, reconciled with ESLint, a full codebase format pass is
+  done, and `npm run lint` includes a format check and passes clean.
+- Light Aura's Boons-bar presence matches between the Squad Builder and Build Editor for the same
+  build.
 
-`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
-narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
-editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
-manifest, see `BuildScreenshotGrid.tsx`) needed a genuinely different mobile layout, not a reflow or
-one long scroll — same was true of the squad editor's sidebar+grid shape, both resolved in Legs 1-2.
+### [Prettier Adoption + Project Cleanup] — Leg 1
+Install Prettier (mirroring ChoiceBuds' setup — check that project's `.prettierrc`/ignore config
+for parity before adopting) and reconcile it with the existing ESLint config so the two don't
+fight. Run a full-codebase format pass to clean up existing inconsistencies, then wire a format
+check into `npm run lint` so drift doesn't creep back in.
+Done check: Prettier installed and configured, full codebase formatted, `npm run lint` includes a
+format check and passes clean.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
 
-### [Remaining Views Mobile Audit] — Leg 3
-Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
-modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
-layouts found. These are lower-density than the editors, so a reflow matching the existing
-breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
-Last touched: 2026-10-08. Re-checks: 0.
-
-### [Copy-Screenshot Web Parity] — Leg 4
-Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
-(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
-(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
-misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
-`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
-then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
-building real capture. Decide which during implementation — (a) is real parity but a new dependency
-and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
-Last touched: 2026-10-08. Re-checks: 0.
-
-## Unscheduled
-
-### [Light Aura Squad Builder Bug] — Leg 1
+### [Light Aura Squad Builder Bug] — Leg 2
 Light Aura wrongly appears in the Squad Builder's Boons bar but not the Build Editor for a
 Luminary Guardian. Both views call the same `computeBoonConditionSources`, and Radiant Resolve's
 F2 "Activate" branch legitimately grants Light Aura (`countsTowardTotals: true`), so the
@@ -55,6 +37,8 @@ Done check: Light Aura's Boons-bar presence matches between the Squad Builder an
 the same build.
 Manual verification: yes — visual boon-bar comparison.
 Last touched: 2026-10-19. Re-checks: 0.
+
+## Unscheduled
 
 ### [Twin Moon Sweep] — Leg 1
 Twin Moon (Revenant) has the same "one cast, mutually exclusive legend-gated branches" shape
@@ -92,6 +76,39 @@ Blocked: waiting on latency becoming a live complaint again.
 Last touched: 2026-08-19. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
+
+### Polish/Parity
+
+Last milestone of the 4-part web initiative, paused intact 2026-10-19 to plan Tooling & Cleanup.
+Legs 1-2 (Build Editor Mobile Tabs, Squad Editor Mobile Layout) already shipped before the pause —
+archived in `docs/archive/completed-2026-09-29-to-2026-10-19.md`. The `deploy-web` CI item
+originally scoped for this milestone turned out to already be shipped as part of Web App Port
+(`.github/workflows/deploy-web.yml` builds + `actions/deploy-pages` on every push to `main`) —
+dropped from scope, nothing left to do there.
+
+`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
+narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
+editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
+manifest, see `BuildScreenshotGrid.tsx`) needed a genuinely different mobile layout, not a reflow or
+one long scroll — same was true of the squad editor's sidebar+grid shape, both resolved in Legs 1-2.
+
+#### [Remaining Views Mobile Audit] — Leg 3
+Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
+modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
+layouts found. These are lower-density than the editors, so a reflow matching the existing
+breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
+Last touched: 2026-10-08. Re-checks: 0.
+
+#### [Copy-Screenshot Web Parity] — Leg 4
+Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
+(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
+(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
+misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
+`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
+then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
+building real capture. Decide which during implementation — (a) is real parity but a new dependency
+and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
+Last touched: 2026-10-08. Re-checks: 0.
 
 ### File Cap Splits
 
