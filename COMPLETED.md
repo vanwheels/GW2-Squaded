@@ -2,6 +2,26 @@
 
 Entries are added as work lands, most recent first.
 
+### [Memory Cleanup] — Leg 3
+2026-10-19. Deleted the 63 orphaned memory files (on disk, never indexed in MEMORY.md) and
+reclassified the 36 indexed entries. 16 were deleted as redundant — fully covered by existing code
+doc comments (`per_buff_line_target_count_model`, `new_attribute_bonus_infra`,
+`movement_speed_sweep`, `sigil_bonuses_active_weapon_set_only`), by `docs/game-data.md`
+(`feast_station_shared_consumables`), by the global CLAUDE.md (`git_workflow`), already shipped
+(`autoupdate_check_next_milestone`), or already captured as a CLAUDE.md pitfall
+(`profession_mechanic_bar_branch_facts_bug`) — plus 7 that were fully-done historical narrative
+once their one open thread was extracted elsewhere (see below). Trimmed `gear_optimizer_reference`
+down to its one still-useful fact (the discretize repo isn't reusable); left the other 19 indexed
+entries untouched. Added 4 new CLAUDE.md "Known pitfalls" entries (weapon off-hand mirror bug, the
+synthetic-facts skill-side override gap, wiki-sourced non-Skill data needing its own pipeline
+bridge, never curating a number from a screenshot) and one ARCHITECTURE.md key decision
+(desktop-only, no mobile port) extracted from the deleted memories. Surfaced the 7 open items the
+audit found with no disposition anywhere to Vanny via AskUserQuestion: Twin Moon Sweep and the
+Light Aura Squad Builder bug became new TODO.md entries; the Necromancer life-force gain rate gap
+and the Heated Rebuke breakbar gap became new Known Exceptions entries; the weapon off-hand mirror
+bug and the synthetic-facts skill-side override gap became the CLAUDE.md pitfalls above; the
+skill-side Number-fact WvW override gap became a TODO.md entry. See commit `<pending>`.
+
 ### [CLAUDE.md Slim] — Leg 2
 2026-10-19. Created `CLAUDE.md` (commands, hard rules, known pitfalls) and `ARCHITECTURE.md`
 (systems/ownership/data-flow, key decisions with a one-line why) from scratch — neither existed

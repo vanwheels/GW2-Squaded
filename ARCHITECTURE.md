@@ -98,3 +98,8 @@ features, each with its own storage binding chosen for its access pattern:
 - **In-app game-data refresh reads the public repo's own raw content**, not a dedicated endpoint.
   Why: the repo is already public and already serves `data/game-data/*.json` on every commit to
   `main` — standing up a server to serve the same files would be pure overhead.
+- **Desktop-only — no mobile port.** A Capacitor iOS/Android port and a mobile-compatible browser
+  version were both considered and dropped. Why: the app's core interactions (gear optimizer,
+  drag-and-drop squad editor) are desktop-shaped (no touch fallback for native HTML5 drag-and-drop),
+  and iOS distribution friction outweighs the payoff for a community-sized userbase; the Discord
+  bot's browser-rendered preview cards already cover the "check a build from my phone" case.

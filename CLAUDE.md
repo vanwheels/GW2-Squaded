@@ -48,3 +48,22 @@ boon/condition uptime calculator, gear optimizer. See `ARCHITECTURE.md` for syst
   `AttributeAdjust`/`Healing` facts — a coefficient living inside a Buff-fact template (e.g. a
   per-stack self-heal like Adrenal Health) has no binding point yet; surfacing one needs new infra,
   not a table entry.
+- `mainWeapon`/`offWeapon` is independently reconstructed from `build.equipment` at 2 known sites
+  (`sources.ts`'s aggregate calc, `WeaponSkillBar.tsx`'s display) — a one-handed main-hand weapon
+  with no off-hand equipped must be gated with the `mainIsTwoHanded`/`TwoHand`-flag check at each
+  site separately; fixed twice already (Revenant, then Warrior) because no shared resolver exists.
+  A new 3rd site needs the same guard.
+- `BUFF_INSTANCE_VALUE_OVERRIDES` is keyed by the caller's `sourceKind`/`sourceId` (`'skill'`/id or
+  `'trait'`/id), not by a fact's `requires_trait` — fixing a trait's own duplicate-fact dedup
+  (`BUFF_INSTANCE_VALUE_OVERRIDES.trait[...]`) does NOT also fix every skill whose
+  `synthetic-facts.json` entry copies that trait's same raw facts onto it. Each such skill id needs
+  its own mirrored `BUFF_INSTANCE_VALUE_OVERRIDES.skill[...]` entry.
+- Wiki-sourced data that isn't keyed to a `Skill` id (Tome chapters, relics, sigils) has no
+  automatic path into any Fact-based pipeline (Control/Misc/Strip/Cleanse, boon/condition, etc.) —
+  each needs its own hand-curated bridge table (e.g. `TOME_CHAPTER_NAMED_FACT_SOURCES`, mirroring
+  `RELIC_NAMED_FACT_SOURCES`'s shape). Don't assume a gap here is a matcher-regex bug before
+  checking whether the source is wired into the pipeline at all.
+- Never curate a base coefficient/duration/fact number from a screenshot of an equipped character
+  — it bakes in that character's own gear/boon-duration bonuses and isn't a base value. A
+  screenshot can confirm which facts exist and how they're grouped; the number itself always comes
+  from the wiki (or a game-mode-neutral API field).

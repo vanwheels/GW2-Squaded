@@ -14,22 +14,9 @@ Brings the project up to the v2 global conventions (this project never had a CLA
 Audit: `docs/investigations/project-revision-v2-audit.md`. Polish/Parity was paused for this
 migration — see Future Milestones below — and resumes once this milestone closes. Leg 2 shipped
 2026-10-19: `CLAUDE.md`/`ARCHITECTURE.md` now exist, the 3 unpromoted postmortem lessons are rules,
-machine-local paths are gone from tracked docs, and README has both disclosure lines. Remaining:
-Leg 3 (memory cleanup) and Leg 4 (schema versioning + the `Conventions: v2` stamp).
-
-### [Memory Cleanup] — Leg 3
-Delete the 63 orphaned memory files (on disk, never indexed in MEMORY.md — full list in the
-audit) and reclassify the 36 indexed entries per the audit table: move architecture/domain facts
-into ARCHITECTURE.md or `docs/game-data.md`, delete entries now redundant with the global CLAUDE.md
-or stale (`git_workflow.md`, `autoupdate_check_next_milestone.md`), keep genuine process/preference
-memories as-is. Surface the open items the audit found with no disposition anywhere (Twin Moon
-Sweep candidate, the un-root-caused Light Aura Squad Builder bug, the Necromancer life-force mirror
-gap, the Heated Rebuke breakbar gap, and the two skill/trait override gaps) to Vanny for a
-TODO-entry-vs-Known-Exception-vs-drop call before closing this leg.
-Done check: MEMORY.md only indexes files that still exist and are correctly classified; no
-orphaned files remain; every surfaced open item has an explicit disposition.
-Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
+machine-local paths are gone from tracked docs, and README has both disclosure lines. Leg 3 shipped
+2026-10-19: memory folder cleaned up (63 orphaned files deleted, 36 indexed entries reclassified —
+see COMPLETED.md). Remaining: Leg 4 (schema versioning + the `Conventions: v2` stamp).
 
 ### [Schema Version] — Leg 4
 Add `schemaVersion` to the `builds`/`squad_comps` SQLite rows and sync payloads, with a load-time
@@ -43,6 +30,41 @@ Manual verification: yes — persisted-data shape change, confirm an actual save
 Last touched: 2026-10-19. Re-checks: 0.
 
 ## Unscheduled
+
+### [Light Aura Squad Builder Bug] — Leg 1
+Light Aura wrongly appears in the Squad Builder's Boons bar but not the Build Editor for a
+Luminary Guardian. Both views call the same `computeBoonConditionSources`, and Radiant Resolve's
+F2 "Activate" branch legitimately grants Light Aura (`countsTowardTotals: true`), so the
+divergence is most likely a display-side filter only one of `BoonConditionSummaryPanel.tsx`/
+`SlotTile.tsx` applies (aura-category or targetCount gate) — not root-caused further yet. Next
+step is diffing what each component does with the returned sources.
+Done check: Light Aura's Boons-bar presence matches between the Squad Builder and Build Editor for
+the same build.
+Manual verification: yes — visual boon-bar comparison.
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Twin Moon Sweep] — Leg 1
+Twin Moon (Revenant) has the same "one cast, mutually exclusive legend-gated branches" shape
+Otherworldly Bond had before `branch-conditional-facts.ts`'s labeled-divider mechanism resolved
+it — left as an untried candidate since nobody has checked whether a live-game screenshot of its
+real tooltip exists to resolve it the same way. Ask for one before assuming it's out of reach.
+Done check: Twin Moon's tooltip either renders via `branchConditionalFacts` with wiki-sourced
+numbers, or is confirmed genuinely unresolvable and logged as a Known Exception instead.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Skill-Side Number-Fact WvW Override Gap] — Leg 1
+Traits route `Number`/`Percent` facts through `numericFactLines`, which consults
+`NUMERIC_FACT_WVW_OVERRIDES` to pick the WvW-correct value when the API gives one undiscriminated
+number. Skills have no equivalent — `skillFactLines` is only mode-aware for `Recharge` and the 4
+curated-coefficient tables. `CURATED_NUMERIC_FACT_VALUES` (`skill-fact-lines.ts`) currently patches
+exactly 3 ids (Seed of Life/Lesser Seed of Life) via direct value replacement, not a generalized
+mechanism. A future balance patch will keep hitting this on new skill-level Number facts.
+Done check: either a generalized skill-side WvW-override mechanism exists (mirroring
+`NUMERIC_FACT_WVW_OVERRIDES`'s shape), or the direct-value-table approach is confirmed sufficient
+and this item is closed as "no new infra needed, extend the table as cases arise."
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though
@@ -150,6 +172,19 @@ template, not the `{{skill fact|healing|...}}` AttributeAdjust template
 Buff-type self-heal facts, wired into `traitFactLines`) nothing else in the codebase uses — same
 shape as the Relic of Karakosa/Sapping Device exclusions above. Full scoping:
 `docs/investigations/sep-29-2026-patch-changes.md`.
+
+Project Revision v2 Leg 3 (2026-10-19): Necromancer life-force gain rate (Soul Comprehension/
+Gluttony traits) — the mirror-image gap to the shipped resource-cost modeling work (energy/
+initiative/upkeep/health cost). Never curated because life-force has no baseline value to apply a
+%-modifier to, same blocker as when first flagged; no new information since. Investigated and
+excluded, not forgotten — revisit only if this app ever models a baseline life-force gain rate for
+some other reason.
+
+Project Revision v2 Leg 3 (2026-10-19): Heated Rebuke (Tome of Justice Ch. 3, Firebrand) breakbar
+damage — found unwired into any pipeline while fixing the Tome Cleanse/Stun Break gaps
+(`docs/investigations/` has no dedicated writeup; see commit history around the Tome chapter
+fixes), but the magnitude was deliberately left unmodeled per an earlier user confirmation that
+breakbar damage isn't WvW-relevant for this app's purposes. Not a gap, a standing scope decision.
 
 ## Reference — not scheduled
 
