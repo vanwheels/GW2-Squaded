@@ -1,9 +1,8 @@
 # Continuous Cross-Device Sync — Post-mortem
 
-Shipped 2026-10-09. Third of the 4-milestone web-transition initiative (full plan:
-`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) — client-side tombstone tracking, sync
-API client, `useSync` hook, and Settings sign-in UI, all driven against the Worker side Sync
-Backend Foundation already shipped.
+Shipped 2026-10-09. Third of the 4-milestone web-transition initiative — client-side tombstone
+tracking, sync API client, `useSync` hook, and Settings sign-in UI, all driven against the Worker
+side Sync Backend Foundation already shipped.
 
 ## What shipped
 

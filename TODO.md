@@ -12,24 +12,10 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 Brings the project up to the v2 global conventions (this project never had a CLAUDE.md at all).
 Audit: `docs/investigations/project-revision-v2-audit.md`. Polish/Parity was paused for this
-migration — see Future Milestones below — and resumes once this milestone closes.
-
-### [CLAUDE.md Slim] — Leg 2
-Create `CLAUDE.md` and `ARCHITECTURE.md` from scratch (neither exists yet). CLAUDE.md gets
-commands, hard rules, and known pitfalls; ARCHITECTURE.md gets systems/ownership/state/data-flow
-and key decisions with a one-line why. Fold in the 3 unpromoted postmortem lessons as rules:
-archive COMPLETED.md at the actual milestone boundary (not several milestones later); keep
-patch-driven work and standing verification queues trackable as separate threads even when they
-ship together; update the "Current Milestone" intro paragraph as each leg closes, not just at
-close-out. While docs are open, also drop the 4 machine-local-path references to
-`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md` (TODO.md plus 3 postmortems — the
-milestones they name already shipped and are fully documented elsewhere, so nothing needs copying
-in) and add the missing AI-assisted-development disclosure line to README (the "not affiliated"
-line is already there).
-Done check: CLAUDE.md and ARCHITECTURE.md exist and match the audit's requirements; no
-machine-local paths remain in any tracked doc; README has both disclosure lines.
-Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
+migration — see Future Milestones below — and resumes once this milestone closes. Leg 2 shipped
+2026-10-19: `CLAUDE.md`/`ARCHITECTURE.md` now exist, the 3 unpromoted postmortem lessons are rules,
+machine-local paths are gone from tracked docs, and README has both disclosure lines. Remaining:
+Leg 3 (memory cleanup) and Leg 4 (schema versioning + the `Conventions: v2` stamp).
 
 ### [Memory Cleanup] — Leg 3
 Delete the 63 orphaned memory files (on disk, never indexed in MEMORY.md — full list in the

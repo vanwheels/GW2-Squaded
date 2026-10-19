@@ -1,8 +1,7 @@
 # Web App Port — Post-mortem
 
-Shipped 2026-10-08. First of the 4-milestone web-transition initiative (full plan:
-`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) — a local-only web build of the app,
-live at `https://gw2squaded.vannyproductions.com`.
+Shipped 2026-10-08. First of the 4-milestone web-transition initiative — a local-only web build of
+the app, live at `https://gw2squaded.vannyproductions.com`.
 
 ## What shipped
 

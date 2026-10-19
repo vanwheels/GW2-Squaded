@@ -1,8 +1,7 @@
 # Sync Backend Foundation — Post-mortem
 
-Shipped 2026-10-08. Second of the 4-milestone web-transition initiative (full plan:
-`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) — account + sync API on the existing
-`gw2-squaded-share` Worker, no client wiring yet (Milestone 3).
+Shipped 2026-10-08. Second of the 4-milestone web-transition initiative — account + sync API on the
+existing `gw2-squaded-share` Worker, no client wiring yet (Milestone 3).
 
 ## What shipped
 

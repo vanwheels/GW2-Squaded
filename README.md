@@ -11,6 +11,8 @@ telemetry.
 This project is not affiliated with or endorsed by ArenaNet or NCSOFT. Guild Wars 2 game data
 is used under [ArenaNet's Content Terms of Use](https://www.guildwars2.com/en/legal/guild-wars-2-content-terms-of-use/).
 
+AI-assisted development; design, direction and verification by Vanny.
+
 ## Download
 
 Grab the latest Windows installer from the
