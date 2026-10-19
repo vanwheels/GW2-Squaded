@@ -20,7 +20,7 @@ audit found with no disposition anywhere to Vanny via AskUserQuestion: Twin Moon
 Light Aura Squad Builder bug became new TODO.md entries; the Necromancer life-force gain rate gap
 and the Heated Rebuke breakbar gap became new Known Exceptions entries; the weapon off-hand mirror
 bug and the synthetic-facts skill-side override gap became the CLAUDE.md pitfalls above; the
-skill-side Number-fact WvW override gap became a TODO.md entry. See commit `<pending>`.
+skill-side Number-fact WvW override gap became a TODO.md entry. See commit `ae11c91`.
 
 ### [CLAUDE.md Slim] — Leg 2
 2026-10-19. Created `CLAUDE.md` (commands, hard rules, known pitfalls) and `ARCHITECTURE.md`
