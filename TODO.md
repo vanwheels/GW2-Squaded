@@ -11,20 +11,10 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 ## Current Milestone: Tooling & Cleanup
 
 Done when:
-- Prettier is installed and configured, reconciled with ESLint, a full codebase format pass is
-  done, and `npm run lint` includes a format check and passes clean.
+- ~~Prettier is installed and configured, reconciled with ESLint, a full codebase format pass is
+  done, and `npm run lint` includes a format check and passes clean.~~ Done in Leg 1.
 - Light Aura's Boons-bar presence matches between the Squad Builder and Build Editor for the same
   build.
-
-### [Prettier Adoption + Project Cleanup] — Leg 1
-Install Prettier (mirroring ChoiceBuds' setup — check that project's `.prettierrc`/ignore config
-for parity before adopting) and reconcile it with the existing ESLint config so the two don't
-fight. Run a full-codebase format pass to clean up existing inconsistencies, then wire a format
-check into `npm run lint` so drift doesn't creep back in.
-Done check: Prettier installed and configured, full codebase formatted, `npm run lint` includes a
-format check and passes clean.
-Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Light Aura Squad Builder Bug] — Leg 2
 Light Aura wrongly appears in the Squad Builder's Boons bar but not the Build Editor for a
