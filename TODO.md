@@ -14,17 +14,6 @@ Brings the project up to the v2 global conventions (this project never had a CLA
 Audit: `docs/investigations/project-revision-v2-audit.md`. Polish/Parity was paused for this
 migration — see Future Milestones below — and resumes once this milestone closes.
 
-### [CI Gate] — Leg 1
-Add `npm run test`, `npm run lint`, and `npm run typecheck` as steps in
-`.github/workflows/deploy-web.yml`, before `npm run build:web`, so a failing check stops the
-deploy. The workflow currently runs `npm ci` → `npm run build:web` → publish with no verification
-step at all, despite all three scripts already existing in `package.json`.
-Done check: the workflow runs all three checks before building, and a deliberately broken
-check fails the job before the deploy step runs.
-Manual verification: yes — push and confirm the Actions run actually gates on a real failure, not
-just that it passes today.
-Last touched: 2026-10-19. Re-checks: 0.
-
 ### [CLAUDE.md Slim] — Leg 2
 Create `CLAUDE.md` and `ARCHITECTURE.md` from scratch (neither exists yet). CLAUDE.md gets
 commands, hard rules, and known pitfalls; ARCHITECTURE.md gets systems/ownership/state/data-flow

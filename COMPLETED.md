@@ -2,6 +2,16 @@
 
 Entries are added as work lands, most recent first.
 
+### [CI Gate] — Leg 1
+2026-10-19. Added `npm run test`, `npm run lint`, and `npm run typecheck` as steps in
+`.github/workflows/deploy-web.yml` before `npm run build:web`. Verified the gate for real rather
+than just reading the YAML: pushed a deliberately-broken test to `main` (run `39336408121`) and
+confirmed `npm run test` failed and every step after it — lint, typecheck, build, GitHub Pages
+publish — was skipped, then pushed the revert (run `39336541678`) and confirmed a clean run
+deploys normally. Checked `core.autocrlf`/`.gitattributes` first per the TypeScript rules; repo
+blobs are LF-only despite the local Windows checkout showing CRLF, so no line-ending mismatch risk
+against the `ubuntu-latest` runner. See commits `c288651` and `f496f69`.
+
 ### [Squad Editor Mobile Layout] — Leg 2
 2026-10-08. The persistent 200px `BuildsSidebar` beside `.party-rows` left no room for the roster
 at phone width, and `.party-slots`'s own `flex-shrink: 0` kept all 5 slot tiles in one
