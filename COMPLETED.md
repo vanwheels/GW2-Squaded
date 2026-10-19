@@ -12,7 +12,7 @@ filters, guarded by `radiant-resolve-aura-routing.test.ts`, still passing). The 
 stale duplicate — resurrected from an orphaned memory file during Memory Cleanup Leg 3
 (2026-10-19) without checking it had already shipped a fix. Vanny re-verified live: Boons/Auras
 rows match between the two views for the Luminary Guardian build. No code change needed. See
-commit `TBD`.
+commit `c5a9244e8697376d76fa8293c8b40b74d7e49c28`.
 
 ### Prettier Adoption + Project Cleanup — Leg 1 (2026-10-19)
 Installed Prettier mirroring ChoiceBuds' `.prettierrc`/`.prettierignore` shape, added
