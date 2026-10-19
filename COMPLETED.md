@@ -2,6 +2,17 @@
 
 Entries are added as work lands, most recent first.
 
+### [CLAUDE.md Slim] — Leg 2
+2026-10-19. Created `CLAUDE.md` (commands, hard rules, known pitfalls) and `ARCHITECTURE.md`
+(systems/ownership/data-flow, key decisions with a one-line why) from scratch — neither existed
+before this leg. Folded in the 3 unpromoted postmortem lessons as CLAUDE.md hard rules: archive
+COMPLETED.md at the actual milestone boundary, keep patch-driven work and standing verification
+queues as separate trackable threads even when they ship together, and update TODO.md's "Current
+Milestone" intro paragraph as each leg closes rather than only at close-out. Dropped the 4
+machine-local `C:\Users\vanny\.claude\plans\...` references from TODO.md and 3 postmortems (the
+milestones they named had already shipped, so nothing needed copying in), and added the missing
+AI-assisted-development disclosure line to README. See commit `3640b4c`.
+
 ### [CI Gate] — Leg 1
 2026-10-19. Added `npm run test`, `npm run lint`, and `npm run typecheck` as steps in
 `.github/workflows/deploy-web.yml` before `npm run build:web`. Verified the gate for real rather
