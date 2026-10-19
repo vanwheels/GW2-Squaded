@@ -8,42 +8,64 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-The Web App Port, Sync Backend Foundation, and Continuous Cross-Device Sync milestones (full plan:
-`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) all shipped 2026-10-08/09 — see
-MILESTONES.md / COMPLETED.md. They're the first three of a 4-milestone web initiative. Milestone 4
-(Polish/Parity) is now scoped and current (below).
+## Current Milestone: Project Revision v2
 
-## Current Milestone: Polish/Parity
+Brings the project up to the v2 global conventions (this project never had a CLAUDE.md at all).
+Audit: `docs/investigations/project-revision-v2-audit.md`. Polish/Parity was paused for this
+migration — see Future Milestones below — and resumes once this milestone closes.
 
-Last milestone of the 4-part web initiative. The `deploy-web` CI item originally scoped for this
-milestone turned out to already be shipped as part of Web App Port (`.github/workflows/deploy-web.yml`
-builds + `actions/deploy-pages` on every push to `main`) — dropped from scope, nothing left to do
-there.
+### [CI Gate] — Leg 1
+Add `npm run test`, `npm run lint`, and `npm run typecheck` as steps in
+`.github/workflows/deploy-web.yml`, before `npm run build:web`, so a failing check stops the
+deploy. The workflow currently runs `npm ci` → `npm run build:web` → publish with no verification
+step at all, despite all three scripts already existing in `package.json`.
+Done check: the workflow runs all three checks before building, and a deliberately broken
+check fails the job before the deploy step runs.
+Manual verification: yes — push and confirm the Actions run actually gates on a real failure, not
+just that it passes today.
+Last touched: 2026-10-19. Re-checks: 0.
 
-`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
-narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
-editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
-manifest, see `BuildScreenshotGrid.tsx`) needs a genuinely different mobile layout, not a reflow or
-one long scroll — same likely true of the squad editor's sidebar+grid shape. Split into legs below
-instead of one "layout pass."
+### [CLAUDE.md Slim] — Leg 2
+Create `CLAUDE.md` and `ARCHITECTURE.md` from scratch (neither exists yet). CLAUDE.md gets
+commands, hard rules, and known pitfalls; ARCHITECTURE.md gets systems/ownership/state/data-flow
+and key decisions with a one-line why. Fold in the 3 unpromoted postmortem lessons as rules:
+archive COMPLETED.md at the actual milestone boundary (not several milestones later); keep
+patch-driven work and standing verification queues trackable as separate threads even when they
+ship together; update the "Current Milestone" intro paragraph as each leg closes, not just at
+close-out. While docs are open, also drop the 4 machine-local-path references to
+`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md` (TODO.md plus 3 postmortems — the
+milestones they name already shipped and are fully documented elsewhere, so nothing needs copying
+in) and add the missing AI-assisted-development disclosure line to README (the "not affiliated"
+line is already there).
+Done check: CLAUDE.md and ARCHITECTURE.md exist and match the audit's requirements; no
+machine-local paths remain in any tracked doc; README has both disclosure lines.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
 
-### [Remaining Views Mobile Audit] — Leg 3
-Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
-modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
-layouts found. These are lower-density than the editors, so a reflow matching the existing
-breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
-Last touched: 2026-10-08. Re-checks: 0.
+### [Memory Cleanup] — Leg 3
+Delete the 63 orphaned memory files (on disk, never indexed in MEMORY.md — full list in the
+audit) and reclassify the 36 indexed entries per the audit table: move architecture/domain facts
+into ARCHITECTURE.md or `docs/game-data.md`, delete entries now redundant with the global CLAUDE.md
+or stale (`git_workflow.md`, `autoupdate_check_next_milestone.md`), keep genuine process/preference
+memories as-is. Surface the open items the audit found with no disposition anywhere (Twin Moon
+Sweep candidate, the un-root-caused Light Aura Squad Builder bug, the Necromancer life-force mirror
+gap, the Heated Rebuke breakbar gap, and the two skill/trait override gaps) to Vanny for a
+TODO-entry-vs-Known-Exception-vs-drop call before closing this leg.
+Done check: MEMORY.md only indexes files that still exist and are correctly classified; no
+orphaned files remain; every surfaced open item has an explicit disposition.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
 
-### [Copy-Screenshot Web Parity] — Leg 4
-Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
-(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
-(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
-misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
-`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
-then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
-building real capture. Decide which during implementation — (a) is real parity but a new dependency
-and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
-Last touched: 2026-10-08. Re-checks: 0.
+### [Schema Version] — Leg 4
+Add `schemaVersion` to the `builds`/`squad_comps` SQLite rows and sync payloads, with a load-time
+check and a test that loads an old-format (unversioned) fixture. `src/main/storage/schema.ts`
+currently has no version column anywhere — a live risk, not a hypothetical one, since Continuous
+Cross-Device Sync already ships this data format across devices. This leg also adds the
+`Conventions: v2` stamp to CLAUDE.md as the final leg of this milestone.
+Done check: `schemaVersion` present on persisted build/squad-comp data and sync payloads, a passing
+test loads an unversioned fixture, CLAUDE.md stamped `Conventions: v2`.
+Manual verification: yes — persisted-data shape change, confirm an actual save/load round trip.
+Last touched: 2026-10-19. Re-checks: 0.
 
 ## Unscheduled
 
@@ -58,6 +80,61 @@ noticeable either way and is satisfied with "cleaner on the backend" for now —
 latency becomes a live complaint again, ideally backed by a `wrangler tail` timing pass.
 Blocked: waiting on latency becoming a live complaint again.
 Last touched: 2026-08-19. Re-checks: 0.
+
+## Future Milestones (unscheduled)
+
+### Polish/Parity (on hold — paused 2026-10-19 for Project Revision v2, resumes after)
+
+Last milestone of the 4-part web initiative. The `deploy-web` CI item originally scoped for this
+milestone turned out to already be shipped as part of Web App Port (`.github/workflows/deploy-web.yml`
+builds + `actions/deploy-pages` on every push to `main`) — dropped from scope, nothing left to do
+there.
+
+`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
+narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
+editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
+manifest, see `BuildScreenshotGrid.tsx`) needs a genuinely different mobile layout, not a reflow or
+one long scroll — same likely true of the squad editor's sidebar+grid shape. Split into legs below
+instead of one "layout pass."
+
+#### [Remaining Views Mobile Audit] — Leg 3
+Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
+modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
+layouts found. These are lower-density than the editors, so a reflow matching the existing
+breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
+Last touched: 2026-10-08. Re-checks: 0.
+
+#### [Copy-Screenshot Web Parity] — Leg 4
+Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
+(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
+(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
+misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
+`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
+then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
+building real capture. Decide which during implementation — (a) is real parity but a new dependency
+and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### File Cap Splits
+
+15 source files over the 500-line soft/hard cap (data/generated files excluded). Splitting is risky
+refactor work and gets its own milestone, not folded into Project Revision v2:
+
+- `src/shared/boon-calc/sources.ts` (6760 lines)
+- `src/shared/skill-calc/damage-calc.ts` (3986)
+- `src/shared/gear-calc/combat-state.ts` (2604)
+- `src/shared/skill-calc/fact-numbers.ts` (1954)
+- `src/shared/gear-calc/gear-optimize.ts` (1589)
+- `src/shared/skill-calc/branch-conditional-facts.ts` (1482)
+- `src/shared/gear-calc/combat-state.test.ts` (1451)
+- `src/shared/skill-calc/healing-calc.ts` (1228)
+- `src/renderer/components/build-editor/SkillsEditor.tsx` (1009)
+- `src/renderer/components/build-editor/EquipmentEditor.tsx` (829)
+- `src/shared/gear-calc/trait-attributes.ts` (778)
+- `src/shared/types/game-data.ts` (670)
+- `src/renderer/components/build-editor/CombatStatePanel.tsx` (626)
+- `src/shared/skill-calc/profession-mechanic.ts` (621)
+- `src/shared/gear-calc/attribute-totals.ts` (542)
 
 ## Known Exceptions — investigated, permanently excluded
 
