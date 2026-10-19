@@ -2,6 +2,18 @@
 
 Entries are added as work lands, most recent first.
 
+### Light Aura Squad Builder Bug — Leg 2 (2026-10-19)
+Traced every path Light Aura could reach `computeBoonConditionSources`/`computeAuraSources`
+(branch-conditional facts, relic facts, skill/trait facts, additive-flip dedup) and the display
+filters in `BoonConditionSummaryPanel.tsx`/`SlotTile.tsx`: all correctly gate aura-category facts
+to the Auras row only. Found the actual root cause of the confusion: this exact bug (same wording)
+was already fixed 2026-08-19 (`sources.ts`'s `category !== 'aura'`/`=== 'aura'` branch-loop
+filters, guarded by `radiant-resolve-aura-routing.test.ts`, still passing). The TODO entry was a
+stale duplicate — resurrected from an orphaned memory file during Memory Cleanup Leg 3
+(2026-10-19) without checking it had already shipped a fix. Vanny re-verified live: Boons/Auras
+rows match between the two views for the Luminary Guardian build. No code change needed. See
+commit `TBD`.
+
 ### Prettier Adoption + Project Cleanup — Leg 1 (2026-10-19)
 Installed Prettier mirroring ChoiceBuds' `.prettierrc`/`.prettierignore` shape, added
 `eslint-config-prettier` as the last ESLint config entry so stylistic rules never fight Prettier,
