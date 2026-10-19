@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Build } from '@shared/types'
+import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types'
 import type { SyncTombstone } from '@shared/storage/storage-interface'
 import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 
@@ -20,17 +21,20 @@ const BuildsStoreContext = createContext<BuildsStore | null>(null)
  *  doc comments. No storage migration; every read goes through this. `weaverPreviousAttunement`
  *  defaults to matching `activeAttunement` (current === previous, a normal-looking single-attunement
  *  bar) for a pre-existing Weaver build, `null` otherwise — same defaulting `handleEliteSpecChoose`
- *  applies when Weaver is newly equipped in the editor, see that field's doc comment. */
-function normalizeBuild(build: Build): Build {
+ *  applies when Weaver is newly equipped in the editor, see that field's doc comment.
+ *
+ *  Also runs the load-time schema check (`withCurrentSchemaVersion`, shared/types) — see its doc
+ *  comment. */
+export function normalizeBuild(build: Build): Build {
   const isWeaver = build.specializations.some((s) => s?.specializationId === WEAVER_SPEC_ID)
-  return {
+  return withCurrentSchemaVersion({
     ...build,
     tags: build.tags ?? [],
     order: build.order ?? Date.parse(build.createdAt),
     favorite: build.favorite ?? false,
     weaverPreviousAttunement: build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null),
     updatedAtGw2Build: build.updatedAtGw2Build ?? null
-  }
+  })
 }
 
 export function makeBlankBuild(): Build {
@@ -63,7 +67,8 @@ export function makeBlankBuild(): Build {
     updatedAtGw2Build: null,
     tags: [],
     order: Date.now(),
-    favorite: false
+    favorite: false,
+    schemaVersion: CURRENT_SCHEMA_VERSION
   }
 }
 

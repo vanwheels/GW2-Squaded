@@ -290,4 +290,12 @@ export interface Build {
    * `SquadComp.favorite`.
    */
   favorite: boolean
+  /**
+   * Persisted-shape version, see `CURRENT_SCHEMA_VERSION`'s doc comment (schema-version.ts).
+   * Absent on records saved before this field existed — `normalizeBuild` backfills
+   * `schemaVersion ?? CURRENT_SCHEMA_VERSION` on every read, same "no storage migration" shape as
+   * `tags`/`order`/`favorite` above, except this is the field future shape changes key a real
+   * migration branch off of instead of another ad-hoc `?? default`.
+   */
+  schemaVersion: number
 }

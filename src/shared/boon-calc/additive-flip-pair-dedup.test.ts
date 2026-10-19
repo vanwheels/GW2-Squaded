@@ -81,6 +81,7 @@ function baseBuild(overrides: Partial<Build>): Build {
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     updatedAtGw2Build: null,
+    schemaVersion: 1,
     tags: [],
     order: 0,
     favorite: false,

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Party, SquadComp, SquadSlot } from '@shared/types'
+import { CURRENT_SCHEMA_VERSION, withCurrentSchemaVersion } from '@shared/types'
 import type { SyncTombstone } from '@shared/storage/storage-interface'
 
 interface SquadCompsStore {
@@ -24,14 +25,17 @@ export function makeBlankParty(): Party {
 }
 
 /** Backfills fields absent on records saved before they existed — see `SquadComp.tags`/
- *  `SquadComp.order` doc comments. No storage migration; every read goes through this. */
-function normalizeSquadComp(squadComp: SquadComp): SquadComp {
-  return {
+ *  `SquadComp.order` doc comments. No storage migration; every read goes through this.
+ *
+ *  Also runs the load-time schema check (`withCurrentSchemaVersion`, shared/types) — see its doc
+ *  comment. */
+export function normalizeSquadComp(squadComp: SquadComp): SquadComp {
+  return withCurrentSchemaVersion({
     ...squadComp,
     tags: squadComp.tags ?? [],
     order: squadComp.order ?? Date.parse(squadComp.createdAt),
     favorite: squadComp.favorite ?? false
-  }
+  })
 }
 
 export function makeBlankSquadComp(): SquadComp {
@@ -45,7 +49,8 @@ export function makeBlankSquadComp(): SquadComp {
     updatedAt: now,
     tags: [],
     order: Date.now(),
-    favorite: false
+    favorite: false,
+    schemaVersion: CURRENT_SCHEMA_VERSION
   }
 }
 

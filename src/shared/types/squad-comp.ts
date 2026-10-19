@@ -48,4 +48,7 @@ export interface SquadComp {
   /** Pins this squad to the top of the Squads card grid — same scheme as `Build.favorite`, see its
    *  doc comment. */
   favorite: boolean
+  /** Persisted-shape version — same scheme as `Build.schemaVersion`, see its doc comment and
+   *  `CURRENT_SCHEMA_VERSION` (schema-version.ts). */
+  schemaVersion: number
 }

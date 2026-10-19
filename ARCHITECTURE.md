@@ -103,3 +103,9 @@ features, each with its own storage binding chosen for its access pattern:
   drag-and-drop squad editor) are desktop-shaped (no touch fallback for native HTML5 drag-and-drop),
   and iOS distribution friction outweighs the payoff for a community-sized userbase; the Discord
   bot's browser-rendered preview cards already cover the "check a build from my phone" case.
+- **`Build`/`SquadComp` carry a `schemaVersion`, checked at one choke point per collection**
+  (`normalizeBuild`/`normalizeSquadComp`, `src/renderer/state/`) rather than inside the storage
+  adapters themselves. Why: both SQLite (`JsonBlobRepository`) and IndexedDB adapters are
+  type-agnostic over `T`, so they can't know how to migrate a `Build` vs. a `SquadComp`; every read
+  (local list, or a post-sync refresh after `applySyncedState`) already funnels through the
+  per-type normalize function, so that's where a future shape change's migration branch belongs.

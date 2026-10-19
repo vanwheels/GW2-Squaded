@@ -1,5 +1,7 @@
 # GW2-Squaded
 
+Conventions: v2
+
 Offline-first Electron + React + TypeScript app: WvW build editor, squad composition builder,
 boon/condition uptime calculator, gear optimizer. See `ARCHITECTURE.md` for systems/data flow,
 `docs/game-data.md` for the static GW2 data pipeline, `docs/discord-bot.md` for the Discord bot.

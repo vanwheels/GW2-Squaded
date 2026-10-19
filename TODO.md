@@ -16,18 +16,9 @@ migration — see Future Milestones below — and resumes once this milestone cl
 2026-10-19: `CLAUDE.md`/`ARCHITECTURE.md` now exist, the 3 unpromoted postmortem lessons are rules,
 machine-local paths are gone from tracked docs, and README has both disclosure lines. Leg 3 shipped
 2026-10-19: memory folder cleaned up (63 orphaned files deleted, 36 indexed entries reclassified —
-see COMPLETED.md). Remaining: Leg 4 (schema versioning + the `Conventions: v2` stamp).
-
-### [Schema Version] — Leg 4
-Add `schemaVersion` to the `builds`/`squad_comps` SQLite rows and sync payloads, with a load-time
-check and a test that loads an old-format (unversioned) fixture. `src/main/storage/schema.ts`
-currently has no version column anywhere — a live risk, not a hypothetical one, since Continuous
-Cross-Device Sync already ships this data format across devices. This leg also adds the
-`Conventions: v2` stamp to CLAUDE.md as the final leg of this milestone.
-Done check: `schemaVersion` present on persisted build/squad-comp data and sync payloads, a passing
-test loads an unversioned fixture, CLAUDE.md stamped `Conventions: v2`.
-Manual verification: yes — persisted-data shape change, confirm an actual save/load round trip.
-Last touched: 2026-10-19. Re-checks: 0.
+see COMPLETED.md). Leg 4 shipped 2026-10-19: `Build`/`SquadComp` now carry `schemaVersion`, stamped
+`Conventions: v2` in CLAUDE.md. All 4 legs are shipped — this milestone is ready for
+`/close-milestone`.
 
 ## Unscheduled
 
