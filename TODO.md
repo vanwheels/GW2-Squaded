@@ -131,6 +131,46 @@ Given the spread, keep splitting this by mechanic family per leg rather than swe
 Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
+Leg 11 (2026-10-19) swept the Elementalist core Glyph/Conjure cluster (8 ids: Ice Storm/Lightning
+Storm/Sandstorm, Crashing Waves/Flame Barrage, Glyph of Elemental Power's Air/Fire variants, Lesser
+Fiery Eruption). 3 of 8 (Crashing Waves 25492/Flame Barrage 25499, Lesser Fiery Eruption 44918) were
+a 5th instance of the "comment exists, never logged" shape found repeatedly across this sweep
+(Rampart Splitter/Jade Buster Cannon/Hex-Eater Vortex+Gladiator's Defense/turret family) —
+`CURATED_DAMAGE_COEFFICIENTS`'s own Elite-slot sweep comment already excluded all 3 as non-player-
+scaling (summoned-elemental "command" follow-ups whose wiki pages state damage is unaffected by
+power; Lesser Fiery Eruption is Conjure Fiery Greatsword's non-equippable auto-proc), just never
+logged here. The other 5 (Ice Storm 5735/Lightning Storm 5737/Sandstorm 5738, Glyph of Elemental
+Power's Air/Fire 34637/34736) are Glyph-of-Storms/Glyph-of-Elemental-Power attunement variants — and
+checking *why* they weren't already excluded surfaced a real, previously-unfixed live picker bug,
+not just a logging gap: Ice Storm/Lightning Storm/Sandstorm each describe their effect under their
+own distinct flavor name rather than "Glyph of Storms," so `skill-variants.ts`'s attunement-collapse
+signal had nothing to collapse each singleton-member group onto, and all 3 shipped through to the
+live Utility picker as if independently equippable (a player could currently bind "Ice Storm"
+directly). Fixed by adding all 3 to `skill-variants.ts`'s `NON_EQUIPPABLE_SKILL_IDS`, with a
+regression test (`glyph-attunement-variants.test.ts`) guarding it. Glyph of Elemental Power's
+Air/Fire variants turned out NOT to share this bug — they share their exact name with their
+attunement-agnostic canonical sibling (5506), so the existing attunement-collapse signal already
+drops them correctly; logged as a Known Exception rather than a fix. Also corrected a stale claim
+in `damage-calc.ts`'s own Lesser Fiery Eruption comment ("likely still leaks into the live Elite
+picker... see TODO.md for a follow-up") — that picker fix (`NON_EQUIPPABLE_SKILL_IDS` already
+contains 44918) had landed since the comment was written, with no TODO.md item ever created for it.
+No new `CURATED_DAMAGE_COEFFICIENTS` entries this leg (pure exclusion-map + picker-bug fix) — golden
+coefficient snapshot unchanged. 8 ids resolved (1 real code fix + regression test, 7 logged
+exclusions); full suite (629 tests), lint, and typecheck all pass.
+Remaining 31 ids (composition not re-swept this leg beyond the one cluster below — see this item's
+earlier re-triage paragraph above for the fuller family breakdown). One cluster WAS checked this leg
+while investigating the Elementalist Glyphs: Warrior Spellbreaker's 6 "Full Counter"-slot
+(`Profession_2`/Burst, specializationId 61) Burst-skill ids (Silencer/Boon Crusher/Wounding
+Strike/Fleeting Stability/Dissonance/Magehunter Strike, ids 39972/41283/41543/43488/44397/46044)
+turned out, on inspection, to have **zero wiki page of any kind** (checked via
+`action=query&list=allpages` prefix search, not just a title lookup) — likely too new for the wiki
+to have documented yet (unlike every other "comment exists" gap in this sweep, there's no existing
+page to even be stale). Left untouched rather than guessed at or logged as a permanent Known
+Exception (this looks like a temporary documentation lag, not a structural modeling gap) — re-check
+the wiki again next time this item is picked up before assuming anything else about them.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
 ### [Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id]
 Found while wiki-verifying the Damage sweep's Leg 6 (2026-10-19): `CURATED_BARRIER_COEFFICIENTS`
 (`barrier-calc.ts`) keys this skill's Barrier fact to id 77896, with a comment claiming the wiki

@@ -15,6 +15,26 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 11 (2026-10-19)
+Swept the Elementalist core Glyph/Conjure cluster (8 ids). 3 (Crashing Waves 25492/Flame Barrage
+25499/Lesser Fiery Eruption 44918) were a 5th instance of this sweep's "comment exists, never
+logged" shape — `CURATED_DAMAGE_COEFFICIENTS`'s own Elite-slot sweep comment already excluded all 3
+as non-player-scaling, just never logged to TODO.md. The other 5 (Ice Storm 5735/Lightning Storm
+5737/Sandstorm 5738, Glyph of Elemental Power's Air/Fire 34637/34736) are Glyph attunement variants
+— checking why they weren't already excluded surfaced a real, previously-unfixed live picker bug:
+Ice Storm/Lightning Storm/Sandstorm each describe their effect under their own distinct flavor name
+rather than "Glyph of Storms," so `skill-variants.ts`'s attunement-collapse signal never collapsed
+their singleton-member groups, letting all 3 leak into the live Utility picker as independently-
+equippable skills. Fixed by adding them to `NON_EQUIPPABLE_SKILL_IDS`, with a new regression test
+(`glyph-attunement-variants.test.ts`). Glyph of Elemental Power's Air/Fire variants were NOT
+affected by this bug (already correctly collapsed via name-sharing with their canonical sibling).
+Also corrected a stale "likely still leaks" claim in `damage-calc.ts`'s Lesser Fiery Eruption
+comment — that picker fix had already landed. No new `CURATED_DAMAGE_COEFFICIENTS` entries (pure
+exclusion-map + picker-bug fix); golden coefficient snapshot unchanged. Checked the Warrior
+Spellbreaker Burst-skill cluster (6 ids) while here: no wiki page exists for any of them yet
+(too new for the wiki), left open rather than guessed at. Full suite (629 tests), lint, and
+typecheck all pass. See commit 1e5dd7c66fdcd45f8ed160d67e7eeb6bd92631a0.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 10 (2026-10-19)
 Wiki-verified the 11-id cluster TODO.md had labeled "Thief's core Steal variant skills themed by
 stolen-from faction" — that label was an approximation: it's Thief's Antiquary elite spec's Steal
