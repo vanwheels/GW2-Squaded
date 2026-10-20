@@ -31,7 +31,7 @@ own wiki `id =` field — same "wiki's own id= decides canonical" precedent as S
 Racial-slot sweep. No new `CURATED_DAMAGE_COEFFICIENTS` entries this leg — pure exclusion-map
 housekeeping, golden coefficient snapshot unchanged. 12 of the Leg 6 remainder's 70 ids resolved, 58
 left, still under the same TODO item. Full suite (625 tests), lint, and typecheck all pass. See
-commit <PENDING>.
+commit 0a08e7ec54024d7415e90eeae1a123490d1ae5cc.
 
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 6 (2026-10-19)
 Wiki-verified Revenant's legend-themed Profession_2/_3 mechanic-skill family: Herald's Citadel
