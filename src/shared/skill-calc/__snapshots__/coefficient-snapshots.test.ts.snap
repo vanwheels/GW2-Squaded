@@ -6803,6 +6803,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 938,
     },
   ],
+  "77089": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
   "77114": [
     {
       "label": "Damage",

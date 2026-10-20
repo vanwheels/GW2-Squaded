@@ -3932,6 +3932,19 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Damage-side gap on an otherwise-supported skill.)
   76931: [{ factText: 'Damage', coefficient: 1.0, weapon: 'hammer' }],
 
+  // --- Damage Coefficient Sweep: Elementalist Evoker F5 "Familiar" bar (2026-10-19), Leg 9 of
+  // TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item. Only 1 of the bar's 3
+  // Damage-fact-bearing candidates (Water's Buoyant Deluge, 76811, already curated elsewhere as a
+  // Healing fact, is the bar's 4th slot and carries no Damage fact at all) actually curates here —
+  // the other 2 are Known Exceptions, see `damage-coefficient-completeness.test.ts`'s
+  // `REASON_FAMILIAR_VARIANT_STALE_DAMAGE_FACT`/`REASON_STUB_PARTIAL_DAMAGE_COEFFICIENT`.
+  // Lightning Blitz — F5 (Air/hare). No `strikes=` param; a separate "Number of Hits" fact (5) and
+  // the wiki's own Notes section ("Deals 0.28 coefficient on each of 5 hits, for a total of 1.4
+  // strike damage coefficient") confirm the main fact line's `coefficient=` is PER-HIT, not totaled.
+  // PvE/WvW/PvP 3-way split 0.28/0.1448/0.1 — WvW per-hit value used, pre-multiplied by 5 hits:
+  // 0.1448 * 5 = 0.724.
+  77089: [{ factText: 'Damage', coefficient: 0.724, weapon: 'unequipped' }],
+
   // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
   // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
   // a dated version-history entry 2024-02-27) disagree outright — not a per-hit/totaled ambiguity like

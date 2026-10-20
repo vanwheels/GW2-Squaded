@@ -79,11 +79,27 @@ just tag `weapon=hammer` directly — `hammer` used for all 4 skills since every
 models has a weapon equipped. Also confirmed Lively Lute's 2 ids (76552/77306) are the "split id"
 pair `sources.ts`'s own boon-calc curation already names (identical Damage fact, no distinguishing
 API field) rather than a stale duplicate — both curated identically, not collapsed to one. No
-Known Exceptions this leg. Shipped 2026-10-19 — see COMPLETED.md.
-Remaining 53 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
+Known Exceptions this leg. Shipped 2026-10-19 — see COMPLETED.md. Leg 9 (2026-10-19) swept
+Elementalist Evoker's F5 "Familiar" bar (Conflagration/Seismic Impact/Lightning Blitz — Water's
+Buoyant Deluge is the bar's 4th slot but carries no Damage fact at all, already curated elsewhere
+as Healing): only Lightning Blitz (77089, Air/hare) curated — no `strikes=` param, but a separate
+"Number of Hits" fact (5) plus the wiki's own Notes line ("0.28 coefficient on each of 5 hits, for
+a total of 1.4") confirmed the main fact's `coefficient=` is per-hit, not totaled; WvW per-hit
+0.1448 × 5 = 0.724 curated. The other 2 are new Known Exceptions, not stale pre-existing comments
+this time: Seismic Impact's (76707, Earth/toad) own wiki Mechanics section states outright "the
+version of this skill provided by profession skill 5 deals no damage" even though the local API's
+facts array carries 2 Damage-type entries for it anyway (inherited from its elite-skill sibling
+76681 "Elemental Procession," which does have a real Damage fact) — same "stale/non-authoritative
+API fact" shape as Garish Pillar's exclusion, just inherited rather than fabricated; and
+Conflagration (76585, Fire/fox) is `{{stub||damage coeff}}`-tagged with a fully-resolved PvE
+Damage fact (`weapon=staff|coefficient=1.555`) but only a bare, undecomposed PvP+WvW tooltip
+number (562, no `weapon=`/`coefficient=`) — the one gamemode this app curates for has nothing
+documented, an asymmetric variant of the Hex-Eater Vortex/Gladiator's Defense stub shape (those
+had zero coefficient in any mode). Shipped 2026-10-19 — see COMPLETED.md.
+Remaining 50 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
 these are real mechanic-skill F-bars this app already supports for every other fact type, just not
-yet for Damage): Elementalist Evoker's F5 Familiar bar (Conflagration,
-Seismic Impact, Lightning Blitz), Thief's core "Steal" variant skills themed by stolen-from faction
+yet for Damage; Leg 9 already resolved the Evoker F5 Familiar bar named here previously):
+Thief's core "Steal" variant skills themed by stolen-from faction
 (Metal Legion Guitar, Zephyrite Sun Crystal x2, Exalted Hammer x2, Forged Surfer Dash x2, Holo-Dancer
 Decoy, Summon Kryptis Turret, Unstable Skritt Bomb, Mistburn Mortar), already-named elite specs'
 remaining F-skills (Warrior Spellbreaker x6, Guardian Willbender x2, Guardian Firebrand x2, Ranger
