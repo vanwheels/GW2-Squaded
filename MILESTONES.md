@@ -2,6 +2,7 @@
 
 | Milestone | Date | Status | Post-mortem |
 |---|---|---|---|
+| Tooling & Cleanup | 2026-10-19 | shipped | [docs/postmortems/tooling-and-cleanup.md](docs/postmortems/tooling-and-cleanup.md) |
 | Project Revision v2 | 2026-10-19 | shipped | [docs/postmortems/project-revision-v2.md](docs/postmortems/project-revision-v2.md) |
 | Continuous Cross-Device Sync | 2026-10-09 | shipped | [docs/postmortems/continuous-cross-device-sync.md](docs/postmortems/continuous-cross-device-sync.md) |
 | Sync Backend Foundation | 2026-10-08 | shipped | [docs/postmortems/sync-backend-foundation.md](docs/postmortems/sync-backend-foundation.md) |

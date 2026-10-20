@@ -8,14 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Tooling & Cleanup
-
-Done when:
-- ~~Prettier is installed and configured, reconciled with ESLint, a full codebase format pass is
-  done, and `npm run lint` includes a format check and passes clean.~~ Done in Leg 1.
-- ~~Light Aura's Boons-bar presence matches between the Squad Builder and Build Editor for the same
-  build.~~ Done in Leg 2 — turned out to be a stale duplicate, not a live bug.
-
 ## Unscheduled
 
 ### [Twin Moon Sweep] — Leg 1
