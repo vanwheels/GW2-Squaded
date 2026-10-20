@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 15, item closed (2026-10-20)
+Closed out the 15-leg sweep of the 176 equippable-but-uncurated Damage-fact ids the Coefficient-
+Table Completeness Test's Leg 2 scan found (2026-10-19) — 0 ids remaining. This leg resolved the
+last 13: Mesmer's Power Spike, Warrior's Mariner's Shot, and Revenant's Burst of Strength curated
+clean; Scorchrazor was a 6th "comment exists, never logged" find (wiki/API PvE value disagreement,
+pre-existing and unchanged). Engineer Scrapper's Function Gyro (F5) 3-id cluster initially looked
+resolvable from the wiki's own `id =` field alone, but `profession-mechanic.ts`'s own earlier
+live-UI verification had already settled it differently (2 of the 3 are orphaned pre-rework
+duplicates) — corrected to match that resolver rather than the wiki infobox, same precedent as the
+Release Potential: Warrior re-keying (Leg 6). The last 6 (Warrior "Spellbreaker Burst") had looked
+headed for a 3rd inconclusive wiki re-check; Vanny caught by inspection that they aren't live
+Spellbreaker skills at all, which led straight to `profession-mechanic.ts`'s own
+`EXCLUDED_MECHANIC_SKILL_IDS` — a 7th "comment exists, never logged" find: these 6 are pre-rework
+leftover ids for a removed per-weapon Full Counter design, never actually equippable, which is why
+the wiki never documented them. Golden coefficient snapshot updated (5 new entries). Full suite
+(629 tests), lint, and typecheck all pass. See commit
+791024a2902903fde1743fd6dee06672bc3fb0eb.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 14 (2026-10-20)
 Swept the 7-id cluster Leg 12 had mislabeled "racial Elite-transform command-skill cluster" —
 wiki-verified, and all 7 (Throw Gunk x2, Branch Leap, Throw Chain, Ice Shard Stab, Mace Head Crack,
