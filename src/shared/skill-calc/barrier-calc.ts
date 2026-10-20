@@ -57,7 +57,9 @@ export interface BarrierCoefficient {
  * Elements" trait), and Revenant's Call of the Dwarf (Legendary Dwarf Stance's "Song of the Mists"
  * trait) — none of these are ever independently bound to a skill slot, so none belong in a per-skill
  * table gated by `skill.id`), 3 were stale/non-canonical duplicate ids excluded in favor of their
- * sibling (Warrior's Banner of Defense `14528`, Revenant's Release Potential: Warrior `78895`, and
+ * sibling (Warrior's Banner of Defense `14528`, Revenant's Release Potential: Warrior `77896`
+ * (an orphan never present in Revenant's `professionSkills` — see `78895`'s own block comment
+ * below, corrected 2026-10-20 per `profession-mechanic.ts`'s live-verified reachability check), and
  * Thief's Dawn's Repose `63227` — see each profession's block comment below for the wiki `id=`
  * cross-check), and 2 were left uncurated (Engineer's Utility Goggles `29591` — a fresh live
  * `/v2/skills/29591` pull 2026-08-05 confirmed this app's cached data is current, not stale, so the
@@ -268,13 +270,17 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // coefficient splits) — WvW value used.
   71942: [{ factText: 'Barrier', baseValue: 251, coefficient: 0.15 }],
   // Release Potential: Warrior (Conduit F2 mechanic skill). 2 ids share this name (77896
-  // specializationId 79/no GroundTargeted flag, 78895 same spec/GroundTargeted flag) — wiki infobox
-  // documents only 77896 as canonical (`id = 77896`); 78895 excluded as the stale/non-canonical
-  // ground-targeted duplicate. PvE 1615/0.2 vs WvW+PvP 975/0.2 — WvW value used. A separate "Barrier
+  // specializationId 79/no GroundTargeted flag, 78895 same spec/GroundTargeted flag). The wiki
+  // infobox's bare `id = 77896` field looked canonical, but `profession-mechanic.ts`'s live
+  // verification against Revenant's actual `professionSkills` found the opposite: 77896 is an
+  // orphan never present there, while 78895 is the id the app's own Legend-swap resolver
+  // (`CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`) actually uses and the one confirmed reachable — keyed
+  // here to 78895 accordingly (corrected 2026-10-20; see TODO.md/COMPLETED.md). Both ids share one
+  // wiki page/value set: PvE 1615/0.2 vs WvW+PvP 975/0.2 — WvW value used. A separate "Barrier
   // increase per Affinity" fact (a flat +15%-per-stack passive bonus, not Healing-Power-scaled) isn't
   // modeled here, same reasoning as Elementalist's Arcane Brilliance leaving its non-scaling "Combo
   // Healing" bonus out of `CURATED_HEALING_COEFFICIENTS`.
-  77896: [{ factText: 'Barrier', baseValue: 975, coefficient: 0.2 }],
+  78895: [{ factText: 'Barrier', baseValue: 975, coefficient: 0.2 }],
 
   // --- Thief ---
   // Enter Shadow Shroud (Specter F2 mechanic skill). No PvE/WvW split, despite the page's own

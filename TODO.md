@@ -22,24 +22,6 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id]
-Found while wiki-verifying the Damage sweep's Leg 6 (2026-10-19): `CURATED_BARRIER_COEFFICIENTS`
-(`barrier-calc.ts`) keys this skill's Barrier fact to id 77896, with a comment claiming the wiki
-infobox's `id =` field makes 77896 canonical and 78895 the "stale/non-canonical" duplicate. But
-`profession-mechanic.ts`'s own earlier, more rigorous live verification (`CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`'s
-doc comment) found the opposite: 77896 is NOT in Revenant's `professionSkills` at all — a dead,
-never-equippable orphan — while 78895 is the id the app's own Legend-swap resolver actually uses and
-the one confirmed live in `professionSkills`. The two files' comments directly contradict each
-other; `barrier-calc.ts`'s conclusion looks like the wrong one (it never checked `professionSkills`
-reachability, only the wiki's bare `id =` field), which would mean the live app currently shows NO
-Barrier coefficient for this skill's real, reachable id. Not fixed inline since it's a different
-calculator/file than the Damage sweep this was found during.
-Done check: confirm which id is actually reachable (should match `profession-mechanic.ts`'s
-determination), then re-key `CURATED_BARRIER_COEFFICIENTS`'s entry to the correct id (same
-value — 975/0.2 — just moved from 77896 to 78895) and update `barrier-calc.ts`'s comment.
-Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
-
 ### [Trait-Side Damage Proc Tooltip Coverage]
 No trait-keyed `CURATED_DAMAGE_COEFFICIENTS` counterpart exists at all — same "no mechanism" gap
 `coefficient-completeness.test.ts`'s own header already documents for Barrier/Siphon-Damage on

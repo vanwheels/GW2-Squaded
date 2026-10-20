@@ -624,12 +624,9 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // live verification) and 77896 (the wiki infobox's own documented `id =`, which is NOT in
   // `professionSkills` at all — an orphaned, never-reachable duplicate per that same verification).
   // Both ids share one wiki page/value set; PvE/WvW+PvP split 1.649/0.825 — WvW value used, keyed to
-  // the real, reachable id (78895) rather than the wiki's own stale one. NOTE:
-  // `CURATED_BARRIER_COEFFICIENTS` (barrier-calc.ts) currently keys this same skill's Barrier fact to
-  // 77896 instead, on the opposite assumption (that 77896 is canonical and 78895 is the stale
-  // duplicate) — contradicts profession-mechanic.ts's later, more rigorous live check. Likely a bug
-  // there, not re-litigated or fixed here (different calculator/file, out of this leg's scope) —
-  // flagged to TODO.md instead.
+  // the real, reachable id (78895) rather than the wiki's own stale one.
+  // `CURATED_BARRIER_COEFFICIENTS` (barrier-calc.ts) keys this same skill's Barrier fact to 78895
+  // too, on this same reasoning (corrected 2026-10-20 — it previously keyed to the orphaned 77896).
   78895: [{ factText: 'Damage', coefficient: 0.825, weapon: 'unequipped' }],
 
   // Ranger — 25 raw candidate ids (6 shared racial ones already curated under Warrior, not
