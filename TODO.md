@@ -44,19 +44,51 @@ normal player-scaling `weapon=unequipped` param, PvE/WvW 2.5/0.5 and flat 0.5 re
 Jade Buster Cannon (63374) turned out to be a second zero-research find of the same "comment exists,
 never logged" shape as Rampart Splitter: its Elite-slot sweep comment already documented the wiki's
 `weapon=pet|power=1250` fixed-Power override, re-verified unchanged, and recategorized into its own
-Known Exception reason instead of re-investigating) shipped 2026-10-19 — see COMPLETED.md.
-Remaining 77 ids span Revenant legend-swap F2-F5 skills including Vindicator's "Release
-Potential" trio, a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun Crystal,
-Lively Lute, ...), and several smaller single-profession clusters (base Engineer turret-deploy
-skills, Elementalist utility AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not yet broken
-out into their own named families. Full id list in `damage-coefficient-completeness.test.ts`'s
-`REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries. Worth checking `CURATED_DAMAGE_COEFFICIENTS`'s
-own comments for each remaining id before fresh wiki research — 2 of the last 11 ids triaged (Rampart
-Splitter, Jade Buster Cannon) turned out to already have a dated, still-accurate exclusion comment
-sitting unlogged from before this completeness sweep existed.
+Known Exception reason instead of re-investigating), and Leg 6 (Revenant's legend-themed
+Profession_2/_3 mechanic-skill family — Herald's Citadel Bombardment (F3), Vindicator's True Nature
+(assassin) (F2) plus 4 same-named, zero-Damage-fact siblings confirming only this one Legend-themed
+variant deals damage, and 3 of Conduit's 5-Legend "Release Potential" F2 variants (Assassin/Mesmer/
+Warrior — Monk/Dervish have no Damage fact) — all 5 wiki-verified and curated. Release Potential:
+Warrior (78895) surfaced a live id-reachability conflict: the wiki's own documented `id =` for this
+skill's page is 77896, but `profession-mechanic.ts`'s earlier live verification found 77896 is NOT in
+Revenant's `professionSkills` at all (an orphaned, never-equippable duplicate) while 78895 is the
+real id `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND` resolves to — curated under 78895 instead of the wiki's
+own id, and flagged as a new TODO item below since `CURATED_BARRIER_COEFFICIENTS` (barrier-calc.ts)
+keys this same skill's Barrier fact to 77896 on the opposite assumption. Also recategorized Conduit's
+Hex-Eater Vortex (77243) and Gladiator's Defense (77291), a third "comment exists, never logged" find
+of the same shape as Rampart Splitter/Jade Buster Cannon — both wiki pages are still stub-tagged with
+no `coefficient=` param, re-verified unchanged, same as `CURATED_DAMAGE_COEFFICIENTS`'s own existing
+comment already said) shipped 2026-10-19 — see COMPLETED.md.
+Remaining 70 ids span a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun
+Crystal, Lively Lute, ...), and several smaller single-profession clusters (base Engineer
+turret-deploy skills, Elementalist utility AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not
+yet broken out into their own named families. Full id list in
+`damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
+Worth checking `CURATED_DAMAGE_COEFFICIENTS`'s own comments for each remaining id before fresh wiki
+research — 3 ids across Legs 4-6 so far (Rampart Splitter, Jade Buster Cannon, and now Hex-Eater
+Vortex/Gladiator's Defense together) turned out to already have a dated, still-accurate exclusion
+comment sitting unlogged from before this completeness sweep existed.
 Done check: each id wiki-verified and either added to `CURATED_DAMAGE_COEFFICIENTS` or logged as a
 new Known Exception; `damage-coefficient-completeness.test.ts`'s exclusion map shrinks accordingly.
 Given the spread, keep splitting this by mechanic family per leg rather than sweeping as one.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id]
+Found while wiki-verifying the Damage sweep's Leg 6 (2026-10-19): `CURATED_BARRIER_COEFFICIENTS`
+(`barrier-calc.ts`) keys this skill's Barrier fact to id 77896, with a comment claiming the wiki
+infobox's `id =` field makes 77896 canonical and 78895 the "stale/non-canonical" duplicate. But
+`profession-mechanic.ts`'s own earlier, more rigorous live verification (`CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`'s
+doc comment) found the opposite: 77896 is NOT in Revenant's `professionSkills` at all — a dead,
+never-equippable orphan — while 78895 is the id the app's own Legend-swap resolver actually uses and
+the one confirmed live in `professionSkills`. The two files' comments directly contradict each
+other; `barrier-calc.ts`'s conclusion looks like the wrong one (it never checked `professionSkills`
+reachability, only the wiki's bare `id =` field), which would mean the live app currently shows NO
+Barrier coefficient for this skill's real, reachable id. Not fixed inline since it's a different
+calculator/file than the Damage sweep this was found during.
+Done check: confirm which id is actually reachable (should match `profession-mechanic.ts`'s
+determination), then re-key `CURATED_BARRIER_COEFFICIENTS`'s entry to the correct id (same
+value — 975/0.2 — just moved from 77896 to 78895) and update `barrier-calc.ts`'s comment.
 Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 

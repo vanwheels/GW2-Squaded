@@ -601,6 +601,38 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // `coefficient=` param at all — same "wiki hasn't documented the coefficient" gap as Repose, just
   // on brand-new Conduit skills instead of an old stub.
 
+  // --- Leg 6 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]: Revenant's
+  // legend-themed Profession_2/_3 mechanic skills, deferred out of the Leg 2 completeness scan as
+  // their own family. "Release Potential" is Conduit's F2, resolved per currently-active Legend by
+  // `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND` (profession-mechanic.ts) — only 3 of its 5 named-Legend ids
+  // (Assassin/Mesmer/Warrior) carry a Damage fact at all; Monk/Dervish don't.
+  // Herald — Citadel Bombardment (F3). PvE/WvW+PvP split 0.6/0.225 — WvW value used.
+  42836: [{ factText: 'Damage', coefficient: 0.225, weapon: 'unequipped' }],
+  // Vindicator — True Nature (assassin) (F2, Legend2-themed form). No split (1.0). 4 same-named
+  // sibling ids (51675/51696/51713/51714, one per other Legend) carry zero Damage fact at all — only
+  // this Assassin-stance variant deals damage, confirming the reachable-id filter's candidate list is
+  // complete here rather than missing 4 more entries.
+  51667: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Conduit — Release Potential: Mesmer (Legend4-themed form). PvE/WvW+PvP split 1.98/1.1 — WvW
+  // value used.
+  78615: [{ factText: 'Damage', coefficient: 1.1, weapon: 'unequipped' }],
+  // Conduit — Release Potential: Assassin (Legend2-themed form). `strikes=3` present -> wiki
+  // coefficient already totaled. 3-way split PvE/WvW/PvP 1.8/1.35/1.05 — WvW value used.
+  78845: [{ factText: 'Damage', coefficient: 1.35, weapon: 'unequipped' }],
+  // Conduit — Release Potential: Warrior (Legend3-themed form). 2 ids share this exact name: 78895
+  // (this app's id — specializationId 79, confirmed live in Revenant's `professionSkills`, and the
+  // one `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND` actually resolves to per profession-mechanic.ts's own
+  // live verification) and 77896 (the wiki infobox's own documented `id =`, which is NOT in
+  // `professionSkills` at all — an orphaned, never-reachable duplicate per that same verification).
+  // Both ids share one wiki page/value set; PvE/WvW+PvP split 1.649/0.825 — WvW value used, keyed to
+  // the real, reachable id (78895) rather than the wiki's own stale one. NOTE:
+  // `CURATED_BARRIER_COEFFICIENTS` (barrier-calc.ts) currently keys this same skill's Barrier fact to
+  // 77896 instead, on the opposite assumption (that 77896 is canonical and 78895 is the stale
+  // duplicate) — contradicts profession-mechanic.ts's later, more rigorous live check. Likely a bug
+  // there, not re-litigated or fixed here (different calculator/file, out of this leg's scope) —
+  // flagged to TODO.md instead.
+  78895: [{ factText: 'Damage', coefficient: 0.825, weapon: 'unequipped' }],
+
   // Ranger — 25 raw candidate ids (6 shared racial ones already curated under Warrior, not
   // re-curated here). Verified against the real `visibleSkillsForSlot` (same throwaway-tsx-script
   // approach as Guardian's Spirit Weapons/Revenant's leg above) — surfaced a fresh instance of that

@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 6 (2026-10-19)
+Wiki-verified Revenant's legend-themed Profession_2/_3 mechanic-skill family: Herald's Citadel
+Bombardment (F3, PvE/WvW 0.6/0.225), Vindicator's True Nature (assassin) (F2, no split, 1.0 —
+confirmed its 4 same-named Legend siblings carry zero Damage fact, so only this one does damage),
+and 3 of Conduit's 5-Legend "Release Potential" F2 variants (Assassin 1.35, Mesmer 1.1, Warrior
+0.825 WvW values; Monk/Dervish have no Damage fact). All 5 added to `CURATED_DAMAGE_COEFFICIENTS`.
+Release Potential: Warrior surfaced a cross-file id-reachability conflict: `barrier-calc.ts` keys
+this same skill's Barrier fact to 77896 (the wiki's own documented id) on the assumption that it's
+canonical and 78895 is a stale duplicate, but `profession-mechanic.ts`'s earlier live verification
+found the opposite — 77896 isn't in Revenant's `professionSkills` at all, 78895 is. Curated the
+Damage fact under 78895 (the reachable id) and logged the Barrier-side conflict as a new TODO item
+rather than fixing it in this leg (different calculator/file). Also recategorized Conduit's
+Hex-Eater Vortex (77243) and Gladiator's Defense (77291) — a third "comment exists, never logged"
+find of the Rampart Splitter/Jade Buster Cannon shape: both wiki pages are still stub-tagged with no
+`coefficient=` param, re-verified unchanged. Golden coefficient snapshot updated for the 5 new
+curated entries. 70 of the Leg 6 remainder's ids left, still under the same TODO item. Full suite
+(625 tests), lint, and typecheck all pass. See commit <hash>.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 5 (2026-10-19)
 Wiki-verified the Engineer Mechanist Mech Core F-skill bar family TODO.md had already named: Crash
 Down (63050) and Mech Support: Depth Charges (63210) both curated (PvE/WvW 2.5/0.5 and flat 0.5;
