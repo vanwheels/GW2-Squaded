@@ -29,7 +29,7 @@ weapon- or mechanic-slot duplicate), the remaining 176 (42 Soulbeast Beastmode +
 Shroud/Shatter/Jade Sphere/Mech Core/Revenant-legend/festival content) confirmed with the user as
 too varied to triage inline and deferred to two new TODO items ([Damage Coefficient Sweep — New/
 Uncurated Skill Content], [Trait-Side Damage Proc Tooltip Coverage]) rather than guessed at. Full
-suite (625 tests), lint, and typecheck all pass. See commit TODO_HASH.
+suite (625 tests), lint, and typecheck all pass. See commit bd0d14e.
 
 ### Coefficient-Table Completeness Test — Leg 1 (2026-10-19)
 Built `src/shared/skill-calc/coefficient-completeness.test.ts`, mirroring `trait-attribute-
