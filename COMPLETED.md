@@ -15,6 +15,22 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 12 (2026-10-19)
+Re-checked the Warrior Spellbreaker Burst cluster first (still zero wiki page for all 6, unchanged
+from Leg 11, left untouched again). Then wiki-verified the 6-id Ranger cluster the earlier re-triage
+had labeled "Untamed x3, Soulbeast x3 more" — the label held exactly. 3 are Untamed's F1-F3
+"Unleashed Ranger" skillbar (Venomous Outburst 63209/Rending Vines 63258/Enveloping Haze 63094), a
+single fixed id per slot confirmed via each page's own `specialization =`/`mechanic slot =` infobox
+fields, unlike Soulbeast's per-pet Beastmode bar. The other 3 (Worldly Impact 42809, Vampiric
+Predation 80985, Enervate 81024) are Soulbeast Beastmode F-skills for pet families never added to
+`soulbeast-beastmode.json`'s per-species registry — found only because this leg's completeness scan
+doesn't care about registry membership, just an uncurated Damage fact on a reachable id. Worldly
+Impact shares its wiki id field/page with the already-curated 40729 from Leg 1 (same coefficient,
+new pet family); Vampiric Predation and Enervate are each a standalone "(soulbeast)"-disambiguated
+page (the bare, same-named page is an unrelated pet-cast skill at a different id). All 6 curated; no
+new Known Exceptions. Golden coefficient snapshot updated (6 new entries). Full suite (629 tests),
+lint, and typecheck all pass. See commit 55d05cba63aabcd051f1f0d723b73388826e7042.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 11 (2026-10-19)
 Swept the Elementalist core Glyph/Conjure cluster (8 ids). 3 (Crashing Waves 25492/Flame Barrage
 25499/Lesser Fiery Eruption 44918) were a 5th instance of this sweep's "comment exists, never

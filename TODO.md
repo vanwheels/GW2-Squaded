@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 12
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 13
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -168,6 +168,30 @@ to have documented yet (unlike every other "comment exists" gap in this sweep, t
 page to even be stale). Left untouched rather than guessed at or logged as a permanent Known
 Exception (this looks like a temporary documentation lag, not a structural modeling gap) — re-check
 the wiki again next time this item is picked up before assuming anything else about them.
+
+Leg 12 (2026-10-19) re-checked the Warrior Spellbreaker Burst cluster first per Leg 11's own note —
+still zero wiki page for all 6 (Silencer/Boon Crusher/Wounding Strike/Fleeting Stability/Dissonance/
+Magehunter Strike), unchanged, left untouched again. Then swept the 6-id Ranger cluster the earlier
+re-triage had labeled "Untamed x3, Soulbeast x3 more" — wiki-verified, and the label held exactly:
+3 are Untamed's F1-F3 "Unleashed Ranger" skillbar (Venomous Outburst/Rending Vines/Enveloping Haze,
+ids 63209/63258/63094), a single fixed id per slot confirmed via each page's own `specialization =
+Untamed`/`mechanic slot =` infobox fields — unlike Soulbeast's Beastmode bar, this one doesn't vary
+by equipped pet. The other 3 (Worldly Impact 42809, Vampiric Predation 80985, Enervate 81024) are
+genuinely Soulbeast Beastmode F-skills for pet families never added to `soulbeast-beastmode.json`'s
+per-species registry — found only because this leg's completeness scan doesn't care about registry
+membership, just an uncurated Damage fact on a reachable id. Worldly Impact's own wiki id field lists
+it on the SAME page/id-pair ("40729,42809") as the already-curated 40729 from Leg 1 — same name,
+same coefficient (1.36 WvW/PvP), new pet family; Vampiric Predation and Enervate are each a
+standalone "(soulbeast)"-disambiguated page (the bare, same-named page is an unrelated pet-cast
+skill at a different id, not reachable here). All 6 curated; no Known Exceptions this leg. Golden
+coefficient snapshot updated (6 new entries). Full suite (629 tests), lint, and typecheck all pass.
+Remaining 25 ids: Guardian cluster (Purging Flames/Echo of Truth/Flame Rush/Crashing Courage/
+Rushing Justice, 5 ids — not yet wiki-identified by spec), Mesmer Power Spike (1), Warrior's
+Spellbreaker Burst 6 (blocked on the wiki, see above) + Mariner's Shot (1, Weapon_1, likely an
+underwater weapon skill), Revenant's Burst of Strength + Scorchrazor (2), Engineer Scrapper's
+Function Gyro dup ids (3), and the racial Elite-transform command-skill cluster (Throw Gunk x2/
+Branch Leap/Throw Chain/Ice Shard Stab/Mace Head Crack/Essence Sap, 7, professions: [] shared
+across races). Full id list in `damage-coefficient-completeness.test.ts`'s own exclusion map.
 Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
