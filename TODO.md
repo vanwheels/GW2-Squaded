@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 11
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 12
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for

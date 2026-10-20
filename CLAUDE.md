@@ -23,6 +23,12 @@ boon/condition uptime calculator, gear optimizer. See `ARCHITECTURE.md` for syst
 - Update TODO.md's "Current Milestone" intro paragraph as each leg closes, not just at
   milestone close-out — it drifts out of sync with COMPLETED.md otherwise (confirmed drift in the
   Thief Pass + Celestial Fix milestone).
+- When a TODO.md item is titled `[... ] — Leg N` (the per-leg-numbered item shape, e.g. the Damage
+  Coefficient Sweep), bump the title to `Leg N+1` in the SAME edit that logs leg N's own body
+  paragraph and COMPLETED.md entry — not a separate follow-up pass. Before closing out any such
+  leg, grep TODO.md's own header line for "— Leg N" and confirm it still matches the leg you're
+  about to log; if it already says N+1 you're done, if it says N you forgot. This drifted 3 times
+  in the Data Completeness Test Coverage milestone alone before this check was added.
 - Archive COMPLETED.md at the actual milestone boundary, not several milestones later (it fell
   behind by two milestones once, during Known Exceptions Sweep).
 - Keep patch-driven work (new content from a specific game update) and standing verification
