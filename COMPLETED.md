@@ -15,6 +15,26 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 10 (2026-10-19)
+Wiki-verified the 11-id cluster TODO.md had labeled "Thief's core Steal variant skills themed by
+stolen-from faction" — that label was an approximation: it's Thief's Antiquary elite spec's Steal
+replacement (Skritt Swipe), which grants a random "Artifact" skill to F2 (always Offensive)/F3
+(always Defensive). 10 of 11 ids curated: Forged Surfer Dash (land 76633 + underwater 76550, each
+with its own distinct, never-synced facts), Metal Legion Guitar (76582), Exalted Hammer (land 76702
++ underwater 76601, identical facts), Holo-Dancer Decoy (76800, whose wiki Bug note overrides the
+template's `weapon=hammer` tag with `unequipped` — the only id in this cluster where that applies),
+Summon Kryptis Turret (76900, underwater id; land id 77192 is a stale orphan not in
+`professionSkills`), Unstable Skritt Bomb (76909), Mistburn Mortar (77288, same orphaned-land-id
+shape as the turret), Zephyrite Sun Crystal (76733, current/live id; land id 76895 from the wiki's
+own `id=` field is the stale orphan here). The 11th, Zephyrite Sun Crystal's second id (78309), is a
+new Known Exception: not named in the wiki's own `id=` field at all, and its facts match the
+skill's pre-2026-01-13-rework shape exactly (old radius, `StunBreak: true`) rather than the live
+skill's post-rework facts (blind + condition removal, no stun break) — same "wiki's id= decides
+canonical" shape as the Release Potential: Warrior/turret-family exclusions, just for a mid-life
+rework. 11 ids resolved (10 curated, 1 excluded); golden coefficient snapshot updated (10 new
+Damage entries). Full suite (625 tests), lint, and typecheck all pass. See commit
+575a7e32f03e2b7703635a30013c4c3d2c95886f.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 9 (2026-10-19)
 Wiki-verified Elementalist Evoker's F5 "Familiar" bar: Conflagration (76585, Fire/fox), Seismic
 Impact (76707, Earth/toad), Lightning Blitz (77089, Air/hare) — Water's Buoyant Deluge (76811) is

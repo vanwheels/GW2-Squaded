@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 9
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 10
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -95,13 +95,25 @@ Conflagration (76585, Fire/fox) is `{{stub||damage coeff}}`-tagged with a fully-
 Damage fact (`weapon=staff|coefficient=1.555`) but only a bare, undecomposed PvP+WvW tooltip
 number (562, no `weapon=`/`coefficient=`) — the one gamemode this app curates for has nothing
 documented, an asymmetric variant of the Hex-Eater Vortex/Gladiator's Defense stub shape (those
-had zero coefficient in any mode). Shipped 2026-10-19 — see COMPLETED.md.
-Remaining 50 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
+had zero coefficient in any mode). Shipped 2026-10-19 — see COMPLETED.md. Leg 10 (2026-10-19) swept
+the 11-id cluster TODO.md had labeled "Thief's core Steal variant skills themed by stolen-from
+faction" below — wiki-verified via Skritt Swipe's own page, this label was an approximation: it's
+actually Thief's Antiquary elite spec's Steal replacement, which grants a random "Artifact" skill
+to F2 (always Offensive)/F3 (always Defensive). 10 of 11 ids curated (Forged Surfer Dash x2, Metal
+Legion Guitar, Exalted Hammer x2, Holo-Dancer Decoy, Summon Kryptis Turret, Unstable Skritt Bomb,
+Mistburn Mortar, Zephyrite Sun Crystal); the 11th (Zephyrite Sun Crystal's second id, 78309) is a
+new Known Exception — a stale pre-2026-01-13-rework duplicate not named in the wiki's own `id=`
+field, same "wiki's id= decides canonical" shape as the Release Potential: Warrior/turret-family
+exclusions, confirmed via its facts matching the skill's pre-rework shape exactly (old radius,
+`StunBreak: true` that the live id no longer has). Also surfaced 2 more orphaned-duplicate-id
+findings of the same shape along the way, both already excluded by the reachable-id filter rather
+than needing a new Known Exception entry: Summon Kryptis Turret's land id (77192, not in
+`professionSkills`, true id is the underwater one, 76900) and Mistburn Mortar's wiki-documented id
+(77277, same situation, true id 77288). Shipped 2026-10-19 — see COMPLETED.md.
+Remaining 39 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
 these are real mechanic-skill F-bars this app already supports for every other fact type, just not
-yet for Damage; Leg 9 already resolved the Evoker F5 Familiar bar named here previously):
-Thief's core "Steal" variant skills themed by stolen-from faction
-(Metal Legion Guitar, Zephyrite Sun Crystal x2, Exalted Hammer x2, Forged Surfer Dash x2, Holo-Dancer
-Decoy, Summon Kryptis Turret, Unstable Skritt Bomb, Mistburn Mortar), already-named elite specs'
+yet for Damage; Legs 9-10 already resolved the Evoker F5 Familiar bar and Thief Antiquary Artifact
+bar named here previously): already-named elite specs'
 remaining F-skills (Warrior Spellbreaker x6, Guardian Willbender x2, Guardian Firebrand x2, Ranger
 Untamed x3, Ranger Soulbeast x3 more beyond Leg 1's Beastmode sweep, Revenant Renegade x1, Revenant
 Herald x1, Engineer Scrapper's Function Gyro x3 dup ids), core Elementalist Conjure/Glyph summon
