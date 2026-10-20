@@ -194,6 +194,10 @@ const REASON_NO_PET_WEAPON_STRENGTH =
   "Ranger Soulbeast Beastmode F1-F3 skill (`data/game-data/soulbeast-beastmode.json`), wiki-verified 2026-10-19 (Leg 1 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — unlike every other Beastmode skill in this pet family (confirmed via its siblings, all plain `weapon=unequipped`), this id's own wiki page tags its Damage fact `weapon=pet`/leaves `weapon=` unspecified, and `pet` has no entry in `WEAPON_STRENGTH_MIDPOINTS`: the wiki's own Weapon Strength page says pet skills \"use their own weapon strengths\" (per-species, not a single constant like `unequipped`/`kit`/`conjure`), so no number can be curated without fabricating one.";
 const REASON_NEW_CONTENT_SKILL =
   "Equippable skill with a real, uncurated Damage coefficient — found by this leg's scan, spanning several distinct previously-unswept mechanics (Shroud skillbars, Mesmer Shatter/Bladesong, Jade Sphere, Mech Core, Revenant legend-swaps, minion-summon tooltips, festival skills). Deferred to TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than triaged per-family inline.";
+const REASON_NO_MINION_POWER_SCALING =
+  "Necromancer minion-summon skill (Summon Bone Fiend/Bone Minions/Flesh Wurm/Blood Fiend/Shadow Fiend/Flesh Golem), wiki-verified 2026-10-19 (Leg 3 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — same 'no mechanism' shape as `REASON_NO_PET_WEAPON_STRENGTH` above, but for minions rather than Soulbeast pets: each skill's own wiki page gives the summoned minion's own fixed level-80 Power (confirmed independent of the caster's Power via each page's own Notes/Mechanics section, e.g. Summon Flesh Wurm \"has a Power stat of roughly 1,650\"), and the `{{skill fact|damage}}` template carries no `weapon=` key at all (a bare unkeyed override number instead, the same shape `fetch-skill-coefficients.ts`'s own parser already treats as a non-curatable power override, e.g. Engineer turret deploy skills). Curating a `weapon`/`coefficient` pair under this app's `weaponStrength * coefficient * Power / Armor` formula would silently substitute the player's own Power for the minion's fixed one — wrong, not just unverified.";
+const REASON_NO_WIKI_DAMAGE_FACT =
+  "Garish Pillar (Scourge F4), wiki-verified 2026-10-19 (Leg 3 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — the skill's own live wiki page documents zero `{{skill fact|damage}}` lines and its own description text ('Induce fear in enemies around your sand shades') never mentions damage at all; the local API's Damage fact (dmg_multiplier 0.333) has no wiki corroboration anywhere, likely stale API bookkeeping rather than a real mechanic. No coefficient can be curated without fabricating one, per this app's standing rule against curating from anything but the wiki.";
 
 // --- Damage skill pool ---
 
@@ -225,17 +229,17 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
     REASON_MECH_SLOT_DUPLICATE,
   ),
   ...bucket([64699, 66258], REASON_NO_PET_WEAPON_STRENGTH),
+  ...bucket([10533, 10541, 10543, 10547, 10589, 10646], REASON_NO_MINION_POWER_SCALING),
+  ...bucket([44428], REASON_NO_WIKI_DAMAGE_FACT),
   ...bucket(
     [
       1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 5818, 5836, 5838, 5912, 5987, 5989, 5990,
-      5991, 6093, 9187, 10190, 10191, 10212, 10533, 10541, 10543, 10547, 10554, 10589, 10607, 10644,
-      10645, 10646, 10690, 12453, 12456, 14552, 22574, 25492, 25499, 28113, 29442, 30504, 30557,
-      30825, 31438, 34637, 34736, 39972, 41283, 41543, 41820, 42297, 42360, 42809, 42836, 43488,
-      44397, 44428, 44663, 44918, 44946, 45082, 45094, 46044, 46473, 46474, 51667, 56920, 56928,
-      56930, 62563, 62597, 62602, 62611, 62616, 62617, 62621, 62648, 62668, 63050, 63094, 63209,
-      63210, 63258, 63374, 71875, 72103, 72114, 76550, 76552, 76582, 76585, 76601, 76633, 76702,
-      76707, 76733, 76746, 76800, 76900, 76909, 76931, 77061, 77079, 77089, 77243, 77288, 77291,
-      77306, 78309, 78615, 78845, 78895, 80985, 81024,
+      5991, 6093, 9187, 10190, 10191, 10212, 12453, 12456, 14552, 22574, 25492, 25499, 28113, 31438,
+      34637, 34736, 39972, 41283, 41543, 41820, 42360, 42809, 42836, 43488, 44397, 44918, 45082,
+      45094, 46044, 51667, 56920, 56928, 56930, 62597, 62602, 62616, 62617, 62648, 62668, 63050,
+      63094, 63209, 63210, 63258, 63374, 71875, 72103, 72114, 76550, 76552, 76582, 76585, 76601,
+      76633, 76702, 76707, 76733, 76746, 76800, 76900, 76909, 76931, 77079, 77089, 77243, 77288,
+      77291, 77306, 78309, 78615, 78845, 78895, 80985, 81024,
     ],
     REASON_NEW_CONTENT_SKILL,
   ),

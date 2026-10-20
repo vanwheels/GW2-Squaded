@@ -4096,6 +4096,75 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   63472: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — no energy id
   75405: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — sphere specialist
   75407: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — undocumented 5th id
+
+  // --- Damage Coefficient Sweep: Necromancer Shroud-reuse Downed skills + Scourge Shade F-skills
+  // (2026-10-19), Leg 3 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item.
+  // 18 of 25 raw ids curated below; 6 Utility/Heal/Elite minion-summon ids (Summon Bone Fiend/Bone
+  // Minions/Flesh Wurm/Blood Fiend/Shadow Fiend/Flesh Golem) and 1 Scourge F4 id (Garish Pillar, no
+  // wiki-documented Damage fact at all) deferred as Known Exceptions — see
+  // `damage-coefficient-completeness.test.ts`'s own exclusion comments for both.
+  // Life Blast (vanilla Downed_1 — reuses Death Shroud's own skill name but is a distinct id/skill,
+  // confirmed via its own `| id = 10554` infobox). PvE/WvW+PvP split 1.4/1.15 — WvW used.
+  10554: [{ factText: 'Damage', coefficient: 1.15, weapon: 'unequipped' }],
+  // Dark Water (vanilla Downed_2). No split.
+  10644: [{ factText: 'Damage', coefficient: 0.4, weapon: 'unequipped' }],
+  // Wave of Fear (vanilla Downed_3). No split.
+  10645: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Plague Blast (vanilla Downed_1, underwater sibling of Life Blast per its own page). No split.
+  10690: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Well of Darkness. Wiki's own `weapon=utility` param, normalized to `unequipped` per the
+  // slot-skill convention already established above (Thief Utility-slot block). `strikes=6` present
+  // -> wiki coefficients already totaled. PvE/PvP 4.8 vs. WvW 2.436 (the wiki's own page flags its
+  // patch notes as wrong here — "roughly 2.436 in WvW and not as stated in the game update notes
+  // 2.7" — the template's own `coefficient=` param, not the prose note, is what's curated).
+  10607: [{ factText: 'Damage', coefficient: 2.436, weapon: 'unequipped' }],
+  // Life Rend (Reaper's Downed_1 reskin). PvE/WvW+PvP split 1.4/0.583 — WvW used.
+  29442: [{ factText: 'Damage', coefficient: 0.583, weapon: 'unequipped' }],
+  // Soul Spiral (Reaper's Downed_4 reskin). `strikes=12` present -> wiki coefficients already
+  // totaled. PvE/WvW+PvP 8.4/2.7 — WvW used.
+  30504: [{ factText: 'Damage', coefficient: 2.7, weapon: 'unequipped' }],
+  // Executioner's Scythe (Reaper Shroud skill 5 — a real in-Shroud skill, not a Downed one, despite
+  // this leg's name; `slot = Weapon_5` in local data). 3 independently health-threshold-gated Damage
+  // facts, each with its own explicit `pve`/`wvw`/`pvp` tags (not grouped like every other id in this
+  // leg) — WvW values used for all 3.
+  30557: [
+    { factText: 'Damage at 50% or Above', coefficient: 0.91, weapon: 'unequipped' },
+    { factText: 'Damage Below 50%', coefficient: 1.364, weapon: 'unequipped' },
+    { factText: 'Damage Below 25%', coefficient: 1.82, weapon: 'unequipped' },
+  ],
+  // Death's Charge (Reaper's Downed_2 reskin). 2 independently-split Damage facts: "Initial Strikes"
+  // (`strikes=9` present, PvE/WvW+PvP totaled 2.25/0.54 — WvW used) and "Final Strike" (no strikes,
+  // PvE/WvW+PvP 1.625/1.3 — WvW used).
+  30825: [
+    { factText: 'Initial Strikes', coefficient: 0.54, weapon: 'unequipped' },
+    { factText: 'Final Strike', coefficient: 1.3, weapon: 'unequipped' },
+  ],
+  // Manifest Sand Shade (Scourge F1). PvE/WvW+PvP split 0.666/0.1 — WvW used. Page's own
+  // `| id = 44946, 42297` confirms both ids directly; 46473/46474 aren't listed on the page at all
+  // but share byte-identical local API Damage facts (same hit_count/dmg_multiplier) with these two
+  // confirmed ids, same sibling-attribution convention `fetch-skill-coefficients.ts` already uses
+  // for this table — curated identically rather than left unresolved.
+  42297: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  44946: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  46473: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }], // sibling attribution, see above
+  46474: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }], // sibling attribution, see above
+  // Desert Shroud (Scourge F5). `strikes=7` present -> wiki coefficients already totaled. PvE/WvW+PvP
+  // 3.15/2.1 — WvW used.
+  44663: [{ factText: 'Damage', coefficient: 2.1, weapon: 'unequipped' }],
+  // Vital Draw (Harbinger Shroud skill 5; `slot = Weapon_5` in local data, same shape as
+  // Executioner's Scythe above). `strikes=3` present -> wiki coefficients already totaled. PvE/WvW+PvP
+  // 1.2/0.01 — WvW used.
+  62563: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Tainted Bolts (Harbinger's Downed_1 reskin). `strikes=2` present -> wiki coefficients already
+  // totaled. PvE/WvW+PvP 1.2/0.66 — WvW used.
+  62611: [{ factText: 'Damage', coefficient: 0.66, weapon: 'unequipped' }],
+  // Dark Barrage (Harbinger's Downed_2 reskin). `strikes=6` present -> wiki coefficients already
+  // totaled. PvE/WvW+PvP 3.6/2.0 — WvW used.
+  62621: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Essence Blast (another Downed_1 id, distinct from Life Blast/Tainted Bolts — likely a
+  // trait/blight-gated downed-1 variant, not wiki-attributed to a specific elite spec on its own
+  // page). PvE/WvW+PvP split 0.75/0.6 — WvW used.
+  77061: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
 };
 
 export interface DamageLine {

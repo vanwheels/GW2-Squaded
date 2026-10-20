@@ -22,27 +22,28 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 3
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 4
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
 Damage coefficients before — too varied to triage in that scan's own session (confirmed with the
-user 2026-10-19), so split by mechanic family. Leg 1 (Ranger Soulbeast Beastmode F1-F3, 42 ids) and
-Leg 2 (Catalyst's "Deploy Jade Sphere" overloads, 20 ids) shipped 2026-10-19 — see COMPLETED.md.
-Remaining 114 ids span Necromancer Reaper/Scourge/Harbinger Shroud skillbars (Life Blast, Dark
-Barrage, Soul Spiral, Executioner's Scythe, Manifest Sand Shade, ...), Mesmer Shatter/Virtuoso
-Bladesong skills (Cry of Frustration, Mind Wrack, Bladesong Sorrow/Harmony/Dissonance, ...),
-Engineer Mechanist Mech Core skills (Crash Down, Jade Buster Cannon, Mech Support: Depth Charges),
-Revenant legend-swap F2-F5 skills including Vindicator's "Release Potential" trio, Necromancer
-minion-summon tooltips (Summon Bone Fiend/Flesh Wurm/Shadow Fiend/Flesh Golem — sibling shape to
-the already-closed Known Exception for Summon Blood Fiend, but not assumed to share its resolution
-without its own check), and a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite
-Sun Crystal, Lively Lute, ...). Full id list in `damage-coefficient-completeness.test.ts`'s
-`REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
+user 2026-10-19), so split by mechanic family. Leg 1 (Ranger Soulbeast Beastmode F1-F3, 42 ids),
+Leg 2 (Catalyst's "Deploy Jade Sphere" overloads, 20 ids), and Leg 3 (Necromancer Shroud-reuse
+Downed skills + Scourge Shade F-skills, 25 ids: 18 curated, 6 minion-summon ids excluded as a new
+"no mechanism" Known Exception — minions scale off their own fixed Power, not the player's — and
+Garish Pillar excluded for having zero wiki-documented Damage fact at all) shipped 2026-10-19 — see
+COMPLETED.md.
+Remaining 89 ids span Mesmer Shatter/Virtuoso Bladesong skills (Cry of Frustration, Mind Wrack,
+Bladesong Sorrow/Harmony/Dissonance, ...), Engineer Mechanist Mech Core skills (Crash Down, Jade
+Buster Cannon, Mech Support: Depth Charges), Revenant legend-swap F2-F5 skills including
+Vindicator's "Release Potential" trio, a cluster of festival/novelty skills (Metal Legion Guitar,
+Zephyrite Sun Crystal, Lively Lute, ...), and several smaller single-profession clusters (base
+Engineer turret-deploy skills, Elementalist utility AoEs, Guardian/Ranger/Warrior/Revenant odds and
+ends) not yet broken out into their own named families. Full id list in
+`damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
 Done check: each id wiki-verified and either added to `CURATED_DAMAGE_COEFFICIENTS` or logged as a
 new Known Exception; `damage-coefficient-completeness.test.ts`'s exclusion map shrinks accordingly.
-Given the spread, keep splitting this by mechanic family (Shroud, Shatter/Bladesong, Revenant
-legends, minion-summon tooltips, festival skills) per leg rather than sweeping as one.
+Given the spread, keep splitting this by mechanic family per leg rather than sweeping as one.
 Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
