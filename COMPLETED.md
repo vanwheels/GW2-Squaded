@@ -15,6 +15,23 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 3 (2026-10-19)
+Wiki-verified the 25 Necromancer ids left in the Leg 2 find: Shroud-reuse Downed skillbar skills
+(vanilla Life Blast/Dark Water/Wave of Fear/Plague Blast, Reaper's Life Rend/Soul Spiral/Death's
+Charge reskins, Harbinger's Tainted Bolts/Dark Barrage/Essence Blast reskins), Reaper/Harbinger's
+actual in-Shroud weapon-5 skills (Executioner's Scythe, Vital Draw), Scourge's shade F-skills
+(Manifest Sand Shade, Desert Shroud, Garish Pillar), Well of Darkness, and the base minion-summon
+utility skills (Summon Bone Fiend/Bone Minions/Flesh Wurm/Blood Fiend/Shadow Fiend/Flesh Golem).
+18 added to `CURATED_DAMAGE_COEFFICIENTS` (all WvW values per the table's standing convention).
+7 logged as new Known Exceptions instead: the 6 minion summons (each wiki page documents the
+minion's own fixed level-80 Power with no `weapon=` tag at all — same "no mechanism" shape as the
+Beastmode-pet exclusion from Leg 1, now generalized to a second reason bucket,
+`REASON_NO_MINION_POWER_SCALING`) and Garish Pillar (Scourge F4 — its live wiki page documents zero
+Damage facts at all; the local API's own Damage fact has no wiki corroboration and is presumed
+stale). 89 of the original 176-id find remain, re-split by mechanic family under the same TODO
+item, now Leg 4. Full suite (625 tests), lint, and typecheck all pass. See commit
+001f4df131e8ffcf8e2aa23c45ec61b980e04e0b.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 2 (2026-10-19)
 Wiki-verified all 20 Catalyst "Deploy Jade Sphere" ids the Coefficient-Table Completeness Test's
 Leg 2 scan found uncurated (4 attunements — fire/water/air/earth — x 5 ids each). Each attunement's
