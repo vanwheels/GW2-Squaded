@@ -15,6 +15,22 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 2 (2026-10-20)
+Wiki-verified the Warrior cluster (7 ids, 3 unique skill names): Rampart Splitter, Path to Victory
+(5 ids sharing one wiki page, PvE+WvW grouped against a separate PvP value for all 3 charge tiers),
+and Bloodthirster (2 of its 5 ids independently equippable) curated into
+`CURATED_HEALING_COEFFICIENTS`. Also corrected 2 scan false positives, re-bucketed under new exclusion
+reasons rather than left as "new content": Banner of Defense's wiki-canonical id `14528` collapses
+to already-curated `14570` via `skill-variants.ts`'s ground-target toggle (`REASON_VARIANT_COLLAPSE`),
+and Engineer's Super Elixir `15072` is a stale duplicate absent from Elixir Gun's own `bundleSkills`
+array, same shape as the Dawn's Repose/Release Potential precedents (`REASON_BUNDLE_DUPLICATE`).
+Flagged but not fixed: that same reachability check found `CURATED_HEALING_COEFFICIENTS`'s own
+existing id `6046` (curated since the original 2026-08 sweep) has the identical unreachability
+problem — a dead entry, not a wrong-value bug, left for a dedicated look rather than fixed inline.
+24 ids remain across the other 6 professions. Golden coefficient snapshot updated (8 new entries).
+Full suite (630 tests), lint, and typecheck all pass. See commit
+2bbaab92dd055ac4689cc9f810bc4d5fce6aee81.
+
 ### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 1 (2026-10-20)
 Wiki-verified the full Engineer cluster (16 of the sweep's 50 ids, 10 unique skill names): Super
 Elixir, Blessing of Dwayna, Leafy Bandage, Med Pack Drop, Bandage Self, Med Blaster, and Vital Burst
