@@ -25,7 +25,7 @@ already documented the wiki's `weapon=pet|power=1250` fixed-Power override from 
 completeness sweep existed; re-verified unchanged and recategorized into its own Known Exception
 reason instead of re-investigating. Golden coefficient snapshot updated for the 2 new curated
 entries. 77 of the Leg 4 remainder's 80 ids left, still under the same TODO item, now Leg 6. Full
-suite (625 tests), lint, and typecheck all pass. See commit <pending>.
+suite (625 tests), lint, and typecheck all pass. See commit b6081c1c0218d4321151b882432fba96a0c368b9.
 
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 4 (2026-10-19)
 Wiki-verified the Mesmer core Shatter + Virtuoso Bladesong family named in the Leg 3 remainder:
