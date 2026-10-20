@@ -15,6 +15,16 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id (2026-10-20)
+`CURATED_BARRIER_COEFFICIENTS` (`barrier-calc.ts`) keyed this skill's Barrier fact to id 77896 on
+the wiki infobox's bare `id =` field, contradicting `profession-mechanic.ts`'s own earlier,
+live-verified finding that 77896 is an orphan never present in Revenant's `professionSkills` while
+78895 is the real, reachable id (same conclusion `damage-calc.ts`'s Damage-fact entry for this
+skill already used). Re-keyed the Barrier entry to 78895 (same value, 975/0.2), updated both
+files' comments to agree, added 77896 to the completeness test's mechanic-chain/duplicate exclusion
+bucket, removed the now-redundant exclusion entry for 78895, and regenerated the coefficient
+snapshot. See commit 1ed984b.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 15, item closed (2026-10-20)
 Closed out the 15-leg sweep of the 176 equippable-but-uncurated Damage-fact ids the Coefficient-
 Table Completeness Test's Leg 2 scan found (2026-10-19) — 0 ids remaining. This leg resolved the
