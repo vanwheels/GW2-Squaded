@@ -15,6 +15,21 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 1 (2026-10-19)
+Wiki-verified all 42 Ranger Soulbeast Beastmode F1-F3 skill ids the Coefficient-Table Completeness
+Test's Leg 2 scan found uncurated (one per equipped pet family, `data/game-data/soulbeast-
+beastmode.json`). Several plain-named skills (Bite, Chomp, Tail Lash, Brutal Charge, Charge, Dash,
+Slam) required finding the correct soulbeast-specific wiki page behind a disambiguation page or a
+same-named base ranger pet skill with a different id, confirmed against each page's own `| id = `
+field. Added 40 to `CURATED_DAMAGE_COEFFICIENTS` (WvW value used for every PvE/WvW-split skill, per
+this table's standing convention). Logged the remaining 2 (Siege Turtle's Slam/Heavy Shot) as new
+Known Exceptions in `damage-coefficient-completeness.test.ts` instead of guessing: both tag
+`weapon=pet` on their wiki page, and `WEAPON_STRENGTH_MIDPOINTS` has no constant for it (the wiki's
+own Weapon Strength page: pet skills "use their own weapon strengths," per-species rather than a
+single value like `unequipped`/`kit`/`conjure`). 134 of the original 176-id Leg 2 find remain,
+re-split by mechanic family under the same TODO item, now Leg 2. Full suite (625 tests), lint, and
+typecheck all pass. See commit 32c3b4854b1334b49469f9efd22d5e066854bc32.
+
 ### Coefficient-Table Completeness Test — Leg 2 (2026-10-19)
 Built `src/shared/skill-calc/damage-coefficient-completeness.test.ts` for
 `CURATED_DAMAGE_COEFFICIENTS`, the 5th and final table of this milestone's scope. Built the
