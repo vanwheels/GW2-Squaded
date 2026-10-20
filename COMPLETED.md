@@ -15,6 +15,17 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 13 (2026-10-20)
+Identified and swept the Guardian cluster Leg 12 left "not yet wiki-identified by spec": 2 Firebrand
+Utility ammo skills (Echo of Truth 42360, Flame Rush 45082 — specializationId 62 confirms
+Firebrand), core Guardian's Purging Flames consecration (9187), and Willbender's 2 Virtue mechanic
+skills (Crashing Courage 62648/F3, Rushing Justice 62668/F1). All 5 wiki-verified and curated; no
+Known Exceptions. Rushing Justice surfaced a new within-skill shape — 2 same-text "Impact Damage"
+facts, one per game mode, no discriminator field — resolved via the existing convention that a
+curated entry's factText only confirms a matching fact exists, never reads the coefficient off it,
+so no new infra was needed. Golden coefficient snapshot updated (5 new entries). Full suite (629
+tests), lint, and typecheck all pass. See commit 9bce5c6b709ce4653204b4b462c65c5d82f5769e.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 12 (2026-10-19)
 Re-checked the Warrior Spellbreaker Burst cluster first (still zero wiki page for all 6, unchanged
 from Leg 11, left untouched again). Then wiki-verified the 6-id Ranger cluster the earlier re-triage
