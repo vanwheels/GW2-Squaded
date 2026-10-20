@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 4
+### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 5
 Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 50 distinct equippable
 skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric
 Predation #80985, carries both an uncovered Healing- and an uncovered Siphon-shaped fact, so it's
@@ -66,10 +66,35 @@ vs 323/0.1 pvp wvw, WvW value used). Its 2 cluster-mates, Natural Harmony (29082
 Defense/Super Elixir finds: both are structurally-unreachable orphan ids whose live/reachable siblings
 (27025/27356) were already curated in the 2026-08-12 Renegade sweep and closed as a TODO.md Known
 Exception 2026-08-13 — re-bucketed under a new `REASON_LEGEND_SKILL_DUPLICATE` reason instead of left
-as `REASON_NEW_CONTENT_SKILL`. 21 ids remain across the other 5 professions (Guardian 4, Ranger 8,
-Mesmer 4, Thief 2, Elementalist 1, plus 2 cross-profession Bundle-type ids — Water Arrow/Elixir Shell —
-shared across all 9 professions' generic bundle pool, not scoped to one). Ranger (8 ids, the largest
-remaining cluster) is the natural next leg.
+as `REASON_NEW_CONTENT_SKILL`.
+Leg 4 (2026-10-20) wiki-verified the remaining Ranger cluster (8 ids): 6 Soulbeast Beastmode F1-F3
+merge skills (Chomp #41537 Drake-F1, Bite #43136 Bear-F1, Photosynthesize #43701 Jacaranda-F2,
+Harmonic Cry #44617 Moa-F1, Spiritual Reprieve #44626 shared F3, Chomp #44885 Armor Fish-F2 — a
+same-name-different-id sibling of 41537, not a duplicate) curated into `CURATED_HEALING_COEFFICIENTS`,
+each verified against its own "(soulbeast &lt;family&gt;)" wiki page rather than the base pet-skill
+page sharing the same name. Chomp #41537 needed the wiki's current value (1285/0.5) over the local
+API's stale cached one (965/0.15) per that page's own Version History — same "`fetch-game-data` hasn't
+been re-run since a balance patch" shape as Session 118's Elixir U finding, not this leg's own bug.
+Also surfaced and fixed a real pre-existing bug while verifying Water Spirit (flagged at id 69244):
+the existing curated entry was keyed to 21773, Water Spirit's GroundTargeted twin, per a 2026-08-04
+audit finding that `skill-variant-exclusions.json`'s own 2026-08-08 regeneration (commit `ffcea5f`)
+later superseded without the healing-calc.ts comment being updated to match — `skill-variants.ts`'s
+GroundTargeted collapse already resolves the pair to 69244 on its own, so 21773 has been dead/
+unreachable since Aug 8. Rekeyed the curated entry to 69244 (same wiki-verified value, 1998/0.4 WvW)
+and added 21773 to the completeness test's exclusions under a new `REASON_GROUND_TARGET_DUPLICATE`
+reason. Vampiric Predation (80985, the id flagged in both the Healing and Siphon-Damage pools) turned
+out to be a structurally unreachable Soulbeast F2 id — absent from every pet's `f2SkillId` in
+`soulbeast-beastmode.json`, so `soulbeastBeastmodeBar` can never surface it for any equipped pet — and
+was re-bucketed to a new `REASON_SOULBEAST_BEASTMODE_UNREACHABLE` reason in both pools instead of
+curated.
+13 ids remain across 4 professions plus the 2 cross-profession Bundle ids: Guardian 4 (Virtue of
+Resolve `9120`, 2 Bow of Truth ids `46600`/`46750`, Flowing Resolve `62603`), Mesmer 4 (2 Lively Lute
+ids `76552`/`77306`, 2 Harmonious Harp ids `76960`/`77077`), Thief 2 (2 Exalted Hammer ids
+`76601`/`76702`), Elementalist 1 (Buoyant Deluge `76811`), plus Water Arrow (`5595`)/Elixir Shell
+(`30032`). The 4 same-name id pairs (Bow of Truth/Lively Lute/Harmonious Harp/Exalted Hammer) are
+exactly the "may hide more variant-collapse/bundle-duplicate false positives" shape this item's own
+prior note flagged — check `skill-variants.ts`/`bundle-skills.ts` reachability for each pair before
+assuming both ids are genuinely new content, same as this leg's Water Spirit finding.
 Done check: each id wiki-verified and either added to the relevant curated table or logged as a new
 Known Exception; `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL` exclusions shrink
 accordingly.

@@ -15,6 +15,27 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 4 (2026-10-20)
+Wiki-verified the remaining Ranger cluster (8 ids): 6 Soulbeast Beastmode F1-F3 merge skills (Chomp
+41537/44885, Bite 43136, Photosynthesize 43701, Harmonic Cry 44617, Spiritual Reprieve 44626) curated
+into `CURATED_HEALING_COEFFICIENTS`, each verified against its own "(soulbeast &lt;family&gt;)" wiki
+page rather than the base pet-skill page of the same name — Chomp 41537 needed the wiki's current
+value (1285/0.5) over the local API's stale cached one (965/0.15), per that page's own Version
+History. Also found and fixed a real pre-existing bug while verifying Water Spirit (69244): the
+curated entry had been keyed to its GroundTargeted twin 21773 by a 2026-08-04 audit finding later
+superseded by `skill-variant-exclusions.json`'s own 2026-08-08 regeneration (commit `ffcea5f`) without
+the healing-calc.ts comment being updated to match — `skill-variants.ts`'s GroundTargeted collapse
+already resolves the pair to 69244 on its own, so 21773 has been dead/unreachable since. Rekeyed to
+69244 (same wiki-verified value) and added 21773 to the completeness test's exclusions under a new
+`REASON_GROUND_TARGET_DUPLICATE` reason. Vampiric Predation (80985) turned out to be a structurally
+unreachable Soulbeast F2 id absent from every pet's `f2SkillId` in `soulbeast-beastmode.json` —
+re-bucketed to a new `REASON_SOULBEAST_BEASTMODE_UNREACHABLE` reason in both the Healing and
+Siphon-Damage pools. 13 ids remain across Guardian (4), Mesmer (4), Thief (2), Elementalist (1), plus
+2 cross-profession Bundle ids (Water Arrow/Elixir Shell) — 4 of those are same-name id pairs that need
+the same reachability check as this leg's Water Spirit finding before assuming new content. Golden
+coefficient snapshot updated (6 new entries, 1 id dropped). Full suite (630 tests), lint, and
+typecheck all pass. See commit ccb58525fb3b1bdfd98f4297ec56de294da741d5.
+
 ### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 3 (2026-10-20)
 Wiki-verified the Revenant cluster (3 ids): True Nature (centaur) (51713, Herald's Facet of Nature
 consume paired with Ventari) curated into `CURATED_HEALING_COEFFICIENTS` (970/0.1 PvE vs 323/0.1
