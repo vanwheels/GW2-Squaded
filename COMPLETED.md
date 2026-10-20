@@ -15,6 +15,15 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Trait-Side Damage Proc Tooltip Coverage, item closed (2026-10-20)
+Added `CURATED_TRAIT_DAMAGE_COEFFICIENTS`/`damageLinesForTrait` (`damage-calc.ts`), mirroring
+`CURATED_TRAIT_HEALING_COEFFICIENTS`'s trait-keyed pattern, and wired it into `traitFactLines` plus
+`TraitsEditor.tsx` (which now takes a real `CombatState` prop for Power/target-armor instead of
+`DEFAULT_COMBAT_STATE`). 11 of the 12 trait ids the Coefficient-Table Completeness Test's Leg 2 scan
+found are now curated (WvW-verified); Soaring Devastation (1911) is a Known Exception — its proc
+scales off whichever weapon is currently equipped, which the fixed-weapon-key model can't represent.
+See commit ade0261.
+
 ### Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id (2026-10-20)
 `CURATED_BARRIER_COEFFICIENTS` (`barrier-calc.ts`) keyed this skill's Barrier fact to id 77896 on
 the wiki infobox's bare `id =` field, contradicting `profession-mechanic.ts`'s own earlier,
