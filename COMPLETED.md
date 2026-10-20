@@ -29,7 +29,7 @@ so it's unclear whether it was added since or just overlooked) — curated now t
 Hard Light Arena logged as a new Known Exception (flat value, no `coefficient=` param, same shape
 as Arcane Brilliance's Combo Healing exclusion). 34 ids remain across the other 7 professions.
 Golden coefficient snapshot updated (2 new entries). Full suite (630 tests), lint, and typecheck all
-pass. See commit <PENDING>.
+pass. See commit f2edc4198aff7c83e22727c53df4de35faec58b0.
 
 ### Trait-Side Damage Proc Tooltip Coverage, item closed (2026-10-20)
 Added `CURATED_TRAIT_DAMAGE_COEFFICIENTS`/`damageLinesForTrait` (`damage-calc.ts`), mirroring
