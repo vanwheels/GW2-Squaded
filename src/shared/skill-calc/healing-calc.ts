@@ -421,6 +421,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing per Hit', baseValue: 714, coefficient: 0.22 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 },
   ],
+  // Revenant — True Nature (centaur) (Herald's Facet of Nature consume, paired-with-Ventari
+  // variant; its sibling "True Nature (dragon)"/(demon)/(dwarf)/(assassin) ids — 51696/51714/51675/
+  // 51667 — grant unrelated effects, no Healing fact at all). Both facts share the exact same
+  // factText ("Heal per Condition Removed") — a PvE/WvW-split pair, not a requiresTrait collision —
+  // same shape as this table's other same-text PvE/WvW pairs (e.g. Guardian's Merciful
+  // Intervention above); WvW value used (970/0.1 PvE vs 323/0.1 "pvp wvw").
+  51713: [{ factText: 'Heal per Condition Removed', baseValue: 323, coefficient: 0.1 }],
   // Revenant — Shielding Hands (Conduit). Self-Healing has a PvE/WvW base-value split (PvE 1950
   // vs WvW 1310, same 0.2 coefficient) — WvW value used. Allied Healing has no split.
   77043: [

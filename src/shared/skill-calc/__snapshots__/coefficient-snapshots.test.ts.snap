@@ -8562,6 +8562,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 2628,
     },
   ],
+  "51713": [
+    {
+      "label": "Heal per Condition Removed",
+      "value": 473,
+    },
+  ],
   "55024": [
     {
       "label": "Healing",
