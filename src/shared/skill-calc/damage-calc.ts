@@ -795,6 +795,15 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   63113: [{ factText: 'Damage', coefficient: 2.4, weapon: 'unequipped' }],
   // Mechanist — Force Signet. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
   63253: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Mechanist — Mech Core (profession-mechanic F-skill bar) sweep (Damage Coefficient Sweep's New/
+  // Uncurated Content Leg 5, 2026-10-19): 3 raw candidates. Crash Down and Mech Support: Depth
+  // Charges both use the wiki's own `weapon=unequipped` param — unlike Jade Buster Cannon (63374,
+  // excluded below; see this file's own Elite-slot sweep comment above), these two scale off the
+  // player's own Power like any normal skill, not the Jade Mech's. Crash Down. PvE/WvW+PvP split
+  // 2.5/0.5 — WvW value used.
+  63050: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Mechanist — Mech Support: Depth Charges. No split.
+  63210: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
   // Amalgam — Liquid State. `strikes=4` present -> wiki's 0.8 already totaled (verified: local
   // hit_count 4 * dmg_multiplier 0.2 = 0.8). No split.
   76908: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],

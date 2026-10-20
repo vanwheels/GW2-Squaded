@@ -15,6 +15,18 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 5 (2026-10-19)
+Wiki-verified the Engineer Mechanist Mech Core F-skill bar family TODO.md had already named: Crash
+Down (63050) and Mech Support: Depth Charges (63210) both curated (PvE/WvW 2.5/0.5 and flat 0.5;
+wiki confirms both use the normal player-scaling `weapon=unequipped` param, unlike their sibling).
+Jade Buster Cannon (63374) turned out to be a second instance of the same "comment exists, never
+logged" shape Rampart Splitter hit in Leg 4 — its Elite-slot sweep comment in `damage-calc.ts`
+already documented the wiki's `weapon=pet|power=1250` fixed-Power override from before this
+completeness sweep existed; re-verified unchanged and recategorized into its own Known Exception
+reason instead of re-investigating. Golden coefficient snapshot updated for the 2 new curated
+entries. 77 of the Leg 4 remainder's 80 ids left, still under the same TODO item, now Leg 6. Full
+suite (625 tests), lint, and typecheck all pass. See commit <pending>.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 4 (2026-10-19)
 Wiki-verified the Mesmer core Shatter + Virtuoso Bladesong family named in the Leg 3 remainder:
 Cry of Frustration/Mind Wrack (core F2/F1), Rewinder/Split Second (Mirage's replacements for them),

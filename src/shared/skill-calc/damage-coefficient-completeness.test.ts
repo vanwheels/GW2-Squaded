@@ -200,6 +200,8 @@ const REASON_NO_WIKI_DAMAGE_FACT =
   "Garish Pillar (Scourge F4), wiki-verified 2026-10-19 (Leg 3 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — the skill's own live wiki page documents zero `{{skill fact|damage}}` lines and its own description text ('Induce fear in enemies around your sand shades') never mentions damage at all; the local API's Damage fact (dmg_multiplier 0.333) has no wiki corroboration anywhere, likely stale API bookkeeping rather than a real mechanic. No coefficient can be curated without fabricating one, per this app's standing rule against curating from anything but the wiki.";
 const REASON_PVE_WVW_SOURCE_DISAGREEMENT =
   "Rampart Splitter (71875, Berserker's Staff Primal Burst) — pre-existing exclusion, not new to this leg's scan (see its own dated comment block in `CURATED_DAMAGE_COEFFICIENTS`, written before this leg): the API's raw `dmg_multiplier` (1.5) and the wiki's infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched 2024-02-27) flatly disagree on the same single-hit fact, not a per-hit/totaled ambiguity. No coefficient can be curated without picking a source arbitrarily. That comment claimed this was 'Logged in TODO.md' but it never was — added to Known Exceptions here instead of re-investigating, since nothing about either source has changed.";
+const REASON_NO_MECH_POWER_SCALING =
+  "Jade Buster Cannon (63374, Mechanist's auto-triggered Jade Mech follow-up to Overclock Signet) — pre-existing exclusion, not new to this leg's scan (see its own dated comment block in `CURATED_DAMAGE_COEFFICIENTS`'s Elite-slot sweep section, written before this leg existed): re-verified 2026-10-19 (Leg 5 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]), the wiki's own `{{skill fact|damage}}` lines still carry `weapon=pet|power=1250` on both PvE and WvW/PvP variants — same fixed-non-player-Power shape as `REASON_NO_MINION_POWER_SCALING` above, just for the Jade Mech's own stat block instead of a Necromancer minion's. That comment was never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the Rampart Splitter exclusion above. Crash Down (63050) and Mech Support: Depth Charges (63210), this skill's two Mech Core F-skill siblings, do NOT share this trap — both use the wiki's own `weapon=unequipped` param (confirmed via fresh wikitext fetch) and are curated normally.";
 
 // --- Damage skill pool ---
 
@@ -234,14 +236,15 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ...bucket([10533, 10541, 10543, 10547, 10589, 10646], REASON_NO_MINION_POWER_SCALING),
   ...bucket([44428], REASON_NO_WIKI_DAMAGE_FACT),
   ...bucket([71875], REASON_PVE_WVW_SOURCE_DISAGREEMENT),
+  ...bucket([63374], REASON_NO_MECH_POWER_SCALING),
   ...bucket(
     [
       1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 5818, 5836, 5838, 5912, 5987, 5989, 5990,
       5991, 6093, 9187, 10212, 12453, 12456, 14552, 22574, 25492, 25499, 28113, 31438, 34637, 34736,
       39972, 41283, 41543, 41820, 42360, 42809, 42836, 43488, 44397, 44918, 45082, 45094, 46044,
-      51667, 56920, 62648, 62668, 63050, 63094, 63209, 63210, 63258, 63374, 72103, 72114, 76550,
-      76552, 76582, 76585, 76601, 76633, 76702, 76707, 76733, 76746, 76800, 76900, 76909, 76931,
-      77079, 77089, 77243, 77288, 77291, 77306, 78309, 78615, 78845, 78895, 80985, 81024,
+      51667, 56920, 62648, 62668, 63094, 63209, 63258, 72103, 72114, 76550, 76552, 76582, 76585,
+      76601, 76633, 76702, 76707, 76733, 76746, 76800, 76900, 76909, 76931, 77079, 77089, 77243,
+      77288, 77291, 77306, 78309, 78615, 78845, 78895, 80985, 81024,
     ],
     REASON_NEW_CONTENT_SKILL,
   ),

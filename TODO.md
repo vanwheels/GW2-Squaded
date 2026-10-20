@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 5
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 6
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -31,21 +31,29 @@ user 2026-10-19), so split by mechanic family. Leg 1 (Ranger Soulbeast Beastmode
 Leg 2 (Catalyst's "Deploy Jade Sphere" overloads, 20 ids), Leg 3 (Necromancer Shroud-reuse Downed
 skills + Scourge Shade F-skills, 25 ids: 18 curated, 6 minion-summon ids excluded as a new "no
 mechanism" Known Exception — minions scale off their own fixed Power, not the player's — and Garish
-Pillar excluded for having zero wiki-documented Damage fact at all), and Leg 4 (Mesmer core
+Pillar excluded for having zero wiki-documented Damage fact at all), Leg 4 (Mesmer core
 Shatter + Virtuoso Bladesong skills, 8 ids: Cry of Frustration, Mind Wrack, Rewinder, Split Second,
 Bladeturn Requiem, Bladesong Dissonance/Sorrow/Harmony, all curated; plus a zero-research find while
 in the file — Rampart Splitter (71875) already had a dated "PvE/WvW sources disagree" exclusion
 written directly in `CURATED_DAMAGE_COEFFICIENTS`'s own comments from before this sweep existed,
 just never actually logged to TODO.md despite the comment claiming it was — recategorized out of the
-generic new-content bucket into its own Known Exception reason instead of re-investigating) shipped
-2026-10-19 — see COMPLETED.md.
-Remaining 80 ids span Engineer Mechanist Mech Core skills (Crash Down, Jade Buster Cannon, Mech
-Support: Depth Charges), Revenant legend-swap F2-F5 skills including Vindicator's "Release
+generic new-content bucket into its own Known Exception reason instead of re-investigating), and Leg
+5 (Engineer Mechanist Mech Core F-skill bar, the 3 ids TODO.md had already named as a family: Crash
+Down (63050) and Mech Support: Depth Charges (63210) both curated — wiki confirms both use the
+normal player-scaling `weapon=unequipped` param, PvE/WvW 2.5/0.5 and flat 0.5 respectively — while
+Jade Buster Cannon (63374) turned out to be a second zero-research find of the same "comment exists,
+never logged" shape as Rampart Splitter: its Elite-slot sweep comment already documented the wiki's
+`weapon=pet|power=1250` fixed-Power override, re-verified unchanged, and recategorized into its own
+Known Exception reason instead of re-investigating) shipped 2026-10-19 — see COMPLETED.md.
+Remaining 77 ids span Revenant legend-swap F2-F5 skills including Vindicator's "Release
 Potential" trio, a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun Crystal,
 Lively Lute, ...), and several smaller single-profession clusters (base Engineer turret-deploy
 skills, Elementalist utility AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not yet broken
 out into their own named families. Full id list in `damage-coefficient-completeness.test.ts`'s
-`REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
+`REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries. Worth checking `CURATED_DAMAGE_COEFFICIENTS`'s
+own comments for each remaining id before fresh wiki research — 2 of the last 11 ids triaged (Rampart
+Splitter, Jade Buster Cannon) turned out to already have a dated, still-accurate exclusion comment
+sitting unlogged from before this completeness sweep existed.
 Done check: each id wiki-verified and either added to `CURATED_DAMAGE_COEFFICIENTS` or logged as a
 new Known Exception; `damage-coefficient-completeness.test.ts`'s exclusion map shrinks accordingly.
 Given the spread, keep splitting this by mechanic family per leg rather than sweeping as one.
