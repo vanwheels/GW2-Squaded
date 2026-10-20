@@ -22,19 +22,6 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Trait-Side Damage Proc Tooltip Coverage]
-No trait-keyed `CURATED_DAMAGE_COEFFICIENTS` counterpart exists at all — same "no mechanism" gap
-`coefficient-completeness.test.ts`'s own header already documents for Barrier/Siphon-Damage on
-traits (`trait-fact-lines.ts` only ever calls `healingLinesForTrait`). The Coefficient-Table
-Completeness Test's Leg 2 scan (2026-10-19) found 12 trait ids with a genuine Damage fact: Electric
-Discharge, Earthen Blast, Mug, Power Block, Soaring Devastation, King of Fires, Photonic Blasting
-Module, Loss Aversion, Tenacious Ruin, Explosive Growth, Mistfire, Syncopate.
-Done check: each id wiki-verified and either added to a new trait-keyed Damage-coefficient table
-(if one gets built) or logged as a Known Exception; `damage-coefficient-completeness.test.ts`'s
-`REASON_NO_TRAIT_MECHANISM` exclusions shrink accordingly.
-Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
-
 ### [Healing/Barrier/Siphon Coefficient Sweep Refresh]
 Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 51 distinct equippable
 skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric

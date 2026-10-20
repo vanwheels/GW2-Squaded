@@ -1,4 +1,4 @@
-import type { Fact, Skill } from '../types';
+import type { Fact, Skill, Trait } from '../types';
 
 /**
  * Wiki-quoted weapon-strength constants at level 80 — the midpoint of each weapon type's min-max
@@ -4510,6 +4510,97 @@ export function damageLinesForSkill(
   if (!entries) return [];
 
   const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts];
+  const lines: DamageLine[] = [];
+  for (const entry of entries) {
+    const fact = allFacts.find(
+      (f) =>
+        f.type === 'Damage' &&
+        f.text === entry.factText &&
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null),
+    );
+    if (!fact) continue;
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue;
+    const weaponStrength = WEAPON_STRENGTH_MIDPOINTS[entry.weapon];
+    lines.push({
+      label: entry.factText,
+      value: Math.round((weaponStrength * entry.coefficient * power) / targetArmor),
+    });
+  }
+  return lines;
+}
+
+/**
+ * Trait-keyed counterpart to `CURATED_DAMAGE_COEFFICIENTS` — built for TODO.md's [Trait-Side
+ * Damage Proc Tooltip Coverage] item (2026-10-20) after `damage-coefficient-completeness.test.ts`'s
+ * Leg 2 scan found 12 trait ids with a genuine, previously-uncovered `Damage` fact (every trait-side
+ * Damage proc rendered only the generic "Damage: 1 hit" fallback before this, same gap
+ * `CURATED_TRAIT_HEALING_COEFFICIENTS` closed for Healing Ripple). Same `DamageCoefficient` shape/
+ * rigor bar as the skill table above (wiki `{{skill fact|damage|...}}` template, WvW value used per
+ * that type's own doc comment, not the API's PvE-only `dmg_multiplier`); kept as a separate table
+ * (not merged into `CURATED_DAMAGE_COEFFICIENTS`) since trait ids and skill ids are different
+ * namespaces that can collide numerically, same precedent as the Healing trait table.
+ *
+ * Every entry below uses `weapon: 'unequipped'` — the wiki's own Weapon Strength page states "Slot
+ * skills... as well as trait skills... all use unequipped weapon strength," confirmed against each
+ * page's own `weapon=trait` (or omitted, defaulting the same way) template param.
+ *
+ * 11 of the 12 scanned ids are curated here; 1 (Soaring Devastation, 1911) is a documented Known
+ * Exception in `damage-coefficient-completeness.test.ts` instead — see that file's
+ * `REASON_WEAPON_DEPENDENT_TRAIT_PROC` for why.
+ */
+export const CURATED_TRAIT_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = {
+  // Elementalist Air — Electric Discharge (222). PvE/WvW+PvP split 0.35/0.05 — WvW value used.
+  222: [{ factText: 'Damage', coefficient: 0.05, weapon: 'unequipped' }],
+  // Elementalist Earth — Earthen Blast (279). PvE/WvW+PvP split 0.36/0.1 — WvW value used. (This
+  // trait's own Barrier fact remains a separate, already-tracked "no trait mechanism" gap — see
+  // `coefficient-completeness.test.ts`'s own Barrier/Siphon trait pool.)
+  279: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Thief Deadly Arts — Mug (1276). PvE/WvW+PvP split 1.5/0.75 — WvW value used.
+  1276: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
+  // Mesmer Domination — Power Block (1688). No PvE/WvW split on the Damage fact itself (only
+  // Weakness duration/the Power Block effect's % split by mode) — single coefficient 1.5 for both.
+  // Wiki's own `{{skill fact|damage|399|coefficient=1.5}}` quotes 399 as a precomputed reference
+  // display value, not an additive base: 690.5 * 1.5 * 1000 / 2597 ≈ 398.65, rounding to the wiki's
+  // own 399 at this app's standard reference Power 1000/Armor 2597, confirming `weapon=unequipped`.
+  1688: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Warrior Berserker — King of Fires (2038). No PvE/WvW split on the Damage fact (only Duration
+  // Increase % splits by mode) — single coefficient 0.7 for both.
+  2038: [{ factText: 'Damage', coefficient: 0.7, weapon: 'unequipped' }],
+  // Engineer Holosmith — Photonic Blasting Module (2064). PvE+PvP/WvW split 5.0/2.5 (WvW is its own
+  // bucket here, not grouped with PvP as usual) — WvW value used.
+  2064: [{ factText: 'Damage', coefficient: 2.5, weapon: 'unequipped' }],
+  // Warrior Spellbreaker — Loss Aversion (2126). PvE/WvW+PvP split 1.35/0.1 — WvW value used.
+  2126: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Revenant Vindicator — Tenacious Ruin (2262). No PvE/WvW split, wiki's own `weapon=unequipped`
+  // param used verbatim (not the usual `weapon=trait`). Coefficient 1.0.
+  2262: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Necromancer Ritualist — Explosive Growth (2339). PvE/WvW+PvP split 1.2/0.5 — WvW value used.
+  2339: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Revenant Conduit — Mistfire (2429). No PvE/WvW split, coefficient 0.6 — matches
+  // `CURATED_DAMAGE_COEFFICIENTS[77371]`'s own `requiresTrait: 2429` entry (Cosmic Wisdom's synthetic
+  // copy of this same trait fact), curated here too so the trait's OWN tooltip (not just Cosmic
+  // Wisdom's) shows the real number.
+  2429: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Mesmer Troubadour — Syncopate (2432). Fact text is "Disable Damage" (wiki `alt=` override, not
+  // the generic "Damage" label). PvE+WvW/PvP split 0.75/0.45 — WvW shares the PvE value here, used.
+  2432: [{ factText: 'Disable Damage', coefficient: 0.75, weapon: 'unequipped' }],
+};
+
+/**
+ * Trait-tooltip counterpart to `damageLinesForSkill` — same `weaponStrength * coefficient * Power /
+ * targetArmor` math and `requires_trait` gating, reading `CURATED_TRAIT_DAMAGE_COEFFICIENTS` instead.
+ * Returns `[]` for any trait with no curated entry (the vast majority).
+ */
+export function damageLinesForTrait(
+  trait: Trait,
+  power: number,
+  targetArmor: number,
+  activeIds: ReadonlySet<number>,
+): DamageLine[] {
+  const entries = CURATED_TRAIT_DAMAGE_COEFFICIENTS[trait.id];
+  if (!entries) return [];
+
+  const allFacts: Fact[] = [...trait.facts, ...trait.traitedFacts];
   const lines: DamageLine[] = [];
   for (const entry of entries) {
     const fact = allFacts.find(

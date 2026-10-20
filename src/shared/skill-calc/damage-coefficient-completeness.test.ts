@@ -3,7 +3,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { Fact } from '../types';
-import { CURATED_DAMAGE_COEFFICIENTS } from './damage-calc';
+import { CURATED_DAMAGE_COEFFICIENTS, CURATED_TRAIT_DAMAGE_COEFFICIENTS } from './damage-calc';
 
 /**
  * Coefficient-table completeness scan for `CURATED_DAMAGE_COEFFICIENTS` — deferred out of
@@ -57,10 +57,10 @@ import { CURATED_DAMAGE_COEFFICIENTS } from './damage-calc';
  *   within this leg's own scope (confirmed with the user 2026-10-19), deferred to TODO.md's new
  *   [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than guessed at here.
  *
- * Trait-side: no trait-keyed `CURATED_DAMAGE_COEFFICIENTS` counterpart exists at all (same
- * "no mechanism" gap `coefficient-completeness.test.ts`'s own header documents for Barrier/Siphon-
- * Damage on traits) — every trait carrying a genuine Damage fact is deferred to TODO.md's new
- * [Trait-Side Damage Proc Tooltip Coverage] item below.
+ * Trait-side: resolved by TODO.md's [Trait-Side Damage Proc Tooltip Coverage] item (2026-10-20) —
+ * `damage-calc.ts`'s new `CURATED_TRAIT_DAMAGE_COEFFICIENTS` table (mirroring `healing-calc.ts`'s
+ * `CURATED_TRAIT_HEALING_COEFFICIENTS`) now covers 11 of the 12 scanned ids; the 12th (Soaring
+ * Devastation, 1911) is a genuine Known Exception — see `REASON_WEAPON_DEPENDENT_TRAIT_PROC` below.
  */
 
 interface SkillDataFile {
@@ -279,18 +279,17 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ...bucket([56920, 72103], REASON_FUNCTION_GYRO_ORPHAN_DUPLICATE),
 };
 
-// --- Damage trait pool (no trait-keyed CURATED_DAMAGE_COEFFICIENTS counterpart exists) ---
+// --- Damage trait pool (CURATED_TRAIT_DAMAGE_COEFFICIENTS, see damage-calc.ts) ---
 
-const DAMAGE_TRAIT_COVERED_IDS = new Set<number>();
+const DAMAGE_TRAIT_COVERED_IDS = new Set<number>(
+  Object.keys(CURATED_TRAIT_DAMAGE_COEFFICIENTS).map(Number),
+);
 
-const REASON_NO_TRAIT_MECHANISM =
-  "No trait-keyed Damage-coefficient table exists at all — same 'no mechanism' gap as Barrier/Siphon-Damage on traits (see coefficient-completeness.test.ts's header). Deferred to TODO.md's [Trait-Side Damage Proc Tooltip Coverage] item.";
+const REASON_WEAPON_DEPENDENT_TRAIT_PROC =
+  "Soaring Devastation (1911, Guardian Dragonhunter) — wiki-verified 2026-10-20 (TODO.md's [Trait-Side Damage Proc Tooltip Coverage]): the trait's own `{{skill fact|damage|weapon=trait|...}}` template line renders its tooltip reference number against the generic `unequipped` midpoint same as every other curated trait here, but the page's own Mechanics section explicitly overrides that: \"This skill uses the Weapon Strength of the currently active weapon\" — i.e. the real in-game damage scales off whichever weapon the player has equipped, not a fixed constant. `CURATED_TRAIT_DAMAGE_COEFFICIENTS`'s `DamageCoefficient.weapon` is a single fixed `WEAPON_STRENGTH_MIDPOINTS` key per entry; resolving 'whichever weapon is currently equipped' needs new per-equipped-weapon infra this app doesn't have yet (same 'no mechanism for a dynamic weapon source' shape as the Soulbeast-pet/minion/Jade-Mech non-player-scaling exceptions have for Power, just for the weapon-strength factor instead). No coefficient can be curated under the fixed-weapon model without risking a wrong number for every weapon type but the one guessed.";
 
 const DAMAGE_TRAIT_EXCLUDED_IDS: Record<number, string> = {
-  ...bucket(
-    [222, 279, 1276, 1688, 1911, 2038, 2064, 2126, 2262, 2339, 2429, 2432],
-    REASON_NO_TRAIT_MECHANISM,
-  ),
+  ...bucket([1911], REASON_WEAPON_DEPENDENT_TRAIT_PROC),
 };
 
 function runCompletenessChecks(

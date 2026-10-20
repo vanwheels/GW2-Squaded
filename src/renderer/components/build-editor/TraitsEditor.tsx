@@ -17,7 +17,11 @@ import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc
 import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details';
 import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals';
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats';
-import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state';
+import {
+  DEFAULT_COMBAT_STATE,
+  TARGET_ARMOR_VALUES,
+  type CombatState,
+} from '@shared/gear-calc/combat-state';
 import { useGameData } from '@renderer/state/game-data-store';
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip';
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker';
@@ -25,10 +29,17 @@ import { factsBlock, conditionalBranchesBlock } from './SkillsEditor';
 
 interface Props {
   profession: ProfessionId;
-  /** Needed only to derive gear-sourced boon/condition duration % for this editor's own trait
-   *  tooltips (`boonConditionFactsForTrait`) — `value`/`onChange` below remain the source of truth
-   *  for which specs/traits are actually chosen. */
+  /** Needed to derive gear-sourced boon/condition duration % for this editor's own trait tooltips
+   *  (`boonConditionFactsForTrait`), plus Power/target-armor for `CURATED_TRAIT_DAMAGE_COEFFICIENTS`
+   *  tooltip lines — `value`/`onChange` below remain the source of truth for which specs/traits are
+   *  actually chosen. */
   build: Build;
+  /** Current Power/target-armor a trait's own Damage-coefficient tooltip line scales against (see
+   *  `TraitLineRowProps.power`/`targetArmor`) — unlike Healing Power, these DO vary by `CombatState`
+   *  (target armor class in particular), so this is threaded from the real state (`BuildEditorView`'s
+   *  `combatState`, via `BuildScreenshotGrid`) rather than hardcoded to `DEFAULT_COMBAT_STATE` the way
+   *  `healingPower` below still is. */
+  combatState: CombatState;
   value: TraitLineSlots;
   onChange: (value: TraitLineSlots) => void;
 }
@@ -151,6 +162,11 @@ interface TraitLineRowProps {
    *  itself never varies by `CombatState` field (target armor, health tier, active boon count —
    *  none touch it), unlike the Power/target-armor pair `SkillsEditor.tsx`'s own tooltips need. */
   healingPower: number;
+  /** Current Power/target-armor (real `CombatState`, not `DEFAULT_COMBAT_STATE` — see `Props.
+   *  combatState`'s own doc comment above) — the Power/armor pair `CURATED_TRAIT_DAMAGE_COEFFICIENTS`
+   *  tooltip lines scale against, same math `SkillsEditor.tsx`'s `damageLinesForSkill` calls use. */
+  power: number;
+  targetArmor: number;
   wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>;
   /** WvW-correct `Recharge`-fact override map, keyed by trait id — see `recharge-override.ts`'s
    *  `withRechargeOverride`. */
@@ -170,6 +186,8 @@ function TraitLineRow({
   legends,
   durationPercent,
   healingPower,
+  power,
+  targetArmor,
   wvwFactOverridesByTraitId,
   rechargeWvwOverridesByTraitId,
 }: TraitLineRowProps) {
@@ -257,6 +275,8 @@ function TraitLineRow({
                           activeIds,
                           healingPower,
                           NUMERIC_FACT_WVW_OVERRIDES[minor.id],
+                          power,
+                          targetArmor,
                         ),
                         boonConditionFactsForTrait(
                           minor,
@@ -299,6 +319,8 @@ function TraitLineRow({
                                 activeIds,
                                 healingPower,
                                 NUMERIC_FACT_WVW_OVERRIDES[t.id],
+                                power,
+                                targetArmor,
                               ),
                               boonConditionFactsForTrait(
                                 t,
@@ -358,7 +380,7 @@ function TraitLineRow({
  * button" pattern already used for skills/runes/sigils/etc., now applied here and to weapon-type
  * selection in `EquipmentEditor`).
  */
-export function TraitsEditor({ profession, build, value, onChange }: Props) {
+export function TraitsEditor({ profession, build, combatState, value, onChange }: Props) {
   const gameData = useGameData();
   const {
     specializationsForProfession,
@@ -375,12 +397,18 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
     () => boonConditionDurationPercent(build, gameData),
     [build, gameData],
   );
-  // See `TraitLineRowProps.healingPower`'s own doc comment for why `DEFAULT_COMBAT_STATE` is safe
-  // here even though this editor never takes a real `CombatState` prop.
+  // Healing Power never varies by `CombatState` field (see `Props.combatState`'s own doc comment),
+  // so this alone still uses `DEFAULT_COMBAT_STATE` rather than the real one — Power/target-armor
+  // below don't have that luxury.
   const healingPower = useMemo(
     () => computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE).attributes.healingPower,
     [build, gameData],
   );
+  const power = useMemo(
+    () => computeCharacterStats(build, gameData, combatState).attributes.power,
+    [build, gameData, combatState],
+  );
+  const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass];
 
   const specs = specializationsForProfession(profession);
   const lines = value;
@@ -463,6 +491,8 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
             legends={gameData.legends}
             durationPercent={durationPercent}
             healingPower={healingPower}
+            power={power}
+            targetArmor={targetArmor}
             wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
             rechargeWvwOverridesByTraitId={gameData.rechargeWvwOverrides.trait}
           />

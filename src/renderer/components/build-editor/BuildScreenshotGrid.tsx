@@ -125,6 +125,7 @@ export function BuildScreenshotGrid({
         <TraitsEditor
           profession={build.profession}
           build={build}
+          combatState={combatState}
           value={build.specializations}
           onChange={onSpecializationsChange}
         />

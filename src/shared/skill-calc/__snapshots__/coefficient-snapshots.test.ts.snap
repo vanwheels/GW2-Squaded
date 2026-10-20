@@ -9336,6 +9336,77 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
 }
 `;
 
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_TRAIT_DAMAGE_COEFFICIENTS produces stable damage lines at a fixed reference build 1`] = `
+{
+  "1276": [
+    {
+      "label": "Damage",
+      "value": 588,
+    },
+  ],
+  "1688": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "2038": [
+    {
+      "label": "Damage",
+      "value": 549,
+    },
+  ],
+  "2064": [
+    {
+      "label": "Damage",
+      "value": 1962,
+    },
+  ],
+  "2126": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "222": [
+    {
+      "label": "Damage",
+      "value": 39,
+    },
+  ],
+  "2262": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "2339": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "2429": [
+    {
+      "label": "Damage",
+      "value": 471,
+    },
+  ],
+  "2432": [
+    {
+      "label": "Disable Damage",
+      "value": 588,
+    },
+  ],
+  "279": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+}
+`;
+
 exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_TRAIT_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build 1`] = `
 {
   "351": [

@@ -11,7 +11,13 @@ import {
   healingLinesForTrait,
   type HealingLine,
 } from './healing-calc';
-import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc';
+import {
+  CURATED_DAMAGE_COEFFICIENTS,
+  damageLinesForSkill,
+  CURATED_TRAIT_DAMAGE_COEFFICIENTS,
+  damageLinesForTrait,
+  type DamageLine,
+} from './damage-calc';
 import {
   CURATED_BARRIER_COEFFICIENTS,
   barrierLinesForSkill,
@@ -130,6 +136,7 @@ const ALL_REFERENCE_TRAIT_IDS = new Set<number>([
   ...traitIdsIn(CURATED_DAMAGE_COEFFICIENTS),
   ...traitIdsIn(CURATED_BARRIER_COEFFICIENTS),
   ...traitIdsIn(CURATED_SIPHON_DAMAGE_COEFFICIENTS),
+  ...traitIdsIn(CURATED_TRAIT_DAMAGE_COEFFICIENTS),
 ]);
 
 /** Looks up every curated id against `entitiesById`, failing loudly (not silently skipping) if one
@@ -216,6 +223,23 @@ describe('golden snapshot fixtures — wiki-verified coefficient tables (TODO.md
       'trait',
       'traits.json',
       (trait) => healingLinesForTrait(trait, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS),
+    );
+    expect(snapshot).toMatchSnapshot();
+  });
+
+  it('CURATED_TRAIT_DAMAGE_COEFFICIENTS produces stable damage lines at a fixed reference build', () => {
+    const snapshot = snapshotFor<Trait, DamageLine>(
+      CURATED_TRAIT_DAMAGE_COEFFICIENTS,
+      traitsById,
+      'trait',
+      'traits.json',
+      (trait) =>
+        damageLinesForTrait(
+          trait,
+          REFERENCE_POWER,
+          REFERENCE_TARGET_ARMOR,
+          ALL_REFERENCE_TRAIT_IDS,
+        ),
     );
     expect(snapshot).toMatchSnapshot();
   });
