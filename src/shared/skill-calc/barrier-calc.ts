@@ -61,14 +61,18 @@ export interface BarrierCoefficient {
  * (an orphan never present in Revenant's `professionSkills` — see `78895`'s own block comment
  * below, corrected 2026-10-20 per `profession-mechanic.ts`'s live-verified reachability check), and
  * Thief's Dawn's Repose `63227` — see each profession's block comment below for the wiki `id=`
- * cross-check), and 2 were left uncurated (Engineer's Utility Goggles `29591` — a fresh live
- * `/v2/skills/29591` pull 2026-08-05 confirmed this app's cached data is current, not stale, so the
- * real finding is a genuine API/wiki mismatch: the wiki's infobox, mechanics section, and full
- * version history never mention a Barrier effect on this skill at all despite the API carrying a real
- * `Barrier` fact (2122) on `29591` only, not its sibling `5865` — treated as an orphaned API artifact
- * with no current basis, same "leave uncurated" call as Revenant's Energy Expulsion in
- * `CURATED_HEALING_COEFFICIENTS`; Engineer's Hard Light Arena `44646` — wiki gives a base value with
- * no `coefficient=` param, scaling undocumented). Elementalist's Lava Skin originally had 1 of its 2
+ * cross-check), and 2 were left uncurated at the time (Engineer's Utility Goggles `29591` — a fresh
+ * live `/v2/skills/29591` pull 2026-08-05 confirmed this app's cached data is current, not stale, but
+ * the wiki's infobox, mechanics section, and full version history appeared to never mention a Barrier
+ * effect on this skill at all despite the API carrying a real `Barrier` fact (2122) on `29591` only,
+ * not its sibling `5865` — treated then as an orphaned API artifact with no current basis, same
+ * "leave uncurated" call as Revenant's Energy Expulsion in `CURATED_HEALING_COEFFICIENTS`. **Fixed
+ * 2026-10-20** (Healing/Barrier/Siphon Coefficient Sweep Refresh, Leg 1): the CURRENT wikitext does
+ * carry a Mechanics-section prose line documenting this exact value (`2122 + Healing Power * 0.2`,
+ * trait-gated behind Gadgeteer, matching `id = 5865,29591`'s untraited/traited id split) — see
+ * `29591`'s own entry below, no longer uncurated. Engineer's Hard Light Arena `44646` remains
+ * uncurated — wiki gives a flat base value with no `coefficient=` param, scaling undocumented,
+ * reconfirmed unchanged by the same 2026-10-20 re-check). Elementalist's Lava Skin originally had 1 of its 2
  * Barrier facts left unrepresented for the trait-duplicated-text reason also documented in
  * `CURATED_HEALING_COEFFICIENTS` (Signet of Courage, Signet of Malice, etc.) — **fixed 2026-08-05** by
  * adding `BarrierCoefficient.requiresTrait` (see its own doc comment) and curating the trait-gated
@@ -170,6 +174,18 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // slot skill" shape as Necromancer's Desert Shroud/Sandstorm Shroud below). PvE 454/0.575 vs
   // WvW+PvP 260/0.2875 — WvW value used.
   63141: [{ factText: 'Barrier per Pulse', baseValue: 260, coefficient: 0.2875 }],
+  // Utility Goggles (Gadget, trait-gated behind Gadgeteer — see its own `id = 5865,29591` infobox
+  // split; 5865 is the untraited id with no Barrier fact at all, 29591 only exists/resolves once
+  // Gadgeteer is equipped). **Corrects this table's own 2026-08-05 "left uncurated" finding**: that
+  // sweep found no Barrier mention anywhere on the wiki page and treated the API's real 2122 fact as
+  // an orphaned artifact — re-checked 2026-10-20 (Healing/Barrier/Siphon Coefficient Sweep Refresh,
+  // Leg 1) against the CURRENT raw wikitext, which now has a Mechanics-section prose line ("Grants
+  // `2122 + Healing Power * 0.2` Barrier with Gadgeteer") the original sweep must have missed — no
+  // version-history entry accompanies it, so there's no way to tell whether it's a quiet wiki edit
+  // since 2026-08-05 or always there and overlooked; either way the number now matches the API's own
+  // fact exactly, so it's real. No `{{skill fact|barrier|...}}` template exists (prose only), no
+  // PvE/WvW split documented.
+  29591: [{ factText: 'Barrier', baseValue: 2122, coefficient: 0.2 }],
 
   // --- Guardian ---
   // Zealot's Embrace (hammer). No PvE/WvW split on either fact.

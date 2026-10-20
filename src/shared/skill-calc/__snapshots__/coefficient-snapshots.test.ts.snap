@@ -32,6 +32,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1048,
     },
   ],
+  "29591": [
+    {
+      "label": "Barrier",
+      "value": 2422,
+    },
+  ],
   "29840": [
     {
       "label": "Barrier per Hit",
@@ -7556,10 +7562,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 7795,
     },
   ],
+  "12377": [
+    {
+      "label": "Healing",
+      "value": 1745,
+    },
+  ],
   "12440": [
     {
       "label": "Healing",
       "value": 8020,
+    },
+  ],
+  "12465": [
+    {
+      "label": "Healing",
+      "value": 2755,
     },
   ],
   "12483": [
@@ -8136,6 +8154,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1414,
     },
   ],
+  "29716": [
+    {
+      "label": "Healing",
+      "value": 1452,
+    },
+  ],
+  "29772": [
+    {
+      "label": "Healing",
+      "value": 6420,
+    },
+  ],
   "29911": [
     {
       "label": "Healing",
@@ -8224,6 +8254,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 1394,
+    },
+  ],
+  "30521": [
+    {
+      "label": "Base Healing",
+      "value": 220,
+    },
+    {
+      "label": "Healing for Each Boon",
+      "value": 30,
+    },
+  ],
+  "30588": [
+    {
+      "label": "Healing",
+      "value": 1452,
     },
   ],
   "30597": [
@@ -8498,6 +8544,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3890,
     },
   ],
+  "49082": [
+    {
+      "label": "Healing",
+      "value": 3492,
+    },
+  ],
   "50379": [
     {
       "label": "Healing",
@@ -8608,6 +8660,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3440,
     },
   ],
+  "58090": [
+    {
+      "label": "Base Healing",
+      "value": 220,
+    },
+    {
+      "label": "Healing for Each Boon",
+      "value": 30,
+    },
+  ],
   "5834": [
     {
       "label": "Healing",
@@ -8626,6 +8688,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 525,
     },
   ],
+  "5937": [
+    {
+      "label": "Impact Heal",
+      "value": 1900,
+    },
+    {
+      "label": "Pulse Heal",
+      "value": 354,
+    },
+  ],
   "59526": [
     {
       "label": "Healing",
@@ -8636,6 +8708,36 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 3270,
+    },
+  ],
+  "6046": [
+    {
+      "label": "Impact Heal",
+      "value": 1900,
+    },
+    {
+      "label": "Pulse Heal",
+      "value": 354,
+    },
+  ],
+  "6102": [
+    {
+      "label": "Impact Heal",
+      "value": 1900,
+    },
+    {
+      "label": "Pulse Heal",
+      "value": 354,
+    },
+  ],
+  "6104": [
+    {
+      "label": "Impact Heal",
+      "value": 1900,
+    },
+    {
+      "label": "Pulse Heal",
+      "value": 354,
     },
   ],
   "6140": [
@@ -9042,6 +9144,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 7920,
+    },
+  ],
+  "76642": [
+    {
+      "label": "Healing",
+      "value": 2200,
+    },
+  ],
+  "76651": [
+    {
+      "label": "Healing",
+      "value": 2200,
     },
   ],
   "76695": [

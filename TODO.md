@@ -22,21 +22,30 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Healing/Barrier/Siphon Coefficient Sweep Refresh]
-Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 51 distinct equippable
+### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 2
+Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 50 distinct equippable
 skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric
 Predation #80985, carries both an uncovered Healing- and an uncovered Siphon-shaped fact, so it's
-excluded from both pools but counted once here), none of which match any name already
-curated in `healing-calc.ts`/`barrier-calc.ts`/`siphon-damage-calc.ts` — newer content than the
-original 2026-08 sweeps, never wiki-verified (e.g. Bloodthirster, Path to Victory, Willbender
-Flames, Super Elixir, Wings of Resolve, Buoyant Deluge, Exalted Hammer, Harmonious Harp; full id
-list in `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL`-bucketed exclusion entries).
-Deferred rather than wiki-verified inline per this leg's own scope limit.
+excluded from both pools but counted once here; corrects this item's own first-draft count of 51),
+none of which match any name already curated in `healing-calc.ts`/`barrier-calc.ts`/
+`siphon-damage-calc.ts` — newer content than the original 2026-08 sweeps, never wiki-verified.
+Leg 1 (2026-10-20) wiki-verified the full Engineer cluster (16 ids/10 unique skill names): Super
+Elixir, Blessing of Dwayna, Leafy Bandage, Med Pack Drop, Bandage Self, Med Blaster, Vital Burst,
+and Mechanist's Evolve (`requires_trait`-gated to Innervating Alloy, coefficient lived on the
+trait's wiki page, not the skill's) all curated into `CURATED_HEALING_COEFFICIENTS`; Utility
+Goggles curated into `CURATED_BARRIER_COEFFICIENTS` too, **correcting** that table's own 2026-08-05
+"left uncurated" finding — the current wikitext documents the Barrier value in Mechanics-section
+prose that the original sweep apparently missed (no version-history entry to confirm whether it's a
+quiet wiki edit since or always there). Hard Light Arena logged as a new Known Exception (flat
+value, no `coefficient=` param, same shape as Arcane Brilliance's Combo Healing). 34 ids remain
+across the other 7 professions (e.g. Bloodthirster, Path to Victory, Willbender Flames, Buoyant
+Deluge, Exalted Hammer, Harmonious Harp; full id list in `coefficient-completeness.test.ts`'s
+`NEW_CONTENT_SKILL`-bucketed exclusion entries).
 Done check: each id wiki-verified and either added to the relevant curated table or logged as a new
 Known Exception; `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL` exclusions shrink
 accordingly.
 Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
+Last touched: 2026-10-20. Re-checks: 0.
 
 ### [Trait-Side Heal/Barrier/Siphon Proc Tooltip Coverage]
 `CURATED_TRAIT_HEALING_COEFFICIENTS` has exactly 1 entry (Healing Ripple, #351) — built as a proof
@@ -211,6 +220,12 @@ damage — found unwired into any pipeline while fixing the Tome Cleanse/Stun Br
 (`docs/investigations/` has no dedicated writeup; see commit history around the Tome chapter
 fixes), but the magnitude was deliberately left unmodeled per an earlier user confirmation that
 breakbar damage isn't WvW-relevant for this app's purposes. Not a gap, a standing scope decision.
+
+Healing/Barrier/Siphon Coefficient Sweep Refresh Leg 1 (2026-10-20): Engineer's Hard Light Arena
+(44646, Holosmith). Wiki documents a flat `{{skill fact|barrier|2900|alt=Barrier Applied above 50%
+Heat}}` with no `coefficient=` param at all — same "flat, no Healing Power scaling" shape as
+`CURATED_HEALING_COEFFICIENTS`'s Arcane Brilliance exclusion (its "Combo Healing" fact). Nothing to
+curate; `CURATED_BARRIER_COEFFICIENTS` only models HP-scaled values.
 
 ## Reference — not scheduled
 

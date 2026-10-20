@@ -15,6 +15,22 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 1 (2026-10-20)
+Wiki-verified the full Engineer cluster (16 of the sweep's 50 ids, 10 unique skill names): Super
+Elixir, Blessing of Dwayna, Leafy Bandage, Med Pack Drop, Bandage Self, Med Blaster, and Vital Burst
+curated clean into `CURATED_HEALING_COEFFICIENTS`. Mechanist's Evolve (F5) surfaced the
+`requires_trait`-gated-fact shape already documented for `HealingCoefficient`: its own wiki page
+has no Healing fact at all, only Innervating Alloy's wiki page does (`improves skill = Evolve`) —
+curated using that trait's coefficient (0.8) via `requiresTrait: 2395`. Utility Goggles corrected a
+prior (2026-08-05) `CURATED_BARRIER_COEFFICIENTS` "left uncurated" call: the current wikitext has a
+Mechanics-section prose line documenting the exact Barrier value the API's `29591` fact already
+carried, which the original sweep apparently missed (no version-history entry to date the change,
+so it's unclear whether it was added since or just overlooked) — curated now that it's confirmed.
+Hard Light Arena logged as a new Known Exception (flat value, no `coefficient=` param, same shape
+as Arcane Brilliance's Combo Healing exclusion). 34 ids remain across the other 7 professions.
+Golden coefficient snapshot updated (2 new entries). Full suite (630 tests), lint, and typecheck all
+pass. See commit <PENDING>.
+
 ### Trait-Side Damage Proc Tooltip Coverage, item closed (2026-10-20)
 Added `CURATED_TRAIT_DAMAGE_COEFFICIENTS`/`damageLinesForTrait` (`damage-calc.ts`), mirroring
 `CURATED_TRAIT_HEALING_COEFFICIENTS`'s trait-keyed pattern, and wired it into `traitFactLines` plus

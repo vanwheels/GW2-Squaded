@@ -148,6 +148,53 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // 7625; PvP separately reduced to 5500 by a 2026-06-02 balance patch) — same convention as every
   // other "Healing" entry in this table, no per-pulse math needed at render time. No PvE/WvW split.
   76738: [{ factText: 'Healing', baseValue: 7625, coefficient: 1.0 }],
+  // Engineer — Elixir Gun's Super Elixir (Weapon_5). 4 ids share one wiki page; the wiki's own 3-way
+  // PvE/WvW/PvP split is a genuine 3-way split for both facts (not WvW grouping with either sibling)
+  // — WvW values used (Impact Heal 700/0.8, Pulse Heal 204/0.1).
+  5937: [
+    { factText: 'Impact Heal', baseValue: 700, coefficient: 0.8 },
+    { factText: 'Pulse Heal', baseValue: 204, coefficient: 0.1 },
+  ],
+  6046: [
+    { factText: 'Impact Heal', baseValue: 700, coefficient: 0.8 },
+    { factText: 'Pulse Heal', baseValue: 204, coefficient: 0.1 },
+  ],
+  6102: [
+    { factText: 'Impact Heal', baseValue: 700, coefficient: 0.8 },
+    { factText: 'Pulse Heal', baseValue: 204, coefficient: 0.1 },
+  ],
+  6104: [
+    { factText: 'Impact Heal', baseValue: 700, coefficient: 0.8 },
+    { factText: 'Pulse Heal', baseValue: 204, coefficient: 0.1 },
+  ],
+  // Engineer — Blessing of Dwayna (toolbelt). No PvE/WvW split.
+  12377: [{ factText: 'Healing', baseValue: 995, coefficient: 0.5 }],
+  // Engineer — Leafy Bandage (toolbelt). No PvE/WvW split.
+  12465: [{ factText: 'Healing', baseValue: 1630, coefficient: 0.75 }],
+  // Engineer — Med Pack Drop (toolbelt, both ids share identical facts). No PvE/WvW split.
+  29716: [{ factText: 'Healing', baseValue: 1302, coefficient: 0.1 }],
+  30588: [{ factText: 'Healing', baseValue: 1302, coefficient: 0.1 }],
+  // Engineer — Bandage Self (toolbelt). No PvE/WvW split.
+  29772: [{ factText: 'Healing', baseValue: 4920, coefficient: 1.0 }],
+  // Engineer — Med Kit's Med Blaster (Weapon_1, both ids share identical facts). No PvE/WvW split.
+  30521: [
+    { factText: 'Base Healing', baseValue: 70, coefficient: 0.1 },
+    { factText: 'Healing for Each Boon', baseValue: 11, coefficient: 0.0125 },
+  ],
+  58090: [
+    { factText: 'Base Healing', baseValue: 70, coefficient: 0.1 },
+    { factText: 'Healing for Each Boon', baseValue: 11, coefficient: 0.0125 },
+  ],
+  // Engineer — Med Kit's Vital Burst (Weapon_4). PvE/WvW+PvP coefficient split (same 942 base) —
+  // WvW value used (grouped with PvP on the wiki as one combined "wvw pvp" variant).
+  49082: [{ factText: 'Healing', baseValue: 942, coefficient: 1.7 }],
+  // Engineer — Mechanist's Evolve (F5, both ids share identical facts). Its only Healing fact is
+  // `requires_trait`-gated to Innervating Alloy (2395) — the skill's own wiki page documents no
+  // Healing fact at all (only the unrelated "Evolved" stat-boost effect); the real coefficient lives
+  // on the TRAIT's wiki page instead (`improves skill = Evolve`), same "bridge table" shape as a
+  // trait's `improves skill=` binding documented elsewhere in this app. No PvE/WvW split.
+  76642: [{ factText: 'Healing', baseValue: 1000, coefficient: 0.8, requiresTrait: 2395 }],
+  76651: [{ factText: 'Healing', baseValue: 1000, coefficient: 0.8, requiresTrait: 2395 }],
   // Guardian — Shelter.
   9102: [{ factText: 'Healing', baseValue: 4555, coefficient: 0.7 }],
   // Guardian — "Receive the Light!". Initial Self Heal and Allied Heal per Pulse keep the same base
