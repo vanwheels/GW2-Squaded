@@ -15,6 +15,20 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 3 (2026-10-20)
+Wiki-verified the Revenant cluster (3 ids): True Nature (centaur) (51713, Herald's Facet of Nature
+consume paired with Ventari) curated into `CURATED_HEALING_COEFFICIENTS` (970/0.1 PvE vs 323/0.1
+pvp wvw, WvW value used — both facts share one factText, a PvE/WvW-split pair, not a requiresTrait
+collision). Its 2 cluster-mates turned out not to be new content: Natural Harmony (29082) and Energy
+Expulsion (29114) are structurally-unreachable orphan ids whose live/reachable siblings (27025/27356)
+were already curated in the 2026-08-12 Renegade sweep and closed as a TODO.md Known Exception
+2026-08-13 — same "id-blind scan false positive" shape as Leg 2's Banner of Defense/Super Elixir
+finds, re-bucketed under a new `REASON_LEGEND_SKILL_DUPLICATE` reason instead of left as
+`REASON_NEW_CONTENT_SKILL`. 21 ids remain across the other 5 professions; Ranger (8 ids) is the
+largest remaining cluster and the natural next leg. Golden coefficient snapshot updated (1 new
+entry). Full suite (630 tests), lint, and typecheck all pass. See commit
+b6ec51ffb1308a2e6c177c58bdd120c5a5284681.
+
 ### Healing/Barrier/Siphon Coefficient Sweep Refresh — Leg 2 (2026-10-20)
 Wiki-verified the Warrior cluster (7 ids, 3 unique skill names): Rampart Splitter, Path to Victory
 (5 ids sharing one wiki page, PvE+WvW grouped against a separate PvP value for all 3 charge tiers),

@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 3
+### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 4
 Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 50 distinct equippable
 skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric
 Predation #80985, carries both an uncovered Healing- and an uncovered Siphon-shaped fact, so it's
@@ -59,6 +59,17 @@ may hide more variant-collapse/bundle-duplicate false positives like this leg's 
 24 genuinely new skills; check `skill-variants.ts`/`bundle-skills.ts` reachability before assuming
 "new content" the way this leg's correction did). Full id list in
 `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL`-bucketed exclusion entries.
+Leg 3 (2026-10-20) wiki-verified the Revenant cluster (3 ids): True Nature (centaur) (51713, Herald's
+Facet of Nature consume paired with Ventari) curated into `CURATED_HEALING_COEFFICIENTS` (970/0.1 PvE
+vs 323/0.1 pvp wvw, WvW value used). Its 2 cluster-mates, Natural Harmony (29082) and Energy Expulsion
+(29114), turned out to be the same "id-blind scan false positive" shape as Leg 2's Banner of
+Defense/Super Elixir finds: both are structurally-unreachable orphan ids whose live/reachable siblings
+(27025/27356) were already curated in the 2026-08-12 Renegade sweep and closed as a TODO.md Known
+Exception 2026-08-13 — re-bucketed under a new `REASON_LEGEND_SKILL_DUPLICATE` reason instead of left
+as `REASON_NEW_CONTENT_SKILL`. 21 ids remain across the other 5 professions (Guardian 4, Ranger 8,
+Mesmer 4, Thief 2, Elementalist 1, plus 2 cross-profession Bundle-type ids — Water Arrow/Elixir Shell —
+shared across all 9 professions' generic bundle pool, not scoped to one). Ranger (8 ids, the largest
+remaining cluster) is the natural next leg.
 Done check: each id wiki-verified and either added to the relevant curated table or logged as a new
 Known Exception; `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL` exclusions shrink
 accordingly.
