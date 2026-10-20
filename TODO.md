@@ -8,16 +8,44 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Unscheduled
+## Current Milestone: Data Completeness Test Coverage
 
-### [Twin Moon Sweep] — Leg 1
-Twin Moon (Revenant) has the same "one cast, mutually exclusive legend-gated branches" shape
-Otherworldly Bond had before `branch-conditional-facts.ts`'s labeled-divider mechanism resolved
-it — left as an untried candidate since nobody has checked whether a live-game screenshot of its
-real tooltip exists to resolve it the same way. Ask for one before assuming it's out of reach.
-Done check: Twin Moon's tooltip either renders via `branchConditionalFacts` with wiki-sourced
-numbers, or is confirmed genuinely unresolvable and logged as a Known Exception instead.
-Manual verification: no.
+Done when:
+- A structural completeness test exists for all 5 curated coefficient tables (damage/healing/
+  barrier/trait-healing/siphon-damage), and every fact it flags has a recorded decision (covered,
+  excluded-with-reason, or deferred to a new TODO item).
+- A registry-driven test links `skillFactLines`/`traitFactLines`'s generic fact loop to
+  `computeNamedFactSources`'s correction tables, passing against the existing Cleansing Ire fix.
+- The skill-side WvW-override question is resolved — either a generalized mechanism ships
+  (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
+  confirmed sufficient and the item closed as such.
+
+### [Coefficient-Table Completeness Test] — Leg 1
+Build a structural completeness test for `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_
+COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS`/
+`CURATED_SIPHON_DAMAGE_COEFFICIENTS`, mirroring `src/shared/gear-calc/trait-attribute-
+completeness.test.ts`'s proven shape (candidate predicate → covered-ids union → exclusion map with
+stated reasons). Closes the gap where a `Damage`/`AttributeAdjust`-shaped fact can go uncurated with
+no CI signal, same class of blind spot the trait-attribute test already closed for stat bonuses.
+Full binding-logic research, exact fact-type predicates, and known limitations (won't catch a
+coefficient embedded purely in a `Buff`-type fact, e.g. Adrenal Health) already done:
+`docs/investigations/data-completeness-test-coverage.md`.
+Done check: new test passes; every hit from the first run has a recorded decision (covered,
+excluded-with-reason, or deferred to its own new TODO item).
+Manual verification: no. Review: yes (spans curated tables across gear-calc/skill-calc/boon-calc).
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Cross-Pipeline Tooltip Consistency Test] — Leg 1
+Build a registry-driven test catching the recurring "fixed the aggregate/named-fact pipeline but
+forgot the separate per-skill tooltip renderer" bug class (happened twice: Cleansing Ire, Specter
+Siphon F1) — `skillFactLines`/`traitFactLines`'s generic fact loop has no structural link to
+`computeNamedFactSources`'s raw-fact correction tables. Boon/condition tooltip rendering itself is
+already safe (both paths call the same shared `extractFromFacts`) — this is narrower, scoped only
+to the unsynced generic-fact-loop path. Design (registry shape, exact file:line citations for the
+Cleansing Ire fix) already done: `docs/investigations/data-completeness-test-coverage.md`.
+Done check: new test passes against the existing (already-fixed) Cleansing Ire case, establishing
+the mechanism for future corrections of this shape.
+Manual verification: no. Review: yes (links two separately-maintained pipelines).
 Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Skill-Side Number-Fact WvW Override Gap] — Leg 1
@@ -30,6 +58,18 @@ mechanism. A future balance patch will keep hitting this on new skill-level Numb
 Done check: either a generalized skill-side WvW-override mechanism exists (mirroring
 `NUMERIC_FACT_WVW_OVERRIDES`'s shape), or the direct-value-table approach is confirmed sufficient
 and this item is closed as "no new infra needed, extend the table as cases arise."
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
+## Unscheduled
+
+### [Twin Moon Sweep] — Leg 1
+Twin Moon (Revenant) has the same "one cast, mutually exclusive legend-gated branches" shape
+Otherworldly Bond had before `branch-conditional-facts.ts`'s labeled-divider mechanism resolved
+it — left as an untried candidate since nobody has checked whether a live-game screenshot of its
+real tooltip exists to resolve it the same way. Ask for one before assuming it's out of reach.
+Done check: Twin Moon's tooltip either renders via `branchConditionalFacts` with wiki-sourced
+numbers, or is confirmed genuinely unresolvable and logged as a Known Exception instead.
 Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
