@@ -31,7 +31,7 @@ Hex-Eater Vortex (77243) and Gladiator's Defense (77291) — a third "comment ex
 find of the Rampart Splitter/Jade Buster Cannon shape: both wiki pages are still stub-tagged with no
 `coefficient=` param, re-verified unchanged. Golden coefficient snapshot updated for the 5 new
 curated entries. 70 of the Leg 6 remainder's ids left, still under the same TODO item. Full suite
-(625 tests), lint, and typecheck all pass. See commit <hash>.
+(625 tests), lint, and typecheck all pass. See commit 452a79d8588cc0a44d3c80072e65e469c81ee019.
 
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 5 (2026-10-19)
 Wiki-verified the Engineer Mechanist Mech Core F-skill bar family TODO.md had already named: Crash
