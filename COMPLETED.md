@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 7 (2026-10-19)
+Wiki-verified the "base Engineer turret-deploy skills" cluster TODO.md had already named: Rifle
+Turret (5818), Flame Turret (5836), Thumper Turret (5838), Rocket Turret (5912), and Harpoon Turret
+(6093) turned out to be a 4th instance of the sweep's recurring "comment exists, never logged" shape
+— `damage-calc.ts` already excluded all 5 by name (wiki's `weapon=utility|power=2389` fixed-Power
+override on each turret's Damage fact, confirmed unchanged via fresh wikitext, plus the wiki's
+general Turret page still stating turrets are "unaffected by character's stats" outside boon/
+condition application), just never logged to `damage-coefficient-completeness.test.ts`'s exclusion
+map. Also found and logged 5 stale duplicate ids for those same turrets (5987/5989/5990/5991/22574 —
+identical name and Damage fact, differing only by a `GroundTargeted` flag, none named in any turret's
+own wiki `id =` field — same "wiki's own id= decides canonical" precedent as Supply Crate's stale
+6183 duplicate), and 2 Sylvari racial skills in the same non-player-scaling shape (Grasping Vines
+12453, Seed Turret 12456) that already had their own unlogged exclusion comment from the original
+Racial-slot sweep. No new `CURATED_DAMAGE_COEFFICIENTS` entries this leg — pure exclusion-map
+housekeeping, golden coefficient snapshot unchanged. 12 of the Leg 6 remainder's 70 ids resolved, 58
+left, still under the same TODO item. Full suite (625 tests), lint, and typecheck all pass. See
+commit <PENDING>.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 6 (2026-10-19)
 Wiki-verified Revenant's legend-themed Profession_2/_3 mechanic-skill family: Herald's Citadel
 Bombardment (F3, PvE/WvW 0.6/0.225), Vindicator's True Nature (assassin) (F2, no split, 1.0 —

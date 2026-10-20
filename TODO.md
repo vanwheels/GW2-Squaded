@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 6
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 7
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -58,16 +58,27 @@ keys this same skill's Barrier fact to 77896 on the opposite assumption. Also re
 Hex-Eater Vortex (77243) and Gladiator's Defense (77291), a third "comment exists, never logged" find
 of the same shape as Rampart Splitter/Jade Buster Cannon — both wiki pages are still stub-tagged with
 no `coefficient=` param, re-verified unchanged, same as `CURATED_DAMAGE_COEFFICIENTS`'s own existing
-comment already said) shipped 2026-10-19 — see COMPLETED.md.
-Remaining 70 ids span a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun
-Crystal, Lively Lute, ...), and several smaller single-profession clusters (base Engineer
-turret-deploy skills, Elementalist utility AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not
-yet broken out into their own named families. Full id list in
-`damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
+comment already said) shipped 2026-10-19 — see COMPLETED.md. Leg 7 (2026-10-19) swept the "base
+Engineer turret-deploy skills" cluster named below: the 5 canonical turret skills (Rifle/Flame/
+Thumper/Rocket/Harpoon Turret) turned out to be a 4th instance of the same "comment exists, never
+logged" shape — `damage-calc.ts` already excluded all 5 by name as non-player-scaling (wiki's
+`weapon=utility|power=2389` fixed-Power override, confirmed unchanged), just never logged to this
+exclusion map. Also found and logged: 5 stale duplicate ids for those same 5 turrets (differing only
+by a `GroundTargeted` flag, none named in any turret's own wiki `id =` field — same "wiki's own id=
+decides canonical" precedent as Supply Crate's stale 6183 duplicate), and the 2 Sylvari racial
+skills in this same non-player-scaling shape (Grasping Vines, Seed Turret) that already had their own
+unlogged exclusion comment from the original Racial-slot sweep. No new `CURATED_DAMAGE_COEFFICIENTS`
+entries this leg (pure exclusion-map housekeeping) — golden coefficient snapshot unchanged. 12 ids
+resolved; shipped 2026-10-19 — see COMPLETED.md.
+Remaining 58 ids span a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun
+Crystal, Lively Lute, ...), and several smaller single-profession clusters (Elementalist utility
+AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not yet broken out into their own named
+families. Full id list in `damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-
+bucketed exclusion entries.
 Worth checking `CURATED_DAMAGE_COEFFICIENTS`'s own comments for each remaining id before fresh wiki
-research — 3 ids across Legs 4-6 so far (Rampart Splitter, Jade Buster Cannon, and now Hex-Eater
-Vortex/Gladiator's Defense together) turned out to already have a dated, still-accurate exclusion
-comment sitting unlogged from before this completeness sweep existed.
+research — 4 ids/clusters across Legs 4-7 so far (Rampart Splitter, Jade Buster Cannon, Hex-Eater
+Vortex/Gladiator's Defense, and now the turret family) turned out to already have a dated,
+still-accurate exclusion comment sitting unlogged from before this completeness sweep existed.
 Done check: each id wiki-verified and either added to `CURATED_DAMAGE_COEFFICIENTS` or logged as a
 new Known Exception; `damage-coefficient-completeness.test.ts`'s exclusion map shrinks accordingly.
 Given the spread, keep splitting this by mechanic family per leg rather than sweeping as one.

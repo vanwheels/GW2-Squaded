@@ -204,6 +204,12 @@ const REASON_NO_MECH_POWER_SCALING =
   "Jade Buster Cannon (63374, Mechanist's auto-triggered Jade Mech follow-up to Overclock Signet) — pre-existing exclusion, not new to this leg's scan (see its own dated comment block in `CURATED_DAMAGE_COEFFICIENTS`'s Elite-slot sweep section, written before this leg existed): re-verified 2026-10-19 (Leg 5 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]), the wiki's own `{{skill fact|damage}}` lines still carry `weapon=pet|power=1250` on both PvE and WvW/PvP variants — same fixed-non-player-Power shape as `REASON_NO_MINION_POWER_SCALING` above, just for the Jade Mech's own stat block instead of a Necromancer minion's. That comment was never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the Rampart Splitter exclusion above. Crash Down (63050) and Mech Support: Depth Charges (63210), this skill's two Mech Core F-skill siblings, do NOT share this trap — both use the wiki's own `weapon=unequipped` param (confirmed via fresh wikitext fetch) and are curated normally.";
 const REASON_WIKI_STUB_NO_COEFFICIENT =
   "Conduit/Legendary Entity utility skill — pre-existing exclusion, not new to this leg's scan (see `CURATED_DAMAGE_COEFFICIENTS`'s own dated comment block, written before this leg existed): re-verified 2026-10-19 (Leg 6 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]), Hex-Eater Vortex's (77243) and Gladiator's Defense's (77291) wiki pages are still explicitly tagged `{{stub|damage coefficient}}`/`{{stub|gamemode split, missing dmg coeff}}`, quoting only a bare tooltip value (64/477) with no `coefficient=` param at all — same 'wiki hasn't documented the coefficient' gap as Guardian's Repose (Heal-slot sweep), just on brand-new Conduit content instead of an old stub. That comment was never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the Rampart Splitter/Jade Buster Cannon exclusions above.";
+const REASON_NO_TURRET_POWER_SCALING =
+  "Engineer base turret-deploy skill (Rifle/Flame/Thumper/Rocket/Harpoon Turret) — pre-existing exclusion, not new to this leg's scan (see `CURATED_DAMAGE_COEFFICIENTS`'s own dated comment block in `damage-calc.ts`'s turret-family note, written before this leg existed): re-verified 2026-10-19 (Leg 7 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) via fresh wikitext, every one of these 5 skills' own wiki page still carries the identical `weapon=utility|power=2389` fixed-Power override on its Damage fact, and the wiki's general Turret page's Mechanics section still states 'otherwise turrets are unaffected by character's stats and cannot critically hit' — same non-player-scaling shape as Detonate Supply Crate Turrets/Jade Buster Cannon above. That comment was never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the Rampart Splitter/Jade Buster Cannon/Hex-Eater Vortex exclusions above.";
+const REASON_TURRET_STALE_DUPLICATE_ID =
+  "A second `skills.json` id for the exact same turret-deploy skill as an already-excluded `REASON_NO_TURRET_POWER_SCALING` sibling — identical name and Damage fact, differing only by a `GroundTargeted` flag. None of the 5 canonical turrets' own wiki infobox `id =` field (5818/5836/5838/5912/6093) ever names this id, same 'wiki's own `id =` field decides canonical' precedent `damage-calc.ts` already applies to Supply Crate's stale 6183 duplicate. Not independently equippable as a separate skill; carries its canonical sibling's same non-player-scaling Damage fact regardless. Found 2026-10-19 (Leg 7 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]).";
+const REASON_RACIAL_FIXED_DAMAGE_NUMBER =
+  "Sylvari racial Utility skill — pre-existing exclusion, not new to this leg's scan (see `CURATED_DAMAGE_COEFFICIENTS`'s own dated comment block in `damage-calc.ts`'s Racial Utility sweep section, written before this leg existed): re-verified 2026-10-19 (Leg 7 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) via fresh wikitext, Grasping Vines' (12453) and Seed Turret's (12456) `{{skill fact|damage|...|coefficient=...}}` templates still carry a bare unkeyed override number (127/0.2 and 318/0.5 respectively) with no `weapon=` param at all, and each page's own Notes section still states the damage is fixed/not affected by the creator's stats — same non-player-scaling shape as the turret family above, just phrased without an explicit `power=` key. Never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the other exclusions above.";
 
 // --- Damage skill pool ---
 
@@ -240,14 +246,16 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ...bucket([71875], REASON_PVE_WVW_SOURCE_DISAGREEMENT),
   ...bucket([63374], REASON_NO_MECH_POWER_SCALING),
   ...bucket([77243, 77291], REASON_WIKI_STUB_NO_COEFFICIENT),
+  ...bucket([5818, 5836, 5838, 5912, 6093], REASON_NO_TURRET_POWER_SCALING),
+  ...bucket([5987, 5989, 5990, 5991, 22574], REASON_TURRET_STALE_DUPLICATE_ID),
+  ...bucket([12453, 12456], REASON_RACIAL_FIXED_DAMAGE_NUMBER),
   ...bucket(
     [
-      1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 5818, 5836, 5838, 5912, 5987, 5989, 5990,
-      5991, 6093, 9187, 10212, 12453, 12456, 14552, 22574, 25492, 25499, 28113, 31438, 34637, 34736,
-      39972, 41283, 41543, 41820, 42360, 42809, 43488, 44397, 44918, 45082, 45094, 46044, 56920,
-      62648, 62668, 63094, 63209, 63258, 72103, 72114, 76550, 76552, 76582, 76585, 76601, 76633,
-      76702, 76707, 76733, 76746, 76800, 76900, 76909, 76931, 77079, 77089, 77288, 77306, 78309,
-      80985, 81024,
+      1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 9187, 10212, 14552, 25492, 25499, 28113,
+      31438, 34637, 34736, 39972, 41283, 41543, 41820, 42360, 42809, 43488, 44397, 44918, 45082,
+      45094, 46044, 56920, 62648, 62668, 63094, 63209, 63258, 72103, 72114, 76550, 76552, 76582,
+      76585, 76601, 76633, 76702, 76707, 76733, 76746, 76800, 76900, 76909, 76931, 77079, 77089,
+      77288, 77306, 78309, 80985, 81024,
     ],
     REASON_NEW_CONTENT_SKILL,
   ),
