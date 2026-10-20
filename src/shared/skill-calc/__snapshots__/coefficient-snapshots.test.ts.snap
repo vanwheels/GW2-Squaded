@@ -6689,10 +6689,26 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 11,
     },
   ],
+  "76550": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
   "76552": [
     {
       "label": "Damage",
       "value": 1500,
+    },
+  ],
+  "76582": [
+    {
+      "label": "Damage",
+      "value": 688,
+    },
+    {
+      "label": "Final Smash",
+      "value": 13,
     },
   ],
   "76583": [
@@ -6701,10 +6717,38 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 392,
     },
   ],
+  "76601": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "76633": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+    {
+      "label": "Additional Bomb Damage",
+      "value": 1500,
+    },
+  ],
   "76687": [
     {
       "label": "Damage",
       "value": 8,
+    },
+  ],
+  "76702": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "76733": [
+    {
+      "label": "Damage",
+      "value": 1500,
     },
   ],
   "76746": [
@@ -6717,6 +6761,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 235,
+    },
+  ],
+  "76800": [
+    {
+      "label": "Damage",
+      "value": 24,
     },
   ],
   "76805": [
@@ -6735,10 +6785,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 392,
     },
   ],
+  "76900": [
+    {
+      "label": "Damage",
+      "value": 3000,
+    },
+  ],
   "76908": [
     {
       "label": "Damage",
       "value": 628,
+    },
+  ],
+  "76909": [
+    {
+      "label": "Damage",
+      "value": 1726,
     },
   ],
   "76931": [
@@ -6851,6 +6913,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage (under 10 Might)",
       "value": 1177,
+    },
+  ],
+  "77288": [
+    {
+      "label": "Damage",
+      "value": 625,
     },
   ],
   "77306": [

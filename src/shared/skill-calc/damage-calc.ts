@@ -3945,6 +3945,80 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 0.1448 * 5 = 0.724.
   77089: [{ factText: 'Damage', coefficient: 0.724, weapon: 'unequipped' }],
 
+  // --- Damage Coefficient Sweep: Thief Antiquary's "Skritt Swipe" Steal-replacement Artifact bar
+  // (2026-10-19), Leg 10 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]
+  // item. TODO.md's own description of this cluster ("Steal variant skills themed by stolen-from
+  // faction") turned out to be an approximation — wiki-verified via Skritt Swipe's own page (the
+  // Antiquary elite spec's Steal replacement, mechanic slot 1): it grants a random "Artifact" that
+  // becomes skill F2 (always an Offensive Artifact) and F3 (always a Defensive Artifact), not a
+  // faction-themed Steal reskin. 10 of the 11 ids in this cluster curate cleanly; the 11th
+  // (Zephyrite Sun Crystal, 78309) is a new Known Exception — see
+  // `damage-coefficient-completeness.test.ts`'s `REASON_STALE_PRE_REWORK_ARTIFACT_DUPLICATE_ID`.
+  // Forged Surfer Dash — Offensive Artifact, land (76633) and underwater (76550) ids both reachable
+  // (confirmed via `professionSkills`), each with its own distinct facts (not land/underwater
+  // parity) because the underwater page was never updated past the skill's original 2025-08-19 beta
+  // numbers while the land version got reworked 2025-10-28/2026-01-13/2026-02-03. Land: initial-bomb
+  // PvE/WvW/PvP 3-way split 2.4/1.2/0.8 (WvW used); additional-bomb split only documents a PvE value
+  // explicitly (1.2) but the 2026-02-03 version history entry ("Reduced the additional bomb damage
+  // coefficient from 1.2 to 0.8 ... in PvP only") confirms WvW stays at the PvE value, 1.2 — both
+  // facts share the local API's own PvE `dmg_multiplier` (2.4/1.2), cross-checked. Underwater: PvE/
+  // WvW+PvP split 0.6/1.2 (WvW used; WvW genuinely higher than PvE here, confirmed directly from raw
+  // wikitext, not a paraphrase error, same as the Bladesong Sorrow/Harmony precedent above).
+  76633: [
+    { factText: 'Damage', coefficient: 1.2, weapon: 'hammer' },
+    { factText: 'Additional Bomb Damage', coefficient: 1.2, weapon: 'hammer' },
+  ],
+  76550: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+  // Metal Legion Guitar — Offensive Artifact, land (76582, the only reachable id this sweep found
+  // for this skill). PvE/WvW+PvP split: Damage 0.8/0.55, Final Smash 2.5/0.01 — WvW values used for
+  // both of this skill's 2 Damage-type facts.
+  76582: [
+    { factText: 'Damage', coefficient: 0.55, weapon: 'hammer' },
+    { factText: 'Final Smash', coefficient: 0.01, weapon: 'hammer' },
+  ],
+  // Mistburn Mortar — Offensive Artifact, land (77277 per the wiki's own `id=`, but 77288 is the
+  // only id this app's `professionSkills` reachability check actually found equippable — same
+  // "wiki's documented id isn't the reachable one" shape as Release Potential: Warrior above,
+  // curated under the reachable id). No game-mode split on the Damage fact at all (universal 0.5),
+  // confirmed against the local API's own PvE `dmg_multiplier` (0.5, consistent with no split).
+  77288: [{ factText: 'Damage', coefficient: 0.5, weapon: 'hammer' }],
+  // Summon Kryptis Turret — Offensive Artifact, underwater (76900; land id 77192 is NOT in
+  // `professionSkills` at all, a stale orphaned duplicate, same shape as the Jade Buster Cannon/
+  // turret-family exclusions above). `strikes=8` present -> wiki coefficient already totaled.
+  // PvE/WvW+PvP split 3.2/2.4 at the time this page was last documented, but the LAND page's own
+  // 2026-04-14 version history entry ("Reduced the power coefficient from 0.4 to 0.35 in PvE only")
+  // is missing from this underwater page's history — confirmed via the local API's own PvE
+  // `dmg_multiplier` (0.35/hit = 2.8 total), proving the live game data already reflects that patch
+  // for this id too, just undocumented in the underwater page's prose. Since that patch was PvE-
+  // only, the WvW+PvP total (2.4) is unaffected and still current — WvW value used.
+  76900: [{ factText: 'Damage', coefficient: 2.4, weapon: 'hammer' }],
+  // Unstable Skritt Bomb — Backfire (triggered by a failed Skritt Swipe attempt, per its `parent =
+  // Skritt Scuffle` infobox field), single id (76909, no land/underwater split exists for this
+  // self-targeted effect). PvE/WvW+PvP split 3.0/2.2, `weapon=unequipped` explicitly tagged (unlike
+  // every other Artifact in this cluster, which use `weapon=hammer`) — WvW value used.
+  76909: [{ factText: 'Damage', coefficient: 2.2, weapon: 'unequipped' }],
+  // Exalted Hammer — Defensive Artifact, land (76702) and underwater (76601) ids both reachable,
+  // sharing one wiki page and one set of facts (no land/underwater split documented, unlike Forged
+  // Surfer Dash above). No game-mode split on the Damage fact either (universal 1.5) — both ids
+  // curated identically.
+  76702: [{ factText: 'Damage', coefficient: 1.5, weapon: 'hammer' }],
+  76601: [{ factText: 'Damage', coefficient: 1.5, weapon: 'hammer' }],
+  // Holo-Dancer Decoy — Defensive Artifact, land (76800; underwater id 76674 not found reachable in
+  // this sweep's scan, out of scope). PvE/WvW+PvP split 2/0.03 — WvW value used. The wiki's own Bug
+  // note is load-bearing here: "Unlike all other Artifacts this skill uses unequipped weapon
+  // strength" — `weapon=unequipped` used instead of the template's literal `weapon=hammer` tag,
+  // the only id in this cluster where the documented bug overrides the template's weapon param.
+  76800: [{ factText: 'Damage', coefficient: 0.03, weapon: 'unequipped' }],
+  // Zephyrite Sun Crystal — Defensive Artifact, the live/current id (76733; land id 76895 from the
+  // wiki's own `id=` field is NOT in `professionSkills`, same orphaned-duplicate shape as Mistburn
+  // Mortar above). The infobox's `{{skill fact|damage|coefficient=1.2|weapon=hammer}}` line carries
+  // no explicit game-mode split, but the 2025-10-28 version history entry ("Reduced the power
+  // coefficient from 1.2 to 1.0 in PvE only") is PvE-scoped — confirmed against the local API's own
+  // PvE `dmg_multiplier` (1, matching the post-patch PvE value) — so the pre-patch 1.2 remains the
+  // current WvW value, used here. (78309, a second id sharing this name, is NOT this skill: see
+  // `REASON_STALE_PRE_REWORK_ARTIFACT_DUPLICATE_ID` below.)
+  76733: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+
   // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
   // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
   // a dated version-history entry 2024-02-27) disagree outright — not a per-hit/totaled ambiguity like

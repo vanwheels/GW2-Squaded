@@ -214,6 +214,8 @@ const REASON_STUB_PARTIAL_DAMAGE_COEFFICIENT =
   "Conflagration (76585, Elementalist Evoker F5 Familiar — Fire/fox), wiki-verified 2026-10-19 (Leg 9 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — the skill's own wiki page is tagged `{{stub||damage coeff}}`. Unlike `REASON_WIKI_STUB_NO_COEFFICIENT` above (zero coefficient documented in any mode), this skill's PvE fact fully resolves (`weapon=staff|coefficient=1.555`), but its PvP+WvW fact (combined, not split further) is a bare undecomposed tooltip number (562) with no `weapon=`/`coefficient=` param at all — the one gamemode this app actually curates for has no documented coefficient, same stub-flagged gap, just asymmetric across modes rather than total. No WvW coefficient can be curated without fabricating one from the flat tooltip number.";
 const REASON_RACIAL_FIXED_DAMAGE_NUMBER =
   "Sylvari racial Utility skill — pre-existing exclusion, not new to this leg's scan (see `CURATED_DAMAGE_COEFFICIENTS`'s own dated comment block in `damage-calc.ts`'s Racial Utility sweep section, written before this leg existed): re-verified 2026-10-19 (Leg 7 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) via fresh wikitext, Grasping Vines' (12453) and Seed Turret's (12456) `{{skill fact|damage|...|coefficient=...}}` templates still carry a bare unkeyed override number (127/0.2 and 318/0.5 respectively) with no `weapon=` param at all, and each page's own Notes section still states the damage is fixed/not affected by the creator's stats — same non-player-scaling shape as the turret family above, just phrased without an explicit `power=` key. Never actually logged to TODO.md despite documenting the reasoning — added to Known Exceptions here instead of re-investigating, same 'found but never logged' shape as the other exclusions above.";
+const REASON_STALE_PRE_REWORK_ARTIFACT_DUPLICATE_ID =
+  "Zephyrite Sun Crystal (78309, Thief Antiquary's Skritt Swipe Defensive Artifact) — wiki-verified 2026-10-19 (Leg 10 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]): this id is NOT in `Zephyrite_Sun_Crystal`'s own wiki infobox `id =` field (`76895`/`76733` only), and its local facts match the skill's PRE-2026-01-13-rework shape exactly (radius 180 not 240, `StunBreak: true` not removed, no Blinded/Conditions-Removed facts) — the wiki's own 2026-01-13 patch note states this skill 'no longer breaks stun' and gained blind/condition-removal instead, confirmed still true on id 76733 (curated). Same 'wiki's own id= field decides canonical, the other id is an orphaned pre-rework snapshot' shape as the Release Potential: Warrior/turret-family exclusions above, just for a mid-life rework rather than a stale initial duplicate.";
 
 // --- Damage skill pool ---
 
@@ -255,12 +257,12 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ...bucket([12453, 12456], REASON_RACIAL_FIXED_DAMAGE_NUMBER),
   ...bucket([76707], REASON_FAMILIAR_VARIANT_STALE_DAMAGE_FACT),
   ...bucket([76585], REASON_STUB_PARTIAL_DAMAGE_COEFFICIENT),
+  ...bucket([78309], REASON_STALE_PRE_REWORK_ARTIFACT_DUPLICATE_ID),
   ...bucket(
     [
       1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 9187, 10212, 14552, 25492, 25499, 28113,
       31438, 34637, 34736, 39972, 41283, 41543, 41820, 42360, 42809, 43488, 44397, 44918, 45082,
-      45094, 46044, 56920, 62648, 62668, 63094, 63209, 63258, 72103, 72114, 76550, 76582, 76601,
-      76633, 76702, 76733, 76800, 76900, 76909, 77288, 78309, 80985, 81024,
+      45094, 46044, 56920, 62648, 62668, 63094, 63209, 63258, 72103, 72114, 80985, 81024,
     ],
     REASON_NEW_CONTENT_SKILL,
   ),
