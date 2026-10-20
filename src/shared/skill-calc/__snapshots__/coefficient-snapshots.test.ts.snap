@@ -961,6 +961,36 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 852,
     },
   ],
+  "1110": [
+    {
+      "label": "Damage",
+      "value": 1412,
+    },
+  ],
+  "1115": [
+    {
+      "label": "Damage",
+      "value": 1962,
+    },
+  ],
+  "1118": [
+    {
+      "label": "Damage",
+      "value": 588,
+    },
+  ],
+  "1129": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "1131": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
   "12319": [
     {
       "label": "Damage",
@@ -2971,6 +3001,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 1569,
+    },
+  ],
+  "31438": [
+    {
+      "label": "Damage",
+      "value": 1177,
     },
   ],
   "31607": [

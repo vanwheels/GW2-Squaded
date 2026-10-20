@@ -216,6 +216,26 @@ command-skill cluster (7).
 Manual verification: no.
 Last touched: 2026-10-20. Re-checks: 0.
 
+Leg 14 (2026-10-20) swept the 7-id cluster named above as "racial Elite-transform command-skill
+cluster" — wiki-verified, and that label was wrong (same re-triage-mislabel shape as the Evoker
+Familiar/Thief Antiquary clusters in Legs 9-10): all 7 (Throw Gunk x2/Branch Leap/Throw Chain/
+Ice Shard Stab/Mace Head Crack/Essence Sap) are Thief's core Steal "stolen skill" F2 candidates,
+already fully wired for every other fact type via `THIEF_STOLEN_SKILL_IDS`/`thiefStolenSkillBar`
+(`thief-stolen-skill.ts`) — just never curated for Damage. 6 of 7 curated (Throw Gunk 1110, Branch
+Leap 1115, Throw Chain 1118, Ice Shard Stab 1129, Mace Head Crack 1131, Essence Sap 31438), all
+`weapon=unequipped`; Ice Shard Stab and Essence Sap each had a PvE/WvW(+PvP) split (2.0/1.0 and
+1.5/0.75 respectively) — WvW used. The 7th, Throw Gunk's second id (45094), is a pre-existing
+same-named orphan duplicate already documented in `profession-mechanic.ts`'s
+`EXCLUDED_MECHANIC_SKILL_IDS` comment and dedup'd out of `THIEF_STOLEN_SKILL_IDS` itself (1110 kept
+as canonical) — moved into `damage-coefficient-completeness.test.ts`'s existing
+`REASON_SAME_NAME_SIBLING_CURATED` bucket rather than treated as a new gap. Golden coefficient
+snapshot updated (6 new entries). Full suite (629 tests), lint, and typecheck all pass.
+Remaining 13 ids: Mesmer Power Spike (1), Warrior's Spellbreaker Burst 6 (blocked on the wiki,
+re-check again before assuming more) + Mariner's Shot (1), Revenant's Burst of Strength +
+Scorchrazor (2), Engineer Scrapper's Function Gyro dup ids (3).
+Manual verification: no.
+Last touched: 2026-10-20. Re-checks: 0.
+
 ### [Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id]
 Found while wiki-verifying the Damage sweep's Leg 6 (2026-10-19): `CURATED_BARRIER_COEFFICIENTS`
 (`barrier-calc.ts`) keys this skill's Barrier fact to id 77896, with a comment claiming the wiki

@@ -4421,6 +4421,37 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // fact lookup only confirms a matching Damage fact exists; the coefficient itself always comes
   // from this table, not the fact). PvE/WvW+PvP split 1.5/1.2 — WvW used.
   62668: [{ factText: 'Impact Damage', coefficient: 1.2, weapon: 'unequipped' }],
+
+  // --- Damage Coefficient Sweep: Thief Stolen Skill (F2) bar (2026-10-20), Leg 14 of TODO.md's
+  // [Damage Coefficient Sweep — New/Uncurated Skill Content] item. TODO.md's own re-triage had
+  // labeled this 7-id cluster a "racial Elite-transform command-skill cluster" sharing
+  // `professions: []` — wiki-verified this leg and that label was wrong (same "re-triage
+  // mislabel" shape as the Evoker Familiar/Thief Antiquary clusters in Legs 9-10): all 7 are
+  // Thief's core Steal "stolen skill" F2 candidates, already fully wired for every other fact
+  // type via `THIEF_STOLEN_SKILL_IDS`/`thiefStolenSkillBar` (`thief-stolen-skill.ts`) and excluded
+  // from the generic mechanic-bar resolver via `profession-mechanic.ts`'s
+  // `EXCLUDED_MECHANIC_SKILL_IDS` — just never curated for Damage specifically. All 6 real ids
+  // use the wiki's own `weapon=unequipped` param (explicit on 5 of 6; Branch Leap's page omits the
+  // param outright, but its exact-mechanic sibling Branch Bash — same stolen-skill family, themed
+  // by a different source profession — documents `weapon=unequipped` explicitly, and this app's
+  // own stolen-skill table already treats every member of this set as non-weapon-scaling, so the
+  // omission reads as a documentation gap on that one page, not a different mechanic).
+  // Throw Gunk (Engineer-themed) — `strikes=6`/coefficient=1.8 already totaled (API confirms:
+  // hit_count 6 * dmg_multiplier 0.3 = 1.8). No PvE/WvW split.
+  1110: [{ factText: 'Damage', coefficient: 1.8, weapon: 'unequipped' }],
+  // Branch Leap (Warrior-themed; not stealable directly, only replaces the stolen underwater
+  // Whirling Strike once back on land). Single coefficient, no PvE/WvW split.
+  1115: [{ factText: 'Damage', coefficient: 2.5, weapon: 'unequipped' }],
+  // Throw Chain (Guardian-themed underwater alternate). Single coefficient, no PvE/WvW split.
+  1118: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
+  // Ice Shard Stab (Elementalist-themed). PvE/WvW+PvP split 2.0/1.0 — WvW used.
+  1129: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Mace Head Crack (Guardian-themed). Single coefficient, no PvE/WvW split.
+  1131: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Essence Sap (Revenant-themed). PvE/WvW split from PvP: 1.5/0.75 — WvW used (distinct from
+  // Revenant's own Downed_1 Essence Sap ids, 28180/31723, an unrelated same-named skill not in
+  // this stolen-skill set at all).
+  31438: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
 };
 
 export interface DamageLine {
