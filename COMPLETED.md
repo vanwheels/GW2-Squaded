@@ -31,7 +31,7 @@ field) matching the "split id" pair `sources.ts`'s own boon-calc curation (Might
 already names for this exact skill — both curated identically rather than treating one as a stale
 duplicate, which would have silently left the other's live tooltip uncovered. No Known Exceptions
 this leg. 5 ids resolved; golden coefficient snapshot updated (4 new Damage entries). Full suite
-(625 tests), lint, and typecheck all pass. See commit <leg-8-hash>.
+(625 tests), lint, and typecheck all pass. See commit 92a24d9d9aded7272adc7d305085d43bbd75abc9.
 
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 7 (2026-10-19)
 Wiki-verified the "base Engineer turret-deploy skills" cluster TODO.md had already named: Rifle
