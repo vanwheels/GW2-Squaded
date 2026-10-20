@@ -98,3 +98,41 @@ today there's exactly one table of this shape), as a new
 Whether these are one milestone with 2 legs, or 2 separately-scheduled items — they touch different
 systems (coefficient tables vs. tooltip-rendering/named-fact pipeline) and are each independently
 closable, so splitting is the likely call, but not decided here.
+
+## Candidate 1 outcome: Leg 1 actual scan (2026-10-19)
+
+Running the predicates above for real, before writing any test code, found the scale assumption in
+this doc's design section didn't hold for Damage specifically — worth recording so Leg 2 doesn't
+repeat the same dry run.
+
+**Damage (deferred to Leg 2):** `fact.type === 'Damage'` matches 1,666 skills against only 931
+curated — 745 "uncovered," ~8x the trait-attribute test's precedent (98 candidates). Breakdown: 181
+have `professions: []` (orphan/NPC ids); of the remaining 564 with real professions, only 155 are
+the id `professions.json` actually lists for that weapon slot or profession-mechanic slot — the
+other ~400+ are weapon-skill chain continuations (confirmed via a worked example: Guardian's
+"Faithful Strike" id 9108 carries a real Damage fact but `professions.json`'s own Scepter Weapon_1
+entry lists 9098, not 9108) or duplicate weapon-tier ids (Eviscerate/Kill Shot/Earthshaker/Path to
+Victory/Bloodthirster each appear under 2-5 ids). ~103 more are Heal/Utility/Elite-slot skills,
+which `professions.json` doesn't enumerate at all (no top-level `skills` list, unlike weapon/
+mechanic slots), so a different reachability check is needed for those. Net: Leg 2 needs the same
+equippable-id cross-reference Leg 1 used for its `WEAPON_CHAIN_OR_DUPLICATE`/
+`MECHANIC_CHAIN_OR_DUPLICATE` buckets, extended to cover Heal/Utility/Elite skill ids too (likely
+via `skill-variants.ts`'s existing Heal/Utility/Elite collapsing logic, not a fresh reachability
+concept).
+
+**Healing/Barrier/Siphon (Leg 1, shipped):** Much closer to the trait-attribute test's scale — 139
+skill-side Healing/Barrier candidates (90 covered), 6 Siphon-skill candidates, 105 trait-side
+Healing candidates (1 covered: Healing Ripple #351), 31 trait-side Siphon candidates. Nearly every
+trait-side candidate turned out to already have a categorization decision one hop away: every
+`AttributeAdjust` fact (any target) is *also* a candidate in `trait-attribute-completeness.test.ts`,
+so cross-referencing that file's `EXCLUDED_TRAIT_IDS`/flat-stat tables (confirmed per-id via grep,
+not assumed) resolved the bulk of both trait pools without fresh wiki research. The skill side split
+cleanly into: known exceptions already in TODO.md (7-9 ids, some not yet cross-referenced into the
+Known Exceptions section before this leg — Sanctuary/Summon Blood Fiend/Well of Blood/Helmet Breaker
+were already there but hadn't been checked against this predicate), downed-state/pet/orphan ids
+(structurally unreachable, same precedents as Candidate 1's design above), weapon-tier/mechanic
+duplicates (55 ids, same shape as Damage's), and a genuine 52-skill + 12-trait backlog of newer
+content never swept — deferred to TODO.md's [Healing/Barrier/Siphon Coefficient Sweep Refresh] and
+[Trait-Side Heal/Barrier/Siphon Proc Tooltip Coverage] items rather than wiki-verified inline.
+
+Shipped as `src/shared/skill-calc/coefficient-completeness.test.ts`.

@@ -13,26 +13,61 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 Done when:
 - A structural completeness test exists for all 5 curated coefficient tables (damage/healing/
   barrier/trait-healing/siphon-damage), and every fact it flags has a recorded decision (covered,
-  excluded-with-reason, or deferred to a new TODO item).
+  excluded-with-reason, or deferred to a new TODO item). Split into 2 legs (2026-10-19): Leg 1
+  (healing/barrier/siphon-damage) shipped; Leg 2 (damage) needs new equippable-id-filter infra
+  first, see below.
 - A registry-driven test links `skillFactLines`/`traitFactLines`'s generic fact loop to
   `computeNamedFactSources`'s correction tables, passing against the existing Cleansing Ire fix.
 - The skill-side WvW-override question is resolved — either a generalized mechanism ships
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Coefficient-Table Completeness Test] — Leg 1
-Build a structural completeness test for `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_
-COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS`/
-`CURATED_SIPHON_DAMAGE_COEFFICIENTS`, mirroring `src/shared/gear-calc/trait-attribute-
-completeness.test.ts`'s proven shape (candidate predicate → covered-ids union → exclusion map with
-stated reasons). Closes the gap where a `Damage`/`AttributeAdjust`-shaped fact can go uncurated with
-no CI signal, same class of blind spot the trait-attribute test already closed for stat bonuses.
-Full binding-logic research, exact fact-type predicates, and known limitations (won't catch a
-coefficient embedded purely in a `Buff`-type fact, e.g. Adrenal Health) already done:
-`docs/investigations/data-completeness-test-coverage.md`.
-Done check: new test passes; every hit from the first run has a recorded decision (covered,
-excluded-with-reason, or deferred to its own new TODO item).
+### [Coefficient-Table Completeness Test] — Leg 2
+Build a structural completeness test for `CURATED_DAMAGE_COEFFICIENTS`, mirroring `src/shared/
+gear-calc/trait-attribute-completeness.test.ts`'s proven shape and Leg 1's own shape (`src/shared/
+skill-calc/coefficient-completeness.test.ts`). Split off from Leg 1 (2026-10-19) after a dry-run
+scan found the naive `fact.type === 'Damage'` predicate matches 1,666 skills against only 931
+curated — most of the 745 "uncovered" hits are weapon-skill chain continuations (e.g. Warrior Axe's
+Double Chop/Triple Chop), duplicate weapon-tier ids (Eviscerate/Kill Shot/Earthshaker each have
+2-3 ids), or NPC/pet skills (`professions: []`), not real misses. Needs a reachable/equippable-id
+filter first (cross-referencing `professions.json`'s `weapons[*].skills`/`professionSkills` lists,
+the same signal Leg 1's `WEAPON_CHAIN_OR_DUPLICATE`/`MECHANIC_CHAIN_OR_DUPLICATE` buckets used) to
+shrink the candidate pool to genuinely equippable skills (~155 weapon/mechanic-slot + ~103
+Heal/Utility/Elite-slot, per the dry-run count) before the predicate is meaningful. Trait-side
+Damage facts (12 candidates) have no trait-keyed table at all — same "no mechanism" treatment as
+`trait-fact-lines.ts` only calling `healingLinesForTrait`.
+Done check: new test passes; every hit has a recorded decision (covered, excluded-with-reason, or
+deferred to its own new TODO item).
 Manual verification: no. Review: yes (spans curated tables across gear-calc/skill-calc/boon-calc).
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Healing/Barrier/Siphon Coefficient Sweep Refresh]
+Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 52 equippable skill ids
+with a real, uncurated Healing/Barrier/Siphon-Damage fact, none of which match any name already
+curated in `healing-calc.ts`/`barrier-calc.ts`/`siphon-damage-calc.ts` — newer content than the
+original 2026-08 sweeps, never wiki-verified (e.g. Bloodthirster, Path to Victory, Willbender
+Flames, Super Elixir, Wings of Resolve, Buoyant Deluge, Exalted Hammer, Harmonious Harp; full id
+list in `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL`-bucketed exclusion entries).
+Deferred rather than wiki-verified inline per this leg's own scope limit.
+Done check: each id wiki-verified and either added to the relevant curated table or logged as a new
+Known Exception; `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL` exclusions shrink
+accordingly.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Trait-Side Heal/Barrier/Siphon Proc Tooltip Coverage]
+`CURATED_TRAIT_HEALING_COEFFICIENTS` has exactly 1 entry (Healing Ripple, #351) — built as a proof
+of concept, not a sweep. The Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19) found 11
+more trait ids with a genuine, uncurated Heal/Barrier-on-X proc coefficient (Compounding Chemicals,
+Vigorous Shouts, Elevated Compassion, Last Rites, Blast Shield, Elemental Refreshment, Alchemic
+Vigor, Conceited Curate, Redemptor's Sermon, Natural Fortitude, Hybrid Vigor) plus 1 Siphon-Damage
+one (Natural Fortitude again, its damage half) that has no trait-keyed table at all. Confirms the
+systemic gap `CURATED_TRAIT_HEALING_COEFFICIENTS`'s own doc comment already flagged, now with a
+concrete candidate list.
+Done check: each id wiki-verified and either added to `CURATED_TRAIT_HEALING_COEFFICIENTS` (or a
+new trait-keyed Siphon-Damage table, if one gets built) or logged as a Known Exception;
+`coefficient-completeness.test.ts`'s `NEW_CONTENT_TRAIT` exclusions shrink accordingly.
+Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Cross-Pipeline Tooltip Consistency Test] — Leg 1
