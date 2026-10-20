@@ -70,11 +70,21 @@ skills in this same non-player-scaling shape (Grasping Vines, Seed Turret) that 
 unlogged exclusion comment from the original Racial-slot sweep. No new `CURATED_DAMAGE_COEFFICIENTS`
 entries this leg (pure exclusion-map housekeeping) — golden coefficient snapshot unchanged. 12 ids
 resolved; shipped 2026-10-19 — see COMPLETED.md.
-Remaining 58 ids span a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun
-Crystal, Lively Lute, ...), and several smaller single-profession clusters (Elementalist utility
-AoEs, Guardian/Ranger/Warrior/Revenant odds and ends) not yet broken out into their own named
-families. Full id list in `damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-
-bucketed exclusion entries.
+Remaining 58 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
+these are real mechanic-skill F-bars this app already supports for every other fact type, just not
+yet for Damage): Mesmer Troubadour's F1-F5 bar (Lively Lute x2, Flustering Flute, Deafening Drum,
+Crescendo — Crescendo's Barrier fact is already curated in `barrier-calc.ts`, so this is purely the
+Damage-side gap on an otherwise-supported spec), Elementalist Evoker's F5 Familiar bar (Conflagration,
+Seismic Impact, Lightning Blitz), Thief's core "Steal" variant skills themed by stolen-from faction
+(Metal Legion Guitar, Zephyrite Sun Crystal x2, Exalted Hammer x2, Forged Surfer Dash x2, Holo-Dancer
+Decoy, Summon Kryptis Turret, Unstable Skritt Bomb, Mistburn Mortar), already-named elite specs'
+remaining F-skills (Warrior Spellbreaker x6, Guardian Willbender x2, Guardian Firebrand x2, Ranger
+Untamed x3, Ranger Soulbeast x3 more beyond Leg 1's Beastmode sweep, Revenant Renegade x1, Revenant
+Herald x1, Engineer Scrapper's Function Gyro x3 dup ids), core Elementalist Conjure/Glyph summon
+skills (Ice Storm/Lightning Storm/Sandstorm, Glyph of Elemental Power x2, Crashing Waves/Flame
+Barrage, Lesser Fiery Eruption), and a handful of racial command-skill ids (professions: [], shared
+across all races, same shape as Artillery Barrage above). Full id list in
+`damage-coefficient-completeness.test.ts`'s `REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
 Worth checking `CURATED_DAMAGE_COEFFICIENTS`'s own comments for each remaining id before fresh wiki
 research — 4 ids/clusters across Legs 4-7 so far (Rampart Splitter, Jade Buster Cannon, Hex-Eater
 Vortex/Gladiator's Defense, and now the turret family) turned out to already have a dated,
