@@ -31,7 +31,7 @@ logged to TODO.md despite the comment's own claim that it was; no re-investigati
 bookkeeping fix found while in the file for this leg's own reason-constant work.
 80 of the Leg 3 remainder's 89 ids left (minus these 8 curated and 1 recategorized), re-split by
 mechanic family under the same TODO item, now Leg 5. Full suite (625 tests), lint, and typecheck
-all pass. See commit <!-- commit hash pending -->.
+all pass. See commit e3b8e50d08ac51318b05cb7f27d37884a54ecabb.
 
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 3 (2026-10-19)
 Wiki-verified the 25 Necromancer ids left in the Leg 2 find: Shroud-reuse Downed skillbar skills
