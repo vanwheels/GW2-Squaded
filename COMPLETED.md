@@ -29,4 +29,5 @@ categorized by the sibling attribute-completeness test, or a genuine backlog def
 TODO items ([Healing/Barrier/Siphon Coefficient Sweep Refresh], [Trait-Side Heal/Barrier/Siphon
 Proc Tooltip Coverage]) rather than wiki-verified inline. Full scan numbers and the Damage-leg
 split rationale: `docs/investigations/data-completeness-test-coverage.md`. Lint, typecheck, and the
-full test suite (619 tests) all pass. See commit `TBD`.
+full test suite (619 tests) all pass. See commit
+`53fd58f131d5010dd6d23a3f3c971dfb3ef37fac`.
