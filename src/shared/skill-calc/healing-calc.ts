@@ -1255,6 +1255,53 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Minimum Healing', baseValue: 3215, coefficient: 0.8 },
     { factText: 'Maximum Healing', baseValue: 6558, coefficient: 1.63 },
   ],
+  // Healing/Barrier/Siphon Coefficient Sweep Refresh, Leg 2 (2026-10-20) — Warrior cluster.
+  // Rampart Splitter (Berserker, Gunsaber/staff mechanic slot 1, id 71875, Primal Burst). No
+  // PvE/WvW split.
+  71875: [{ factText: 'Healing', baseValue: 975, coefficient: 1.5 }],
+  // Path to Victory (Spellbreaker, Gunsaber/staff mechanic slot 1, requires = soto). 5 ids share
+  // this wiki page (71922, 71932, 71950, 72029, 72089 — API fact order among the 2 same-labeled
+  // "Level N Healing" facts per id is not consistent, so matching is by factText + value only, same
+  // "presence only" lookup `healingLinesForSkill` already uses elsewhere). PvE+WvW grouped vs a
+  // separate PvP value for all 3 tiers (Level 1 975/1.0, Level 2 1950/1.25, Level 3 2925/1.5) — the
+  // grouped PvE/WvW value used for all 3.
+  71922: [
+    { factText: 'Level 1 Healing', baseValue: 975, coefficient: 1.0 },
+    { factText: 'Level 2 Healing', baseValue: 1950, coefficient: 1.25 },
+    { factText: 'Level 3 Healing', baseValue: 2925, coefficient: 1.5 },
+  ],
+  71932: [
+    { factText: 'Level 1 Healing', baseValue: 975, coefficient: 1.0 },
+    { factText: 'Level 2 Healing', baseValue: 1950, coefficient: 1.25 },
+    { factText: 'Level 3 Healing', baseValue: 2925, coefficient: 1.5 },
+  ],
+  71950: [
+    { factText: 'Level 1 Healing', baseValue: 975, coefficient: 1.0 },
+    { factText: 'Level 2 Healing', baseValue: 1950, coefficient: 1.25 },
+    { factText: 'Level 3 Healing', baseValue: 2925, coefficient: 1.5 },
+  ],
+  72029: [
+    { factText: 'Level 1 Healing', baseValue: 975, coefficient: 1.0 },
+    { factText: 'Level 2 Healing', baseValue: 1950, coefficient: 1.25 },
+    { factText: 'Level 3 Healing', baseValue: 2925, coefficient: 1.5 },
+  ],
+  72089: [
+    { factText: 'Level 1 Healing', baseValue: 975, coefficient: 1.0 },
+    { factText: 'Level 2 Healing', baseValue: 1950, coefficient: 1.25 },
+    { factText: 'Level 3 Healing', baseValue: 2925, coefficient: 1.5 },
+  ],
+  // Bloodthirster (sword mechanic slot 1). 5 ids share this wiki page; only 80203/80252 are
+  // independently equippable (80221/80248/80263 are chain/duplicate ids, already excluded in
+  // `coefficient-completeness.test.ts`). No game-mode split on either Healing fact (only the
+  // separate Damage fact splits by mode).
+  80203: [
+    { factText: 'Healing', baseValue: 650, coefficient: 0.2 },
+    { factText: 'Healing per Bleeding Stack', baseValue: 101, coefficient: 0.02 },
+  ],
+  80252: [
+    { factText: 'Healing', baseValue: 650, coefficient: 0.2 },
+    { factText: 'Healing per Bleeding Stack', baseValue: 101, coefficient: 0.02 },
+  ],
 };
 
 export interface HealingLine {

@@ -113,6 +113,10 @@ const REASON_FLAT_STAT_ELSEWHERE =
   "Flat attribute-stat grant already covered by `trait-attributes.ts`/`combat-state.ts` (see `trait-attribute-completeness.test.ts`) — `target: 'Power'`/`'Healing'` alone over-matches ordinary stat facts; not a Healing/Siphon-Damage coefficient fact.";
 const REASON_NEW_CONTENT_TRAIT =
   "Heal/Barrier/Siphon-on-X proc coefficient, newer than both this table and `trait-attribute-completeness.test.ts`'s own sweep — no live-scaled trait tooltip number exists for this shape yet. Deferred to TODO.md's [Trait-Side Heal/Barrier/Siphon Proc Tooltip Coverage] item.";
+const REASON_VARIANT_COLLAPSE =
+  "Wiki-canonical id for this skill, but `skill-variants.ts`'s ground-target-toggle collapse makes a sibling id the one this app's picker actually surfaces; that sibling carries the byte-identical value and is already curated (see `barrier-calc.ts`'s own Banner of Defense entry, keyed under `14570`). Not new content — a false positive from this id-blind scan.";
+const REASON_BUNDLE_DUPLICATE =
+  "Stale/non-canonical duplicate id for a Kit weapon-slot skill — not present in the kit's own `bundleSkills` array (`bundle-skills.ts`'s `resolveSkillBarIds` can never resolve to it under any environment), and not the wiki infobox's own `id=` either. Same 'duplicate id, no reachability path' shape as Thief's Dawn's Repose (`63227`, `REASON_WEAPON_CHAIN_OR_DUPLICATE` bucket) and Revenant's Release Potential: Warrior (`77896`, `REASON_MECHANIC_CHAIN_OR_DUPLICATE` bucket) — not independently equippable.";
 
 // --- Healing/Barrier skill pool ---
 
@@ -128,12 +132,13 @@ const HEALING_BARRIER_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ),
   ...bucket(
     [
-      5595, 9120, 14528, 15072, 29082, 29114, 30032, 41537, 43136, 43701, 44617, 44626, 44885,
-      46600, 46750, 51713, 62603, 69244, 71875, 71922, 71932, 71950, 72029, 72089, 76552, 76601,
-      76702, 76811, 76960, 77077, 77306, 80203, 80252, 80985,
+      5595, 9120, 29082, 29114, 30032, 41537, 43136, 43701, 44617, 44626, 44885, 46600, 46750,
+      51713, 62603, 69244, 76552, 76601, 76702, 76811, 76960, 77077, 77306, 80985,
     ],
     REASON_NEW_CONTENT_SKILL,
   ),
+  ...bucket([14528], REASON_VARIANT_COLLAPSE),
+  ...bucket([15072], REASON_BUNDLE_DUPLICATE),
   ...bucket([9095, 9210, 10560, 10594, 10643, 30504], REASON_DOWNED),
   ...bucket(
     [

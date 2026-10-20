@@ -8988,6 +8988,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1394,
     },
   ],
+  "71875": [
+    {
+      "label": "Healing",
+      "value": 3225,
+    },
+  ],
   "71882": [
     {
       "label": "Initial Heal",
@@ -9022,6 +9028,48 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1916,
     },
   ],
+  "71922": [
+    {
+      "label": "Level 1 Healing",
+      "value": 2475,
+    },
+    {
+      "label": "Level 2 Healing",
+      "value": 3825,
+    },
+    {
+      "label": "Level 3 Healing",
+      "value": 5175,
+    },
+  ],
+  "71932": [
+    {
+      "label": "Level 1 Healing",
+      "value": 2475,
+    },
+    {
+      "label": "Level 2 Healing",
+      "value": 3825,
+    },
+    {
+      "label": "Level 3 Healing",
+      "value": 5175,
+    },
+  ],
+  "71950": [
+    {
+      "label": "Level 1 Healing",
+      "value": 2475,
+    },
+    {
+      "label": "Level 2 Healing",
+      "value": 3825,
+    },
+    {
+      "label": "Level 3 Healing",
+      "value": 5175,
+    },
+  ],
   "71965": [
     {
       "label": "Healing",
@@ -9050,10 +9098,30 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1725,
     },
   ],
+  "72029": [
+    {
+      "label": "Level 1 Healing",
+      "value": 2475,
+    },
+    {
+      "label": "Level 2 Healing",
+      "value": 3825,
+    },
+    {
+      "label": "Level 3 Healing",
+      "value": 5175,
+    },
+  ],
   "72033": [
     {
       "label": "Healing per Unique Condition",
       "value": 98,
+    },
+  ],
+  "72089": [
+    {
+      "label": "Level 1 Healing",
+      "value": 2475,
     },
   ],
   "72389": [
@@ -9286,6 +9354,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 7920,
     },
   ],
+  "80203": [
+    {
+      "label": "Healing",
+      "value": 950,
+    },
+    {
+      "label": "Healing per Bleeding Stack",
+      "value": 131,
+    },
+  ],
   "80228": [
     {
       "label": "Minimum Healing",
@@ -9294,6 +9372,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Maximum Healing",
       "value": 9003,
+    },
+  ],
+  "80252": [
+    {
+      "label": "Healing",
+      "value": 950,
+    },
+    {
+      "label": "Healing per Bleeding Stack",
+      "value": 131,
     },
   ],
   "9080": [

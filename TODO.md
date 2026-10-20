@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 2
+### [Healing/Barrier/Siphon Coefficient Sweep Refresh] — Leg 3
 Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 50 distinct equippable
 skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric
 Predation #80985, carries both an uncovered Healing- and an uncovered Siphon-shaped fact, so it's
@@ -37,10 +37,28 @@ Goggles curated into `CURATED_BARRIER_COEFFICIENTS` too, **correcting** that tab
 "left uncurated" finding — the current wikitext documents the Barrier value in Mechanics-section
 prose that the original sweep apparently missed (no version-history entry to confirm whether it's a
 quiet wiki edit since or always there). Hard Light Arena logged as a new Known Exception (flat
-value, no `coefficient=` param, same shape as Arcane Brilliance's Combo Healing). 34 ids remain
-across the other 7 professions (e.g. Bloodthirster, Path to Victory, Willbender Flames, Buoyant
-Deluge, Exalted Hammer, Harmonious Harp; full id list in `coefficient-completeness.test.ts`'s
-`NEW_CONTENT_SKILL`-bucketed exclusion entries).
+value, no `coefficient=` param, same shape as Arcane Brilliance's Combo Healing).
+Leg 2 (2026-10-20) wiki-verified the Warrior cluster (3 unique skill names, 7 ids): Rampart Splitter
+(Berserker Primal Burst), Path to Victory (Spellbreaker, 5 ids sharing one wiki page, PvE+WvW
+grouped against a separate PvP value for all 3 charge tiers), and Bloodthirster (2 of its 5 ids are
+independently equippable, the other 3 already excluded as chain duplicates) all curated into
+`CURATED_HEALING_COEFFICIENTS`. Also resolved 2 non-Warrior ids the scan had mis-bucketed as new
+content: Banner of Defense's wiki-canonical id `14528` is a `skill-variants.ts` ground-target
+collapse of Barrier-already-curated `14570` (not new — re-bucketed to a new
+`REASON_VARIANT_COLLAPSE` reason), and Engineer's Super Elixir `15072` is a genuinely unreachable
+duplicate id absent from Elixir Gun's own `bundleSkills` array, same "stale duplicate" shape as
+Dawn's Repose/Release Potential: Warrior (re-bucketed to a new `REASON_BUNDLE_DUPLICATE` reason).
+**Flagged, not fixed this leg**: while investigating Super Elixir's reachability, found that its
+*already-curated* sibling id `15072`'s neighbor, id `6046` (one of the 4 ids
+`CURATED_HEALING_COEFFICIENTS` has carried since the original 2026-08 sweep), has the exact same
+unreachability problem — not in Elixir Gun's `bundleSkills`, no flip/toolbelt path either. Dead
+entry, not a wrong-value bug (never rendered either way), but worth a dedicated look.
+24 ids remain across the other 6 professions (e.g. Willbender Flames, Buoyant Deluge, Exalted
+Hammer, Harmonious Harp, Lively Lute, Bow of Truth — several of these are same-name id pairs that
+may hide more variant-collapse/bundle-duplicate false positives like this leg's two, not necessarily
+24 genuinely new skills; check `skill-variants.ts`/`bundle-skills.ts` reachability before assuming
+"new content" the way this leg's correction did). Full id list in
+`coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL`-bucketed exclusion entries.
 Done check: each id wiki-verified and either added to the relevant curated table or logged as a new
 Known Exception; `coefficient-completeness.test.ts`'s `NEW_CONTENT_SKILL` exclusions shrink
 accordingly.
