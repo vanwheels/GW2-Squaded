@@ -15,6 +15,20 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 2 (2026-10-19)
+Wiki-verified all 20 Catalyst "Deploy Jade Sphere" ids the Coefficient-Table Completeness Test's
+Leg 2 scan found uncurated (4 attunements — fire/water/air/earth — x 5 ids each). Each attunement's
+own wiki page (the base skill name is a disambiguation page) documents an identical
+`weapon=unequipped`, 0.25 PvE / 0.01 WvW+PvP coefficient, confirmed via raw wikitext on all 4 pages
+rather than assumed from one. Added all 20 to `CURATED_DAMAGE_COEFFICIENTS` using the WvW value per
+this table's standing convention — no Known Exceptions needed this leg. Each page's own `id =`
+comment names only 4 of its 5 ids (base, "no energy id", "underwater", "sphere specialist"); the
+5th (75395 fire, 75392 water, 75394 air, 75407 earth) isn't named in any comment but carries the
+identical, ungated Damage fact as its documented siblings, so it was curated the same way rather
+than excluded. 114 of the original 176-id Leg 2 find remain, re-split by mechanic family under the
+same TODO item, now Leg 3. Full suite (625 tests), lint, and typecheck all pass. See commit
+dcaa821936a2f6a803060c0d4c901fedfe771d82.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 1 (2026-10-19)
 Wiki-verified all 42 Ranger Soulbeast Beastmode F1-F3 skill ids the Coefficient-Table Completeness
 Test's Leg 2 scan found uncurated (one per equipped pet family, `data/game-data/soulbeast-
