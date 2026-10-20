@@ -340,12 +340,21 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Necromancer — Resilient Weapon (Ritualist). PvE/WvW split (PvE 1092/0.28 vs WvW 1412/0.2) — WvW
   // value used.
   77259: [{ factText: 'Healing per Second', baseValue: 1412, coefficient: 0.2 }],
-  // Ranger — Water Spirit. WvW split used (PvE was 3002/0.4). Originally also keyed to 69244 (the id
-  // the picker's GroundTargeted signal picked, sharing identical facts with 21773) — the full
-  // skill-picker duplicate-id audit (2026-08-04) found 69244 isn't the wiki-documented id, same
-  // shape as its 5 sibling Spirits (Storm/Stone/Frost/Sun/Nature), all of which have an identical
-  // unexplained non-ground duplicate; moved to `skill-variant-exclusions.json`.
-  21773: [{ factText: 'Healing', baseValue: 1998, coefficient: 0.4 }],
+  // Ranger — Water Spirit. WvW split used (PvE was 3002/0.4). Keyed to 69244, NOT its GroundTargeted
+  // twin 21773, even though 21773 is the id the wiki infobox documents (re-confirmed via a fresh
+  // raw-wikitext pull this leg) — re-investigated by Healing/Barrier/Siphon Coefficient Sweep
+  // Refresh Leg 4 (2026-10-20) after the completeness scan flagged 69244 as uncurated "new content."
+  // This entry was originally keyed to 21773 by the 2026-08-04 skill-picker duplicate-id audit on
+  // that same "69244 isn't wiki-documented" reasoning, but `skill-variant-exclusions.json`'s own
+  // 2026-08-08 regeneration (commit ffcea5f, COMPLETED.md Session 118) superseded it: re-running
+  // `fetch-skill-duplicate-resolutions.ts` dropped 69244 from the exclusion file after confirming
+  // `skill-variants.ts`'s own GroundTargeted collapse (signal 4) already resolves this pair on its
+  // own, same as ~54 other ground-target/auto-target twins (Lightning Flash, every Necromancer Well,
+  // every Warrior Banner) where the wiki likewise documents only one twin's id. 69244 (the
+  // non-ground-targeted twin) is the id `visibleSkillsForSlot` actually surfaces today; 21773 is
+  // structurally unreachable (own exclusion entry in coefficient-completeness.test.ts) — this
+  // comment had gone stale after the Aug 8 regeneration without being updated to match.
+  69244: [{ factText: 'Healing', baseValue: 1998, coefficient: 0.4 }],
   // Ranger — Troll Unguent. No PvE/WvW split. factText fixed 2026-08-12 (found by the Tier 2
   // golden-snapshot build): live API capitalizes this fact "Health per Second" — was silently never
   // matching due to the lowercase "second", value unchanged.
@@ -375,6 +384,27 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   ],
   // Ranger — Soothing Breeze (Galeshot). No PvE/WvW split.
   77271: [{ factText: 'Healing', baseValue: 6520, coefficient: 1.0 }],
+  // Ranger — Soulbeast Beastmode F1-F3 (per-pet-family merge skills, `soulbeastBeastmodeBar` in
+  // profession-mechanic.ts). Wiki-verified against each skill's own "(soulbeast <family>)" page, not
+  // the base pet-skill page sharing the same name (different id, different coefficient) — found by
+  // Healing/Barrier/Siphon Coefficient Sweep Refresh Leg 4 (2026-10-20).
+  // Chomp (Drake family F1). No PvE/WvW split. Local API's cached base value (965) is stale — the
+  // wiki's own Version History documents a 2023-11-28 Drake Family patch raising it to 1285 (and the
+  // coefficient from 0.15 to 0.5); wiki value used.
+  41537: [{ factText: 'Heal per Hit', baseValue: 1285, coefficient: 0.5 }],
+  // Bite (Bear family F1). No PvE/WvW split.
+  43136: [{ factText: 'Healing', baseValue: 1607, coefficient: 0.5 }],
+  // Photosynthesize (Jacaranda F2). No PvE/WvW split.
+  43701: [{ factText: 'Healing', baseValue: 2572, coefficient: 0.5 }],
+  // Harmonic Cry (Moa family F1). No PvE/WvW split.
+  44617: [{ factText: 'Healing', baseValue: 1940, coefficient: 0.75 }],
+  // Spiritual Reprieve (shared F3, 10 pets). Wiki splits "pve wvw" (4235/1.74) from "pvp" (2400/1.25)
+  // — WvW groups with PvE here, the opposite of this table's usual PvE-vs-"pvp wvw" grouping
+  // convention — confirmed via the raw wikitext's own `game mode =` tags, not assumed.
+  44626: [{ factText: 'Healing', baseValue: 4235, coefficient: 1.74 }],
+  // Chomp (Armor Fish F2) — shares its name with 41537's Drake-family F1 above but is a fully
+  // separate id/wiki page/coefficient. No PvE/WvW split.
+  44885: [{ factText: 'Healing', baseValue: 1960, coefficient: 0.1 }],
   // Revenant — Empowering Misery (28219 core Revenant Legend skill; 78681 is its
   // specializationId-79 "Conduit" variant). Both ids share identical facts. No split found.
   28219: [

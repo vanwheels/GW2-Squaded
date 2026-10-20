@@ -119,6 +119,10 @@ const REASON_BUNDLE_DUPLICATE =
   "Stale/non-canonical duplicate id for a Kit weapon-slot skill — not present in the kit's own `bundleSkills` array (`bundle-skills.ts`'s `resolveSkillBarIds` can never resolve to it under any environment), and not the wiki infobox's own `id=` either. Same 'duplicate id, no reachability path' shape as Thief's Dawn's Repose (`63227`, `REASON_WEAPON_CHAIN_OR_DUPLICATE` bucket) and Revenant's Release Potential: Warrior (`77896`, `REASON_MECHANIC_CHAIN_OR_DUPLICATE` bucket) — not independently equippable.";
 const REASON_LEGEND_SKILL_DUPLICATE =
   "Structurally unreachable orphan id for a Legend facet/consume skill — `legends.json`'s Legend6 (Glint) entry references the LIVE sibling id instead (`27025`/`27356` respectively, both already in `CURATED_HEALING_COEFFICIENTS`), same shape as `healing-calc.ts`'s own header comment on those two entries. Already investigated and closed as a TODO.md Known Exception 2026-08-13 (not a fresh find this leg) — re-bucketed from `REASON_NEW_CONTENT_SKILL` by Healing/Barrier/Siphon Coefficient Sweep Refresh Leg 3, same 'id-blind scan false positive' shape as Leg 2's Banner of Defense/Super Elixir re-bucketing.";
+const REASON_GROUND_TARGET_DUPLICATE =
+  "GroundTargeted twin (id 21773) of an already-curated, byte-identical-facts non-ground-targeted sibling (69244, Water Spirit, in `CURATED_HEALING_COEFFICIENTS`) — `skill-variants.ts`'s GroundTargeted collapse (signal 4) resolves this pair to the non-ground-targeted id, same shape as ~54 other such pairs (Lightning Flash, every Necromancer Well, every Warrior Banner). The wiki infobox happens to document only this id, not its sibling, but `skill-variant-exclusions.json`'s own 2026-08-08 regeneration (commit ffcea5f) confirmed signal 4 already resolves the group correctly without needing a wiki-sourced override — re-bucketed from `REASON_NEW_CONTENT_SKILL` (which had drifted onto the wrong id, 69244) by Healing/Barrier/Siphon Coefficient Sweep Refresh Leg 4, see `healing-calc.ts`'s own Water Spirit comment for the full history.";
+const REASON_SOULBEAST_BEASTMODE_UNREACHABLE =
+  "Soulbeast F2 id (specializationId 55, slot Profession_2, Vampiric Predation) absent from every pet's `f2SkillId` in `data/game-data/soulbeast-beastmode.json` — `soulbeastBeastmodeBar` (`profession-mechanic.ts`) only ever surfaces an id present in that per-pet map, so this id has no reachability path for any equipped pet, same 'no reachability path, not independently equippable' shape as `REASON_BUNDLE_DUPLICATE`. No sibling id shares this skill's name to re-point to either. Found by Healing/Barrier/Siphon Coefficient Sweep Refresh Leg 4 (2026-10-20) while wiki-verifying the Ranger cluster.";
 
 // --- Healing/Barrier skill pool ---
 
@@ -133,15 +137,14 @@ const HEALING_BARRIER_SKILL_EXCLUDED_IDS: Record<number, string> = {
     REASON_ORPHAN,
   ),
   ...bucket(
-    [
-      5595, 9120, 30032, 41537, 43136, 43701, 44617, 44626, 44885, 46600, 46750, 62603, 69244,
-      76552, 76601, 76702, 76811, 76960, 77077, 77306, 80985,
-    ],
+    [5595, 9120, 30032, 46600, 46750, 62603, 76552, 76601, 76702, 76811, 76960, 77077, 77306],
     REASON_NEW_CONTENT_SKILL,
   ),
   ...bucket([14528], REASON_VARIANT_COLLAPSE),
   ...bucket([15072], REASON_BUNDLE_DUPLICATE),
   ...bucket([29082, 29114], REASON_LEGEND_SKILL_DUPLICATE),
+  ...bucket([21773], REASON_GROUND_TARGET_DUPLICATE),
+  ...bucket([80985], REASON_SOULBEAST_BEASTMODE_UNREACHABLE),
   ...bucket([9095, 9210, 10560, 10594, 10643, 30504], REASON_DOWNED),
   ...bucket(
     [
@@ -172,7 +175,7 @@ const SIPHON_SKILL_COVERED_IDS = new Set<number>(
 
 const SIPHON_SKILL_EXCLUDED_IDS: Record<number, string> = {
   ...bucket([10632, 12424, 55050, 72369, 76497], REASON_KNOWN_EXCEPTION),
-  ...bucket([80985], REASON_NEW_CONTENT_SKILL),
+  ...bucket([80985], REASON_SOULBEAST_BEASTMODE_UNREACHABLE),
 };
 
 // --- Healing trait pool (Barrier/Siphon have no trait-keyed table at all, see file header) ---
