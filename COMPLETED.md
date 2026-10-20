@@ -15,6 +15,18 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 14 (2026-10-20)
+Swept the 7-id cluster Leg 12 had mislabeled "racial Elite-transform command-skill cluster" —
+wiki-verified, and all 7 (Throw Gunk x2, Branch Leap, Throw Chain, Ice Shard Stab, Mace Head Crack,
+Essence Sap) turned out to be Thief's core Steal "stolen skill" F2 candidates instead, already fully
+wired for every other fact type via `thief-stolen-skill.ts` — just never curated for Damage. 6 of 7
+curated (all `weapon=unequipped`; Ice Shard Stab and Essence Sap each had a PvE/WvW split, WvW
+used); the 7th (Throw Gunk's second id, 45094) is a pre-existing same-named orphan duplicate already
+documented in `profession-mechanic.ts`, moved into the completeness test's existing
+`REASON_SAME_NAME_SIBLING_CURATED` bucket rather than treated as new. Golden coefficient snapshot
+updated (6 new entries). Full suite (629 tests), lint, and typecheck all pass. See commit
+e9533dc6516171c5ab3af052cf01600c2e60a9e4.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 13 (2026-10-20)
 Identified and swept the Guardian cluster Leg 12 left "not yet wiki-identified by spec": 2 Firebrand
 Utility ammo skills (Echo of Truth 42360, Flame Rush 45082 — specializationId 62 confirms
