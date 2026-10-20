@@ -3393,6 +3393,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1193,
     },
   ],
+  "42809": [
+    {
+      "label": "Damage",
+      "value": 1067,
+    },
+  ],
   "42836": [
     {
       "label": "Damage",
@@ -5509,6 +5515,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 682,
     },
   ],
+  "63094": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
   "63113": [
     {
       "label": "Damage",
@@ -5545,6 +5557,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 606,
     },
   ],
+  "63209": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
   "63210": [
     {
       "label": "Damage",
@@ -5561,6 +5579,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 8,
+    },
+  ],
+  "63258": [
+    {
+      "label": "Damage",
+      "value": 78,
     },
   ],
   "63275": [
@@ -7061,6 +7085,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 880,
+    },
+  ],
+  "80985": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "81024": [
+    {
+      "label": "Damage",
+      "value": 785,
     },
   ],
   "9080": [

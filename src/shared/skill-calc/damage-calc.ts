@@ -693,6 +693,19 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Untamed — Exploding Spores. `strikes=6` present -> wiki coefficients already totaled. PvE 3.498
   // vs. WvW+PvP grouped 2.64 — WvW value used.
   63157: [{ factText: 'Damage', coefficient: 2.64, weapon: 'unequipped' }],
+  // --- Damage Coefficient Sweep: Ranger Untamed's F1-F3 "Unleashed Ranger" skillbar (2026-10-19),
+  // Leg 12 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item. Unlike
+  // Soulbeast's Beastmode bar (varies per equipped pet species), Untamed's own wiki infobox tags
+  // these 3 ids `specialization = Untamed`/`mechanic slot = 1/2/3` with a single fixed id each,
+  // reused regardless of pet — confirmed via raw wikitext, not assumed from the name. All 3 WvW/PvP
+  // values used per this table's standing convention (PvE value noted in each comment).
+  // Venomous Outburst (F1). WvW/PvP 0.1 (PvE 1.0).
+  63209: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Rending Vines (F2). WvW/PvP 0.1 (PvE 1.3).
+  63258: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Enveloping Haze (F3). `strikes=5` present -> wiki coefficients already totaled. WvW/PvP 0.5
+  // (PvE 1.75).
+  63094: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
   // Galeshot — Mistral (id fixed, see block comment above). No split. The API duplicates the
   // "Damage" fact text twice on this id; harmless, `damageLinesForSkill` only checks a same-text
   // match exists.
@@ -4261,6 +4274,25 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   40588: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }],
   // Worldly Impact. WvW/PvP 1.36 (PvE 1.89).
   40729: [{ factText: 'Damage', coefficient: 1.36, weapon: 'unequipped' }],
+
+  // --- Damage Coefficient Sweep: Ranger Soulbeast, 3 more Beastmode-family ids (2026-10-19), Leg 12
+  // of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item. None of these 3 are
+  // in `data/game-data/soulbeast-beastmode.json`'s per-pet-family f1/f2/f3 registry (a newer pet
+  // species each, added after that registry was built) — found only because this leg's completeness
+  // scan flags any reachable id with an uncurated Damage fact, registry membership aside.
+  // Worldly Impact (Ferocious archetype, mechanic slot 3) — wiki's own infobox lists this id
+  // (42809) and the already-curated 40729 above on the SAME page/id field ("40729,42809"), same
+  // archetype-shared-page shape the Leg 1 Beastmode sweep already documented for Bite/Chomp/etc.
+  // Identical coefficient to its curated sibling (1.36 WvW/PvP, 1.89 PvE) confirmed via wikitext.
+  42809: [{ factText: 'Damage', coefficient: 1.36, weapon: 'unequipped' }],
+  // Vampiric Predation (soulbeast) — standalone wiki page (disambiguated from the bare "Vampiric
+  // Predation" page, id 80955, a different unrelated pet-cast skill not reachable here). WvW/PvP 1.0
+  // (PvE 1.5). Also carries a Siphon-Damage/Healing fact — out of this item's scope, tracked
+  // separately by TODO.md's [Healing/Barrier/Siphon Coefficient Sweep Refresh] item.
+  80985: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Enervate (soulbeast) — same standalone-disambiguated-page shape as Vampiric Predation above
+  // (bare "Enervate" page, id 81291, unrelated). WvW/PvP 1.0 (PvE 1.5).
+  81024: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
 
   // --- Damage Coefficient Sweep: Catalyst Deploy Jade Sphere (2026-10-19), Leg 2 of TODO.md's
   // [Damage Coefficient Sweep — New/Uncurated Skill Content] item. "Deploy Jade Sphere" is a wiki
