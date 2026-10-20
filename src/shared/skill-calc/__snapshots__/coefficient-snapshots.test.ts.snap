@@ -433,6 +433,26 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1709,
     },
   ],
+  "10190": [
+    {
+      "label": "Damage",
+      "value": 298,
+    },
+  ],
+  "10191": [
+    {
+      "label": "1 Clone",
+      "value": 785,
+    },
+    {
+      "label": "2 Clones",
+      "value": 1255,
+    },
+    {
+      "label": "3 Clones",
+      "value": 1648,
+    },
+  ],
   "10216": [
     {
       "label": "Damage",
@@ -4547,10 +4567,30 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1511,
     },
   ],
+  "56928": [
+    {
+      "label": "Damage",
+      "value": 298,
+    },
+  ],
   "5693": [
     {
       "label": "Damage",
       "value": 545,
+    },
+  ],
+  "56930": [
+    {
+      "label": "1 Clone",
+      "value": 523,
+    },
+    {
+      "label": "2 Clones",
+      "value": 836,
+    },
+    {
+      "label": "3 Clones",
+      "value": 1099,
     },
   ],
   "5696": [
@@ -5091,6 +5131,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1295,
     },
   ],
+  "62597": [
+    {
+      "label": "Damage",
+      "value": 275,
+    },
+  ],
+  "62602": [
+    {
+      "label": "Damage",
+      "value": 706,
+    },
+  ],
   "62607": [
     {
       "label": "Storm Damage",
@@ -5119,6 +5171,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 518,
+    },
+  ],
+  "62616": [
+    {
+      "label": "Strike Damage per Blade Spent",
+      "value": 392,
+    },
+  ],
+  "62617": [
+    {
+      "label": "Strike Damage per Blade Spent",
+      "value": 353,
     },
   ],
   "62621": [

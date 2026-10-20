@@ -3821,6 +3821,49 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // as Arc Divider/Slicing Maelstrom above.)
   44165: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
 
+  // --- Damage Coefficient Sweep: Mesmer core Shatter + Virtuoso Bladesong skills (2026-10-19), Leg 4
+  // of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item. All `weapon=unequipped`
+  // (profession-mechanic skills, same bucket as Spellbreaker's Full Counter above). 4 of these 8 ids
+  // also carry an Infinite Forge (trait 2206) requires_trait-gated override in the local API data —
+  // deliberately NOT curated here: Infinite Forge's own wiki page documents a flat +7%(PvE)/+10%(WvW+PvP)
+  // damage increase to all Bladesong skills, which cleanly reconstructs the API's trait-gated value for
+  // Bladeturn Requiem and Dissonance (base * 1.10 = WvW trait value) but NOT for Bladesong Sorrow (base
+  // 0.5 WvW * 1.10 = 0.55, not the API's 0.413) — an unreconciled 3rd-value disagreement, same
+  // "don't force a number when sources disagree" policy as Rampart Splitter below. Not the same gap
+  // TODO.md's [Trait-Side Damage Proc Tooltip Coverage] item tracks (that item is traits carrying
+  // their own Damage-type fact directly; Infinite Forge carries only a Percent "Damage Increase"
+  // fact that modifies other skills' Damage facts) — a one-off affecting a single skill's trait
+  // variant, not worth a dedicated TODO item over. Left uncurated for all 4 ids rather than curating
+  // 2 of 4 while skipping the other 2 inconsistently.
+  // Cry of Frustration — core Mesmer F2. No split.
+  10190: [{ factText: 'Damage', coefficient: 0.38, weapon: 'unequipped' }],
+  // Mind Wrack — core Mesmer F1. 3 independently-tiered Damage facts by clone count, each `strikes=`-
+  // totaled with a PvE/WvW+PvP split (1.15/1.0, 1.84/1.6, 2.415/2.1) — WvW+PvP used for all 3.
+  10191: [
+    { factText: '1 Clone', coefficient: 1.0, weapon: 'unequipped' },
+    { factText: '2 Clones', coefficient: 1.6, weapon: 'unequipped' },
+    { factText: '3 Clones', coefficient: 2.1, weapon: 'unequipped' },
+  ],
+  // Rewinder — Mirage's F2 replacement for Cry of Frustration. Same 0.38, no split.
+  56928: [{ factText: 'Damage', coefficient: 0.38, weapon: 'unequipped' }],
+  // Split Second — Mirage's F1 replacement for Mind Wrack. Unlike Mind Wrack, each tier has an
+  // independent 3-way pve/wvw/pvp split (not wvw+pvp grouped) — WvW used for all 3.
+  56930: [
+    { factText: '1 Clone', coefficient: 0.666, weapon: 'unequipped' },
+    { factText: '2 Clones', coefficient: 1.066, weapon: 'unequipped' },
+    { factText: '3 Clones', coefficient: 1.4, weapon: 'unequipped' },
+  ],
+  // Bladeturn Requiem — Virtuoso F5 (elite shatter-skill replacement). PvE/WvW+PvP split 0.5/0.35 —
+  // WvW+PvP used.
+  62597: [{ factText: 'Damage', coefficient: 0.35, weapon: 'unequipped' }],
+  // Bladesong Dissonance — Virtuoso F3. PvE/WvW+PvP split 1.0/0.9 — WvW+PvP used.
+  62602: [{ factText: 'Damage', coefficient: 0.9, weapon: 'unequipped' }],
+  // Bladesong Sorrow — Virtuoso F2. PvE/WvW+PvP split 0.38/0.5 — WvW+PvP used (WvW higher than PvE
+  // here, confirmed directly via raw wikitext, not a paraphrase error).
+  62616: [{ factText: 'Strike Damage per Blade Spent', coefficient: 0.5, weapon: 'unequipped' }],
+  // Bladesong Harmony — Virtuoso F1. PvE/WvW+PvP split 0.7/0.45 — WvW+PvP used.
+  62617: [{ factText: 'Strike Damage per Blade Spent', coefficient: 0.45, weapon: 'unequipped' }],
+
   // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
   // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
   // a dated version-history entry 2024-02-27) disagree outright — not a per-hit/totaled ambiguity like

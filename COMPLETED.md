@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 4 (2026-10-19)
+Wiki-verified the Mesmer core Shatter + Virtuoso Bladesong family named in the Leg 3 remainder:
+Cry of Frustration/Mind Wrack (core F2/F1), Rewinder/Split Second (Mirage's replacements for them),
+and Bladeturn Requiem/Dissonance/Sorrow/Harmony (Virtuoso F5/F3/F2/F1). All 8 added to
+`CURATED_DAMAGE_COEFFICIENTS` (WvW values; Mind Wrack/Split Second each needed 3 clone-count-tiered
+entries rather than 1). 4 of the 8 also carry an Infinite Forge (trait 2206) requires_trait-gated
+override in the local API data; left uncurated for all 4 rather than partially — Infinite Forge's
+documented flat +7%/+10% PvE/WvW bonus cleanly reconstructs 2 of the 4 (Bladeturn Requiem,
+Dissonance) but not the 3rd (Bladesong Sorrow), an unreconciled source disagreement.
+Also recategorized Rampart Splitter (71875) out of the generic new-content exclusion bucket into
+its own Known Exception reason — its PvE/WvW source-disagreement analysis already existed as a
+dated comment in `CURATED_DAMAGE_COEFFICIENTS` from before this sweep, it just was never actually
+logged to TODO.md despite the comment's own claim that it was; no re-investigation needed; a pure
+bookkeeping fix found while in the file for this leg's own reason-constant work.
+80 of the Leg 3 remainder's 89 ids left (minus these 8 curated and 1 recategorized), re-split by
+mechanic family under the same TODO item, now Leg 5. Full suite (625 tests), lint, and typecheck
+all pass. See commit <!-- commit hash pending -->.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 3 (2026-10-19)
 Wiki-verified the 25 Necromancer ids left in the Leg 2 find: Shroud-reuse Downed skillbar skills
 (vanilla Life Blast/Dark Water/Wave of Fear/Plague Blast, Reaper's Life Rend/Soul Spiral/Death's
