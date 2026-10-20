@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 9 (2026-10-19)
+Wiki-verified Elementalist Evoker's F5 "Familiar" bar: Conflagration (76585, Fire/fox), Seismic
+Impact (76707, Earth/toad), Lightning Blitz (77089, Air/hare) — Water's Buoyant Deluge (76811) is
+the bar's 4th slot but carries no Damage fact at all (already curated elsewhere as Healing). Only
+Lightning Blitz curated: no `strikes=` param, but a separate "Number of Hits" fact (5) plus the
+wiki's own Notes line ("0.28 coefficient on each of 5 hits, for a total of 1.4") confirmed the main
+fact's `coefficient=` is per-hit, not pre-totaled — WvW per-hit 0.1448 × 5 = 0.724 curated. The
+other 2 are new Known Exceptions (not stale pre-existing comments this time): Seismic Impact's own
+wiki page states outright its F5 version "deals no damage" even though the local API carries 2
+Damage facts for it anyway (stale, inherited from its elite-skill sibling 76681 "Elemental
+Procession," which does have a real Damage fact); Conflagration is `{{stub||damage coeff}}`-tagged
+with a fully-resolved PvE coefficient (`weapon=staff|coefficient=1.555`) but only a flat,
+undecomposed PvP+WvW tooltip number (562) — the gamemode this app curates for has nothing
+documented, an asymmetric variant of the Hex-Eater Vortex/Gladiator's Defense stub shape (those had
+zero coefficient in any mode). 3 ids resolved (1 curated, 2 excluded); golden coefficient snapshot
+updated (1 new Damage entry). Full suite (625 tests), lint, and typecheck all pass. See commit
+dce2ee2d6e25312b96745aad76b6d3ab97cfe9d2.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 8 (2026-10-19)
 Wiki-verified Mesmer Troubadour's F1-F5 bar: Lively Lute (76552, F1), Flustering Flute (76746, F2),
 Deafening Drum (77079, F3), Crescendo (76931, F5) — all curated. Found a new weapon-strength shape:
