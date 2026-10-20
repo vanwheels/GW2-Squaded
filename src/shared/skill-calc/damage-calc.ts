@@ -3905,6 +3905,33 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Bladesong Harmony — Virtuoso F1. PvE/WvW+PvP split 0.7/0.45 — WvW+PvP used.
   62617: [{ factText: 'Strike Damage per Blade Spent', coefficient: 0.45, weapon: 'unequipped' }],
 
+  // --- Damage Coefficient Sweep: Mesmer Troubadour F1-F5 bar (2026-10-19), Leg 8 of TODO.md's
+  // [Damage Coefficient Sweep — New/Uncurated Skill Content] item. Unlike every other profession-
+  // mechanic skillbar curated in this sweep (all `weapon=unequipped`), Lively Lute's own wiki
+  // Mechanics section states "If a weapon is equipped the damage uses a normalised weapon strength
+  // of 1034-1166[, i]f no weapons are equipped, the following weapon strength is used: 656-725" —
+  // 1100 and 690.5 are exactly this app's existing `hammer`/`unequipped` `WEAPON_STRENGTH_MIDPOINTS`
+  // entries. Its 3 siblings (Flustering Flute/Deafening Drum/Crescendo) skip the conditional
+  // phrasing and just tag `weapon=hammer` directly on their own Damage facts. Since every build this
+  // app models has a weapon equipped, `hammer` is used for all 4 skills (the realistic branch, and
+  // the one the siblings already commit to explicitly).
+  // Lively Lute — F1. `strikes=3` present -> wiki coefficient already totaled. PvE/WvW/PvP 3-way
+  // split 3.0/1.2/1.05 — WvW value used. Carries 2 "split ids" per `sources.ts`'s own boon-calc
+  // precedent for this skill (76552/77306 — identical Damage fact on both, no distinguishing API
+  // field) — both curated identically rather than picking one as canonical.
+  76552: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+  77306: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+  // Flustering Flute — F2. No `strikes=` param, single hit. PvE+WvW grouped 1.0 vs. PvP-only 0.6 —
+  // WvW groups with PvE here, 1.0 used.
+  76746: [{ factText: 'Damage', coefficient: 1.0, weapon: 'hammer' }],
+  // Deafening Drum — F3. No `strikes=` param, single hit. PvE/WvW+PvP split 2.0/0.75 — WvW value
+  // used.
+  77079: [{ factText: 'Damage', coefficient: 0.75, weapon: 'hammer' }],
+  // Crescendo — F5. No `strikes=` param, single hit. PvE/WvW+PvP split 2.25/1.0 — WvW value used.
+  // (Crescendo's separate Barrier fact is already curated in `barrier-calc.ts` — this is purely the
+  // Damage-side gap on an otherwise-supported skill.)
+  76931: [{ factText: 'Damage', coefficient: 1.0, weapon: 'hammer' }],
+
   // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
   // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
   // a dated version-history entry 2024-02-27) disagree outright — not a per-hit/totaled ambiguity like

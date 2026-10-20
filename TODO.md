@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 7
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 9
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -69,12 +69,20 @@ decides canonical" precedent as Supply Crate's stale 6183 duplicate), and the 2 
 skills in this same non-player-scaling shape (Grasping Vines, Seed Turret) that already had their own
 unlogged exclusion comment from the original Racial-slot sweep. No new `CURATED_DAMAGE_COEFFICIENTS`
 entries this leg (pure exclusion-map housekeeping) — golden coefficient snapshot unchanged. 12 ids
-resolved; shipped 2026-10-19 — see COMPLETED.md.
-Remaining 58 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
+resolved; shipped 2026-10-19 — see COMPLETED.md. Leg 8 (2026-10-19) swept Mesmer Troubadour's F1-F5
+bar (Lively Lute x2, Flustering Flute, Deafening Drum, Crescendo): all 5 ids curated. Found a new
+weapon-strength shape along the way — unlike every other profession-mechanic skillbar in this
+sweep (all `weapon=unequipped`), Lively Lute's own wiki page documents a conditional
+"weapon-equipped vs. not" branch (1034-1166 vs. 656-725 normalised weapon strength, exactly this
+app's existing `hammer`/`unequipped` `WEAPON_STRENGTH_MIDPOINTS` midpoints) while its 3 siblings
+just tag `weapon=hammer` directly — `hammer` used for all 4 skills since every build this app
+models has a weapon equipped. Also confirmed Lively Lute's 2 ids (76552/77306) are the "split id"
+pair `sources.ts`'s own boon-calc curation already names (identical Damage fact, no distinguishing
+API field) rather than a stale duplicate — both curated identically, not collapsed to one. No
+Known Exceptions this leg. Shipped 2026-10-19 — see COMPLETED.md.
+Remaining 53 ids, re-triaged 2026-10-19 after an initial "festival/novelty" mislabel (corrected —
 these are real mechanic-skill F-bars this app already supports for every other fact type, just not
-yet for Damage): Mesmer Troubadour's F1-F5 bar (Lively Lute x2, Flustering Flute, Deafening Drum,
-Crescendo — Crescendo's Barrier fact is already curated in `barrier-calc.ts`, so this is purely the
-Damage-side gap on an otherwise-supported spec), Elementalist Evoker's F5 Familiar bar (Conflagration,
+yet for Damage): Elementalist Evoker's F5 Familiar bar (Conflagration,
 Seismic Impact, Lightning Blitz), Thief's core "Steal" variant skills themed by stolen-from faction
 (Metal Legion Guitar, Zephyrite Sun Crystal x2, Exalted Hammer x2, Forged Surfer Dash x2, Holo-Dancer
 Decoy, Summon Kryptis Turret, Unstable Skritt Bomb, Mistburn Mortar), already-named elite specs'

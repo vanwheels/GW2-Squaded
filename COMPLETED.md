@@ -15,6 +15,24 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 8 (2026-10-19)
+Wiki-verified Mesmer Troubadour's F1-F5 bar: Lively Lute (76552, F1), Flustering Flute (76746, F2),
+Deafening Drum (77079, F3), Crescendo (76931, F5) — all curated. Found a new weapon-strength shape:
+unlike every other profession-mechanic skillbar curated so far in this sweep (all
+`weapon=unequipped`), Lively Lute's own wiki page documents a conditional "weapon-equipped vs. not"
+branch in its Mechanics section ("If a weapon is equipped the damage uses a normalised weapon
+strength of 1034-1166[, i]f no weapons are equipped, the following weapon strength is used:
+656-725") — those two ranges' midpoints (1100, 690.5) are exactly this app's existing
+`hammer`/`unequipped` `WEAPON_STRENGTH_MIDPOINTS` entries, and its 3 siblings skip the conditional
+phrasing and tag `weapon=hammer` directly on their own Damage facts. Since every build this app
+models has a weapon equipped, `hammer` was used for all 4 skills rather than `unequipped`. Also
+confirmed Lively Lute carries 2 ids (76552/77306, identical Damage fact, no distinguishing API
+field) matching the "split id" pair `sources.ts`'s own boon-calc curation (Might/Quickness grants)
+already names for this exact skill — both curated identically rather than treating one as a stale
+duplicate, which would have silently left the other's live tooltip uncovered. No Known Exceptions
+this leg. 5 ids resolved; golden coefficient snapshot updated (4 new Damage entries). Full suite
+(625 tests), lint, and typecheck all pass. See commit <leg-8-hash>.
+
 ### Damage Coefficient Sweep — New/Uncurated Skill Content — Leg 7 (2026-10-19)
 Wiki-verified the "base Engineer turret-deploy skills" cluster TODO.md had already named: Rifle
 Turret (5818), Flame Turret (5836), Thumper Turret (5838), Rocket Turret (5912), and Harpoon Turret
