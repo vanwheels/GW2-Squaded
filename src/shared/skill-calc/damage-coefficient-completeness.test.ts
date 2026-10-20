@@ -44,8 +44,11 @@ import { CURATED_DAMAGE_COEFFICIENTS } from './damage-calc';
  *   with an equippable sibling, or a literal (profession, weapon-or-mechanic-slot, name) group
  *   whose other member is already curated) — `SAME_NAME_SIBLING_CURATED`/`SUB_ABILITY`/
  *   `FLIP_TARGET`/`WEAPON_SLOT_DUPLICATE`/`MECH_SLOT_DUPLICATE` below.
- * - 42 are Ranger Soulbeast's Beastmode F1-F3 skills (`data/game-data/soulbeast-beastmode.json`) —
+ * - 42 were Ranger Soulbeast's Beastmode F1-F3 skills (`data/game-data/soulbeast-beastmode.json`) —
  *   a real, equippable per-pet-family mechanic skillbar never swept for Damage coefficients before.
+ *   Resolved as Leg 1 of that TODO item (2026-10-19): 40 wiki-verified and added to
+ *   `CURATED_DAMAGE_COEFFICIENTS`, 2 (Siege Turtle's Slam/Heavy Shot) logged as Known Exceptions —
+ *   `REASON_NO_PET_WEAPON_STRENGTH` below.
  * - 134 are genuine new/uncurated content spanning several distinct, previously-unswept mechanics
  *   (Necromancer Reaper/Scourge/Harbinger Shroud skillbars, Mesmer Shatter/Virtuoso Bladesong
  *   skills, Catalyst's "Deploy Jade Sphere" overloads, Engineer Mechanist Mech Core skills,
@@ -187,8 +190,8 @@ const REASON_WEAPON_SLOT_DUPLICATE =
   'A second id `professions.json` lists for the exact same (profession, weapon, slot) triple whose sibling id already has a curated entry — a land/underwater or dual-wield-offhand duplicate, not a separately-equippable skill.';
 const REASON_MECH_SLOT_DUPLICATE =
   "A second id sharing both the exact same (profession, profession-mechanic slot) AND the exact same skill name as an already-curated sibling — a rework/duplicate-tier id for the same mechanic skill, not a genuinely different one (unlike most same-slot ids, which differ by equipped weapon, e.g. Warrior's Burst skill).";
-const REASON_BEASTMODE_NEW_CONTENT =
-  "Ranger Soulbeast Beastmode F1-F3 skill (`data/game-data/soulbeast-beastmode.json`) — a real, equippable per-pet-family mechanic skillbar never swept for Damage coefficients before this leg. Deferred to TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than wiki-verified inline.";
+const REASON_NO_PET_WEAPON_STRENGTH =
+  "Ranger Soulbeast Beastmode F1-F3 skill (`data/game-data/soulbeast-beastmode.json`), wiki-verified 2026-10-19 (Leg 1 of TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content]) — unlike every other Beastmode skill in this pet family (confirmed via its siblings, all plain `weapon=unequipped`), this id's own wiki page tags its Damage fact `weapon=pet`/leaves `weapon=` unspecified, and `pet` has no entry in `WEAPON_STRENGTH_MIDPOINTS`: the wiki's own Weapon Strength page says pet skills \"use their own weapon strengths\" (per-species, not a single constant like `unequipped`/`kit`/`conjure`), so no number can be curated without fabricating one.";
 const REASON_NEW_CONTENT_SKILL =
   "Equippable skill with a real, uncurated Damage coefficient — found by this leg's scan, spanning several distinct previously-unswept mechanics (Shroud skillbars, Mesmer Shatter/Bladesong, Jade Sphere, Mech Core, Revenant legend-swaps, minion-summon tooltips, festival skills). Deferred to TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than triaged per-family inline.";
 
@@ -221,15 +224,7 @@ const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
     [14506, 41746, 71922, 71950, 72029, 72911, 73006, 73024, 73042],
     REASON_MECH_SLOT_DUPLICATE,
   ),
-  ...bucket(
-    [
-      40111, 40255, 40588, 40625, 40729, 41206, 41537, 41575, 41837, 41908, 42797, 42894, 42907,
-      43068, 43136, 43375, 43548, 43726, 44097, 44384, 44885, 45743, 46386, 46432, 64038, 64699,
-      64882, 66258, 67382, 70889, 71282, 71546, 72636, 72851, 73733, 73938, 75771, 75814, 78091,
-      79203, 80031, 80035,
-    ],
-    REASON_BEASTMODE_NEW_CONTENT,
-  ),
+  ...bucket([64699, 66258], REASON_NO_PET_WEAPON_STRENGTH),
   ...bucket(
     [
       1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 5818, 5836, 5838, 5912, 5987, 5989, 5990,

@@ -3978,6 +3978,92 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // `boon-calc/sources.ts`'s own comment near `LEGEND_FORM_FACT_SKILL_IDS` for the full writeup,
   // including why Found Purpose was deliberately NOT added the same way.
   77371: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped', requiresTrait: 2429 }],
+
+  // --- Damage Coefficient Sweep: Ranger Soulbeast Beastmode (2026-10-19), Leg 1 of TODO.md's
+  // [Damage Coefficient Sweep — New/Uncurated Skill Content] item. F1-F3 merged-pet skills
+  // (`data/game-data/soulbeast-beastmode.json`), one wiki page per pet family even when several
+  // families share the same skill id. All wiki-verified via raw wikitext against each page's own
+  // `| id = ` field (several plain names — Bite, Chomp, Tail Lash, Brutal Charge, Charge, Dash,
+  // Slam — are wiki disambiguation pages or default to a same-named base ranger pet skill with a
+  // different id; the correct page in each such case is `<Name> (soulbeast)` or
+  // `<Name> (soulbeast <family>)`). PvE/WvW-PvP split skills use the WvW value per this table's
+  // standing convention. 2 ids (64699 Slam, 66258 Heavy Shot — both Siege Turtle) deferred as Known
+  // Exceptions rather than curated here: both carry a `weapon=pet`/unspecified-weapon tag on their
+  // soulbeast page unlike every other Beastmode skill's `weapon=unequipped` (confirmed via Jade
+  // Cannon/Snap, this pet family's other 2 Beastmode skills, both plain `unequipped`), and `pet` has
+  // no entry in `WEAPON_STRENGTH_MIDPOINTS` — the wiki's own Weapon Strength page confirms pet
+  // skills "use their own weapon strengths" (per-species, unlike the single-constant `unequipped`/
+  // `kit`/`conjure` buckets), so no number can be curated without fabricating one.
+  40625: [{ factText: 'Damage', coefficient: 0.98, weapon: 'unequipped' }], // Bite (feline)
+  43136: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }], // Bite (bear)
+  41537: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }], // Chomp (drake)
+  44885: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }], // Chomp (armorfish)
+  // Tail Lash (devourer). WvW/PvP 0.01 (PvE 0.5).
+  43068: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  46386: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }], // Tail Lash (Wyvern)
+  // Brutal Charge (canine). WvW/PvP 0.01 (PvE 0.64).
+  42894: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Brutal Charge (porcine). WvW/PvP 0.01 (PvE 0.67).
+  46432: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Narcotic Spores. `strikes=6` present -> wiki coefficient already totaled.
+  40111: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Smoke Assault. WvW/PvP 0.35 (PvE 0.5).
+  40255: [{ factText: 'Damage', coefficient: 0.35, weapon: 'unequipped' }],
+  41575: [{ factText: 'Damage', coefficient: 1.3, weapon: 'unequipped' }], // Tail Swipe
+  // Rain of Spikes. WvW/PvP 0.4 (PvE 1.0).
+  41206: [{ factText: 'Damage', coefficient: 0.4, weapon: 'unequipped' }],
+  41837: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }], // Dark Water
+  // Wing Buffet. WvW/PvP 0.01 (PvE 0.3).
+  41908: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Charging Bite. `strikes=7` present -> wiki coefficient already totaled.
+  42797: [{ factText: 'Damage', coefficient: 1.54, weapon: 'unequipped' }],
+  42907: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }], // Takedown
+  43726: [{ factText: 'Damage', coefficient: 0.98, weapon: 'unequipped' }], // Crippling Leap
+  44097: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }], // Entangling Web
+  44384: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }], // Crippling Anguish
+  // Frenzied Attack. `strikes=5` present -> wiki coefficient already totaled.
+  43548: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Charge (Rock Gazelle) — 2 distinctly-named Damage facts (wiki `alt=` labels), neither
+  // game-mode-split.
+  45743: [
+    { factText: 'Travel Damage', coefficient: 0.565, weapon: 'unequipped' },
+    { factText: 'Impact Damage', coefficient: 1.13, weapon: 'unequipped' },
+  ],
+  64038: [{ factText: 'Damage', coefficient: 1.1, weapon: 'unequipped' }], // Dash (Phoenix)
+  64882: [{ factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' }], // Undead Plague
+  // Phase Pounce. `strikes=2` present -> wiki coefficient already totaled.
+  67382: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Ley-Line Vortex. `strikes=8` present -> wiki coefficient already totaled.
+  70889: [{ factText: 'Damage', coefficient: 2.8, weapon: 'unequipped' }],
+  71282: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }], // Lunge
+  // Spit Goop (Sky-Chak Striker) — wiki's own `weapon=hammer`, not `unequipped` like every other
+  // Beastmode skill in this leg; used as literally given rather than assumed.
+  71546: [{ factText: 'Damage', coefficient: 1.0, weapon: 'hammer' }],
+  // Tormenting Visions. `strikes=4` present -> wiki coefficient already totaled.
+  72636: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  72851: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }], // Staring Void
+  73733: [{ factText: 'Damage', coefficient: 1.75, weapon: 'unequipped' }], // Battle Maul
+  // Bop. WvW/PvP 0.01 (PvE 1.5).
+  73938: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Bumble. WvW/PvP 0.01 (PvE 1.0).
+  75771: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Stinging Sorrow. `strikes=5` present -> wiki coefficient already totaled; PvE+WvW 1.5 (PvP-only
+  // split 1.0, not used — this app is WvW-focused).
+  75814: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Leaping Lizard. WvW/PvP 1.43 (PvE 2.2).
+  78091: [{ factText: 'Damage', coefficient: 1.43, weapon: 'unequipped' }],
+  // Saurian Might. WvW/PvP 1.54 (PvE 2.2).
+  79203: [{ factText: 'Damage', coefficient: 1.54, weapon: 'unequipped' }],
+  80031: [{ factText: 'Damage', coefficient: 1.3, weapon: 'unequipped' }], // Tail Whip
+  // Jet — wiki tags this page `{{stub|skill|missing gamemode split}}`; only one coefficient is
+  // documented at all, used as-is rather than guessed. Recheck if the wiki fills in a split.
+  80035: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Prelude Lash. WvW/PvP 0.01 (PvE 0.4).
+  43375: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Primal Cry. `strikes=3` present -> wiki coefficient already totaled.
+  40588: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }],
+  // Worldly Impact. WvW/PvP 1.36 (PvE 1.89).
+  40729: [{ factText: 'Damage', coefficient: 1.36, weapon: 'unequipped' }],
 };
 
 export interface DamageLine {
