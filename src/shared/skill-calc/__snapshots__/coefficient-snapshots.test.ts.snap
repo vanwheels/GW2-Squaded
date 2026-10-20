@@ -3355,6 +3355,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 2746,
     },
   ],
+  "42360": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
   "42379": [
     {
       "label": "Initial Strike",
@@ -3761,6 +3767,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 545,
+    },
+  ],
+  "45082": [
+    {
+      "label": "Damage",
+      "value": 235,
     },
   ],
   "45160": [
@@ -5209,10 +5221,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1569,
     },
   ],
+  "62648": [
+    {
+      "label": "Initial Damage",
+      "value": 785,
+    },
+  ],
   "62650": [
     {
       "label": "Damage",
       "value": 1136,
+    },
+  ],
+  "62668": [
+    {
+      "label": "Impact Damage",
+      "value": 942,
     },
   ],
   "62683": [
@@ -7283,6 +7307,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 392,
+    },
+  ],
+  "9187": [
+    {
+      "label": "Damage",
+      "value": 942,
     },
   ],
   "9189": [

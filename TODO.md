@@ -22,7 +22,7 @@ Done when:
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 13
+### [Damage Coefficient Sweep — New/Uncurated Skill Content] — Leg 14
 Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
 id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carried a real,
 uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
@@ -192,8 +192,29 @@ underwater weapon skill), Revenant's Burst of Strength + Scorchrazor (2), Engine
 Function Gyro dup ids (3), and the racial Elite-transform command-skill cluster (Throw Gunk x2/
 Branch Leap/Throw Chain/Ice Shard Stab/Mace Head Crack/Essence Sap, 7, professions: [] shared
 across races). Full id list in `damage-coefficient-completeness.test.ts`'s own exclusion map.
+
+Leg 13 (2026-10-20) identified and swept the Guardian cluster named above: 2 Firebrand Utility
+(ammo) skills (Echo of Truth 42360, Flame Rush 45082 — specializationId 62 confirms Firebrand),
+1 core Guardian Consecration (Purging Flames 9187), and the 2 Willbender Virtue mechanic skills
+(Crashing Courage 62648/F3, Rushing Justice 62668/F1). All 5 wiki-verified and curated, no Known
+Exceptions. Purging Flames' `strikes=6` wiki coefficient (1.2) matches local API's hit_count 6 *
+dmg_multiplier 0.2 exactly, confirming it's already totaled; its own `weapon=utility` param
+normalizes to `unequipped` per this file's existing Heal-slot sweep precedent. Echo of Truth/Flame
+Rush share the same shape (PvE 0.7/WvW+PvP 0.3, WvW used, `weapon=utility` -> `unequipped`).
+Crashing Courage has a single coefficient with no mode split. Rushing Justice surfaced a new
+within-skill shape: its local API carries 2 separate Damage facts both named "Impact Damage" (one
+per game mode) with no discriminator field — confirmed the correction mechanism only uses a
+curated entry's own factText to find *a* matching fact for existence/requires_trait gating, never
+to read the coefficient off the fact itself, so this resolves the same way every other PvE/WvW
+split entry does (pick the WvW value, 1.2 of PvE's 1.5) with no new infra needed. Golden
+coefficient snapshot updated (5 new entries, `coefficient-snapshots.test.ts.snap`). Full suite
+(629 tests), lint, and typecheck all pass.
+Remaining 20 ids: Mesmer Power Spike (1), Warrior's Spellbreaker Burst 6 (blocked on the wiki,
+re-check again before assuming more) + Mariner's Shot (1), Revenant's Burst of Strength +
+Scorchrazor (2), Engineer Scrapper's Function Gyro dup ids (3), and the racial Elite-transform
+command-skill cluster (7).
 Manual verification: no.
-Last touched: 2026-10-19. Re-checks: 0.
+Last touched: 2026-10-20. Re-checks: 0.
 
 ### [Release Potential: Warrior Barrier Coefficient Keyed to Orphaned Id]
 Found while wiki-verifying the Damage sweep's Leg 6 (2026-10-19): `CURATED_BARRIER_COEFFICIENTS`

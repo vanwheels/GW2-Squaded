@@ -4394,6 +4394,33 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // trait/blight-gated downed-1 variant, not wiki-attributed to a specific elite spec on its own
   // page). PvE/WvW+PvP split 0.75/0.6 — WvW used.
   77061: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+
+  // --- Damage Coefficient Sweep: Guardian cluster (2026-10-20), Leg 13 of TODO.md's [Damage
+  // Coefficient Sweep — New/Uncurated Skill Content] item. Resolves the 5-id "not yet
+  // wiki-identified by spec" cluster named in Leg 12's own re-triage note: 2 Firebrand Utility
+  // skills (Echo of Truth, Flame Rush), 1 core Guardian Consecration (Purging Flames), and the 2
+  // Willbender Virtue mechanic skills (Crashing Courage/F3, Rushing Justice/F1).
+  // Purging Flames — core Guardian Consecration. `strikes=6` present -> wiki's 1.2 already totaled
+  // (API confirms: hit_count 6 * dmg_multiplier 0.2 = 1.2). Wiki's own `weapon=utility` param
+  // normalized to `unequipped` per this file's own Heal-slot sweep precedent above. No PvE/WvW
+  // split on the Damage coefficient itself (recharge/burning-stacks differ by mode, the coefficient
+  // doesn't).
+  9187: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }],
+  // Echo of Truth — Firebrand Utility (ammo skill). `weapon=utility` normalized to `unequipped`.
+  // PvE/WvW+PvP split 0.7/0.3 — WvW used.
+  42360: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Flame Rush — Firebrand Utility (ammo skill), same shape as Echo of Truth. PvE/WvW+PvP split
+  // 0.7/0.3 — WvW used.
+  45082: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Crashing Courage — Willbender Virtue F3. Single coefficient, no PvE/WvW split. Wiki's own
+  // `weapon=unequipped` param used directly.
+  62648: [{ factText: 'Initial Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Rushing Justice — Willbender Virtue F1. Local API carries 2 same-text "Impact Damage" facts
+  // (one per game mode, no `game mode=` discriminator field in this API) — same "pick the WvW
+  // value, existence-only fact lookup" shape as every other PvE/WvW-split entry in this table (the
+  // fact lookup only confirms a matching Damage fact exists; the coefficient itself always comes
+  // from this table, not the fact). PvE/WvW+PvP split 1.5/1.2 — WvW used.
+  62668: [{ factText: 'Impact Damage', coefficient: 1.2, weapon: 'unequipped' }],
 };
 
 export interface DamageLine {
