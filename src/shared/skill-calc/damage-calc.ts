@@ -4064,6 +4064,38 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   40588: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }],
   // Worldly Impact. WvW/PvP 1.36 (PvE 1.89).
   40729: [{ factText: 'Damage', coefficient: 1.36, weapon: 'unequipped' }],
+
+  // --- Damage Coefficient Sweep: Catalyst Deploy Jade Sphere (2026-10-19), Leg 2 of TODO.md's
+  // [Damage Coefficient Sweep — New/Uncurated Skill Content] item. "Deploy Jade Sphere" is a wiki
+  // disambiguation page over 4 attunement-specific pages (fire/water/air/earth); each page's own
+  // skill infobox lists weapon=unequipped, coefficient=0.25 (PvE) / 0.01 (WvW+PvP), identical across
+  // all 4 elements — verified via each page's raw wikitext, not assumed from one element. Each
+  // page's infobox also lists only 4 ids (base, "no energy id", "underwater", "sphere specialist"),
+  // 16 total; the local game data carries a 5th id per element not in any infobox comment (75395
+  // fire, 75392 water, 75394 air, 75407 earth) — its own Damage fact is structurally identical
+  // (same text/weapon, no requires_trait gate) to its documented siblings, so it's curated the same
+  // way rather than excluded, whatever stale/duplicate API bookkeeping produced the extra id.
+  // Per this table's WvW-focused convention, the curated coefficient is the WvW/PvP value (0.01).
+  62813: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // fire — base
+  63396: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // fire — no energy id
+  63458: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // fire — underwater
+  75391: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // fire — sphere specialist
+  75395: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // fire — undocumented 5th id
+  62723: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // water — base
+  63416: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // water — underwater
+  63461: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // water — no energy id
+  75392: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // water — undocumented 5th id
+  75406: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // water — sphere specialist
+  62940: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // air — base
+  63439: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // air — underwater
+  63459: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // air — no energy id
+  75394: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // air — undocumented 5th id
+  75399: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // air — sphere specialist
+  62837: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — base
+  63454: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — underwater
+  63472: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — no energy id
+  75405: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — sphere specialist
+  75407: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }], // earth — undocumented 5th id
 };
 
 export interface DamageLine {

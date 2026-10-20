@@ -5071,6 +5071,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 174,
     },
   ],
+  "62723": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
   "62747": [
     {
       "label": "Maximum Damage",
@@ -5123,6 +5129,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3375,
     },
   ],
+  "62813": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
   "62828": [
     {
       "label": "Damage",
@@ -5143,6 +5155,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 188,
+    },
+  ],
+  "62837": [
+    {
+      "label": "Damage",
+      "value": 8,
     },
   ],
   "62843": [
@@ -5213,6 +5231,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Minimum Damage",
       "value": 125,
+    },
+  ],
+  "62940": [
+    {
+      "label": "Damage",
+      "value": 8,
     },
   ],
   "62942": [
@@ -5359,6 +5383,54 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 875,
+    },
+  ],
+  "63396": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63416": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63439": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63454": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63458": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63459": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63461": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63472": [
+    {
+      "label": "Damage",
+      "value": 8,
     },
   ],
   "64038": [
@@ -6338,6 +6410,54 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     },
   ],
   "73938": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75391": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75392": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75394": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75395": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75399": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75405": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75406": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "75407": [
     {
       "label": "Damage",
       "value": 8,
