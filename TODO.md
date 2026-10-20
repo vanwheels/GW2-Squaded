@@ -14,31 +14,49 @@ Done when:
 - A structural completeness test exists for all 5 curated coefficient tables (damage/healing/
   barrier/trait-healing/siphon-damage), and every fact it flags has a recorded decision (covered,
   excluded-with-reason, or deferred to a new TODO item). Split into 2 legs (2026-10-19): Leg 1
-  (healing/barrier/siphon-damage) shipped; Leg 2 (damage) needs new equippable-id-filter infra
-  first, see below.
+  (healing/barrier/siphon-damage) and Leg 2 (damage, plus the new reachable-id-filter infra it
+  needed) both shipped.
 - A registry-driven test links `skillFactLines`/`traitFactLines`'s generic fact loop to
   `computeNamedFactSources`'s correction tables, passing against the existing Cleansing Ire fix.
 - The skill-side WvW-override question is resolved — either a generalized mechanism ships
   (mirroring `NUMERIC_FACT_WVW_OVERRIDES`), or the direct-value-table approach is explicitly
   confirmed sufficient and the item closed as such.
 
-### [Coefficient-Table Completeness Test] — Leg 2
-Build a structural completeness test for `CURATED_DAMAGE_COEFFICIENTS`, mirroring `src/shared/
-gear-calc/trait-attribute-completeness.test.ts`'s proven shape and Leg 1's own shape (`src/shared/
-skill-calc/coefficient-completeness.test.ts`). Split off from Leg 1 (2026-10-19) after a dry-run
-scan found the naive `fact.type === 'Damage'` predicate matches 1,666 skills against only 931
-curated — most of the 745 "uncovered" hits are weapon-skill chain continuations (e.g. Warrior Axe's
-Double Chop/Triple Chop), duplicate weapon-tier ids (Eviscerate/Kill Shot/Earthshaker each have
-2-3 ids), or NPC/pet skills (`professions: []`), not real misses. Needs a reachable/equippable-id
-filter first (cross-referencing `professions.json`'s `weapons[*].skills`/`professionSkills` lists,
-the same signal Leg 1's `WEAPON_CHAIN_OR_DUPLICATE`/`MECHANIC_CHAIN_OR_DUPLICATE` buckets used) to
-shrink the candidate pool to genuinely equippable skills (~155 weapon/mechanic-slot + ~103
-Heal/Utility/Elite-slot, per the dry-run count) before the predicate is meaningful. Trait-side
-Damage facts (12 candidates) have no trait-keyed table at all — same "no mechanism" treatment as
-`trait-fact-lines.ts` only calling `healingLinesForTrait`.
-Done check: new test passes; every hit has a recorded decision (covered, excluded-with-reason, or
-deferred to its own new TODO item).
-Manual verification: no. Review: yes (spans curated tables across gear-calc/skill-calc/boon-calc).
+### [Damage Coefficient Sweep — New/Uncurated Skill Content]
+Found by the Coefficient-Table Completeness Test's Leg 2 scan (2026-10-19), via the new reachable-
+id filter (`damage-coefficient-completeness.test.ts`): 176 equippable skill ids carry a real,
+uncurated Damage fact, spanning several distinct mechanics this app has apparently never swept for
+Damage coefficients before — too varied to triage in Leg 2's own session (confirmed with the user
+2026-10-19). Breaks down as: 42 Ranger Soulbeast Beastmode F1-F3 skills (one per pet family,
+`data/game-data/soulbeast-beastmode.json`); and 134 spanning Necromancer Reaper/Scourge/Harbinger
+Shroud skillbars (Life Blast, Dark Barrage, Soul Spiral, Executioner's Scythe, Manifest Sand
+Shade, ...), Mesmer Shatter/Virtuoso Bladesong skills (Cry of Frustration, Mind Wrack, Bladesong
+Sorrow/Harmony/Dissonance, ...), Catalyst's "Deploy Jade Sphere" overloads (8+ ids), Engineer
+Mechanist Mech Core skills (Crash Down, Jade Buster Cannon, Mech Support: Depth Charges), Revenant
+legend-swap F2-F5 skills including Vindicator's "Release Potential" trio, Necromancer minion-summon
+tooltips (Summon Bone Fiend/Flesh Wurm/Shadow Fiend/Flesh Golem — sibling shape to the already-
+closed Known Exception for Summon Blood Fiend, but not assumed to share its resolution without its
+own check), and a cluster of festival/novelty skills (Metal Legion Guitar, Zephyrite Sun Crystal,
+Lively Lute, ...). Full id lists in `damage-coefficient-completeness.test.ts`'s
+`REASON_BEASTMODE_NEW_CONTENT`/`REASON_NEW_CONTENT_SKILL`-bucketed exclusion entries.
+Done check: each id wiki-verified and either added to `CURATED_DAMAGE_COEFFICIENTS` or logged as a
+new Known Exception; `damage-coefficient-completeness.test.ts`'s exclusion map shrinks accordingly.
+Given the spread, consider splitting this by mechanic family (Shroud, Shatter/Bladesong, Jade
+Sphere, Beastmode, Revenant legends, festival skills) when scheduling rather than sweeping as one.
+Manual verification: no.
+Last touched: 2026-10-19. Re-checks: 0.
+
+### [Trait-Side Damage Proc Tooltip Coverage]
+No trait-keyed `CURATED_DAMAGE_COEFFICIENTS` counterpart exists at all — same "no mechanism" gap
+`coefficient-completeness.test.ts`'s own header already documents for Barrier/Siphon-Damage on
+traits (`trait-fact-lines.ts` only ever calls `healingLinesForTrait`). The Coefficient-Table
+Completeness Test's Leg 2 scan (2026-10-19) found 12 trait ids with a genuine Damage fact: Electric
+Discharge, Earthen Blast, Mug, Power Block, Soaring Devastation, King of Fires, Photonic Blasting
+Module, Loss Aversion, Tenacious Ruin, Explosive Growth, Mistfire, Syncopate.
+Done check: each id wiki-verified and either added to a new trait-keyed Damage-coefficient table
+(if one gets built) or logged as a Known Exception; `damage-coefficient-completeness.test.ts`'s
+`REASON_NO_TRAIT_MECHANISM` exclusions shrink accordingly.
+Manual verification: no.
 Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Healing/Barrier/Siphon Coefficient Sweep Refresh]

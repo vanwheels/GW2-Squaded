@@ -1,0 +1,331 @@
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { describe, expect, it } from 'vitest';
+import type { Fact } from '../types';
+import { CURATED_DAMAGE_COEFFICIENTS } from './damage-calc';
+
+/**
+ * Coefficient-table completeness scan for `CURATED_DAMAGE_COEFFICIENTS` — deferred out of
+ * `coefficient-completeness.test.ts` (see that file's own header and TODO.md's Leg 2) because the
+ * naive `fact.type === 'Damage'` predicate alone matches 1,666 skills, most of which are weapon-
+ * skill chain continuations, duplicate weapon-tier ids, or structurally-unreachable orphans rather
+ * than real misses. This file builds the "reachable/equippable id" filter Leg 2 needed before that
+ * predicate became meaningful, instead of a shared runtime module — every other completeness test
+ * in this directory reads `data/game-data/*.json` directly and self-contains its own candidate
+ * logic (see `coefficient-completeness.test.ts`/`trait-attribute-completeness.test.ts`), and this
+ * filter has no other caller, so it follows that same pattern rather than becoming new `src/shared`
+ * runtime code with no actual runtime consumer.
+ *
+ * **The reachable-id filter**: a skill id is a candidate only if it's listed in `professions.json`
+ * (any profession's `weapons[*].skills` or `professionSkills`) or tagged `Heal`/`Utility`/`Elite` in
+ * `skills.json`'s own `slot` field. This is deliberately a *liberal* filter, not a fully-resolved
+ * canonical id per slot — `professions.json` itself still lists multiple ids for one (profession,
+ * weapon, slot) triple when a real duplicate/rework/chain-continuation exists (confirmed: 87 such
+ * weapon-slot groups, 45 profession-mechanic-slot-and-name groups), so this alone shrinks the raw
+ * 745-candidate problem down to 267 without fully deduping it — the remaining duplicate/non-
+ * equippable shapes are caught structurally below (same-name sibling already curated, flip-target,
+ * turret/gadget sub-ability sharing a `toolbeltSkill` with an equippable sibling), same signals
+ * `skill-variants.ts`'s own `visibleSkillsForSlot` already uses for the picker, not re-derived from
+ * scratch. **Known scope gap, verified empty at build time**: this filter does NOT include ids only
+ * reachable via a bundle's `Skill.bundleSkills` (Engineer Kits, Elementalist Conjures, Bladesworn's
+ * Dragon Slash chain) — confirmed 2026-10-19 every bundle-reachable Damage-fact id already has a
+ * `CURATED_DAMAGE_COEFFICIENTS` entry, so this gap hides zero real misses today, but a future kit/
+ * conjure/bundle addition with an uncurated Damage fact would silently pass this test until that's
+ * re-verified. Downed-slot and Toolbelt-slot ids are deliberately excluded instead of filtered as a
+ * gap: zero ids of either shape are curated anywhere in `CURATED_DAMAGE_COEFFICIENTS` today, matching
+ * this app's existing "Downed isn't modeled at all" (`boon-calc/sources.ts`) and "Toolbelt tooltips
+ * aren't rendered" precedent.
+ *
+ * Built 2026-10-19 by running exactly this scan: 1,019 candidates (equippable per the filter above,
+ * carrying a Damage fact), 931 already curated, 267 uncovered. Of those 267:
+ * - 91 are structurally-provable duplicates/non-equippable ids (same-name sibling already curated,
+ *   a `flipSkill` target of another candidate, a turret/gadget sub-ability sharing `toolbeltSkill`
+ *   with an equippable sibling, or a literal (profession, weapon-or-mechanic-slot, name) group
+ *   whose other member is already curated) — `SAME_NAME_SIBLING_CURATED`/`SUB_ABILITY`/
+ *   `FLIP_TARGET`/`WEAPON_SLOT_DUPLICATE`/`MECH_SLOT_DUPLICATE` below.
+ * - 42 are Ranger Soulbeast's Beastmode F1-F3 skills (`data/game-data/soulbeast-beastmode.json`) —
+ *   a real, equippable per-pet-family mechanic skillbar never swept for Damage coefficients before.
+ * - 134 are genuine new/uncurated content spanning several distinct, previously-unswept mechanics
+ *   (Necromancer Reaper/Scourge/Harbinger Shroud skillbars, Mesmer Shatter/Virtuoso Bladesong
+ *   skills, Catalyst's "Deploy Jade Sphere" overloads, Engineer Mechanist Mech Core skills,
+ *   Revenant legend-swap F2-F5 skills including Vindicator's "Release Potential", Necromancer
+ *   minion-summon tooltips, and a cluster of festival/novelty skills) — too varied to triage inline
+ *   within this leg's own scope (confirmed with the user 2026-10-19), deferred to TODO.md's new
+ *   [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than guessed at here.
+ *
+ * Trait-side: no trait-keyed `CURATED_DAMAGE_COEFFICIENTS` counterpart exists at all (same
+ * "no mechanism" gap `coefficient-completeness.test.ts`'s own header documents for Barrier/Siphon-
+ * Damage on traits) — every trait carrying a genuine Damage fact is deferred to TODO.md's new
+ * [Trait-Side Damage Proc Tooltip Coverage] item below.
+ */
+
+interface SkillDataFile {
+  id: number;
+  name: string;
+  professions: string[];
+  slot: string;
+  categories: string[];
+  facts: Fact[];
+  traitedFacts: Fact[];
+  flipSkill: number | null;
+  toolbeltSkill: number | null;
+}
+interface TraitDataFile {
+  id: number;
+  name: string;
+  facts: Fact[];
+  traitedFacts: Fact[];
+}
+interface ProfessionWeaponSkillSlotFile {
+  id: number;
+  slot: string;
+}
+interface ProfessionDataFile {
+  name: string;
+  weapons: Record<string, { skills: ProfessionWeaponSkillSlotFile[] }>;
+  professionSkills: ProfessionWeaponSkillSlotFile[];
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const skills: SkillDataFile[] = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../data/game-data/skills.json'), 'utf-8'),
+);
+const traits: TraitDataFile[] = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../data/game-data/traits.json'), 'utf-8'),
+);
+const professions: ProfessionDataFile[] = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../data/game-data/professions.json'), 'utf-8'),
+);
+const soulbeastBeastmode: Record<
+  string,
+  { f1SkillId: number; f2SkillId: number; f3SkillId: number }
+> = JSON.parse(
+  readFileSync(resolve(__dirname, '../../../data/game-data/soulbeast-beastmode.json'), 'utf-8'),
+);
+
+const skillsById = new Map(skills.map((s) => [s.id, s]));
+
+/** Every id listed in any profession's `weapons[*].skills` or `professionSkills` — see this file's
+ *  header for why this is a liberal superset, not a fully-resolved canonical id per slot. */
+const WEAPON_OR_MECHANIC_SKILL_IDS = new Set<number>();
+for (const p of professions) {
+  for (const weapon of Object.values(p.weapons)) {
+    for (const s of weapon.skills) WEAPON_OR_MECHANIC_SKILL_IDS.add(s.id);
+  }
+  for (const s of p.professionSkills) WEAPON_OR_MECHANIC_SKILL_IDS.add(s.id);
+}
+
+/** Every id `skills.json` itself tags `Heal`/`Utility`/`Elite` — 745 total, matching
+ *  `skill-variants.ts`'s own documented "all 745 Heal/Utility/Elite skills" count. */
+const HEAL_UTILITY_ELITE_SKILL_IDS = new Set<number>(
+  skills
+    .filter((s) => s.slot === 'Heal' || s.slot === 'Utility' || s.slot === 'Elite')
+    .map((s) => s.id),
+);
+
+const REACHABLE_SKILL_SLOT_IDS = new Set<number>([
+  ...WEAPON_OR_MECHANIC_SKILL_IDS,
+  ...HEAL_UTILITY_ELITE_SKILL_IDS,
+]);
+
+/** Soulbeast's per-pet-family F1-F3 Beastmode skill ids — see this file's header, `BEASTMODE` bucket. */
+const SOULBEAST_BEASTMODE_SKILL_IDS = new Set<number>();
+for (const family of Object.values(soulbeastBeastmode)) {
+  SOULBEAST_BEASTMODE_SKILL_IDS.add(family.f1SkillId);
+  SOULBEAST_BEASTMODE_SKILL_IDS.add(family.f2SkillId);
+  SOULBEAST_BEASTMODE_SKILL_IDS.add(family.f3SkillId);
+}
+
+/** A literal (profession, weapon-type, slot) triple -> every id `professions.json` lists there —
+ *  used by `WEAPON_SLOT_DUPLICATE` to catch a second id assigned to the exact same weapon slot. */
+const weaponSlotGroups = new Map<string, number[]>();
+for (const p of professions) {
+  for (const [weaponType, weapon] of Object.entries(p.weapons)) {
+    for (const s of weapon.skills) {
+      const key = `${p.name}|${weaponType}|${s.slot}`;
+      if (!weaponSlotGroups.has(key)) weaponSlotGroups.set(key, []);
+      weaponSlotGroups.get(key)!.push(s.id);
+    }
+  }
+}
+
+/** A literal (profession, mechanic slot, skill name) triple -> every id sharing it — NOT just
+ *  (profession, slot), since a profession-mechanic slot (e.g. Warrior's Burst `Profession_1`) is
+ *  shared by several genuinely-different skills across its different weapons; only a same-NAME
+ *  match within that slot is real evidence of a duplicate/rework id, used by `MECH_SLOT_DUPLICATE`. */
+const mechNameGroups = new Map<string, number[]>();
+for (const p of professions) {
+  for (const s of p.professionSkills) {
+    const name = skillsById.get(s.id)?.name ?? '?';
+    const key = `${p.name}|${s.slot}|${name}`;
+    if (!mechNameGroups.has(key)) mechNameGroups.set(key, []);
+    mechNameGroups.get(key)!.push(s.id);
+  }
+}
+
+const isDamageFact = (f: Fact): boolean => f.type === 'Damage';
+
+function touches(
+  entity: { facts: Fact[]; traitedFacts: Fact[] },
+  pred: (f: Fact) => boolean,
+): boolean {
+  return entity.facts.some(pred) || entity.traitedFacts.some(pred);
+}
+
+function bucket(ids: number[], reason: string): Record<number, string> {
+  return Object.fromEntries(ids.map((id) => [id, reason]));
+}
+
+const REASON_SAME_NAME_SIBLING_CURATED =
+  'Shares its exact name with another id that already has a `CURATED_DAMAGE_COEFFICIENTS` entry — a duplicate/rework/chain id for the same real skill, same shape as `damage-calc.ts`’s own documented Eviscerate/Kill Shot/Earthshaker duplicate-tier ids.';
+const REASON_SUB_ABILITY =
+  'Turret/gadget/mine context-menu sub-ability (`categories: []`, shares a `toolbeltSkill` with an equippable, non-empty-`categories` sibling) — never independently bindable, same signal `skill-variants.ts`’s `stripNonEquippableSubAbilities` already uses for the picker.';
+const REASON_FLIP_TARGET =
+  'Another candidate\'s `flipSkill` target under a different name (a turret/minion/legend skill\'s "Detonate"/"Haunt"/follow-up step) — never independently equippable in-game, same signal `skill-variants.ts`\'s `stripFlipTargets` already uses for the picker.';
+const REASON_WEAPON_SLOT_DUPLICATE =
+  'A second id `professions.json` lists for the exact same (profession, weapon, slot) triple whose sibling id already has a curated entry — a land/underwater or dual-wield-offhand duplicate, not a separately-equippable skill.';
+const REASON_MECH_SLOT_DUPLICATE =
+  "A second id sharing both the exact same (profession, profession-mechanic slot) AND the exact same skill name as an already-curated sibling — a rework/duplicate-tier id for the same mechanic skill, not a genuinely different one (unlike most same-slot ids, which differ by equipped weapon, e.g. Warrior's Burst skill).";
+const REASON_BEASTMODE_NEW_CONTENT =
+  "Ranger Soulbeast Beastmode F1-F3 skill (`data/game-data/soulbeast-beastmode.json`) — a real, equippable per-pet-family mechanic skillbar never swept for Damage coefficients before this leg. Deferred to TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than wiki-verified inline.";
+const REASON_NEW_CONTENT_SKILL =
+  "Equippable skill with a real, uncurated Damage coefficient — found by this leg's scan, spanning several distinct previously-unswept mechanics (Shroud skillbars, Mesmer Shatter/Bladesong, Jade Sphere, Mech Core, Revenant legend-swaps, minion-summon tooltips, festival skills). Deferred to TODO.md's [Damage Coefficient Sweep — New/Uncurated Skill Content] item rather than triaged per-family inline.";
+
+// --- Damage skill pool ---
+
+const DAMAGE_SKILL_COVERED_IDS = new Set<number>(
+  Object.keys(CURATED_DAMAGE_COEFFICIENTS).map(Number),
+);
+
+const DAMAGE_SKILL_EXCLUDED_IDS: Record<number, string> = {
+  ...bucket(
+    [
+      1162, 1167, 5638, 5736, 6183, 10545, 10546, 12471, 12533, 12570, 12598, 14569, 14571, 14572,
+      27917, 29558, 29991, 41406, 41524, 41571, 43788, 44514, 44846, 44991, 45425, 46170, 49056,
+      50383, 50419, 50438, 50441, 50447, 51395, 51698, 55019, 55027, 55035, 55037, 55040, 55053,
+      62841, 68686, 71499, 76917, 77141, 77159, 77198, 78191, 78203, 79309, 79324,
+    ],
+    REASON_SAME_NAME_SIBLING_CURATED,
+  ),
+  ...bucket(
+    [
+      5874, 5889, 5893, 5913, 5957, 5960, 5961, 5984, 5985, 6097, 6098, 6134, 6162, 6163, 29473,
+      29518, 30893, 38748, 38750,
+    ],
+    REASON_SUB_ABILITY,
+  ),
+  ...bucket([10540, 10570, 10590, 10647, 29458, 30278, 62676, 76503, 78351], REASON_FLIP_TARGET),
+  ...bucket([13110, 13112, 15834], REASON_WEAPON_SLOT_DUPLICATE),
+  ...bucket(
+    [14506, 41746, 71922, 71950, 72029, 72911, 73006, 73024, 73042],
+    REASON_MECH_SLOT_DUPLICATE,
+  ),
+  ...bucket(
+    [
+      40111, 40255, 40588, 40625, 40729, 41206, 41537, 41575, 41837, 41908, 42797, 42894, 42907,
+      43068, 43136, 43375, 43548, 43726, 44097, 44384, 44885, 45743, 46386, 46432, 64038, 64699,
+      64882, 66258, 67382, 70889, 71282, 71546, 72636, 72851, 73733, 73938, 75771, 75814, 78091,
+      79203, 80031, 80035,
+    ],
+    REASON_BEASTMODE_NEW_CONTENT,
+  ),
+  ...bucket(
+    [
+      1110, 1115, 1118, 1129, 1131, 5735, 5737, 5738, 5818, 5836, 5838, 5912, 5987, 5989, 5990,
+      5991, 6093, 9187, 10190, 10191, 10212, 10533, 10541, 10543, 10547, 10554, 10589, 10607, 10644,
+      10645, 10646, 10690, 12453, 12456, 14552, 22574, 25492, 25499, 28113, 29442, 30504, 30557,
+      30825, 31438, 34637, 34736, 39972, 41283, 41543, 41820, 42297, 42360, 42809, 42836, 43488,
+      44397, 44428, 44663, 44918, 44946, 45082, 45094, 46044, 46473, 46474, 51667, 56920, 56928,
+      56930, 62563, 62597, 62602, 62611, 62616, 62617, 62621, 62648, 62668, 62723, 62813, 62837,
+      62940, 63050, 63094, 63209, 63210, 63258, 63374, 63396, 63416, 63439, 63454, 63458, 63459,
+      63461, 63472, 71875, 72103, 72114, 75391, 75392, 75394, 75395, 75399, 75405, 75406, 75407,
+      76550, 76552, 76582, 76585, 76601, 76633, 76702, 76707, 76733, 76746, 76800, 76900, 76909,
+      76931, 77061, 77079, 77089, 77243, 77288, 77291, 77306, 78309, 78615, 78845, 78895, 80985,
+      81024,
+    ],
+    REASON_NEW_CONTENT_SKILL,
+  ),
+};
+
+// --- Damage trait pool (no trait-keyed CURATED_DAMAGE_COEFFICIENTS counterpart exists) ---
+
+const DAMAGE_TRAIT_COVERED_IDS = new Set<number>();
+
+const REASON_NO_TRAIT_MECHANISM =
+  "No trait-keyed Damage-coefficient table exists at all — same 'no mechanism' gap as Barrier/Siphon-Damage on traits (see coefficient-completeness.test.ts's header). Deferred to TODO.md's [Trait-Side Damage Proc Tooltip Coverage] item.";
+
+const DAMAGE_TRAIT_EXCLUDED_IDS: Record<number, string> = {
+  ...bucket(
+    [222, 279, 1276, 1688, 1911, 2038, 2064, 2126, 2262, 2339, 2429, 2432],
+    REASON_NO_TRAIT_MECHANISM,
+  ),
+};
+
+function runCompletenessChecks(
+  label: string,
+  entities: { id: number; name: string; facts: Fact[]; traitedFacts: Fact[] }[],
+  predicate: (f: Fact) => boolean,
+  isCandidate: (e: { id: number }) => boolean,
+  coveredIds: ReadonlySet<number>,
+  excludedIds: Record<number, string>,
+) {
+  describe(label, () => {
+    it('accounts for every candidate in the curated table(s) or the exclusion list', () => {
+      const uncovered: string[] = [];
+      for (const e of entities) {
+        if (!touches(e, predicate)) continue;
+        if (!isCandidate(e)) continue;
+        if (coveredIds.has(e.id)) continue;
+        if (e.id in excludedIds) continue;
+        uncovered.push(`${e.id} (${e.name})`);
+      }
+      expect(
+        uncovered,
+        "New/previously-missed candidate(s) — add to the curated table, or to this file's exclusion map with a reason.",
+      ).toEqual([]);
+    });
+
+    it('has no exclusion entry for an id that is already curated (redundant)', () => {
+      const redundant = Object.keys(excludedIds)
+        .map(Number)
+        .filter((id) => coveredIds.has(id));
+      expect(
+        redundant,
+        'Id(s) covered by the curated table AND listed in the exclusion map — remove the now-redundant entry.',
+      ).toEqual([]);
+    });
+
+    it('has no exclusion entry for an id that no longer exists or no longer carries the qualifying fact (stale)', () => {
+      const byId = new Map(entities.map((e) => [e.id, e]));
+      const stale = Object.keys(excludedIds)
+        .map(Number)
+        .filter((id) => {
+          const e = byId.get(id);
+          return !e || !touches(e, predicate) || !isCandidate(e);
+        });
+      expect(
+        stale,
+        'Id(s) in the exclusion map that no longer exist, no longer carry the qualifying fact, or are no longer a reachable-slot candidate — a balance patch likely reworked them; remove the stale entry.',
+      ).toEqual([]);
+    });
+  });
+}
+
+runCompletenessChecks(
+  'Damage skill coefficient completeness',
+  skills,
+  isDamageFact,
+  (e) => REACHABLE_SKILL_SLOT_IDS.has(e.id),
+  DAMAGE_SKILL_COVERED_IDS,
+  DAMAGE_SKILL_EXCLUDED_IDS,
+);
+
+runCompletenessChecks(
+  'Damage trait coefficient completeness',
+  traits,
+  isDamageFact,
+  () => true,
+  DAMAGE_TRAIT_COVERED_IDS,
+  DAMAGE_TRAIT_EXCLUDED_IDS,
+);
