@@ -4452,6 +4452,43 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Revenant's own Downed_1 Essence Sap ids, 28180/31723, an unrelated same-named skill not in
   // this stolen-skill set at all).
   31438: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+
+  // --- Damage Coefficient Sweep: final cluster (2026-10-20), Leg 15 of TODO.md's [Damage
+  // Coefficient Sweep — New/Uncurated Skill Content] item — the last 13 ids named in Leg 14's own
+  // remaining-count. Mesmer Power Spike, Warrior Mariner's Shot, and Revenant's Burst of
+  // Strength/Scorchrazor pair, plus the Engineer Scrapper Function Gyro (F5) dup-id cluster.
+  // Mesmer — Power Spike (Utility). `weapon=utility` normalizes to `unequipped` (this table's
+  // existing Heal-slot-sweep precedent). PvE/WvW+PvP split 1.33/0.45 — WvW used.
+  10212: [{ factText: 'Damage', coefficient: 0.45, weapon: 'unequipped' }],
+  // Warrior — Speargun 1 (autoattack), Mariner's Shot. No split on either fact. Maximum Damage
+  // (1.0), Minimum Damage (0.6) — same shape as this table's existing Maximum/Minimum Damage
+  // pairs (e.g. Guardian's Spear of Light above).
+  14552: [
+    { factText: 'Maximum Damage', coefficient: 1.0, weapon: 'harpoon gun' },
+    { factText: 'Minimum Damage', coefficient: 0.6, weapon: 'harpoon gun' },
+  ],
+  // Herald — Burst of Strength (Utility). `weapon=utility` normalizes to `unequipped`. PvE/WvW+PvP
+  // split 1.6/1.2 — WvW used.
+  28113: [{ factText: 'Damage', coefficient: 1.2, weapon: 'unequipped' }],
+  // Renegade — Shortbow 5, Scorchrazor (41820) — re-verified, NOT curated: this id's own
+  // block comment above (Revenant Weapon-slot sweep section) already documents the exclusion —
+  // wiki PvE coefficient 0.3 flatly disagrees with both the live and local API's PvE
+  // `dmg_multiplier` of 1, unchanged since that comment was written. Same "comment exists, never
+  // logged" shape as Rampart Splitter/Jade Buster Cannon/etc. above — moved into the completeness
+  // test's exclusion map instead of re-investigating.
+  //
+  // Engineer/Scrapper — Function Gyro (F5 mechanic skill). The wiki's own `Function_Gyro_(tool_
+  // belt_skill)` page lists `id = 56920, 56921, 72114` (56921 being the underwater variant), which
+  // would suggest 56920 is a second live land id alongside 72114 — but `profession-mechanic.ts`'s
+  // own dated (2026-07-30), live-UI-verified `EXCLUDED_MECHANIC_SKILL_IDS` already determined
+  // otherwise: 56920 and 72103 are BOTH older same-name orphan duplicates left behind by a rename/
+  // rework, with 72114 kept as the sole id the live F5 picker actually shows. Same "trust this
+  // app's own live-verified resolver over a wiki infobox's bundled id= history" precedent as the
+  // Release Potential: Warrior re-keying above (Leg 6) — 72114 curated, 56920/72103 both left
+  // uncurated as orphans rather than guessed into the live picker.
+  // `weapon=unequipped`, PvE/WvW grouped 1.0 vs. a lower PvP-only 0.5 (the wiki's own
+  // `game mode=pve wvw` vs `game mode=pvp` split) — WvW value used.
+  72114: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
 };
 
 export interface DamageLine {

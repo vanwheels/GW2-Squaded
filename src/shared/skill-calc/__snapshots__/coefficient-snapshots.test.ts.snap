@@ -453,6 +453,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1648,
     },
   ],
+  "10212": [
+    {
+      "label": "Damage",
+      "value": 353,
+    },
+  ],
   "10216": [
     {
       "label": "Damage",
@@ -2039,6 +2045,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3693,
     },
   ],
+  "14552": [
+    {
+      "label": "Maximum Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 682,
+    },
+  ],
   "14554": [
     {
       "label": "Damage",
@@ -2223,6 +2239,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 13,
+    },
+  ],
+  "28113": [
+    {
+      "label": "Damage",
+      "value": 942,
     },
   ],
   "28231": [
@@ -6219,6 +6241,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 1875,
+    },
+  ],
+  "72114": [
+    {
+      "label": "Damage",
+      "value": 785,
     },
   ],
   "72636": [
