@@ -22,8 +22,25 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted';
  *   a future data refresh adds another "Lesser "-prefixed id with a Heal/Utility/Elite slot, it is
  *   NOT safe to assume it belongs here without the same wiki spot-check — some elite specs have
  *   legitimately-bound skills named that way.
+ * - **5735 "Ice Storm" / 5737 "Lightning Storm" / 5738 "Sandstorm"** (Elementalist Utility slot,
+ *   found 2026-10-19 by the Damage Coefficient Sweep's Leg 11): the Water/Air/Earth attunement
+ *   variants of Glyph of Storms (`5734`, `categories: ['Glyph']`, `attunement: null`) — a real,
+ *   live picker bug, not just a missing exclusion-map log entry. Signal 1 above only drops an
+ *   attunement-tagged id when it shares its exact `name` with an attunement-agnostic sibling (so
+ *   `resolveGroup`'s `nonAttuned` filter has something to collapse the group down to); these 3
+ *   describe their effect under their own distinct flavor name instead of "Glyph of Storms", so
+ *   each lands in the picker as its own singleton-member group and `resolveGroup`'s `group.length
+ *   === 1` early return ships it through unfiltered — a player could currently bind "Ice Storm"
+ *   directly as if it were its own Utility skill, which isn't how the game works. (Glyph of Storms'
+ *   4th variant, "Firestorm" `5736`, happens to already collapse correctly: it coincidentally
+ *   shares its exact name with Conjure Flame Axe's own unrelated `5531` "Firestorm", whose
+ *   `attunement: null` gives signal 1 something to collapse onto — a correct outcome for the wrong
+ *   structural reason, not a 4th bug to fix here.) Glyph of Elemental Power's own Air/Fire
+ *   attunement variants (`34637`/`34736`) are NOT in this set — they DO share their exact name
+ *   ("Glyph of Elemental Power") with their attunement-agnostic canonical sibling `5506`, so signal
+ *   1 already collapses that group correctly with no fix needed.
  */
-const NON_EQUIPPABLE_SKILL_IDS: ReadonlySet<number> = new Set([44918]);
+const NON_EQUIPPABLE_SKILL_IDS: ReadonlySet<number> = new Set([44918, 5735, 5737, 5738]);
 
 /**
  * Duplicate-name skill ids to drop in favor of a same-name sibling with strictly more complete

@@ -342,11 +342,10 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // same non-player-scaling exclusion as the Heal/Utility-sweep turret and minion cases, just phrased
   // as prose instead of a `power=` override this time. Lesser Fiery Eruption (44918) is Conjure Fiery
   // Greatsword's auto-triggered passive proc (wiki `parent = Conjure Fiery Greatsword`,
-  // `Category:Lesser skills`) — not independently equippable, but unlike Tailored Victory below this
-  // one ISN'T caught by `skill-variants.ts`'s existing filters (no `toolbeltSkill`/`flipSkill` link
-  // back to its parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it
-  // likely still leaks into the live Elite picker as if it were its own bindable skill — see TODO.md
-  // for a follow-up on generalizing the "Lesser"-skill exclusion.
+  // `Category:Lesser skills`) — not independently equippable; now excluded from the live Elite
+  // picker via `skill-variants.ts`'s `NON_EQUIPPABLE_SKILL_IDS` (that fix landed since this comment
+  // was first written — this entry's own coefficient below is curated only because its tooltip
+  // still needs rendering when the parent Conjure Fiery Greatsword's auto-proc fires).
   // Conjure Fiery Greatsword. No split. Wiki's own `weapon=utility` param normalized to `unequipped`
   // per the Elite-slot convention.
   5516: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
