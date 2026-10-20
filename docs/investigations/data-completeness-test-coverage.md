@@ -120,19 +120,25 @@ equippable-id cross-reference Leg 1 used for its `WEAPON_CHAIN_OR_DUPLICATE`/
 via `skill-variants.ts`'s existing Heal/Utility/Elite collapsing logic, not a fresh reachability
 concept).
 
-**Healing/Barrier/Siphon (Leg 1, shipped):** Much closer to the trait-attribute test's scale — 139
-skill-side Healing/Barrier candidates (90 covered), 6 Siphon-skill candidates, 105 trait-side
-Healing candidates (1 covered: Healing Ripple #351), 31 trait-side Siphon candidates. Nearly every
-trait-side candidate turned out to already have a categorization decision one hop away: every
-`AttributeAdjust` fact (any target) is *also* a candidate in `trait-attribute-completeness.test.ts`,
-so cross-referencing that file's `EXCLUDED_TRAIT_IDS`/flat-stat tables (confirmed per-id via grep,
-not assumed) resolved the bulk of both trait pools without fresh wiki research. The skill side split
-cleanly into: known exceptions already in TODO.md (7-9 ids, some not yet cross-referenced into the
-Known Exceptions section before this leg — Sanctuary/Summon Blood Fiend/Well of Blood/Helmet Breaker
-were already there but hadn't been checked against this predicate), downed-state/pet/orphan ids
+**Healing/Barrier/Siphon (Leg 1, shipped):** Larger than the trait-attribute test's 98-candidate
+precedent too, but tractable — 399 skill-side Healing/Barrier candidates (260 covered, 139
+excluded), 16 skill-side Siphon candidates (10 covered, 6 excluded), 105 trait-side Healing
+candidates (1 covered: Healing Ripple #351, 104 excluded), 31 trait-side Siphon candidates (all
+excluded, no trait-keyed table exists). Nearly every trait-side candidate turned out to already
+have a categorization decision one hop away: every `AttributeAdjust` fact (any target) is *also* a
+candidate in `trait-attribute-completeness.test.ts`, so cross-referencing that file's
+`EXCLUDED_TRAIT_IDS`/flat-stat tables (confirmed per-id via grep, not assumed) resolved the bulk of
+both trait pools without fresh wiki research. The 139+6=145 excluded skill ids split cleanly into:
+known exceptions already in TODO.md (7-9 ids, some not yet cross-referenced into the Known
+Exceptions section before this leg — Sanctuary/Summon Blood Fiend/Well of Blood/Helmet Breaker were
+already there but hadn't been checked against this predicate), downed-state/pet/orphan ids
 (structurally unreachable, same precedents as Candidate 1's design above), weapon-tier/mechanic
-duplicates (55 ids, same shape as Damage's), and a genuine 52-skill + 12-trait backlog of newer
-content never swept — deferred to TODO.md's [Healing/Barrier/Siphon Coefficient Sweep Refresh] and
-[Trait-Side Heal/Barrier/Siphon Proc Tooltip Coverage] items rather than wiki-verified inline.
+duplicates (55 ids, same shape as Damage's), and a genuine 51-skill backlog of newer content never
+swept (counted by distinct id — skill 80985/Vampiric Predation carries both an uncovered Healing-
+and an uncovered Siphon-shaped fact, so it's excluded in both pools but is one skill). Same for the
+trait side: 11 distinct trait ids are a genuine newer-content backlog (trait 2286/Natural Fortitude
+likewise carries both an uncovered Healing- and an uncovered Siphon-shaped fact). Both backlogs are
+deferred to TODO.md's [Healing/Barrier/Siphon Coefficient Sweep Refresh] and [Trait-Side Heal/
+Barrier/Siphon Proc Tooltip Coverage] items rather than wiki-verified inline.
 
 Shipped as `src/shared/skill-calc/coefficient-completeness.test.ts`.

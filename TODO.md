@@ -42,8 +42,10 @@ Manual verification: no. Review: yes (spans curated tables across gear-calc/skil
 Last touched: 2026-10-19. Re-checks: 0.
 
 ### [Healing/Barrier/Siphon Coefficient Sweep Refresh]
-Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 52 equippable skill ids
-with a real, uncurated Healing/Barrier/Siphon-Damage fact, none of which match any name already
+Found by the Coefficient-Table Completeness Test's Leg 1 scan (2026-10-19): 51 distinct equippable
+skill ids with a real, uncurated Healing/Barrier/Siphon-Damage fact (one of them, Vampiric
+Predation #80985, carries both an uncovered Healing- and an uncovered Siphon-shaped fact, so it's
+excluded from both pools but counted once here), none of which match any name already
 curated in `healing-calc.ts`/`barrier-calc.ts`/`siphon-damage-calc.ts` — newer content than the
 original 2026-08 sweeps, never wiki-verified (e.g. Bloodthirster, Path to Victory, Willbender
 Flames, Super Elixir, Wings of Resolve, Buoyant Deluge, Exalted Hammer, Harmonious Harp; full id

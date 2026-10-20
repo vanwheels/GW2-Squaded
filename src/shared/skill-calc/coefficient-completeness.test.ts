@@ -28,9 +28,10 @@ import { CURATED_SIPHON_DAMAGE_COEFFICIENTS } from './siphon-damage-calc';
  * proc-coefficient trait (see `SIBLING_PROC_SHAPE`/`FLAT_STAT_ELSEWHERE` below) or a genuine new
  * candidate deferred to TODO.md — never something this leg builds a table for.
  *
- * Built 2026-10-19 by running exactly this scan: 139 skill-side Healing/Barrier candidates (90
- * already covered), 6 skill-side Siphon candidates, 105 trait-side Healing candidates (1 already
- * covered, Healing Ripple #351), 31 trait-side Siphon candidates. Every uncovered hit got a decision:
+ * Built 2026-10-19 by running exactly this scan: 399 skill-side Healing/Barrier candidates (260
+ * already covered, 139 excluded below), 16 skill-side Siphon candidates (10 already covered, 6
+ * excluded below), 105 trait-side Healing candidates (1 already covered, Healing Ripple #351), 31
+ * trait-side Siphon candidates. Every uncovered hit got a decision:
  * - `KNOWN_EXCEPTION` / `DOCUMENTED_TRAIT_PROC`: already investigated and excluded elsewhere
  *   (TODO.md's Known Exceptions section, or `barrier-calc.ts`'s own header comment).
  * - `DOWNED` / `PET`: structurally unreachable — this app has no downed-skill concept at all (see
